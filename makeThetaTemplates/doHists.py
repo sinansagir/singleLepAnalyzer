@@ -11,13 +11,6 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-#step1Dir = '/user_data/jhogan/LJMet_1lepTT_122915_step1hadds/nominal/' #w/o jet SFs
-#step1Dir = '/user_data/jhogan/LJMet_1lepTT_011116_step1hadds/nominal/' #w/ jet SFs
-#step1Dir = '/user_data/jhogan/LJMet_1lepTT_011616_sfweight_step1hadds/nominal/' #w/ jet SFs weights
-#step1Dir = '/user_data/jhogan/LJMet_1lepTT_012016_sfweight_step2newuncert/nominal/' #w/ new jet SFs weights
-#step1Dir = '/user_data/jhogan/LJMet_1lepTT_012716_step2/nominal/' #w/ new pdf weights
-#step1Dir = '/user_data/jhogan/LJMet_1lepTT_020616_step1hadds/nominal/' #switched to JECv7
-#step1Dir = '/user_data/jhogan/LJMet_1lepTT_021516_step2final/nominal/' #JSFs updated for JECv7
 step1Dir = '/user_data/jhogan/LJMet_1lepTT_021916_step2newTaus/nominal/' #new tau21<0.6 cut
 #step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal/' #x53
 """

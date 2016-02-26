@@ -1,0 +1,47 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+The main code to make histograms is "makeKinematics.py":
+To be modified by user (listed in the order as they appear in the script):
+	- input directory (step1 or step2)
+	- list of samples to be run for signals, backgrounds, and data
+	- group the background processes into "ewk", "qcd", "top", "ttjets", 
+	etc (no need to modify unless samples and thus their names change). Also, note that
+	yields/plotting are setup for "ewk/top/qcd" grouped backgrounds. If detailed background
+	processes wanted, the implementations has to be completed!
+	- systematics: they have to be defined in "analyze.py" and corresponding samples must exist.
+	The systematics can be turned off if only simple plots wanted without total uncertainty bands
+	- Q^2 needs to be taken care of separately; currently (Dec 16, 2015) there is a hack since
+	scaleDown samples does not exist. FIX THIS IF YOU HAVE THE SAMPLE
+	- Give the list of cuts to be applied! New cuts can be included in "cutList" as long as
+	they are also added in "analyze.py" to "cut" string and also add it to "cutString" variable in "makeTemplates.py"
+	- modify the output directory names, etc
+	- modify the normalization uncertainties
+	- give the distributions to plot in "plotList" (given near the end). In the definition, give a name to distribution 
+	as a key to the dictionary, name of the variable in ljmet trees, x-axis label, and the desired binning
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+"analyze.py":
+This does not need a modification, if you are only changing the cuts that are already there and 
+using only the systematics defined there (or not using the systematics)
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+"samples.py":
+It needs definitions of all the samples that are being analyzed. This is for easy access to input files!
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+"weights.py":
+This is where primary MC weights are defined. Each sample again must have a defined weight here with
+number of generated events, x-sec, and the luminosity
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+"makeKinematics.py" can be run interactively by simply doing "python makeKinematics.py".
+If you want to run this with condor, use "makeCondorKinematics.py" and "makeCondorKinematics.sh". 
+Before running condor scripts, "makeKinematics.py" has to be modified with the configuration wanted.
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+Once the templates for the kinematics are produced, they can be plotted with "plotKinematics.py".
+	- template directory needs to be specified.
+	- give 2 signals to show on the stack plots
+	- do you have the systematics in the templates? If so, which ones (give the same names as the ones used in 
+	"analyze.py")? Turn off the bools if you don't have the shapes
+	- if you have the shape systematics, you can produce two types of plots; one with the uncertainty bands are separated in
+	the lower panel and another one with only the total uncertainty band using "doOneBand".
+	- check if you have the right normalization systematics, they will be added to error bands
+	- give the list of kinematic distributions that you produced templates for
+	- note that the "QCD" process will not be shown on the plots if it is less than 0.5% of the background
+	- if you'd like to change plot labels, etc, use "formatLowerHist" and "formatUpperHist"
+
