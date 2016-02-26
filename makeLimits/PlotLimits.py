@@ -20,7 +20,6 @@ histPrefix=discriminant+'_'+str(lumiStr)+'fb'+chiral
 stat=''#0.75
 isRebinned='_rebinned'+str(stat).replace('.','p')
 tempKey='all_2p318invfb'
-#limitDir='/user_data/ssagir/limits/limits'+tempKey+'_minMlb_withShapes_2016_1_27_19_9_47/'
 limitDir='/user_data/ssagir/limits/templates_minMlb_tau21LT0p6_tptp_2016_2_23/'+tempKey+'/'
 cutString='lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M700'+chiral+'_'+str(lumiStr)+'fb'+isRebinned+'_expected.txt'	
@@ -59,19 +58,6 @@ def getSensitivity(index, exp):
 	s = (c1*b2-c2*b1)/(a1*b2-a2*b1)
 	t = (a1*c2-a2*c1)/(a1*b2-a2*b1)
 	return mass[index-1]+s*(mass[index]-mass[index-1]), exp[index-1]+s*(exp[index]-exp[index-1])
-
-def getSensitivity2(index, exp):
-	x1=mass[index-1]
-	x3=mass[index-1]
-	x2=mass[index]
-	x4=mass[index]
-	y1=theory_xsec[index-1]
-	y2=theory_xsec[index]
-	y3=exp[index-1]
-	y4=exp[index]
-	massintersect=((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
-	limitintersect=1 # just a dummy number, we don't need this!
-	return massintersect, limitintersect
 
 def PlotLimits():
     ljust_i = 10
@@ -151,7 +137,6 @@ def PlotLimits():
     expected.SetLineColor(ROOT.kBlack)
     expected.SetLineWidth(2)
     expected.SetLineStyle(2)
-    ## I'm confused, somehow this is the way that works
     expected68 = TGraphAsymmErrors(massv,expv,masserrv,masserrv,exp68Lv,exp68Hv)
     expected68.SetFillColor(ROOT.kGreen)
     expected95 = TGraphAsymmErrors(massv,expv,masserrv,masserrv,exp95Lv,exp95Hv)
@@ -211,17 +196,10 @@ def PlotLimits():
     folder = '.'
     outDir=folder+'/'+limitDir.split('/')[-3]+'plots'
     if not os.path.exists(outDir): os.system('mkdir '+outDir)
-    #outDir+='/'+limitDir.split('/')[-2]
-    #if not os.path.exists(outDir): os.system('mkdir '+outDir)
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.root')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.pdf')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.png')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.C')
-#     if not os.path.exists(folder+'/'+limitDir.split('/')[-2]+'plots'): os.system('mkdir '+folder+'/'+limitDir.split('/')[-2]+'plots')
-#     c4.SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/LimitPlot_'+histPrefix+isRebinned+saveKey+'.root')
-#     c4.SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/LimitPlot_'+histPrefix+isRebinned+saveKey+'.pdf')
-#     c4.SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/LimitPlot_'+histPrefix+isRebinned+saveKey+'.png')
-#     c4.SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/LimitPlot_'+histPrefix+isRebinned+saveKey+'.C')
 
 PlotLimits()
 

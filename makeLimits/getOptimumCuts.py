@@ -33,6 +33,7 @@ bjet1PtCutList= [0]#,100,150,200,300]
 htCutList     = [0]
 stCutList     = [0]#,600,800,1000,1200,1500,1750,2000]
 minMlbCutList = [0]#,50,75,100,120,150,200,250,300]
+cutConfigs = list(itertools.product(lepPtCutList,jet1PtCutList,jet2PtCutList,metCutList,njetsCutList,nbjetsCutList,jet3PtCutList,jet4PtCutList,jet5PtCutList,drCutList,Wjet1PtCutList,bjet1PtCutList,htCutList,stCutList,minMlbCutList))
 
 massPoints = [800]
 mass = array('d', massPoints)
@@ -66,76 +67,55 @@ for i in range(len(mass)):
 	obsWorstLimit[mass_str[i]]  = -1.
 	
 ind=1                                                                                               
-for lepPtCut in lepPtCutList:
-    for jet1PtCut in jet1PtCutList:
-        for jet2PtCut in jet2PtCutList:
-        	for metCut in metCutList:
-				for njetsCut in njetsCutList:
-					for nbjetsCut in nbjetsCutList:
-						for jet3PtCut in jet3PtCutList:
-							for jet4PtCut in jet4PtCutList:
-								for jet5PtCut in jet5PtCutList:
-									for drCut in drCutList:
-										for Wjet1PtCut in Wjet1PtCutList:
-											for bjet1PtCut in bjet1PtCutList:
-												for htCut in htCutList:
-													for stCut in stCutList:
-														for minMlbCut in minMlbCutList:
-															cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
-															plotLimits = True
-															for i in range(len(mass)):
-																try: 
-																	ftemp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
-																except: plotLimits = False
-															if not plotLimits: continue
-															#if leadJetPtCut==1000: continue
-														
-															exp   =array('d',[0 for i in range(len(mass))])
-															obs   =array('d',[0 for i in range(len(mass))])
-	
-															ljust_i = 10
-															#print
-															#print 'mass'.ljust(ljust_i), 'observed'.ljust(ljust_i), 'expected'.ljust(ljust_i), '-2 Sigma'.ljust(ljust_i), '-1 Sigma'.ljust(ljust_i), '+1 Sigma'.ljust(ljust_i), '+2 Sigma'.ljust(ljust_i)
-	
-															for i in range(len(mass)):
-																lims = {}
-		
-																fobs = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_observed.txt', 'rU')
-																linesObs = fobs.readlines()
-																fobs.close()
-		
-																fexp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
-																linesExp = fexp.readlines()
-																fexp.close()
-		
-																obs[i] = float(linesObs[1].strip().split()[1])
-																exp[i] = float(linesExp[1].strip().split()[1])
-		
-																lims[-1] = float(linesObs[1].strip().split()[1])
-																lims[.5] = float(linesExp[1].strip().split()[1])
-																lims[.16] = float(linesExp[1].strip().split()[4])
-																lims[.84] = float(linesExp[1].strip().split()[5])
-																lims[.025] = float(linesExp[1].strip().split()[2])
-																lims[.975] = float(linesExp[1].strip().split()[3])
-																expLimits[mass_str[i]][cutString] = exp[i]
-																obsLimits[mass_str[i]][cutString] = obs[i]
-																if exp[i]<=expBestLimit[mass_str[i]]:
-																	expBestLimit[mass_str[i]] = exp[i]
-																	expBestCutStr[mass_str[i]] = cutString
-																if obs[i]<=obsBestLimit[mass_str[i]]:
-																	obsBestLimit[mass_str[i]] = obs[i]
-																	obsBestCutStr[mass_str[i]] = cutString
+for conf in cutConfigs:
+	lepPtCut,jet1PtCut,jet2PtCut,metCut,njetsCut,nbjetsCut,jet3PtCut,jet4PtCut,jet5PtCut,drCut,Wjet1PtCut,bjet1PtCut,htCut,stCut,minMlbCut=conf[0],conf[1],conf[2],conf[3],conf[4],conf[5],conf[6],conf[7],conf[8],conf[9],conf[10],conf[11],conf[12],conf[13],conf[14]
+	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
+	plotLimits = True
+	for i in range(len(mass)):
+		try: 
+			ftemp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
+		except: plotLimits = False
+	if not plotLimits: continue
+	#if leadJetPtCut==1000: continue
 
-																if exp[i]>expWorstLimit[mass_str[i]]:
-																	expWorstLimit[mass_str[i]] = exp[i]
-																	expWorstCutStr[mass_str[i]] = cutString
-																if obs[i]>obsWorstLimit[mass_str[i]]:
-																	obsWorstLimit[mass_str[i]] = obs[i]
-																	obsWorstCutStr[mass_str[i]] = cutString
-																		
-																round_i = 5
-																#print str(mass[i]).ljust(ljust_i), str(round(lims[-1],round_i)).ljust(ljust_i), str(round(lims[.5],round_i)).ljust(ljust_i), str(round(lims[.025],round_i)).ljust(ljust_i), str(round(lims[.16],round_i)).ljust(ljust_i), str(round(lims[.84],round_i)).ljust(ljust_i), str(round(lims[.975],round_i)).ljust(ljust_i)
-															ind+=1
+	exp   =array('d',[0 for i in range(len(mass))])
+	obs   =array('d',[0 for i in range(len(mass))])
+	for i in range(len(mass)):
+		lims = {}
+
+		fobs = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_observed.txt', 'rU')
+		linesObs = fobs.readlines()
+		fobs.close()
+
+		fexp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
+		linesExp = fexp.readlines()
+		fexp.close()
+
+		obs[i] = float(linesObs[1].strip().split()[1])
+		exp[i] = float(linesExp[1].strip().split()[1])
+
+		lims[-1] = float(linesObs[1].strip().split()[1])
+		lims[.5] = float(linesExp[1].strip().split()[1])
+		lims[.16] = float(linesExp[1].strip().split()[4])
+		lims[.84] = float(linesExp[1].strip().split()[5])
+		lims[.025] = float(linesExp[1].strip().split()[2])
+		lims[.975] = float(linesExp[1].strip().split()[3])
+		expLimits[mass_str[i]][cutString] = exp[i]
+		obsLimits[mass_str[i]][cutString] = obs[i]
+		if exp[i]<=expBestLimit[mass_str[i]]:
+			expBestLimit[mass_str[i]] = exp[i]
+			expBestCutStr[mass_str[i]] = cutString
+		if obs[i]<=obsBestLimit[mass_str[i]]:
+			obsBestLimit[mass_str[i]] = obs[i]
+			obsBestCutStr[mass_str[i]] = cutString
+
+		if exp[i]>expWorstLimit[mass_str[i]]:
+			expWorstLimit[mass_str[i]] = exp[i]
+			expWorstCutStr[mass_str[i]] = cutString
+		if obs[i]>obsWorstLimit[mass_str[i]]:
+			obsWorstLimit[mass_str[i]] = obs[i]
+			obsWorstCutStr[mass_str[i]] = cutString		
+	ind+=1
 
 print "********************************************************************************"
 print "Run over", ind-1, "sets of cuts"

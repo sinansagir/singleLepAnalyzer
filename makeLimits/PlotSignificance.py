@@ -12,18 +12,13 @@ setTDRStyle()
 lumiPlot = '1.28'
 lumiStr = '1'
 spin='left'
-#discriminant='ST_2btagCats'
 discriminant='ST_Cat2'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb_'+spin+'_'
 blind=False
 stat=''#0.75#9999999
 isRebinned='rebinnedCustom5'+str(stat).replace('.','p')#'_rebinned'
-#lep50_MET150_leadJet300_subLeadJet90_leadbJet0_ST0_HT0_NJets5_NBJets1_3rdJet0_4thJet0_5thJet0_WJet0
 templateDir='/user_data/ssagir/optimization_x53x53_allSystematics/rebinnedStat0p75/limits_2015_11_12_16_14_50/'
 cutString='lep80_MET100_leadJet200_subLeadJet90_leadbJet0_ST0_HT0_NJets6_NBJets1_3rdJet0_4thJet0_5thJet0_WJet0' # best ST cuts w/o categorization
-#cutString='lep100_MET50_leadJet450_subLeadJet300_leadbJet0_ST0_HT0' # best ST cuts w/ categorization
-#cutString='lep40_MET30_leadJet450_subLeadJet50_leadbJet0_ST0_HT0' # best HT cuts w/o categorization
-#cutString='lep45_MET150_leadJet450_subLeadJet150_leadbJet0_ST0_HT0_NJets5_NBJets1' # best HT cuts w/ categorization
 LH700file='/limits_templates_'+discriminant+'_T53T53M700'+spin+'_'+str(lumiStr)+'fb_'+cutString+isRebinned+'_expected.txt'	
 
 def PlotLimits():
@@ -237,7 +232,6 @@ def PlotLimits():
     c4.SaveAs(folder+'/'+templateDir.split('/')[-2]+'plots/SignificancePlot_'+histPrefix+cutString+isRebinned+'.root')
     c4.SaveAs(folder+'/'+templateDir.split('/')[-2]+'plots/SignificancePlot_'+histPrefix+cutString+isRebinned+'.pdf')
     c4.SaveAs(folder+'/'+templateDir.split('/')[-2]+'plots/SignificancePlot_'+histPrefix+cutString+isRebinned+'.png')
-    #c4.SaveAs(folder+'/'+templateDir.split('/')[-2]+'plots/SignificancePlot_'+histPrefix+cutString+'.C')
 
 PlotLimits()
 

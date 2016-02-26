@@ -185,14 +185,4 @@ c.SaveAs('postFitNuis.pdf')
 c.SaveAs('postFitNuis.png')
 c.SaveAs('postFitNuis.C')
 
-# folder = '.'
-# outDir=folder+'/'+limitDir.split('/')[-3]+'plots'
-# if not os.path.exists(outDir): os.system('mkdir '+outDir)
-# #outDir+='/'+limitDir.split('/')[-2]
-# #if not os.path.exists(outDir): os.system('mkdir '+outDir)
-# c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.root')
-# c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.pdf')
-# c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.png')
-# c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.C')
-
 

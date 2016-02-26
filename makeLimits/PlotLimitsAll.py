@@ -36,6 +36,7 @@ bjet1PtCutList= [0,100,150,200,300]
 htCutList     = [0]
 stCutList     = [0]#,600,800,1000,1200,1500,1750,2000]
 minMlbCutList = [0,50,75,100,120,150,200,250,300]
+cutConfigs = list(itertools.product(lepPtCutList,jet1PtCutList,jet2PtCutList,metCutList,njetsCutList,nbjetsCutList,jet3PtCutList,jet4PtCutList,jet5PtCutList,drCutList,Wjet1PtCutList,bjet1PtCutList,htCutList,stCutList,minMlbCutList))
 
 massPoints = [700,800,900,1000,1100,1200,1300]
 mass = array('d', massPoints)
@@ -62,19 +63,6 @@ def getSensitivity(index, exp):
 	t = (a1*c2-a2*c1)/(a1*b2-a2*b1)
 	return mass[index-1]+s*(mass[index]-mass[index-1]), exp[index-1]+s*(exp[index]-exp[index-1])
 
-def getSensitivity2(index, exp):
-	x1=mass[index-1]
-	x3=mass[index-1]
-	x2=mass[index]
-	x4=mass[index]
-	y1=theory_xsec[index-1]
-	y2=theory_xsec[index]
-	y3=exp[index-1]
-	y4=exp[index]
-	massintersect=((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
-	limitintersect=1 # just a dummy number, we don't need this!
-	return massintersect, limitintersect
-
 observed = {}
 expected = {}
 expected68 = {}
@@ -82,104 +70,90 @@ expected95 = {}
 crossingList = {}
 crossingList2 = {}
 ind=1
-for lepPtCut in lepPtCutList:
-    for jet1PtCut in jet1PtCutList:
-        for jet2PtCut in jet2PtCutList:
-        	for metCut in metCutList:
-				for njetsCut in njetsCutList:
-					for nbjetsCut in nbjetsCutList:
-						for jet3PtCut in jet3PtCutList:
-							for jet4PtCut in jet4PtCutList:
-								for jet5PtCut in jet5PtCutList:
-									for drCut in drCutList:
-										for Wjet1PtCut in Wjet1PtCutList:
-											for bjet1PtCut in bjet1PtCutList:
-												for htCut in htCutList:
-													for stCut in stCutList:
-														for minMlbCut in minMlbCutList:
-															cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
-															plotLimits = True
-															for i in range(len(mass)):
-																try: 
-																	ftemp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
-																except: plotLimits = False
-															if not plotLimits: continue
-															#if leadJetPtCut==1000: continue
-															print
-															print cutString
-															cutString0 = cutString
-	
-															exp   =array('d',[0 for i in range(len(mass))])
-															experr=array('d',[0 for i in range(len(mass))])
-															obs   =array('d',[0 for i in range(len(mass))])
-															obserr=array('d',[0 for i in range(len(mass))])
-															exp68H=array('d',[0 for i in range(len(mass))])
-															exp68L=array('d',[0 for i in range(len(mass))])
-															exp95H=array('d',[0 for i in range(len(mass))])
-															exp95L=array('d',[0 for i in range(len(mass))])
-	
-															ljust_i = 10
-															print
-															print 'mass'.ljust(ljust_i), 'observed'.ljust(ljust_i), 'expected'.ljust(ljust_i), '-2 Sigma'.ljust(ljust_i), '-1 Sigma'.ljust(ljust_i), '+1 Sigma'.ljust(ljust_i), '+2 Sigma'.ljust(ljust_i)
-															observed[cutString] = TGraph(len(mass))
-															expected[cutString] = TGraph(len(mass))
-	
-															isCrossed = False
-															for i in range(len(mass)):
-																lims = {}
-		
-																fobs = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_observed.txt', 'rU')
-																linesObs = fobs.readlines()
-																fobs.close()
-		
-																fexp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
-																linesExp = fexp.readlines()
-																fexp.close()
-		
-																lims[-1] = float(linesObs[1].strip().split()[1])
-																obs[i] = float(linesObs[1].strip().split()[1]) * xsec[i]
-																obserr[i] = 0
-		
-																lims[.5] = float(linesExp[1].strip().split()[1])
-																exp[i] = float(linesExp[1].strip().split()[1]) * xsec[i]
-																experr[i] = 0
-																lims[.16] = float(linesExp[1].strip().split()[4])
-																exp68L[i] = float(linesExp[1].strip().split()[4]) * xsec[i]
-																lims[.84] = float(linesExp[1].strip().split()[5])
-																exp68H[i] = float(linesExp[1].strip().split()[5]) * xsec[i]
-																lims[.025] = float(linesExp[1].strip().split()[2])
-																exp95L[i] = float(linesExp[1].strip().split()[2]) * xsec[i]
-																lims[.975] = float(linesExp[1].strip().split()[3])
-																exp95H[i] = float(linesExp[1].strip().split()[3]) * xsec[i]
-		
-																exp95L[i]=(exp[i]-exp95L[i])
-																exp95H[i]=abs(exp[i]-exp95H[i])
-																exp68L[i]=(exp[i]-exp68L[i])
-																exp68H[i]=abs(exp[i]-exp68H[i])
-																observed[cutString].SetPoint(i,mass[i],obs[i])
-																expected[cutString].SetPoint(i,mass[i],exp[i])
-		
-																if i!=0: 
-																	if(exp[i]>theory_xsec[i] and exp[i-1]<theory_xsec[i-1]) or (exp[i]<theory_xsec[i] and exp[i-1]>theory_xsec[i-1]):
-																		xcross,ycross = getSensitivity(i,exp)
-																		crossingList[cutString]=xcross
-																		isCrossed = True
-		
-																round_i = 5
-																print str(mass[i]).ljust(ljust_i), str(round(lims[-1],round_i)).ljust(ljust_i), str(round(lims[.5],round_i)).ljust(ljust_i), str(round(lims[.025],round_i)).ljust(ljust_i), str(round(lims[.16],round_i)).ljust(ljust_i), str(round(lims[.84],round_i)).ljust(ljust_i), str(round(lims[.975],round_i)).ljust(ljust_i)
-															if not isCrossed:
-																crossingList[cutString]=0
-																crossingList2[cutString]=0
-	
-															print
-										
-															observed[cutString].SetLineColor(ROOT.kBlack)
-															observed[cutString].SetLineWidth(2)
-															observed[cutString].SetMarkerStyle(20)							
-															expected[cutString].SetLineColor(ind)
-															expected[cutString].SetLineWidth(2)
-															expected[cutString].SetLineStyle(1)
-															ind+=1
+for conf in cutConfigs:
+	lepPtCut,jet1PtCut,jet2PtCut,metCut,njetsCut,nbjetsCut,jet3PtCut,jet4PtCut,jet5PtCut,drCut,Wjet1PtCut,bjet1PtCut,htCut,stCut,minMlbCut=conf[0],conf[1],conf[2],conf[3],conf[4],conf[5],conf[6],conf[7],conf[8],conf[9],conf[10],conf[11],conf[12],conf[13],conf[14]
+	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
+	plotLimits = True
+	for i in range(len(mass)):
+		try: 
+			ftemp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
+		except: plotLimits = False
+	if not plotLimits: continue
+	print
+	print cutString
+	cutString0 = cutString
+
+	exp   =array('d',[0 for i in range(len(mass))])
+	experr=array('d',[0 for i in range(len(mass))])
+	obs   =array('d',[0 for i in range(len(mass))])
+	obserr=array('d',[0 for i in range(len(mass))])
+	exp68H=array('d',[0 for i in range(len(mass))])
+	exp68L=array('d',[0 for i in range(len(mass))])
+	exp95H=array('d',[0 for i in range(len(mass))])
+	exp95L=array('d',[0 for i in range(len(mass))])
+
+	ljust_i = 10
+	print
+	print 'mass'.ljust(ljust_i), 'observed'.ljust(ljust_i), 'expected'.ljust(ljust_i), '-2 Sigma'.ljust(ljust_i), '-1 Sigma'.ljust(ljust_i), '+1 Sigma'.ljust(ljust_i), '+2 Sigma'.ljust(ljust_i)
+	observed[cutString] = TGraph(len(mass))
+	expected[cutString] = TGraph(len(mass))
+
+	isCrossed = False
+	for i in range(len(mass)):
+		lims = {}
+
+		fobs = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_observed.txt', 'rU')
+		linesObs = fobs.readlines()
+		fobs.close()
+
+		fexp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
+		linesExp = fexp.readlines()
+		fexp.close()
+
+		lims[-1] = float(linesObs[1].strip().split()[1])
+		obs[i] = float(linesObs[1].strip().split()[1]) * xsec[i]
+		obserr[i] = 0
+
+		lims[.5] = float(linesExp[1].strip().split()[1])
+		exp[i] = float(linesExp[1].strip().split()[1]) * xsec[i]
+		experr[i] = 0
+		lims[.16] = float(linesExp[1].strip().split()[4])
+		exp68L[i] = float(linesExp[1].strip().split()[4]) * xsec[i]
+		lims[.84] = float(linesExp[1].strip().split()[5])
+		exp68H[i] = float(linesExp[1].strip().split()[5]) * xsec[i]
+		lims[.025] = float(linesExp[1].strip().split()[2])
+		exp95L[i] = float(linesExp[1].strip().split()[2]) * xsec[i]
+		lims[.975] = float(linesExp[1].strip().split()[3])
+		exp95H[i] = float(linesExp[1].strip().split()[3]) * xsec[i]
+
+		exp95L[i]=(exp[i]-exp95L[i])
+		exp95H[i]=abs(exp[i]-exp95H[i])
+		exp68L[i]=(exp[i]-exp68L[i])
+		exp68H[i]=abs(exp[i]-exp68H[i])
+		observed[cutString].SetPoint(i,mass[i],obs[i])
+		expected[cutString].SetPoint(i,mass[i],exp[i])
+
+		if i!=0: 
+			if(exp[i]>theory_xsec[i] and exp[i-1]<theory_xsec[i-1]) or (exp[i]<theory_xsec[i] and exp[i-1]>theory_xsec[i-1]):
+				xcross,ycross = getSensitivity(i,exp)
+				crossingList[cutString]=xcross
+				isCrossed = True
+
+		round_i = 5
+		print str(mass[i]).ljust(ljust_i), str(round(lims[-1],round_i)).ljust(ljust_i), str(round(lims[.5],round_i)).ljust(ljust_i), str(round(lims[.025],round_i)).ljust(ljust_i), str(round(lims[.16],round_i)).ljust(ljust_i), str(round(lims[.84],round_i)).ljust(ljust_i), str(round(lims[.975],round_i)).ljust(ljust_i)
+	if not isCrossed:
+		crossingList[cutString]=0
+		crossingList2[cutString]=0
+
+	print
+
+	observed[cutString].SetLineColor(ROOT.kBlack)
+	observed[cutString].SetLineWidth(2)
+	observed[cutString].SetMarkerStyle(20)							
+	expected[cutString].SetLineColor(ind)
+	expected[cutString].SetLineWidth(2)
+	expected[cutString].SetLineStyle(1)
+	ind+=1
 
 sensitivity = 0
 insensitivity = 999999
