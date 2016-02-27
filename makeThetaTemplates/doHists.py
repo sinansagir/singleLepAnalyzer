@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os,sys,time,math,datetime,pickle,itertools
+import os,sys,time,math,datetime,pickle,itertools,getopt
 from numpy import linspace
 from weights import *
 from analyze import *
@@ -68,43 +68,73 @@ q2List  = [#energy scale sample to be processed
 	      'TtWQ2D','TbtWQ2D',
 	      ]
 
-if len(sys.argv)>2: lepPtCut=float(sys.argv[2])
-else: lepPtCut=40
-if len(sys.argv)>3: jet1PtCut=float(sys.argv[3])
-else: jet1PtCut=300
-if len(sys.argv)>4: jet2PtCut=float(sys.argv[4])
-else: jet2PtCut=150
-if len(sys.argv)>5: metCut=float(sys.argv[5])
-else: metCut=75
-if len(sys.argv)>6: njetsCut=float(sys.argv[6])
-else: njetsCut=3
-if len(sys.argv)>7: nbjetsCut=float(sys.argv[7])
-else: nbjetsCut=0
-if len(sys.argv)>8: jet3PtCut=float(sys.argv[8])
-else: jet3PtCut=100
-if len(sys.argv)>9: jet4PtCut=float(sys.argv[9])
-else: jet4PtCut=0
-if len(sys.argv)>10: jet5PtCut=float(sys.argv[10])
-else: jet5PtCut=0
-if len(sys.argv)>11: drCut=float(sys.argv[11])
-else: drCut=1
-if len(sys.argv)>12: Wjet1PtCut=float(sys.argv[12])
-else: Wjet1PtCut=0
-if len(sys.argv)>13: bjet1PtCut=float(sys.argv[13])
-else: bjet1PtCut=0
-if len(sys.argv)>14: htCut=float(sys.argv[14])
-else: htCut=0
-if len(sys.argv)>15: stCut=float(sys.argv[15])
-else: stCut=0
-if len(sys.argv)>16: minMlbCut=float(sys.argv[16])
-else: minMlbCut=0
+try: 
+	opts, args = getopt.getopt(sys.argv[2:], "", ["lepPtCut=",
+	                                              "jet1PtCut=",
+	                                              "jet2PtCut=",
+	                                              "jet3PtCut=",
+	                                              "jet4PtCut=",
+	                                              "jet5PtCut=",
+	                                              "metCut=",
+	                                              "njetsCut=",
+	                                              "nbjetsCut=",
+	                                              "drCut=",
+	                                              "Wjet1PtCut=",
+	                                              "bjet1PtCut=",
+	                                              "htCut=",
+	                                              "stCut=",
+	                                              "minMlbCut=",
+	                                              "isEM=",
+	                                              "nttag=",
+	                                              "nWtag=",
+	                                              "nbtag=",
+	                                              ])
+	print opts,args
+except getopt.GetoptError as err:
+	print str(err)
+	sys.exit(1)
 
-if len(sys.argv)>17: isEMlist=[str(sys.argv[17])]
-else: isEMlist=['E','M']
-if len(sys.argv)>18: nWtaglist=[str(sys.argv[18])]
-else: nWtaglist=['0','1p']
-if len(sys.argv)>19: nbtaglist=[str(sys.argv[19])]
-else: nbtaglist=['0','1','2','3p']
+lepPtCut=40
+jet1PtCut=300
+jet2PtCut=150
+metCut=75
+njetsCut=3
+nbjetsCut=0
+jet3PtCut=100
+jet4PtCut=0
+jet5PtCut=0
+drCut=1
+Wjet1PtCut=0
+bjet1PtCut=0
+htCut=0
+stCut=0
+minMlbCut=0
+isEMlist=['E','M']
+nttaglist=['0p']
+nWtaglist=['0','1p']
+nbtaglist=['0','1','2','3p']
+
+for o, a in opts:
+	print o, a
+	if o == '--lepPtCut': lepPtCut = float(a)
+	if o == '--jet1PtCut': jet1PtCut = float(a)
+	if o == '--jet2PtCut': jet2PtCut = float(a)
+	if o == '--jet3PtCut': jet3PtCut = float(a)
+	if o == '--jet4PtCut': jet4PtCut = float(a)
+	if o == '--jet5PtCut': jet5PtCut = float(a)
+	if o == '--metCut': metCut = float(a)
+	if o == '--njetsCut': njetsCut = float(a)
+	if o == '--nbjetsCut': nbjetsCut = float(a)
+	if o == '--drCut': drCut = float(a)
+	if o == '--Wjet1PtCut': Wjet1PtCut = float(a)
+	if o == '--bjet1PtCut': bjet1PtCut = float(a)
+	if o == '--htCut': htCut = float(a)
+	if o == '--stCut': stCut = float(a)
+	if o == '--minMlbCut': minMlbCut = float(a)
+	if o == '--isEM': isEMlist = [str(a)]
+	if o == '--nttag': nttaglist = [str(a)]
+	if o == '--nWtag': nWtaglist = [str(a)]
+	if o == '--nbtag': nbtaglist = [str(a)]
 
 cutList = {'lepPtCut':lepPtCut,
 		   'jet1PtCut':jet1PtCut,
@@ -212,10 +242,10 @@ print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
-nCats  = len(isEMlist)*len(nWtaglist)*len(nbtaglist)
+nCats  = len(isEMlist)*len(nttaglist)*len(nWtaglist)*len(nbtaglist)
 catInd = 1
-for cat in list(itertools.product(isEMlist,nWtaglist,nbtaglist)):
-	isEM,nWtag,nbtag=cat[0],cat[1],cat[2]
+for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
+	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
@@ -226,9 +256,9 @@ for cat in list(itertools.product(isEMlist,nWtaglist,nbtaglist)):
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
 		outDir+='/'+cutString
-		if not os.path.exists(outDir+'/'+isEM+'_nW'+nWtag+'_nB'+nbtag): os.system('mkdir '+outDir+'/'+isEM+'_nW'+nWtag+'_nB'+nbtag)
-		outDir+='/'+isEM+'_nW'+nWtag+'_nB'+nbtag
-	category = {'isEM':isEM,'nWtag':nWtag,'nbtag':nbtag}
+		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+outDir+'/'+catDir)
+		outDir+='/'+catDir
+	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3]}
 	for data in dataList: 
 		datahists.update(analyze(tTreeData,data,cutList,False,iPlot,plotList[iPlot],category))
 		if catInd==nCats: del tFileData[data]
