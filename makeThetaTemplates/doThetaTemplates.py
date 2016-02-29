@@ -41,6 +41,8 @@ ewkList = ['DY50','WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG80
 qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
+scaleLumi = False
+lumiScaleCoeff = 2318./2263.
 doAllSys = True
 systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdf','muR','muF','muRFcorrd','toppt','jsf','muRFenv']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
@@ -49,7 +51,7 @@ q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','Tbt
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
 cutString  = 'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-pfix='templates_minMlb_toptag_tptp_2016_2_26_21_54_9'
+pfix='templates_minMlb_tptp_2016_2_27_11_35_14'
 iPlot='minMlb'
 
 isEMlist =['E','M']
@@ -177,7 +179,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 	## WRITING HISTOGRAMS IN ROOT FILE ##
 	i=0
 	for signal in sigList:
-		outputRfile = R.TFile(outDir+'/templates_'+discriminant+'_'+signal+'_'+lumiStr+'fb'+'.root','RECREATE')
+		outputRfile = R.TFile(outDir+'/templates_'+discriminant+'_'+signal+'_'+lumiStr+'fb.root','RECREATE')
 		hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
 		hwjets,hzjets,httjets,ht,httw,httz,hvv={},{},{},{},{},{},{}
 		for cat in catList:
@@ -1162,14 +1164,14 @@ datahists = {}
 bkghists  = {}
 sighists  = {}
 for cat in catList:
-	tagStr = 'nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-	catStr = cat[0]+'_'+tagStr
+	catStr = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 	print "LOADING: ",catStr
 	datahists.update(pickle.load(open(outDir+'/'+catStr+'/datahists.p','rb')))
 	bkghists.update(pickle.load(open(outDir+'/'+catStr+'/bkghists.p','rb')))
 	sighists.update(pickle.load(open(outDir+'/'+catStr+'/sighists.p','rb')))
-# for key in bkghists.keys(): bkghists[key].Scale(2318./2263.)
-# for key in sighists.keys(): sighists[key].Scale(2318./2263.)
+if scaleLumi:
+	for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
+	for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
 
 print "MAKING CATEGORIES FOR TOTAL SIGNALS ..."
 makeThetaCats(datahists,sighists,bkghists,iPlot)

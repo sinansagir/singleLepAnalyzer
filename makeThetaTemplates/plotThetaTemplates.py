@@ -42,7 +42,7 @@ yLog  = True
 doRealPull = True
 if doRealPull: doOneBand=False
 
-templateDir=os.getcwd()+'/templates_minMlb_toptag_tptp_2016_2_26_21_54_9/'+cutString+'/'
+templateDir=os.getcwd()+'/templates_minMlb_tptp_2016_2_27_11_35_14/'+cutString+'/'
 tempsig='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'	
 
 isEMlist =['E','M']

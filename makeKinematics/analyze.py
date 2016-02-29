@@ -274,28 +274,3 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,discriminantName,discriminant
 	for key in hists.keys(): hists[key].SetDirectory(0)	
 	return hists
 
-
-'''
-		if 'CSF' in discriminantName and 'Pt' in discriminantName:
-			print 'Changing LJMETName:'
-			discriminantLJMETName = discriminantLJMETName.replace('PtOrdered_CSF','JetSubCalc_PtOrdered')
-		if 'NSF' in discriminantName and 'Pt' in discriminantName:
-			print 'Changing LJMETName:'
-			discriminantLJMETName = discriminantLJMETName.replace('PtOrdered_NSF','JetSubCalc_PtOrdered')
- 		if 'CSF' in discriminantName and 'AK4HT' in discriminantLJMETName:
-			print 'Changing LJMETName:'
-			discriminantLJMETName = discriminantLJMETName.replace('_CSF','')
- 		if 'NSF' in discriminantName and 'AK4HT' in discriminantLJMETName:
-			print 'Changing LJMETName:'
-			discriminantLJMETName = discriminantLJMETName.replace('_NSF','')
-		if 'CSF' in discriminantName and 'NJets' in discriminantName:
-			print 'Changing LJMETName:'
-			discriminantLJMETName = discriminantLJMETName.replace('CSF','JetSubCalc')
-		if 'NSF' in discriminantName and 'NJets' in discriminantName:
-			print 'Changing LJMETName:'
-			discriminantLJMETName = discriminantLJMETName.replace('NSF','JetSubCalc')
-		if 'NBJets' in discriminantName:
-			if 'CSF' in discriminantName or 'NSF' in discriminantName:
-				print 'Changing LJMETName:'
-				discriminantLJMETName = 'NJetsCSVwithSF_JetSubCalc'
-'''

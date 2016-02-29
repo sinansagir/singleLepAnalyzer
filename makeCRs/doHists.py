@@ -1,11 +1,10 @@
 #!/usr/bin/python
 
-import os,sys,time,math,datetime
+import os,sys,time,math,datetime,pickle,itertools
 from numpy import linspace
 from weights import *
 from samples import *
 import ROOT as R
-import pickle
 
 R.gROOT.SetBatch(1)
 start_time = time.time()
@@ -102,7 +101,7 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar_'
 else: pfix='wjets_'
-pfix+='JSFweight_'
+pfix+='tptp_'
 pfix+=datestr+'_'+timestr
 
 if len(sys.argv)>1: outDir=sys.argv[1]
@@ -115,11 +114,15 @@ else:
 
 if len(sys.argv)>3: isEMlist=[str(sys.argv[3])]
 else: isEMlist=['E','M']
-if len(sys.argv)>4: nWtaglist=[str(sys.argv[4])]
+if len(sys.argv)>4: nttaglist=[str(sys.argv[4])]
+else: 
+	if isTTbarCR: nttaglist=['0p'] #if '0p', the cut will not be applied
+	else: nttaglist=['0p'] #if '0p', the cut will not be applied
+if len(sys.argv)>5: nWtaglist=[str(sys.argv[5])]
 else: 
 	if isTTbarCR: nWtaglist=['0p']
 	else: nWtaglist=['0','1p']
-if len(sys.argv)>5: nbtaglist=[str(sys.argv[5])]
+if len(sys.argv)>6: nbtaglist=[str(sys.argv[6])]
 else: 
 	if isTTbarCR: nbtaglist=['0','1','2p']
 	else: nbtaglist=['0']
@@ -200,8 +203,8 @@ print "         BINNING USED  :",plotList[iPlot][1]
 
 nCats  = len(isEMlist)*len(nWtaglist)*len(nbtaglist)
 catInd = 1
-for cat in list(itertools.product(isEMlist,nWtaglist,nbtaglist)):
-	isEM,nWtag,nbtag=cat[0],cat[1],cat[2]
+for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
+	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
@@ -212,9 +215,9 @@ for cat in list(itertools.product(isEMlist,nWtaglist,nbtaglist)):
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
 		outDir+='/'+cutString
-		if not os.path.exists(outDir+'/'+isEM+'_nW'+nWtag+'_nB'+nbtag): os.system('mkdir '+outDir+'/'+isEM+'_nW'+nWtag+'_nB'+nbtag)
-		outDir+='/'+isEM+'_nW'+nWtag+'_nB'+nbtag
-	category = {'isEM':isEM,'nWtag':nWtag,'nbtag':nbtag}
+		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+outDir+'/'+catDir)
+		outDir+='/'+catDir
+	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3]}
 	for data in dataList: 
 		datahists.update(analyze(tTreeData,data,cutList,False,iPlot,plotList[iPlot],category))
 		if catInd==nCats: del tFileData[data]

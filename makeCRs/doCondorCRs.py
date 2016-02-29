@@ -1,15 +1,17 @@
-import os,sys,datetime
+import os,sys,datetime,itertools
 
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-isTTbarCR = 0 # 1:TTBar, 0:Wjets
+isTTbarCR = 1 # 1:TTBar, 0:Wjets
 
 isEMlist =['E','M']
 if isTTbarCR: 
+	nttaglist = ['0p'] #if '0p', the cut will not be applied
 	nWtaglist = ['0p']
 	nbtaglist = ['0','1','2p']
 else: 
+	nttaglist = ['0p'] #if '0p', the cut will not be applied
 	nWtaglist = ['0','1p']
 	nbtaglist = ['0']
 
@@ -18,20 +20,20 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar'
 else: pfix='wjets'
-pfix+='_JECv7JSF'
+pfix+='_tptp'
 pfix+='_'+datestr#+'_'+timestr
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
 os.chdir(outDir)
 
-for cat in list(itertools.product(isEMlist,nWtaglist,nbtaglist)):
-	isEM,nWtag,nbtag=cat[0],cat[1],cat[2]
-	print isEM+'_nW'+nWtag+'_nB'+nbtag
-	if not os.path.exists(outDir+'/'+isEM+'_nW'+nWtag+'_nB'+nbtag): os.system('mkdir '+isEM+'_nW'+nWtag+'_nB'+nbtag)
-	os.chdir(isEM+'_nW'+nWtag+'_nB'+nbtag)			
+for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
+	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+	print catDir
+	if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+catDir)
+	os.chdir(catDir)			
 	
-	dict={'dir':outputDir,'isTTbarCR':isTTbarCR,'isEM':isEM,'nWtag':nWtag,'nbtag':nbtag}
+	dict={'dir':outputDir,'isTTbarCR':isTTbarCR,'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3]}
 	
 	jdf=open('condor.job','w')
 	jdf.write(
@@ -47,7 +49,7 @@ Output = condor.out
 Error = condor.err
 Log = condor.log
 Notification = Error
-Arguments = %(dir)s %(isTTbarCR)s %(isEM)s %(nWtag)s %(nbtag)s
+Arguments = %(dir)s %(isTTbarCR)s %(isEM)s %(nttag)s %(nWtag)s %(nbtag)s
 
 Queue 1"""%dict)
 	jdf.close()

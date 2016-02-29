@@ -176,7 +176,7 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 			discriminantLJMETName='minMleppJet'
 	if nbtag!='0': nbtagCut+=' && (minMleppBjet > '+str(cutList['minMlbCut'])+')'
 	
-	print 'Flavour: '+isEM+' #Wtags: '+nWtag+' #btags: '+nbtag
+	print 'Flavour: '+isEM+' #ttags: '+nttag+' #Wtags: '+nWtag+' #btags: '+nbtag
 	print 'discriminantLJMETName: '+discriminantLJMETName
 	print 'Cuts: '+cut+isEMCut+nttagCut+nWtagCut+nbtagCut
 	
