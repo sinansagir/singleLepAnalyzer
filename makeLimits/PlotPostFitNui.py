@@ -1,6 +1,5 @@
 from ROOT import *
 from array import array
-#import math
 from math import *
 import os,sys,pickle
 
@@ -12,15 +11,14 @@ setTDRStyle()
 blind=False
 saveKey=''
 lumiPlot = '2.3'
-lumiStr = '2p263'
+lumiStr = '2p318'
 spin=''#'right'
 discriminant='minMlb'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+spin
 stat=''#0.75
 isRebinned='_rebinned'+str(stat).replace('.','p')
 tempKey='all_forPostFitNuis'
-#limitDir='/user_data/ssagir/limits/limits'+tempKey+'_minMlb_withShapes_2016_1_27_19_9_47/'
-limitDir='/user_data/ssagir/limits/templates_minMlb_JECv7JSF_tptp_2016_2_15/'+tempKey+'/'
+limitDir='/user_data/ssagir/limits/templates_minMlb_tau21LT0p6_tptp_2016_3_4/'+tempKey+'/'
 cutString='lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 LH700file='/templates_'+discriminant+'_TTM800'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
 
