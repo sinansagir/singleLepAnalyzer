@@ -26,7 +26,7 @@ tList     = ['Tt','Ts','TtW','TbtW']
 
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
-whichSignal = 'BB' #TT, BB, or X53X53
+whichSignal = 'TT' #TT, BB, or X53X53
 signalMassRange = [700,1300]
 sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
@@ -91,7 +91,7 @@ def overflow(hist):
 	hist.SetBinError(nBinsX+1,0)
 
 lumiSys = 0.027 #2.7% lumi uncertainty
-trigSys = 0.05 #5% trigger uncertainty (increased from 3 to 5% after trigger OR suggestion)
+trigSys = 0.03 #3% trigger uncertainty
 lepIdSys = 0.01 #1% lepton id uncertainty
 lepIsoSys = 0.01 #1% lepton isolation uncertainty
 topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty
@@ -100,12 +100,12 @@ qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
 			     'top_nT0p_nW0_nB0' :0.15,
-			     'top_nT0p_nW0_nB1' :0.12,
+			     'top_nT0p_nW0_nB1' :0.11,
 			     'top_nT0p_nW0_nB2' :0.02,
 			     'top_nT0p_nW0_nB2p':0.02,
 			     'top_nT0p_nW0_nB3p':0.02,
 			     'top_nT0p_nW1p_nB0' :0.15,
-			     'top_nT0p_nW1p_nB1' :0.12,
+			     'top_nT0p_nW1p_nB1' :0.11,
 			     'top_nT0p_nW1p_nB2' :0.02,
 			     'top_nT0p_nW1p_nB2p':0.02,
 			     'top_nT0p_nW1p_nB3p':0.02,
@@ -116,11 +116,11 @@ ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/
 			     'ewk_nT0p_nW0_nB2' :0.22,
 			     'ewk_nT0p_nW0_nB2p':0.22,
 			     'ewk_nT0p_nW0_nB3p':0.22,
-			     'ewk_nT0p_nW1p_nB0' :0.02,
-			     'ewk_nT0p_nW1p_nB1' :0.02,
-			     'ewk_nT0p_nW1p_nB2' :0.02,
-			     'ewk_nT0p_nW1p_nB2p':0.02,
-			     'ewk_nT0p_nW1p_nB3p':0.02,
+			     'ewk_nT0p_nW1p_nB0' :0.03,
+			     'ewk_nT0p_nW1p_nB1' :0.03,
+			     'ewk_nT0p_nW1p_nB2' :0.03,
+			     'ewk_nT0p_nW1p_nB2p':0.03,
+			     'ewk_nT0p_nW1p_nB3p':0.03,
 			     }
 addSys = {} #additional uncertainties for specific processes
 for tag in tagList:

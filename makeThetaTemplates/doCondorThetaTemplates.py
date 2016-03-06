@@ -1,66 +1,5 @@
 import os,sys,datetime,itertools
 
-#Basic kinematic cuts optimization configuration (w/o shapes):
-# lepPtCutList  = [40,50,60,80,100]
-# jet1PtCutList = [125,150,200,300,400,500]
-# jet2PtCutList = [75,100,150,200]
-# metCutList    = [40,50,75,100,125]
-# njetsCutList  = [0]
-# nbjetsCutList = [0]
-# jet3PtCutList = [30,40,50,75,100,150,200]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [1.,1.25,1.5]
-
-#Optimized basic kinematic cuts from observed (Dec 31, 2015):
-# lepPtCutList  = [50]
-# jet1PtCutList = [200]
-# jet2PtCutList = [150]
-# metCutList    = [75]
-# njetsCutList  = [0]
-# nbjetsCutList = [0]
-# jet3PtCutList = [30]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [1.0]
-
-#Optimized basic kinematic cuts from expected (Dec 31, 2015):
-# lepPtCutList  = [100]
-# jet1PtCutList = [300]
-# jet2PtCutList = [200]
-# metCutList    = [40]
-# njetsCutList  = [0]
-# nbjetsCutList = [0]
-# jet3PtCutList = [100]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [1.0]
-
-#Basic kinematic cuts optimization configuration (w/ shapes):
-# lepPtCutList  = [50,60,80,100]
-# jet1PtCutList = [150,200,300]
-# jet2PtCutList = [75,100,150,200]
-# metCutList    = [40,50,75,100]
-# njetsCutList  = [0]
-# nbjetsCutList = [0]
-# jet3PtCutList = [30,50,75,100]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [1.0]
-
-#Basic kinematic cuts optimization configuration (w/o shapes) for ST:
-# lepPtCutList  = [40,50,60,80,100]
-# jet1PtCutList = [150,200,300,400,500]
-# jet2PtCutList = [75,100,150,200]
-# metCutList    = [60,75,100,125]
-# njetsCutList  = [0]
-# nbjetsCutList = [0]
-# jet3PtCutList = [30,50,75,100,150]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [0,1]
-# Wjet1PtCutList= [200,250,300]
-
 #Basic kinematic cuts optimization configuration (w/o shapes) -- Step1:
 # lepPtCutList  = [40,50,60,80,100]
 # jet1PtCutList = [125,150,200,300,400,500]
@@ -95,40 +34,6 @@ import os,sys,datetime,itertools
 # stCutList     = [0,600,800,1000,1200,1500,1750,2000]
 # minMlbCutList = [0]
 
-#Additional kinematic cuts optimization configuration (w/o shapes) for HT -- Step2:
-# lepPtCutList  = [40]
-# jet1PtCutList = [125]
-# jet2PtCutList = [75]
-# metCutList    = [75]
-# njetsCutList  = [3]
-# nbjetsCutList = [0]
-# jet3PtCutList = [40]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [0,1,1.25,1.5]
-# Wjet1PtCutList= [0,200,250,300,400]
-# bjet1PtCutList= [0,100,150,200,300]
-# htCutList     = [0]
-# stCutList     = [0]
-# minMlbCutList = [0,50,75,100,120,150,200,250,300]
-
-#Basic kinematic cuts optimization configuration (w/o shapes) -- for decay modes:
-# lepPtCutList  = [80]
-# jet1PtCutList = [150,200,300,400]
-# jet2PtCutList = [100,150,200]
-# metCutList    = [60]
-# njetsCutList  = [3,4,5]
-# nbjetsCutList = [0]
-# jet3PtCutList = [100]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [1]
-# Wjet1PtCutList= [0,250,300,400]
-# bjet1PtCutList= [0,100,150,200]
-# htCutList     = [0]
-# stCutList     = [800,1000,1200,1500,1750]
-# minMlbCutList = [0]#,50,75,100,120,150,200,250,300]
-
 #Basic kinematic cuts optimization configuration (w/o shapes) -- selected TpTp optimum cuts -- Jan 19, 2016:
 lepPtCutList  = [40]
 jet1PtCutList = [300]
@@ -159,8 +64,8 @@ outputDir = thisDir+'/'
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_minMlb_tptp'
-pfix+='_'+date+'_'+time
+pfix='templates_minMlb_tau21LT0p6_tptp'
+pfix+='_'+date#+'_'+time
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
