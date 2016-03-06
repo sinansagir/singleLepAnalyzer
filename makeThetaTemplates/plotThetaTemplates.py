@@ -394,11 +394,11 @@ for tag in tagList:
 		if isEM=='E': chString+='e+jets'
 		if isEM=='M': chString+='#mu+jets'
 		if tag[0]!='0p': 
-			if 'p' in tag[0]: chString+=', >'+str(int(tag[0][:-1])-1)+' t'
+			if 'p' in tag[0]: chString+=', #geq'+tag[0][:-1]+' t'
 			else: chString+=', '+tag[0]+' t'
-		if 'p' in tag[1]: chString+=', >'+str(int(tag[1][:-1])-1)+' W'
+		if 'p' in tag[1]: chString+=', #geq'+tag[1][:-1]+' W'
 		else: chString+=', '+tag[1]+' W'
-		if 'p' in tag[2]: chString+=', >'+str(int(tag[2][:-1])-1)+' b'
+		if 'p' in tag[2]: chString+=', #geq'+tag[2][:-1]+' b'
 		else: chString+=', '+tag[2]+' b'
 		chLatex.DrawLatex(0.16, 0.82, chString)
 
@@ -802,11 +802,11 @@ for tag in tagList:
 	chLatexmerged.SetTextAlign(11) # align right
 	chString = 'e/#mu+jets'
 	if tag[0]!='0p':
-		if 'p' in tag[0]: chString+=', >'+str(int(tag[0][:-1])-1)+' t'
+		if 'p' in tag[0]: chString+=', #geq'+tag[0][:-1]+' t'
 		else: chString+=', '+tag[0]+' t'
-	if 'p' in tag[1]: chString+=', >'+str(int(tag[1][:-1])-1)+' W'
+	if 'p' in tag[1]: chString+=', #geq'+tag[1][:-1]+' W'
 	else: chString+=', '+tag[1]+' W'
-	if 'p' in tag[2]: chString+=', >'+str(int(tag[2][:-1])-1)+' b'
+	if 'p' in tag[2]: chString+=', #geq'+tag[2][:-1]+' b'
 	else: chString+=', '+tag[2]+' b'
 	chLatexmerged.DrawLatex(0.16, 0.82, chString)
 
