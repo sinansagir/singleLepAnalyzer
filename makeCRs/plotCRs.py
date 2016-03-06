@@ -32,7 +32,7 @@ if not doAllSys: doOneBand = True # Don't change this!
 isTTbarCR = False # else it is Wjets
 blind = False
 yLog = True
-doRealPull = True
+doRealPull = False
 if doRealPull: doOneBand=False
 
 histPrefix=discriminant+'_'+lumiInTemplates+'fb_'
@@ -41,13 +41,13 @@ saveKey = ''#'_topPtSystOnly'
 if isTTbarCR: cutString=''#'lep80_MET40_1jet300_2jet200_NJets0_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST1500_minMlb0'
 else: cutString=''#'lep80_MET40_1jet300_2jet200_NJets0_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST1500_minMlb0'
 templateDir=os.getcwd()
-if isTTbarCR: templateDir+='/ttbar_tptp_2016_2_27/'+cutString+'/'
-else: templateDir+='/wjets_tptp_2016_2_27/'+cutString+'/'
+if isTTbarCR: templateDir+='/ttbar_tptp_tau21LT0p6_2016_3_4/'+cutString+'/'
+else: templateDir+='/wjets_tptp_tau21LT0p6_2016_3_4/'+cutString+'/'
 tempsig1='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 tempsig2='templates_'+discriminant+'_'+sig2+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-lumiSys = 0.046 #4.6% lumi uncertainty
-trigSys = 0.05 #3% trigger uncertainty
+lumiSys = 0.027 #2.7% lumi uncertainty
+trigSys = 0.03 #3% trigger uncertainty
 lepIdSys = 0.01 #1% lepton id uncertainty
 lepIsoSys = 0.01 #1% lepton isolation uncertainty
 topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty
@@ -287,23 +287,34 @@ for tag in tagList:
 			if hQCD.Integral()/bkgHT.Integral()>.005: stackbkgHT.Add(hQCD) #don't plot QCD if it is less than 0.5%
 		except: pass
 
-		hTOP.SetLineColor(kAzure-6)
-		hTOP.SetFillColor(kAzure-6)
+		topColor = kAzure-6
+		ewkColor = kMagenta-2
+		qcdColor = kOrange+5
+		sig1Color= kRed
+		sig2Color= kOrange-2
+		if '53' in sig1: 
+			topColor = kRed-9
+			ewkColor = kBlue-7
+			qcdColor = kOrange-5
+			sig1Color= kBlack
+			sig2Color= kBlack
+		hTOP.SetLineColor(topColor)
+		hTOP.SetFillColor(topColor)
 		hTOP.SetLineWidth(2)
 		try: 
-			hEWK.SetLineColor(kMagenta-2)
-			hEWK.SetFillColor(kMagenta-2)
+			hEWK.SetLineColor(ewkColor)
+			hEWK.SetFillColor(ewkColor)
 			hEWK.SetLineWidth(2)
 		except: pass
 		try:
-			hQCD.SetLineColor(kOrange+5)
-			hQCD.SetFillColor(kOrange+5)
+			hQCD.SetLineColor(qcdColor)
+			hQCD.SetFillColor(qcdColor)
 			hQCD.SetLineWidth(2)
 		except: pass
-		hsig1.SetLineColor(kRed)
+		hsig1.SetLineColor(sig1Color)
 		hsig1.SetFillStyle(0)
 		hsig1.SetLineWidth(3)
-		hsig2.SetLineColor(kOrange-2)
+		hsig2.SetLineColor(sig2Color)
 		hsig2.SetLineStyle(5)
 		hsig2.SetFillStyle(0)
 		hsig2.SetLineWidth(3)
@@ -359,6 +370,24 @@ for tag in tagList:
 		if not blind: hData.Draw("SAME E1 X0") #redraw data so its not hidden
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
+
+		chLatex = TLatex()
+		chLatex.SetNDC()
+		chLatex.SetTextSize(0.06)
+		chLatex.SetTextAlign(11) # align right
+		chString = ''
+		if isEM=='E': chString+='e+jets'
+		if isEM=='M': chString+='#mu+jets'
+		if tag[0]!='0p': 
+			if 'p' in tag[0]: chString+=', >'+str(int(tag[0][:-1])-1)+' t'
+			else: chString+=', '+tag[0]+' t'
+		if '0p'==tag[1]: chString+=', >0 W'
+		elif 'p' in tag[1]: chString+=', >'+str(int(tag[1][:-1])-1)+' W'
+		else: chString+=', '+tag[1]+' W'
+		if '0p'==tag[2]: chString+=', >0 b'
+		elif 'p' in tag[2]: chString+=', >'+str(int(tag[2][:-1])-1)+' b'
+		else: chString+=', '+tag[2]+' b'
+		chLatex.DrawLatex(0.16, 0.82, chString)
 
 		leg = TLegend(0.65,0.53,0.95,0.90)
 		leg.SetShadowColor(0)
@@ -693,23 +722,23 @@ for tag in tagList:
 		if hQCDmerged.Integral()/bkgHTmerged.Integral()>.005: stackbkgHTmerged.Add(hQCDmerged)
 	except: pass
 
-	hTOPmerged.SetLineColor(kAzure-6)
-	hTOPmerged.SetFillColor(kAzure-6)
+	hTOPmerged.SetLineColor(topColor)
+	hTOPmerged.SetFillColor(topColor)
 	hTOPmerged.SetLineWidth(2)
 	try: 
-		hEWKmerged.SetLineColor(kMagenta-2)
-		hEWKmerged.SetFillColor(kMagenta-2)
+		hEWKmerged.SetLineColor(ewkColor)
+		hEWKmerged.SetFillColor(ewkColor)
 		hEWKmerged.SetLineWidth(2)
 	except: pass
 	try:
-		hQCDmerged.SetLineColor(kOrange+5)
-		hQCDmerged.SetFillColor(kOrange+5)
+		hQCDmerged.SetLineColor(qcdColor)
+		hQCDmerged.SetFillColor(qcdColor)
 		hQCDmerged.SetLineWidth(2)
 	except: pass
-	hsig1merged.SetLineColor(kRed)
+	hsig1merged.SetLineColor(sig1Color)
 	hsig1merged.SetFillStyle(0)
 	hsig1merged.SetLineWidth(3)
-	hsig2merged.SetLineColor(kOrange-2)
+	hsig2merged.SetLineColor(sig2Color)
 	hsig2merged.SetLineStyle(5)
 	hsig2merged.SetFillStyle(0)
 	hsig2merged.SetLineWidth(3)
@@ -765,6 +794,22 @@ for tag in tagList:
 	if not blind: hDatamerged.Draw("SAME E1 X0") #redraw data so its not hidden
 	uPad.RedrawAxis()
 	bkgHTgerrmerged.Draw("SAME E2")
+
+	chLatexmerged = TLatex()
+	chLatexmerged.SetNDC()
+	chLatexmerged.SetTextSize(0.06)
+	chLatexmerged.SetTextAlign(11) # align right
+	chString = 'e/#mu+jets'
+	if tag[0]!='0p':
+		if 'p' in tag[0]: chString+=', >'+str(int(tag[0][:-1])-1)+' t'
+		else: chString+=', '+tag[0]+' t'
+	if '0p'==tag[1]: chString+=', >0 W'
+	elif 'p' in tag[1]: chString+=', >'+str(int(tag[1][:-1])-1)+' W'
+	else: chString+=', '+tag[1]+' W'
+	if '0p'==tag[2]: chString+=', >0 b'
+	elif 'p' in tag[2]: chString+=', >'+str(int(tag[2][:-1])-1)+' b'
+	else: chString+=', '+tag[2]+' b'
+	chLatexmerged.DrawLatex(0.16, 0.82, chString)
 
 	legmerged = TLegend(0.65,0.53,0.95,0.90)
 	legmerged.SetShadowColor(0)
