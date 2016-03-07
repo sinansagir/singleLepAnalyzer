@@ -11,7 +11,7 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = False # else it is Wjets
+isTTbarCR = True # else it is Wjets
 
 if isTTbarCR: 
 	from analyzeTTJetsCR import *
@@ -54,8 +54,8 @@ q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','Tbt
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
 cutString  = ''#'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-if isTTbarCR: pfix='ttbar_tptp_2016_2_27'
-else: pfix='wjets_tptp_2016_2_27'
+if isTTbarCR: pfix='ttbar_tptp_tau21LT0p6_2016_3_5'
+else: pfix='wjets_tptp_tau21LT0p6_2016_3_5'
 iPlot='minMlb'
 
 outDir = os.getcwd()+'/'
@@ -91,8 +91,8 @@ def overflow(hist):
 	hist.SetBinContent(nBinsX+1,0)
 	hist.SetBinError(nBinsX+1,0)
 
-lumiSys = 0.046 #4.6% lumi uncertainty
-trigSys = 0.05 #5% trigger uncertainty (increased from 3 to 5% after trigger OR suggestion)
+lumiSys = 0.027 #2.7% lumi uncertainty
+trigSys = 0.03 #3% trigger uncertainty
 lepIdSys = 0.01 #1% lepton id uncertainty
 lepIsoSys = 0.01 #1% lepton isolation uncertainty
 topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty
@@ -487,7 +487,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		outputRfile.Close()
 	
 	stdout_old = sys.stdout
-	logFile = open(outDir+'/yields_'+discriminant+'_'+lumiStr+'fb_.txt','a')
+	logFile = open(outDir+'/yields_'+discriminant+'_'+lumiStr+'fb.txt','a')
 	sys.stdout = logFile
 
 	## PRINTING YIELD TABLE WITH STATISTICAL UNCERTAINTIES ##
@@ -1380,8 +1380,8 @@ if scaleLumi:
 
 print "MAKING CATEGORIES FOR TOTAL SIGNALS ..."
 makeThetaCats(datahists,sighists,bkghists,iPlot)
-print "MAKING CATEGORIES FOR DECAY CHANNELS ..."
-if len(decays)>1: makeThetaCatsIndDecays(datahists,sighists,bkghists,iPlot)
+# print "MAKING CATEGORIES FOR DECAY CHANNELS ..."
+# if len(decays)>1: makeThetaCatsIndDecays(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 

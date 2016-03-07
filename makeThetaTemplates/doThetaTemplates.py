@@ -34,6 +34,14 @@ if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' d
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
+doBRScan = False
+BRs={}
+BRs['BW']=[0.50,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]
+BRs['TH']=[0.25,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]
+BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]
+nBRconf=len(BRs['BW'])
+if not doBRScan: nBRconf=1
+
 #topList = ['TTJets','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
 topList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
 #ewkList = ['DY50','WJets','WW','WZ','ZZ']
@@ -51,7 +59,7 @@ q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','Tbt
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
 cutString  = 'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-pfix='templates_minMlb_tptp_2016_2_27_11_35_14'
+pfix='templates_minMlb_tau21LT0p6_bpbp_2016_3_5'
 iPlot='minMlb'
 
 isEMlist =['E','M']
@@ -82,8 +90,8 @@ def overflow(hist):
 	hist.SetBinContent(nBinsX+1,0)
 	hist.SetBinError(nBinsX+1,0)
 
-lumiSys = 0.046 #4.6% lumi uncertainty
-trigSys = 0.05 #5% trigger uncertainty (increased from 3 to 5% after trigger OR suggestion)
+lumiSys = 0.027 #2.7% lumi uncertainty
+trigSys = 0.03 #3% trigger uncertainty
 lepIdSys = 0.01 #1% lepton id uncertainty
 lepIsoSys = 0.01 #1% lepton isolation uncertainty
 topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty
@@ -92,12 +100,12 @@ qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
 			     'top_nT0p_nW0_nB0' :0.15,
-			     'top_nT0p_nW0_nB1' :0.12,
+			     'top_nT0p_nW0_nB1' :0.11,
 			     'top_nT0p_nW0_nB2' :0.02,
 			     'top_nT0p_nW0_nB2p':0.02,
 			     'top_nT0p_nW0_nB3p':0.02,
 			     'top_nT0p_nW1p_nB0' :0.15,
-			     'top_nT0p_nW1p_nB1' :0.12,
+			     'top_nT0p_nW1p_nB1' :0.11,
 			     'top_nT0p_nW1p_nB2' :0.02,
 			     'top_nT0p_nW1p_nB2p':0.02,
 			     'top_nT0p_nW1p_nB3p':0.02,
@@ -108,11 +116,11 @@ ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/
 			     'ewk_nT0p_nW0_nB2' :0.22,
 			     'ewk_nT0p_nW0_nB2p':0.22,
 			     'ewk_nT0p_nW0_nB3p':0.22,
-			     'ewk_nT0p_nW1p_nB0' :0.02,
-			     'ewk_nT0p_nW1p_nB1' :0.02,
-			     'ewk_nT0p_nW1p_nB2' :0.02,
-			     'ewk_nT0p_nW1p_nB2p':0.02,
-			     'ewk_nT0p_nW1p_nB3p':0.02,
+			     'ewk_nT0p_nW1p_nB0' :0.03,
+			     'ewk_nT0p_nW1p_nB1' :0.03,
+			     'ewk_nT0p_nW1p_nB2' :0.03,
+			     'ewk_nT0p_nW1p_nB2p':0.03,
+			     'ewk_nT0p_nW1p_nB3p':0.03,
 			     }
 addSys = {} #additional uncertainties for specific processes
 for tag in tagList:
@@ -171,497 +179,512 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			for systematic in systematicList:
 				for ud in ['Up','Down']:
 					yieldTable[histoPrefix+systematic+ud]={}
-				
+			
 		if doQ2sys:
 			yieldTable[histoPrefix+'q2Up']={}
 			yieldTable[histoPrefix+'q2Down']={}
 
 	## WRITING HISTOGRAMS IN ROOT FILE ##
 	i=0
-	for signal in sigList:
-		outputRfile = R.TFile(outDir+'/templates_'+discriminant+'_'+signal+'_'+lumiStr+'fb.root','RECREATE')
-		hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
-		hwjets,hzjets,httjets,ht,httw,httz,hvv={},{},{},{},{},{},{}
-		for cat in catList:
-			tagStr = 'nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-			catStr = 'is'+cat[0]+'_'+tagStr
-			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+	for BRind in range(nBRconf):
+		BRconfStr=''
+		if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
+		print "       BR Configuration:"+BRconfStr
+		for signal in sigList:
+			outputRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
+			outputRfile = R.TFile(outputRfileName,'RECREATE')
+			hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
+			hwjets,hzjets,httjets,ht,httw,httz,hvv={},{},{},{},{},{},{}
+			for cat in catList:
+				tagStr = 'nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+				catStr = 'is'+cat[0]+'_'+tagStr
+				histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
 
-			#Group processes
-			hwjets[catStr] = bkghists[histoPrefix+'_'+wjetList[0]].Clone(histoPrefix+'_WJets')
-			hzjets[catStr] = bkghists[histoPrefix+'_'+zjetList[0]].Clone(histoPrefix+'_ZJets')
-			httjets[catStr] = bkghists[histoPrefix+'_'+ttjetList[0]].Clone(histoPrefix+'_TTJets')
-			ht[catStr] = bkghists[histoPrefix+'_'+tList[0]].Clone(histoPrefix+'_T')
-			httw[catStr] = bkghists[histoPrefix+'_'+ttwList[0]].Clone(histoPrefix+'_TTW')
-			httz[catStr] = bkghists[histoPrefix+'_'+ttzList[0]].Clone(histoPrefix+'_TTZ')
-			hvv[catStr] = bkghists[histoPrefix+'_'+vvList[0]].Clone(histoPrefix+'_VV')
-			for bkg in ttjetList:
-				if bkg!=ttjetList[0]: httjets[catStr].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in wjetList:
-				if bkg!=wjetList[0]: hwjets[catStr].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in ttwList:
-				if bkg!=ttwList[0]: httw[catStr].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in ttzList:
-				if bkg!=ttzList[0]: httz[catStr].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in tList:
-				if bkg!=tList[0]: ht[catStr].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in zjetList:
-				if bkg!=zjetList[0]: hzjets[catStr].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in vvList:
-				if bkg!=vvList[0]: hvv[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+				#Group processes
+				hwjets[i] = bkghists[histoPrefix+'_'+wjetList[0]].Clone(histoPrefix+'_WJets')
+				hzjets[i] = bkghists[histoPrefix+'_'+zjetList[0]].Clone(histoPrefix+'_ZJets')
+				httjets[i] = bkghists[histoPrefix+'_'+ttjetList[0]].Clone(histoPrefix+'_TTJets')
+				ht[i] = bkghists[histoPrefix+'_'+tList[0]].Clone(histoPrefix+'_T')
+				httw[i] = bkghists[histoPrefix+'_'+ttwList[0]].Clone(histoPrefix+'_TTW')
+				httz[i] = bkghists[histoPrefix+'_'+ttzList[0]].Clone(histoPrefix+'_TTZ')
+				hvv[i] = bkghists[histoPrefix+'_'+vvList[0]].Clone(histoPrefix+'_VV')
+				for bkg in ttjetList:
+					if bkg!=ttjetList[0]: httjets[i].Add(bkghists[histoPrefix+'_'+bkg])
+				for bkg in wjetList:
+					if bkg!=wjetList[0]: hwjets[i].Add(bkghists[histoPrefix+'_'+bkg])
+				for bkg in ttwList:
+					if bkg!=ttwList[0]: httw[i].Add(bkghists[histoPrefix+'_'+bkg])
+				for bkg in ttzList:
+					if bkg!=ttzList[0]: httz[i].Add(bkghists[histoPrefix+'_'+bkg])
+				for bkg in tList:
+					if bkg!=tList[0]: ht[i].Add(bkghists[histoPrefix+'_'+bkg])
+				for bkg in zjetList:
+					if bkg!=zjetList[0]: hzjets[i].Add(bkghists[histoPrefix+'_'+bkg])
+				for bkg in vvList:
+					if bkg!=vvList[0]: hvv[i].Add(bkghists[histoPrefix+'_'+bkg])
 		
-			#Group QCD processes
-			hqcd[catStr] = bkghists[histoPrefix+'_'+qcdList[0]].Clone(histoPrefix+'__qcd')
-			for bkg in qcdList: 
-				if bkg!=qcdList[0]: 
-					hqcd[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+				#Group QCD processes
+				hqcd[i] = bkghists[histoPrefix+'_'+qcdList[0]].Clone(histoPrefix+'__qcd')
+				for bkg in qcdList: 
+					if bkg!=qcdList[0]: 
+						hqcd[i].Add(bkghists[histoPrefix+'_'+bkg])
 		
-			#Group EWK processes
-			hewk[catStr] = bkghists[histoPrefix+'_'+ewkList[0]].Clone(histoPrefix+'__ewk')
-			for bkg in ewkList:
-				if bkg!=ewkList[0]: hewk[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+				#Group EWK processes
+				hewk[i] = bkghists[histoPrefix+'_'+ewkList[0]].Clone(histoPrefix+'__ewk')
+				for bkg in ewkList:
+					if bkg!=ewkList[0]: hewk[i].Add(bkghists[histoPrefix+'_'+bkg])
 		
-			#Group TOP processes
-			htop[catStr] = bkghists[histoPrefix+'_'+topList[0]].Clone(histoPrefix+'__top')
-			for bkg in topList:
-				if bkg!=topList[0]: htop[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+				#Group TOP processes
+				htop[i] = bkghists[histoPrefix+'_'+topList[0]].Clone(histoPrefix+'__top')
+				for bkg in topList:
+					if bkg!=topList[0]: htop[i].Add(bkghists[histoPrefix+'_'+bkg])
 		
-			#get signal
-			hsig[catStr] = sighists[histoPrefix+'_'+signal+decays[0]].Clone(histoPrefix+'__sig')
-			for decay in decays:
-				if decay!=decays[0]: hsig[catStr].Add(sighists[histoPrefix+'_'+signal+decay])
+				#get signal
+				hsig[i] = sighists[histoPrefix+'_'+signal+decays[0]].Clone(histoPrefix+'__sig')
+				if doBRScan: hsig[i].Scale(BRs[decays[0][:2]][BRind]*BRs[decays[0][2:]][BRind]/(BR[decays[0][:2]]*BR[decays[0][2:]]))
+				for decay in decays:
+					if decay!=decays[0]:
+						htemp = sighists[histoPrefix+'_'+signal+decay].Clone()
+						if doBRScan: htemp.Scale(BRs[decay[:2]][BRind]*BRs[decay[2:]][BRind]/(BR[decay[:2]]*BR[decay[2:]]))
+						hsig[i].Add(htemp)
 
-			#systematics
-			if doAllSys:
-				for systematic in systematicList:
-					for ud in ['Up','Down']:
-						if systematic!='toppt':
-							hqcd[systematic+ud+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
-							hewk[systematic+ud+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
-							htop[systematic+ud+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+topList[0]].Clone(histoPrefix+'__top__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
-							hsig[systematic+ud+catStr] = sighists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
-							for bkg in qcdList: 
-								if bkg!=qcdList[0]: hqcd[systematic+ud+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
-							for bkg in ewkList: 
-								if bkg!=ewkList[0]: hewk[systematic+ud+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
-							for bkg in topList: 
-								if bkg!=topList[0]: htop[systematic+ud+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
-							for decay in decays:
-								if decay!=decays[0]: hsig[systematic+ud+catStr].Add(sighists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+signal+decay])
-						if systematic=='toppt': # top pt is only on the ttbar sample, so it needs special treatment!
-							htop[systematic+ud+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+ttjetList[0]].Clone(histoPrefix+'__top__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
-							for bkg in ttjetList: 
-								if bkg!=ttjetList[0]: htop[systematic+ud+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
-							for bkg in topList: 
-								if bkg not in ttjetList: htop[systematic+ud+catStr].Add(bkghists[histoPrefix+'_'+bkg])
-				for pdfInd in range(100):
-					hqcd['pdf'+str(pdfInd)+'_'+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__pdf'+str(pdfInd))
-					hewk['pdf'+str(pdfInd)+'_'+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__pdf'+str(pdfInd))
-					htop['pdf'+str(pdfInd)+'_'+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+topList[0]].Clone(histoPrefix+'__top__pdf'+str(pdfInd))
-					hsig['pdf'+str(pdfInd)+'_'+catStr] = sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__pdf'+str(pdfInd))
-					for bkg in qcdList: 
-						if bkg!=qcdList[0]: hqcd['pdf'+str(pdfInd)+'_'+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
-					for bkg in ewkList: 
-						if bkg!=ewkList[0]: hewk['pdf'+str(pdfInd)+'_'+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
-					for bkg in topList: 
-						if bkg!=topList[0]: htop['pdf'+str(pdfInd)+'_'+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
-					for decay in decays:
-						if decay!=decays[0]:hsig['pdf'+str(pdfInd)+'_'+catStr].Add(sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decay])
+				#systematics
+				if doAllSys:
+					for systematic in systematicList:
+						for ud in ['Up','Down']:
+							if systematic!='toppt':
+								hqcd[systematic+ud+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								hewk[systematic+ud+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								htop[systematic+ud+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+topList[0]].Clone(histoPrefix+'__top__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								hsig[systematic+ud+str(i)] = sighists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								if doBRScan: hsig[systematic+ud+str(i)].Scale(BRs[decays[0][:2]][BRind]*BRs[decays[0][2:]][BRind]/(BR[decays[0][:2]]*BR[decays[0][2:]]))
+								for bkg in qcdList: 
+									if bkg!=qcdList[0]: hqcd[systematic+ud+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
+								for bkg in ewkList: 
+									if bkg!=ewkList[0]: hewk[systematic+ud+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
+								for bkg in topList: 
+									if bkg!=topList[0]: htop[systematic+ud+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
+								for decay in decays:
+									htemp = sighists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+signal+decay].Clone()
+									if doBRScan: htemp.Scale(BRs[decay[:2]][BRind]*BRs[decay[2:]][BRind]/(BR[decay[:2]]*BR[decay[2:]]))
+									if decay!=decays[0]: hsig[systematic+ud+str(i)].Add(htemp)
+							if systematic=='toppt': # top pt is only on the ttbar sample, so it needs special treatment!
+								htop[systematic+ud+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+ttjetList[0]].Clone(histoPrefix+'__top__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								for bkg in ttjetList: 
+									if bkg!=ttjetList[0]: htop[systematic+ud+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
+								for bkg in topList: 
+									if bkg not in ttjetList: htop[systematic+ud+str(i)].Add(bkghists[histoPrefix+'_'+bkg])
+					for pdfInd in range(100):
+						hqcd['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__pdf'+str(pdfInd))
+						hewk['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__pdf'+str(pdfInd))
+						htop['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+topList[0]].Clone(histoPrefix+'__top__pdf'+str(pdfInd))
+						hsig['pdf'+str(pdfInd)+'_'+str(i)] = sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__pdf'+str(pdfInd))
+						if doBRScan: hsig['pdf'+str(pdfInd)+'_'+str(i)].Scale(BRs[decays[0][:2]][BRind]*BRs[decays[0][2:]][BRind]/(BR[decays[0][:2]]*BR[decays[0][2:]]))
+						for bkg in qcdList: 
+							if bkg!=qcdList[0]: hqcd['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+						for bkg in ewkList: 
+							if bkg!=ewkList[0]: hewk['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+						for bkg in topList: 
+							if bkg!=topList[0]: htop['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+						for decay in decays:
+							htemp = sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decay].Clone()
+							if doBRScan: htemp.Scale(BRs[decay[:2]][BRind]*BRs[decay[2:]][BRind]/(BR[decay[:2]]*BR[decay[2:]]))
+							if decay!=decays[0]:hsig['pdf'+str(pdfInd)+'_'+str(i)].Add(htemp)
 												
-			if doQ2sys:
-				htop['q2Up'+catStr] = bkghists[histoPrefix+'_'+q2UpList[0]].Clone(histoPrefix+'__top__q2__plus')
-				htop['q2Down'+catStr] = bkghists[histoPrefix+'_'+q2DownList[0]].Clone(histoPrefix+'__top__q2__minus')
-				for ind in range(1,len(q2UpList)):
-					htop['q2Up'+catStr].Add(bkghists[histoPrefix+'_'+q2UpList[ind]])
-					htop['q2Down'+catStr].Add(bkghists[histoPrefix+'_'+q2DownList[ind]])
-		
-			#Group data processes
-			hdata[catStr] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
-			for dat in dataList:
-				if dat!=dataList[0]: hdata[catStr].Add(datahists[histoPrefix+'_'+dat])
-
-			#prepare yield table
-			yieldTable[histoPrefix]['top']    = htop[catStr].Integral()
-			yieldTable[histoPrefix]['ewk']    = hewk[catStr].Integral()
-			yieldTable[histoPrefix]['qcd']    = hqcd[catStr].Integral()
-			yieldTable[histoPrefix]['totBkg'] = htop[catStr].Integral()+hewk[catStr].Integral()+hqcd[catStr].Integral()
-			yieldTable[histoPrefix]['data']   = hdata[catStr].Integral()
-			yieldTable[histoPrefix]['dataOverBkg']= yieldTable[histoPrefix]['data']/yieldTable[histoPrefix]['totBkg']
-			yieldTable[histoPrefix]['WJets']  = hwjets[catStr].Integral()
-			yieldTable[histoPrefix]['ZJets']  = hzjets[catStr].Integral()
-			yieldTable[histoPrefix]['VV']     = hvv[catStr].Integral()
-			yieldTable[histoPrefix]['TTW']    = httw[catStr].Integral()
-			yieldTable[histoPrefix]['TTZ']    = httz[catStr].Integral()
-			yieldTable[histoPrefix]['TTJets'] = httjets[catStr].Integral()
-			yieldTable[histoPrefix]['T']      = ht[catStr].Integral()
-			yieldTable[histoPrefix]['QCD']    = hqcd[catStr].Integral()
-			yieldTable[histoPrefix][signal]   = hsig[catStr].Integral()
-		
-			#+/- 1sigma variations of shape systematics
-			if doAllSys:
-				for systematic in systematicList:
-					for ud in ['Up','Down']:
-						yieldTable[histoPrefix+systematic+ud]['top']    = htop[systematic+ud+catStr].Integral()
-						if systematic!='toppt':
-							yieldTable[histoPrefix+systematic+ud]['ewk']    = hewk[systematic+ud+catStr].Integral()
-							yieldTable[histoPrefix+systematic+ud]['qcd']    = hqcd[systematic+ud+catStr].Integral()
-							yieldTable[histoPrefix+systematic+ud]['totBkg'] = htop[systematic+ud+catStr].Integral()+hewk[systematic+ud+catStr].Integral()+hqcd[systematic+ud+catStr].Integral()
-							yieldTable[histoPrefix+systematic+ud][signal]   = hsig[systematic+ud+catStr].Integral()
-					
-			if doQ2sys:
-				yieldTable[histoPrefix+'q2Up']['top']    = htop['q2Up'+catStr].Integral()
-				yieldTable[histoPrefix+'q2Down']['top']    = htop['q2Down'+catStr].Integral()
-
-			#prepare MC yield error table
-			yieldStatErrTable[histoPrefix]['top']    = 0.
-			yieldStatErrTable[histoPrefix]['ewk']    = 0.
-			yieldStatErrTable[histoPrefix]['qcd']    = 0.
-			yieldStatErrTable[histoPrefix]['totBkg'] = 0.
-			yieldStatErrTable[histoPrefix]['data']   = 0.
-			yieldStatErrTable[histoPrefix]['dataOverBkg']= 0.
-			yieldStatErrTable[histoPrefix]['WJets']  = 0.
-			yieldStatErrTable[histoPrefix]['ZJets']  = 0.
-			yieldStatErrTable[histoPrefix]['VV']     = 0.
-			yieldStatErrTable[histoPrefix]['TTW']    = 0.
-			yieldStatErrTable[histoPrefix]['TTZ']    = 0.
-			yieldStatErrTable[histoPrefix]['TTJets'] = 0.
-			yieldStatErrTable[histoPrefix]['T']      = 0.
-			yieldStatErrTable[histoPrefix]['QCD']    = 0.
-			yieldStatErrTable[histoPrefix][signal]   = 0.
-
-			for ibin in range(1,hsig[catStr].GetXaxis().GetNbins()+1):
-				yieldStatErrTable[histoPrefix]['top']    += htop[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['ewk']    += hewk[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['qcd']    += hqcd[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['totBkg'] += htop[catStr].GetBinError(ibin)**2+hewk[catStr].GetBinError(ibin)**2+hqcd[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['data']   += hdata[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['WJets']  += hwjets[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['ZJets']  += hzjets[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['VV']     += hvv[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['TTW']    += httw[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['TTZ']    += httz[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['TTJets'] += httjets[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['T']      += ht[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix]['QCD']    += hqcd[catStr].GetBinError(ibin)**2
-				yieldStatErrTable[histoPrefix][signal]   += hsig[catStr].GetBinError(ibin)**2
-
-			#scale signal cross section to 1pb
-			#write theta histograms in root file, avoid having processes with no event yield (to make theta happy) 
-			if hsig[catStr].Integral() > 0:  
-				if scaleSignalXsecTo1pb: hsig[catStr].Scale(1./xsec[signal])
-				hsig[catStr].Write()
-				if doAllSys:
-					for systematic in systematicList:
-						if systematic=='toppt': continue
-						if scaleSignalXsecTo1pb: 
-							hsig[systematic+'Up'+catStr].Scale(1./xsec[signal])
-							hsig[systematic+'Down'+catStr].Scale(1./xsec[signal])
-						if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-							hsig[systematic+'Up'+catStr].Scale(hsig[catStr].Integral()/hsig[systematic+'Up'+catStr].Integral())
-							hsig[systematic+'Down'+catStr].Scale(hsig[catStr].Integral()/hsig[systematic+'Down'+catStr].Integral())
-						hsig[systematic+'Up'+catStr].Write()
-						hsig[systematic+'Down'+catStr].Write()
-					for pdfInd in range(100): hsig['pdf'+str(pdfInd)+'_'+catStr].Write()
-			if htop[catStr].Integral() > 0:  
-				htop[catStr].Write()
-				if doAllSys:
-					for systematic in systematicList:
-						if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-							htop[systematic+'Up'+catStr].Scale(htop[catStr].Integral()/htop[systematic+'Up'+catStr].Integral())
-							htop[systematic+'Down'+catStr].Scale(htop[catStr].Integral()/htop[systematic+'Down'+catStr].Integral())  
-						htop[systematic+'Up'+catStr].Write()
-						htop[systematic+'Down'+catStr].Write()
-					for pdfInd in range(100): htop['pdf'+str(pdfInd)+'_'+catStr].Write()
 				if doQ2sys:
-					htop['q2Up'+catStr].Write()
-					htop['q2Down'+catStr].Write()
-			if hewk[catStr].Integral() > 0:  
-				hewk[catStr].Write()
+					htop['q2Up'+str(i)] = bkghists[histoPrefix+'_'+q2UpList[0]].Clone(histoPrefix+'__top__q2__plus')
+					htop['q2Down'+str(i)] = bkghists[histoPrefix+'_'+q2DownList[0]].Clone(histoPrefix+'__top__q2__minus')
+					for ind in range(1,len(q2UpList)):
+						htop['q2Up'+str(i)].Add(bkghists[histoPrefix+'_'+q2UpList[ind]])
+						htop['q2Down'+str(i)].Add(bkghists[histoPrefix+'_'+q2DownList[ind]])
+		
+				#Group data processes
+				hdata[i] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
+				for dat in dataList:
+					if dat!=dataList[0]: hdata[i].Add(datahists[histoPrefix+'_'+dat])
+
+				#prepare yield table
+				yieldTable[histoPrefix]['top']    = htop[i].Integral()
+				yieldTable[histoPrefix]['ewk']    = hewk[i].Integral()
+				yieldTable[histoPrefix]['qcd']    = hqcd[i].Integral()
+				yieldTable[histoPrefix]['totBkg'] = htop[i].Integral()+hewk[i].Integral()+hqcd[i].Integral()
+				yieldTable[histoPrefix]['data']   = hdata[i].Integral()
+				yieldTable[histoPrefix]['dataOverBkg']= yieldTable[histoPrefix]['data']/yieldTable[histoPrefix]['totBkg']
+				yieldTable[histoPrefix]['WJets']  = hwjets[i].Integral()
+				yieldTable[histoPrefix]['ZJets']  = hzjets[i].Integral()
+				yieldTable[histoPrefix]['VV']     = hvv[i].Integral()
+				yieldTable[histoPrefix]['TTW']    = httw[i].Integral()
+				yieldTable[histoPrefix]['TTZ']    = httz[i].Integral()
+				yieldTable[histoPrefix]['TTJets'] = httjets[i].Integral()
+				yieldTable[histoPrefix]['T']      = ht[i].Integral()
+				yieldTable[histoPrefix]['QCD']    = hqcd[i].Integral()
+				yieldTable[histoPrefix][signal]   = hsig[i].Integral()
+		
+				#+/- 1sigma variations of shape systematics
 				if doAllSys:
 					for systematic in systematicList:
-						if systematic=='toppt': continue
-						if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-							hewk[systematic+'Up'+catStr].Scale(hewk[catStr].Integral()/hewk[systematic+'Up'+catStr].Integral())
-							hewk[systematic+'Down'+catStr].Scale(hewk[catStr].Integral()/hewk[systematic+'Down'+catStr].Integral()) 
-						hewk[systematic+'Up'+catStr].Write()
-						hewk[systematic+'Down'+catStr].Write()
-					for pdfInd in range(100): hewk['pdf'+str(pdfInd)+'_'+catStr].Write()
-			if hqcd[catStr].Integral() > 0:  
-				hqcd[catStr].Write()
-				if doAllSys:
-					for systematic in systematicList:
-						if systematic=='toppt': continue
-						if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-							hqcd[systematic+'Up'+catStr].Scale(hqcd[catStr].Integral()/hqcd[systematic+'Up'+catStr].Integral())
-							hqcd[systematic+'Down'+catStr].Scale(hqcd[catStr].Integral()/hqcd[systematic+'Down'+catStr].Integral()) 
-						hqcd[systematic+'Up'+catStr].Write()
-						hqcd[systematic+'Down'+catStr].Write()
-					for pdfInd in range(100): hqcd['pdf'+str(pdfInd)+'_'+catStr].Write()
-			hdata[catStr].Write()
-			i+=1
-		outputRfile.Close()
+						for ud in ['Up','Down']:
+							yieldTable[histoPrefix+systematic+ud]['top']    = htop[systematic+ud+str(i)].Integral()
+							if systematic!='toppt':
+								yieldTable[histoPrefix+systematic+ud]['ewk']    = hewk[systematic+ud+str(i)].Integral()
+								yieldTable[histoPrefix+systematic+ud]['qcd']    = hqcd[systematic+ud+str(i)].Integral()
+								yieldTable[histoPrefix+systematic+ud]['totBkg'] = htop[systematic+ud+str(i)].Integral()+hewk[systematic+ud+str(i)].Integral()+hqcd[systematic+ud+str(i)].Integral()
+								yieldTable[histoPrefix+systematic+ud][signal]   = hsig[systematic+ud+str(i)].Integral()
+					
+				if doQ2sys:
+					yieldTable[histoPrefix+'q2Up']['top']    = htop['q2Up'+str(i)].Integral()
+					yieldTable[histoPrefix+'q2Down']['top']    = htop['q2Down'+str(i)].Integral()
+
+				#prepare MC yield error table
+				yieldStatErrTable[histoPrefix]['top']    = 0.
+				yieldStatErrTable[histoPrefix]['ewk']    = 0.
+				yieldStatErrTable[histoPrefix]['qcd']    = 0.
+				yieldStatErrTable[histoPrefix]['totBkg'] = 0.
+				yieldStatErrTable[histoPrefix]['data']   = 0.
+				yieldStatErrTable[histoPrefix]['dataOverBkg']= 0.
+				yieldStatErrTable[histoPrefix]['WJets']  = 0.
+				yieldStatErrTable[histoPrefix]['ZJets']  = 0.
+				yieldStatErrTable[histoPrefix]['VV']     = 0.
+				yieldStatErrTable[histoPrefix]['TTW']    = 0.
+				yieldStatErrTable[histoPrefix]['TTZ']    = 0.
+				yieldStatErrTable[histoPrefix]['TTJets'] = 0.
+				yieldStatErrTable[histoPrefix]['T']      = 0.
+				yieldStatErrTable[histoPrefix]['QCD']    = 0.
+				yieldStatErrTable[histoPrefix][signal]   = 0.
+
+				for ibin in range(1,hsig[i].GetXaxis().GetNbins()+1):
+					yieldStatErrTable[histoPrefix]['top']    += htop[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['ewk']    += hewk[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['qcd']    += hqcd[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['totBkg'] += htop[i].GetBinError(ibin)**2+hewk[i].GetBinError(ibin)**2+hqcd[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['data']   += hdata[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['WJets']  += hwjets[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['ZJets']  += hzjets[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['VV']     += hvv[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['TTW']    += httw[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['TTZ']    += httz[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['TTJets'] += httjets[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['T']      += ht[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['QCD']    += hqcd[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix][signal]   += hsig[i].GetBinError(ibin)**2
+
+				#scale signal cross section to 1pb
+				#write theta histograms in root file, avoid having processes with no event yield (to make theta happy) 
+				if hsig[i].Integral() > 0:  
+					if scaleSignalXsecTo1pb: hsig[i].Scale(1./xsec[signal])
+					hsig[i].Write()
+					if doAllSys:
+						for systematic in systematicList:
+							if systematic=='toppt': continue
+							if scaleSignalXsecTo1pb: 
+								hsig[systematic+'Up'+str(i)].Scale(1./xsec[signal])
+								hsig[systematic+'Down'+str(i)].Scale(1./xsec[signal])
+							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
+								hsig[systematic+'Up'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Up'+str(i)].Integral())
+								hsig[systematic+'Down'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Down'+str(i)].Integral())
+							hsig[systematic+'Up'+str(i)].Write()
+							hsig[systematic+'Down'+str(i)].Write()
+						for pdfInd in range(100): hsig['pdf'+str(pdfInd)+'_'+str(i)].Write()
+				if htop[i].Integral() > 0:  
+					htop[i].Write()
+					if doAllSys:
+						for systematic in systematicList:
+							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
+								htop[systematic+'Up'+str(i)].Scale(htop[i].Integral()/htop[systematic+'Up'+str(i)].Integral())
+								htop[systematic+'Down'+str(i)].Scale(htop[i].Integral()/htop[systematic+'Down'+str(i)].Integral())  
+							htop[systematic+'Up'+str(i)].Write()
+							htop[systematic+'Down'+str(i)].Write()
+						for pdfInd in range(100): htop['pdf'+str(pdfInd)+'_'+str(i)].Write()
+					if doQ2sys:
+						htop['q2Up'+str(i)].Write()
+						htop['q2Down'+str(i)].Write()
+				if hewk[i].Integral() > 0:  
+					hewk[i].Write()
+					if doAllSys:
+						for systematic in systematicList:
+							if systematic=='toppt': continue
+							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
+								hewk[systematic+'Up'+str(i)].Scale(hewk[i].Integral()/hewk[systematic+'Up'+str(i)].Integral())
+								hewk[systematic+'Down'+str(i)].Scale(hewk[i].Integral()/hewk[systematic+'Down'+str(i)].Integral()) 
+							hewk[systematic+'Up'+str(i)].Write()
+							hewk[systematic+'Down'+str(i)].Write()
+						for pdfInd in range(100): hewk['pdf'+str(pdfInd)+'_'+str(i)].Write()
+				if hqcd[i].Integral() > 0:  
+					hqcd[i].Write()
+					if doAllSys:
+						for systematic in systematicList:
+							if systematic=='toppt': continue
+							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
+								hqcd[systematic+'Up'+str(i)].Scale(hqcd[i].Integral()/hqcd[systematic+'Up'+str(i)].Integral())
+								hqcd[systematic+'Down'+str(i)].Scale(hqcd[i].Integral()/hqcd[systematic+'Down'+str(i)].Integral()) 
+							hqcd[systematic+'Up'+str(i)].Write()
+							hqcd[systematic+'Down'+str(i)].Write()
+						for pdfInd in range(100): hqcd['pdf'+str(pdfInd)+'_'+str(i)].Write()
+				hdata[i].Write()
+				i+=1
+			outputRfile.Close()
 	
-	stdout_old = sys.stdout
-	logFile = open(outDir+'/yields_'+discriminant+'_'+lumiStr+'fb_'+'.txt','a')
-	sys.stdout = logFile
+		stdout_old = sys.stdout
+		logFile = open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','a')
+		sys.stdout = logFile
 
-	## PRINTING YIELD TABLE WITH STATISTICAL UNCERTAINTIES ##
-	#first print table without background grouping
-	ljust_i = 1
-	print 'CUTS:',cutString
-	print
-	print 'YIELDS'.ljust(20*ljust_i), 
-	for bkg in bkgStackList: print bkg.ljust(ljust_i),
-	print 'data'.ljust(ljust_i),
-	print
-	for cat in catList:
-		tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-		catStr='is'+cat[0]+'_'+tagStr
-		histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-		print (catStr).ljust(ljust_i),
-		for bkg in bkgStackList:
-			print str(yieldTable[histoPrefix][bkg]).ljust(ljust_i),
-		print str(yieldTable[histoPrefix]['data']).ljust(ljust_i),
+		## PRINTING YIELD TABLE WITH STATISTICAL UNCERTAINTIES ##
+		#first print table without background grouping
+		ljust_i = 1
+		print 'CUTS:',cutString
 		print
+		print 'YIELDS'.ljust(20*ljust_i), 
+		for bkg in bkgStackList: print bkg.ljust(ljust_i),
+		print 'data'.ljust(ljust_i),
+		print
+		for cat in catList:
+			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+			catStr='is'+cat[0]+'_'+tagStr
+			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+			print (catStr).ljust(ljust_i),
+			for bkg in bkgStackList:
+				print str(yieldTable[histoPrefix][bkg]).ljust(ljust_i),
+			print str(yieldTable[histoPrefix]['data']).ljust(ljust_i),
+			print
 
-	print 'YIELDS ERRORS'
-	for cat in catList:
-		tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-		catStr='is'+cat[0]+'_'+tagStr
-		histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-		print (catStr).ljust(ljust_i),
-		for bkg in bkgStackList:
-			print str(math.sqrt(yieldStatErrTable[histoPrefix][bkg])).ljust(ljust_i),
-		print str(math.sqrt(yieldStatErrTable[histoPrefix]['data'])).ljust(ljust_i),
-		print
+		print 'YIELDS ERRORS'
+		for cat in catList:
+			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+			catStr='is'+cat[0]+'_'+tagStr
+			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+			print (catStr).ljust(ljust_i),
+			for bkg in bkgStackList:
+				print str(math.sqrt(yieldStatErrTable[histoPrefix][bkg])).ljust(ljust_i),
+			print str(math.sqrt(yieldStatErrTable[histoPrefix]['data'])).ljust(ljust_i),
+			print
 
-	#now print with top,ewk,qcd grouping
-	print
-	print 'YIELDS'.ljust(20*ljust_i), 
-	print 'ewk'.ljust(ljust_i),
-	print 'top'.ljust(ljust_i),
-	print 'qcd'.ljust(ljust_i),
-	print 'data'.ljust(ljust_i),
-	print
-	for cat in catList:
-		tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-		catStr='is'+cat[0]+'_'+tagStr
-		histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-		print (catStr).ljust(ljust_i),
-		print str(yieldTable[histoPrefix]['ewk']).ljust(ljust_i),
-		print str(yieldTable[histoPrefix]['top']).ljust(ljust_i),
-		print str(yieldTable[histoPrefix]['qcd']).ljust(ljust_i),
-		print str(yieldTable[histoPrefix]['data']).ljust(ljust_i),
+		#now print with top,ewk,qcd grouping
 		print
+		print 'YIELDS'.ljust(20*ljust_i), 
+		print 'ewk'.ljust(ljust_i),
+		print 'top'.ljust(ljust_i),
+		print 'qcd'.ljust(ljust_i),
+		print 'data'.ljust(ljust_i),
+		print
+		for cat in catList:
+			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+			catStr='is'+cat[0]+'_'+tagStr
+			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+			print (catStr).ljust(ljust_i),
+			print str(yieldTable[histoPrefix]['ewk']).ljust(ljust_i),
+			print str(yieldTable[histoPrefix]['top']).ljust(ljust_i),
+			print str(yieldTable[histoPrefix]['qcd']).ljust(ljust_i),
+			print str(yieldTable[histoPrefix]['data']).ljust(ljust_i),
+			print
 
-	print 'YIELDS ERRORS'
-	for cat in catList:
-		tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-		catStr='is'+cat[0]+'_'+tagStr
-		histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-		print (catStr).ljust(ljust_i),
-		print str(math.sqrt(yieldStatErrTable[histoPrefix]['ewk'])).ljust(ljust_i),
-		print str(math.sqrt(yieldStatErrTable[histoPrefix]['top'])).ljust(ljust_i),
-		print str(math.sqrt(yieldStatErrTable[histoPrefix]['qcd'])).ljust(ljust_i),
-		print str(math.sqrt(yieldStatErrTable[histoPrefix]['data'])).ljust(ljust_i),
-		print
+		print 'YIELDS ERRORS'
+		for cat in catList:
+			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+			catStr='is'+cat[0]+'_'+tagStr
+			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+			print (catStr).ljust(ljust_i),
+			print str(math.sqrt(yieldStatErrTable[histoPrefix]['ewk'])).ljust(ljust_i),
+			print str(math.sqrt(yieldStatErrTable[histoPrefix]['top'])).ljust(ljust_i),
+			print str(math.sqrt(yieldStatErrTable[histoPrefix]['qcd'])).ljust(ljust_i),
+			print str(math.sqrt(yieldStatErrTable[histoPrefix]['data'])).ljust(ljust_i),
+			print
 
-	#print yields for signals
-	print
-	print 'YIELDS'.ljust(20*ljust_i), 
-	for sig in sigList: print sig.ljust(ljust_i),
-	print
-	for cat in catList:
-		tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-		catStr='is'+cat[0]+'_'+tagStr
-		histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-		print (catStr).ljust(ljust_i),
-		for sig in sigList:
-			print str(yieldTable[histoPrefix][sig]).ljust(ljust_i),
+		#print yields for signals
 		print
+		print 'YIELDS'.ljust(20*ljust_i), 
+		for sig in sigList: print sig.ljust(ljust_i),
+		print
+		for cat in catList:
+			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+			catStr='is'+cat[0]+'_'+tagStr
+			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+			print (catStr).ljust(ljust_i),
+			for sig in sigList:
+				print str(yieldTable[histoPrefix][sig]).ljust(ljust_i),
+			print
 
-	print 'YIELDS ERRORS'
-	for cat in catList:
-		tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-		catStr='is'+cat[0]+'_'+tagStr
-		histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-		print (catStr).ljust(ljust_i),
-		for sig in sigList:
-			print str(math.sqrt(yieldStatErrTable[histoPrefix][sig])).ljust(ljust_i),
-		print
+		print 'YIELDS ERRORS'
+		for cat in catList:
+			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+			catStr='is'+cat[0]+'_'+tagStr
+			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+			print (catStr).ljust(ljust_i),
+			for sig in sigList:
+				print str(math.sqrt(yieldStatErrTable[histoPrefix][sig])).ljust(ljust_i),
+			print
 				
-	#print for AN tables
-	print
-	print "FOR AN (errors are statistical+normalization systematics): "
-	print
-	print 'YIELDS ELECTRON+JETS'.ljust(20*ljust_i), 
-	for cat in catList:
-		tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-		catStr='is'+cat[0]+'_'+tagStr
-		if cat[0]!='E': continue
-		print (catStr).ljust(ljust_i),
-	print
-	for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
-		print process.ljust(ljust_i),
+		#print for AN tables
+		print
+		print "FOR AN (errors are statistical+normalization systematics): "
+		print
+		print 'YIELDS ELECTRON+JETS'.ljust(20*ljust_i), 
 		for cat in catList:
 			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 			catStr='is'+cat[0]+'_'+tagStr
 			if cat[0]!='E': continue
-			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-			if process=='dataOverBkg':
-				dataTemp = yieldTable[histoPrefix]['data']+1e-20
-				dataTempErr = yieldStatErrTable[histoPrefix]['data']
-				totBkgTemp = yieldTable[histoPrefix]['totBkg']+1e-20
-				totBkgTempErr = yieldStatErrTable[histoPrefix]['totBkg'] # statistical error squared
-				totBkgTempErr += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
-				totBkgTempErr += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
-				totBkgTempErr += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
-				totBkgTempErr += (corrdSys*totBkgTemp)**2
-				dataOverBkgErr = ((dataTemp/totBkgTemp)**2)*(dataTempErr/dataTemp**2+totBkgTempErr/totBkgTemp**2)
-				print ' & '+str(round_sig(dataTemp/totBkgTemp,5))+' $\pm$ '+str(round_sig(math.sqrt(dataOverBkgErr),2)),
-			else:
-				yieldtemp = yieldTable[histoPrefix][process]
-				yielderrtemp = yieldStatErrTable[histoPrefix][process]
-				if process=='totBkg': 
-					yielderrtemp += (corrdSys*yieldtemp)**2
-					yielderrtemp += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
-					yielderrtemp += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
-					yielderrtemp += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
-				elif process in sigList: 
-					yielderrtemp += (corrdSys*yieldtemp)**2
-				elif process!='data': 
-					yielderrtemp += (corrdSys*yieldtemp)**2
-					yielderrtemp += (addSys[process+'_'+tagStr]*yieldTable[histoPrefix][process])**2
-				if process=='data': print ' & '+str(int(yieldtemp)),
-				elif process not in sigList: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
-				else: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
-		print '\\\\',
+			print (catStr).ljust(ljust_i),
 		print
-	print
-	print 'YIELDS MUON+JETS'.ljust(20*ljust_i), 
-	for cat in catList:
-		tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-		catStr='is'+cat[0]+'_'+tagStr
-		if cat[0]!='M': continue
-		print (catStr).ljust(ljust_i),
-	print
-	for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
-		print process.ljust(ljust_i),
+		for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
+			print process.ljust(ljust_i),
+			for cat in catList:
+				tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+				catStr='is'+cat[0]+'_'+tagStr
+				if cat[0]!='E': continue
+				histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+				if process=='dataOverBkg':
+					dataTemp = yieldTable[histoPrefix]['data']+1e-20
+					dataTempErr = yieldStatErrTable[histoPrefix]['data']
+					totBkgTemp = yieldTable[histoPrefix]['totBkg']+1e-20
+					totBkgTempErr = yieldStatErrTable[histoPrefix]['totBkg'] # statistical error squared
+					totBkgTempErr += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
+					totBkgTempErr += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
+					totBkgTempErr += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
+					totBkgTempErr += (corrdSys*totBkgTemp)**2
+					dataOverBkgErr = ((dataTemp/totBkgTemp)**2)*(dataTempErr/dataTemp**2+totBkgTempErr/totBkgTemp**2)
+					print ' & '+str(round_sig(dataTemp/totBkgTemp,5))+' $\pm$ '+str(round_sig(math.sqrt(dataOverBkgErr),2)),
+				else:
+					yieldtemp = yieldTable[histoPrefix][process]
+					yielderrtemp = yieldStatErrTable[histoPrefix][process]
+					if process=='totBkg': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
+						yielderrtemp += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
+						yielderrtemp += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
+					elif process in sigList: 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+					elif process!='data': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys[process+'_'+tagStr]*yieldTable[histoPrefix][process])**2
+					if process=='data': print ' & '+str(int(yieldtemp)),
+					elif process not in sigList: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+					else: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+			print '\\\\',
+			print
+		print
+		print 'YIELDS MUON+JETS'.ljust(20*ljust_i), 
 		for cat in catList:
 			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 			catStr='is'+cat[0]+'_'+tagStr
 			if cat[0]!='M': continue
-			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-			if process=='dataOverBkg':
-				dataTemp = yieldTable[histoPrefix]['data']+1e-20
-				dataTempErr = yieldStatErrTable[histoPrefix]['data']
-				totBkgTemp = yieldTable[histoPrefix]['totBkg']+1e-20
-				totBkgTempErr = yieldStatErrTable[histoPrefix]['totBkg'] # statistical error squared
-				totBkgTempErr += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
-				totBkgTempErr += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
-				totBkgTempErr += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
-				totBkgTempErr += (corrdSys*totBkgTemp)**2
-				dataOverBkgErr = ((dataTemp/totBkgTemp)**2)*(dataTempErr/dataTemp**2+totBkgTempErr/totBkgTemp**2)
-				print ' & '+str(round_sig(dataTemp/totBkgTemp,5))+' $\pm$ '+str(round_sig(math.sqrt(dataOverBkgErr),2)),
-			else:
-				yieldtemp = yieldTable[histoPrefix][process]
-				yielderrtemp = yieldStatErrTable[histoPrefix][process]
-				if process=='totBkg': 
-					yielderrtemp += (corrdSys*yieldtemp)**2
-					yielderrtemp += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
-					yielderrtemp += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
-					yielderrtemp += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
-				elif process in sigList: 
-					yielderrtemp += (corrdSys*yieldtemp)**2
-				elif process!='data': 
-					yielderrtemp += (corrdSys*yieldtemp)**2
-					yielderrtemp += (addSys[process+'_'+tagStr]*yieldTable[histoPrefix][process])**2
-				if process=='data': print ' & '+str(int(yieldtemp)),
-				elif process not in sigList: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
-				else: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
-		print '\\\\',
-		print
-		
-	#print for AN tables systematics
-	if doAllSys:
-		print
-		print "FOR AN (shape systematic percentaces): "
-		print
-		print 'YIELDS'.ljust(20*ljust_i), 
-		for cat in catList:
-			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-			catStr='is'+cat[0]+'_'+tagStr
 			print (catStr).ljust(ljust_i),
 		print
-		for process in ['ewk','top']+sigList:
+		for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
 			print process.ljust(ljust_i),
+			for cat in catList:
+				tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+				catStr='is'+cat[0]+'_'+tagStr
+				if cat[0]!='M': continue
+				histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+				if process=='dataOverBkg':
+					dataTemp = yieldTable[histoPrefix]['data']+1e-20
+					dataTempErr = yieldStatErrTable[histoPrefix]['data']
+					totBkgTemp = yieldTable[histoPrefix]['totBkg']+1e-20
+					totBkgTempErr = yieldStatErrTable[histoPrefix]['totBkg'] # statistical error squared
+					totBkgTempErr += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
+					totBkgTempErr += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
+					totBkgTempErr += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
+					totBkgTempErr += (corrdSys*totBkgTemp)**2
+					dataOverBkgErr = ((dataTemp/totBkgTemp)**2)*(dataTempErr/dataTemp**2+totBkgTempErr/totBkgTemp**2)
+					print ' & '+str(round_sig(dataTemp/totBkgTemp,5))+' $\pm$ '+str(round_sig(math.sqrt(dataOverBkgErr),2)),
+				else:
+					yieldtemp = yieldTable[histoPrefix][process]
+					yielderrtemp = yieldStatErrTable[histoPrefix][process]
+					if process=='totBkg': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
+						yielderrtemp += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
+						yielderrtemp += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
+					elif process in sigList: 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+					elif process!='data': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys[process+'_'+tagStr]*yieldTable[histoPrefix][process])**2
+					if process=='data': print ' & '+str(int(yieldtemp)),
+					elif process not in sigList: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+					else: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+			print '\\\\',
 			print
-			for ud in ['Up','Down']:
-				for systematic in systematicList:
-					if systematic=='toppt' and process!='top': continue
-					print (systematic+ud).ljust(ljust_i),
+		
+		#print for AN tables systematics
+		if doAllSys:
+			print
+			print "FOR AN (shape systematic percentaces): "
+			print
+			print 'YIELDS'.ljust(20*ljust_i), 
+			for cat in catList:
+				tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+				catStr='is'+cat[0]+'_'+tagStr
+				print (catStr).ljust(ljust_i),
+			print
+			for process in ['ewk','top']+sigList:
+				print process.ljust(ljust_i),
+				print
+				for ud in ['Up','Down']:
+					for systematic in systematicList:
+						if systematic=='toppt' and process!='top': continue
+						print (systematic+ud).ljust(ljust_i),
+						for cat in catList:
+							tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+							catStr='is'+cat[0]+'_'+tagStr
+							histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+							print ' & '+str(round_sig(yieldTable[histoPrefix+systematic+ud][process]/(yieldTable[histoPrefix][process]+1e-20),2)),
+						print '\\\\',
+						print
+					if process!='top': continue
+					print ('q2'+ud).ljust(ljust_i),
 					for cat in catList:
 						tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 						catStr='is'+cat[0]+'_'+tagStr
 						histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-						print ' & '+str(round_sig(yieldTable[histoPrefix+systematic+ud][process]/(yieldTable[histoPrefix][process]+1e-20),2)),
+						print ' & '+str(round_sig(yieldTable[histoPrefix+'q2'+ud][process]/(yieldTable[histoPrefix][process]+1e-20),2)),
 					print '\\\\',
 					print
-				if process!='top': continue
-				print ('q2'+ud).ljust(ljust_i),
-				for cat in catList:
-					tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-					catStr='is'+cat[0]+'_'+tagStr
-					histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-					print ' & '+str(round_sig(yieldTable[histoPrefix+'q2'+ud][process]/(yieldTable[histoPrefix][process]+1e-20),2)),
-				print '\\\\',
-				print
 		
-	print
-	print "FOR PAS (errors are statistical+normalization systematics): " #combines e/m channels
-	print
-	print 'YIELDS'.ljust(20*ljust_i), 
-	for tag in tagList:
-		tagStr = 'nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
-		print (tagStr).ljust(ljust_i),
-	print
-	for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
-		print process.ljust(ljust_i),
+		print
+		print "FOR PAS (errors are statistical+normalization systematics): " #combines e/m channels
+		print
+		print 'YIELDS'.ljust(20*ljust_i), 
 		for tag in tagList:
 			tagStr = 'nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
-			histoPrefix=discriminant+'_'+lumiStr+'fb_isE'+'_'+tagStr
-			if process=='dataOverBkg':
-				dataTemp = yieldTable[histoPrefix]['data']+yieldTable[histoPrefix.replace('_isE','_isM')]['data']+1e-20
-				dataTempErr = yieldStatErrTable[histoPrefix]['data']+yieldStatErrTable[histoPrefix.replace('_isE','_isM')]['data']
-				totBkgTemp = yieldTable[histoPrefix]['totBkg']+yieldTable[histoPrefix.replace('_isE','_isM')]['totBkg']+1e-20
-				totBkgTempErr = yieldStatErrTable[histoPrefix]['totBkg']+yieldStatErrTable[histoPrefix.replace('_isE','_isM')]['totBkg'] # statistical error squared
-				totBkgTempErr += (addSys['top_'+tagStr]*(yieldTable[histoPrefix]['top']+yieldTable[histoPrefix.replace('_isE','_isM')]['top']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-				totBkgTempErr += (addSys['ewk_'+tagStr]*(yieldTable[histoPrefix]['ewk']+yieldTable[histoPrefix.replace('_isE','_isM')]['ewk']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-				totBkgTempErr += (addSys['qcd_'+tagStr]*(yieldTable[histoPrefix]['qcd']+yieldTable[histoPrefix.replace('_isE','_isM')]['qcd']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-				totBkgTempErr += (corrdSys*totBkgTemp)**2
-				dataOverBkgErr = ((dataTemp/totBkgTemp)**2)*(dataTempErr/dataTemp**2+totBkgTempErr/totBkgTemp**2)
-				print ' & '+str(round_sig(dataTemp/totBkgTemp,5))+' $\pm$ '+str(round_sig(math.sqrt(dataOverBkgErr),2)),
-			else:
-				yieldtemp = yieldTable[histoPrefix][process]+yieldTable[histoPrefix.replace('_isE','_isM')][process]
-				yielderrtemp = yieldStatErrTable[histoPrefix][process]++yieldStatErrTable[histoPrefix.replace('_isE','_isM')][process]
-				if process=='totBkg': 
-					yielderrtemp += (corrdSys*yieldtemp)**2
-					yielderrtemp += (addSys['top_'+tagStr]*(yieldTable[histoPrefix]['top']+yieldTable[histoPrefix.replace('_isE','_isM')]['top']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-					yielderrtemp += (addSys['ewk_'+tagStr]*(yieldTable[histoPrefix]['ewk']+yieldTable[histoPrefix.replace('_isE','_isM')]['ewk']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-					yielderrtemp += (addSys['qcd_'+tagStr]*(yieldTable[histoPrefix]['qcd']+yieldTable[histoPrefix.replace('_isE','_isM')]['qcd']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-				elif process in sigList: 
-					yielderrtemp += (corrdSys*yieldtemp)**2
-				elif process!='data': 
-					yielderrtemp += (corrdSys*yieldtemp)**2
-					yielderrtemp += (addSys[process+'_'+tagStr]*(yieldTable[histoPrefix][process]+yieldTable[histoPrefix.replace('_isE','_isM')][process]))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-				if process=='data': print ' & '+str(int(yieldtemp)),
-				elif process not in sigList: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
-				else: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
-		print '\\\\',
+			print (tagStr).ljust(ljust_i),
 		print
+		for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
+			print process.ljust(ljust_i),
+			for tag in tagList:
+				tagStr = 'nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
+				histoPrefix=discriminant+'_'+lumiStr+'fb_isE'+'_'+tagStr
+				if process=='dataOverBkg':
+					dataTemp = yieldTable[histoPrefix]['data']+yieldTable[histoPrefix.replace('_isE','_isM')]['data']+1e-20
+					dataTempErr = yieldStatErrTable[histoPrefix]['data']+yieldStatErrTable[histoPrefix.replace('_isE','_isM')]['data']
+					totBkgTemp = yieldTable[histoPrefix]['totBkg']+yieldTable[histoPrefix.replace('_isE','_isM')]['totBkg']+1e-20
+					totBkgTempErr = yieldStatErrTable[histoPrefix]['totBkg']+yieldStatErrTable[histoPrefix.replace('_isE','_isM')]['totBkg'] # statistical error squared
+					totBkgTempErr += (addSys['top_'+tagStr]*(yieldTable[histoPrefix]['top']+yieldTable[histoPrefix.replace('_isE','_isM')]['top']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					totBkgTempErr += (addSys['ewk_'+tagStr]*(yieldTable[histoPrefix]['ewk']+yieldTable[histoPrefix.replace('_isE','_isM')]['ewk']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					totBkgTempErr += (addSys['qcd_'+tagStr]*(yieldTable[histoPrefix]['qcd']+yieldTable[histoPrefix.replace('_isE','_isM')]['qcd']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					totBkgTempErr += (corrdSys*totBkgTemp)**2
+					dataOverBkgErr = ((dataTemp/totBkgTemp)**2)*(dataTempErr/dataTemp**2+totBkgTempErr/totBkgTemp**2)
+					print ' & '+str(round_sig(dataTemp/totBkgTemp,5))+' $\pm$ '+str(round_sig(math.sqrt(dataOverBkgErr),2)),
+				else:
+					yieldtemp = yieldTable[histoPrefix][process]+yieldTable[histoPrefix.replace('_isE','_isM')][process]
+					yielderrtemp = yieldStatErrTable[histoPrefix][process]++yieldStatErrTable[histoPrefix.replace('_isE','_isM')][process]
+					if process=='totBkg': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys['top_'+tagStr]*(yieldTable[histoPrefix]['top']+yieldTable[histoPrefix.replace('_isE','_isM')]['top']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+						yielderrtemp += (addSys['ewk_'+tagStr]*(yieldTable[histoPrefix]['ewk']+yieldTable[histoPrefix.replace('_isE','_isM')]['ewk']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+						yielderrtemp += (addSys['qcd_'+tagStr]*(yieldTable[histoPrefix]['qcd']+yieldTable[histoPrefix.replace('_isE','_isM')]['qcd']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					elif process in sigList: 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+					elif process!='data': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys[process+'_'+tagStr]*(yieldTable[histoPrefix][process]+yieldTable[histoPrefix.replace('_isE','_isM')][process]))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					if process=='data': print ' & '+str(int(yieldtemp)),
+					elif process not in sigList: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+					else: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+			print '\\\\',
+			print
 		
-	sys.stdout = stdout_old
-	logFile.close()
+		sys.stdout = stdout_old
+		logFile.close()
 
 ###########################################################
 ################ CATEGORIZATION DECAYS ####################
@@ -702,111 +725,111 @@ def makeThetaCatsIndDecays(datahists,sighists,bkghists,discriminant):
 				histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
 
 				#Group processes
-				hwjets[catStr] = bkghists[histoPrefix+'_'+wjetList[0]].Clone(histoPrefix+'_WJets')
-				hzjets[catStr] = bkghists[histoPrefix+'_'+zjetList[0]].Clone(histoPrefix+'_ZJets')
-				httjets[catStr] = bkghists[histoPrefix+'_'+ttjetList[0]].Clone(histoPrefix+'_TTJets')
-				ht[catStr] = bkghists[histoPrefix+'_'+tList[0]].Clone(histoPrefix+'_T')
-				httw[catStr] = bkghists[histoPrefix+'_'+ttwList[0]].Clone(histoPrefix+'_TTW')
-				httz[catStr] = bkghists[histoPrefix+'_'+ttzList[0]].Clone(histoPrefix+'_TTZ')
-				hvv[catStr] = bkghists[histoPrefix+'_'+vvList[0]].Clone(histoPrefix+'_VV')
+				hwjets[i] = bkghists[histoPrefix+'_'+wjetList[0]].Clone(histoPrefix+'_WJets')
+				hzjets[i] = bkghists[histoPrefix+'_'+zjetList[0]].Clone(histoPrefix+'_ZJets')
+				httjets[i] = bkghists[histoPrefix+'_'+ttjetList[0]].Clone(histoPrefix+'_TTJets')
+				ht[i] = bkghists[histoPrefix+'_'+tList[0]].Clone(histoPrefix+'_T')
+				httw[i] = bkghists[histoPrefix+'_'+ttwList[0]].Clone(histoPrefix+'_TTW')
+				httz[i] = bkghists[histoPrefix+'_'+ttzList[0]].Clone(histoPrefix+'_TTZ')
+				hvv[i] = bkghists[histoPrefix+'_'+vvList[0]].Clone(histoPrefix+'_VV')
 				for bkg in ttjetList:
-					if bkg!=ttjetList[0]: httjets[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=ttjetList[0]: httjets[i].Add(bkghists[histoPrefix+'_'+bkg])
 				for bkg in wjetList:
-					if bkg!=wjetList[0]: hwjets[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=wjetList[0]: hwjets[i].Add(bkghists[histoPrefix+'_'+bkg])
 				for bkg in ttwList:
-					if bkg!=ttwList[0]: httw[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=ttwList[0]: httw[i].Add(bkghists[histoPrefix+'_'+bkg])
 				for bkg in ttzList:
-					if bkg!=ttzList[0]: httz[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=ttzList[0]: httz[i].Add(bkghists[histoPrefix+'_'+bkg])
 				for bkg in tList:
-					if bkg!=tList[0]: ht[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=tList[0]: ht[i].Add(bkghists[histoPrefix+'_'+bkg])
 				for bkg in zjetList:
-					if bkg!=zjetList[0]: hzjets[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=zjetList[0]: hzjets[i].Add(bkghists[histoPrefix+'_'+bkg])
 				for bkg in vvList:
-					if bkg!=vvList[0]: hvv[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=vvList[0]: hvv[i].Add(bkghists[histoPrefix+'_'+bkg])
 		
 				#Group QCD processes
-				hqcd[catStr] = bkghists[histoPrefix+'_'+qcdList[0]].Clone(histoPrefix+'__qcd')
+				hqcd[i] = bkghists[histoPrefix+'_'+qcdList[0]].Clone(histoPrefix+'__qcd')
 				for bkg in qcdList: 
-					if bkg!=qcdList[0]: hqcd[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=qcdList[0]: hqcd[i].Add(bkghists[histoPrefix+'_'+bkg])
 		
 				#Group EWK processes
-				hewk[catStr] = bkghists[histoPrefix+'_'+ewkList[0]].Clone(histoPrefix+'__ewk')
+				hewk[i] = bkghists[histoPrefix+'_'+ewkList[0]].Clone(histoPrefix+'__ewk')
 				for bkg in ewkList:
-					if bkg!=ewkList[0]: hewk[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=ewkList[0]: hewk[i].Add(bkghists[histoPrefix+'_'+bkg])
 		
 				#Group TOP processes
-				htop[catStr] = bkghists[histoPrefix+'_'+topList[0]].Clone(histoPrefix+'__top')
+				htop[i] = bkghists[histoPrefix+'_'+topList[0]].Clone(histoPrefix+'__top')
 				for bkg in topList:
-					if bkg!=topList[0]: htop[catStr].Add(bkghists[histoPrefix+'_'+bkg])
+					if bkg!=topList[0]: htop[i].Add(bkghists[histoPrefix+'_'+bkg])
 		
 				#get signal
-				hsig[catStr] = sighists[histoPrefix+'_'+signal+decay].Clone(histoPrefix+'__sig')
+				hsig[i] = sighists[histoPrefix+'_'+signal+decay].Clone(histoPrefix+'__sig')
 
 				#systematics
 				if doAllSys:
 					for systematic in systematicList:
 						for ud in ['Up','Down']:
 							if systematic!='toppt':
-								hqcd[systematic+ud+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
-								hewk[systematic+ud+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
-								htop[systematic+ud+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+topList[0]].Clone(histoPrefix+'__top__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
-								hsig[systematic+ud+catStr] = sighists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+signal+decay].Clone(histoPrefix+'__sig__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								hqcd[systematic+ud+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								hewk[systematic+ud+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								htop[systematic+ud+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+topList[0]].Clone(histoPrefix+'__top__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								hsig[systematic+ud+str(i)] = sighists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+signal+decay].Clone(histoPrefix+'__sig__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
 								for bkg in qcdList: 
-									if bkg!=qcdList[0]: hqcd[systematic+ud+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
+									if bkg!=qcdList[0]: hqcd[systematic+ud+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
 								for bkg in ewkList: 
-									if bkg!=ewkList[0]: hewk[systematic+ud+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
+									if bkg!=ewkList[0]: hewk[systematic+ud+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
 								for bkg in topList: 
-									if bkg!=topList[0]: htop[systematic+ud+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
+									if bkg!=topList[0]: htop[systematic+ud+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
 							if systematic=='toppt': # top pt is only on the ttbar sample, so it needs special treatment!
-								htop[systematic+ud+catStr] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+ttjetList[0]].Clone(histoPrefix+'__top__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
+								htop[systematic+ud+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+ttjetList[0]].Clone(histoPrefix+'__top__'+systematic+'__'+ud.replace('Up','plus').replace('Down','minus'))
 								for bkg in ttjetList: 
-									if bkg!=ttjetList[0]: htop[systematic+ud+catStr].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
+									if bkg!=ttjetList[0]: htop[systematic+ud+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+systematic+ud)+'_'+bkg])
 								for bkg in topList: 
-									if bkg not in ttjetList: htop[systematic+ud+catStr].Add(bkghists[histoPrefix+'_'+bkg])
+									if bkg not in ttjetList: htop[systematic+ud+str(i)].Add(bkghists[histoPrefix+'_'+bkg])
 					
 				if doQ2sys:
-					htop['q2Up'+catStr] = bkghists[histoPrefix+'_'+q2UpList[0]].Clone(histoPrefix+'__top__q2__plus')
-					htop['q2Down'+catStr] = bkghists[histoPrefix+'_'+q2DownList[0]].Clone(histoPrefix+'__top__q2__minus')
+					htop['q2Up'+str(i)] = bkghists[histoPrefix+'_'+q2UpList[0]].Clone(histoPrefix+'__top__q2__plus')
+					htop['q2Down'+str(i)] = bkghists[histoPrefix+'_'+q2DownList[0]].Clone(histoPrefix+'__top__q2__minus')
 					for ind in range(1,len(q2UpList)):
-						htop['q2Up'+catStr].Add(bkghists[histoPrefix+'_'+q2UpList[ind]])
-						htop['q2Down'+catStr].Add(bkghists[histoPrefix+'_'+q2DownList[ind]])
+						htop['q2Up'+str(i)].Add(bkghists[histoPrefix+'_'+q2UpList[ind]])
+						htop['q2Down'+str(i)].Add(bkghists[histoPrefix+'_'+q2DownList[ind]])
 		
 				#Group data processes
-				hdata[catStr] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
+				hdata[i] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
 				for dat in dataList:
-					if dat!=dataList[0]: hdata[catStr].Add(datahists[histoPrefix+'_'+dat])
+					if dat!=dataList[0]: hdata[i].Add(datahists[histoPrefix+'_'+dat])
 
 				#prepare yield table
-				yieldTable[histoPrefix]['top']    = htop[catStr].Integral()
-				yieldTable[histoPrefix]['ewk']    = hewk[catStr].Integral()
-				yieldTable[histoPrefix]['qcd']    = hqcd[catStr].Integral()
-				yieldTable[histoPrefix]['totBkg'] = htop[catStr].Integral()+hewk[catStr].Integral()+hqcd[catStr].Integral()
-				yieldTable[histoPrefix]['data']   = hdata[catStr].Integral()
+				yieldTable[histoPrefix]['top']    = htop[i].Integral()
+				yieldTable[histoPrefix]['ewk']    = hewk[i].Integral()
+				yieldTable[histoPrefix]['qcd']    = hqcd[i].Integral()
+				yieldTable[histoPrefix]['totBkg'] = htop[i].Integral()+hewk[i].Integral()+hqcd[i].Integral()
+				yieldTable[histoPrefix]['data']   = hdata[i].Integral()
 				yieldTable[histoPrefix]['dataOverBkg']= yieldTable[histoPrefix]['data']/yieldTable[histoPrefix]['totBkg']
-				yieldTable[histoPrefix]['WJets']  = hwjets[catStr].Integral()
-				yieldTable[histoPrefix]['ZJets']  = hzjets[catStr].Integral()
-				yieldTable[histoPrefix]['VV']     = hvv[catStr].Integral()
-				yieldTable[histoPrefix]['TTW']    = httw[catStr].Integral()
-				yieldTable[histoPrefix]['TTZ']    = httz[catStr].Integral()
-				yieldTable[histoPrefix]['TTJets'] = httjets[catStr].Integral()
-				yieldTable[histoPrefix]['T']      = ht[catStr].Integral()
-				yieldTable[histoPrefix]['QCD']    = hqcd[catStr].Integral()
-				yieldTable[histoPrefix][signal]   = hsig[catStr].Integral()
+				yieldTable[histoPrefix]['WJets']  = hwjets[i].Integral()
+				yieldTable[histoPrefix]['ZJets']  = hzjets[i].Integral()
+				yieldTable[histoPrefix]['VV']     = hvv[i].Integral()
+				yieldTable[histoPrefix]['TTW']    = httw[i].Integral()
+				yieldTable[histoPrefix]['TTZ']    = httz[i].Integral()
+				yieldTable[histoPrefix]['TTJets'] = httjets[i].Integral()
+				yieldTable[histoPrefix]['T']      = ht[i].Integral()
+				yieldTable[histoPrefix]['QCD']    = hqcd[i].Integral()
+				yieldTable[histoPrefix][signal]   = hsig[i].Integral()
 		
 				#+/- 1sigma variations of shape systematics
 				if doAllSys:
 					for systematic in systematicList:
 						for ud in ['Up','Down']:
-							yieldTable[histoPrefix+systematic+ud]['top']    = htop[systematic+ud+catStr].Integral()
+							yieldTable[histoPrefix+systematic+ud]['top']    = htop[systematic+ud+str(i)].Integral()
 							if systematic!='toppt':
-								yieldTable[histoPrefix+systematic+ud]['ewk']    = hewk[systematic+ud+catStr].Integral()
-								yieldTable[histoPrefix+systematic+ud]['qcd']    = hqcd[systematic+ud+catStr].Integral()
-								yieldTable[histoPrefix+systematic+ud]['totBkg'] = htop[systematic+ud+catStr].Integral()+hewk[systematic+ud+catStr].Integral()+hqcd[systematic+ud+catStr].Integral()
-								yieldTable[histoPrefix+systematic+ud][signal]   = hsig[systematic+ud+catStr].Integral()
+								yieldTable[histoPrefix+systematic+ud]['ewk']    = hewk[systematic+ud+str(i)].Integral()
+								yieldTable[histoPrefix+systematic+ud]['qcd']    = hqcd[systematic+ud+str(i)].Integral()
+								yieldTable[histoPrefix+systematic+ud]['totBkg'] = htop[systematic+ud+str(i)].Integral()+hewk[systematic+ud+str(i)].Integral()+hqcd[systematic+ud+str(i)].Integral()
+								yieldTable[histoPrefix+systematic+ud][signal]   = hsig[systematic+ud+str(i)].Integral()
 					
 				if doQ2sys:
-					yieldTable[histoPrefix+'q2Up']['top']    = htop['q2Up'+catStr].Integral()
-					yieldTable[histoPrefix+'q2Down']['top']    = htop['q2Down'+catStr].Integral()
+					yieldTable[histoPrefix+'q2Up']['top']    = htop['q2Up'+str(i)].Integral()
+					yieldTable[histoPrefix+'q2Down']['top']    = htop['q2Down'+str(i)].Integral()
 
 				#prepare MC yield error table
 				yieldStatErrTable[histoPrefix]['top']    = 0.
@@ -825,76 +848,76 @@ def makeThetaCatsIndDecays(datahists,sighists,bkghists,discriminant):
 				yieldStatErrTable[histoPrefix]['QCD']    = 0.
 				yieldStatErrTable[histoPrefix][signal]   = 0.
 
-				for ibin in range(1,hsig[catStr].GetXaxis().GetNbins()+1):
-					yieldStatErrTable[histoPrefix]['top']    += htop[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['ewk']    += hewk[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['qcd']    += hqcd[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['totBkg'] += htop[catStr].GetBinError(ibin)**2+hewk[catStr].GetBinError(ibin)**2+hqcd[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['data']   += hdata[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['WJets']  += hwjets[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['ZJets']  += hzjets[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['VV']     += hvv[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['TTW']    += httw[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['TTZ']    += httz[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['TTJets'] += httjets[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['T']      += ht[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix]['QCD']    += hqcd[catStr].GetBinError(ibin)**2
-					yieldStatErrTable[histoPrefix][signal]   += hsig[catStr].GetBinError(ibin)**2
+				for ibin in range(1,hsig[i].GetXaxis().GetNbins()+1):
+					yieldStatErrTable[histoPrefix]['top']    += htop[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['ewk']    += hewk[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['qcd']    += hqcd[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['totBkg'] += htop[i].GetBinError(ibin)**2+hewk[i].GetBinError(ibin)**2+hqcd[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['data']   += hdata[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['WJets']  += hwjets[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['ZJets']  += hzjets[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['VV']     += hvv[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['TTW']    += httw[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['TTZ']    += httz[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['TTJets'] += httjets[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['T']      += ht[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix]['QCD']    += hqcd[i].GetBinError(ibin)**2
+					yieldStatErrTable[histoPrefix][signal]   += hsig[i].GetBinError(ibin)**2
 
 				#scale signal cross section to 1pb
-				if scaleSignalXsecTo1pb: hsig[catStr].Scale(1./xsec[signal])
+				if scaleSignalXsecTo1pb: hsig[i].Scale(1./xsec[signal])
 				BRcoeff = 1.
 				if decay[:2]!=decay[2:]: BRcoeff = 2.
-				hsig[catStr].Scale(1./(BRcoeff*BR[decay[:2]]*BR[decay[2:]]))
+				hsig[i].Scale(1./(BRcoeff*BR[decay[:2]]*BR[decay[2:]]))
 				#write theta histograms in root file, avoid having processes with no event yield (to make theta happy) 
-				if hsig[catStr].Integral() > 0:  
-					hsig[catStr].Write()
+				if hsig[i].Integral() > 0:  
+					hsig[i].Write()
 					if doAllSys:
 						for systematic in systematicList:
 							if systematic=='toppt': continue
 							if scaleSignalXsecTo1pb: 
-								hsig[systematic+'Up'+catStr].Scale(1./xsec[signal])
-								hsig[systematic+'Down'+catStr].Scale(1./xsec[signal])
-							hsig[systematic+'Up'+catStr].Scale(1./(BRcoeff*BR[decay[:2]]*BR[decay[2:]]))
-							hsig[systematic+'Down'+catStr].Scale(1./(BRcoeff*BR[decay[:2]]*BR[decay[2:]]))
+								hsig[systematic+'Up'+str(i)].Scale(1./xsec[signal])
+								hsig[systematic+'Down'+str(i)].Scale(1./xsec[signal])
+							hsig[systematic+'Up'+str(i)].Scale(1./(BRcoeff*BR[decay[:2]]*BR[decay[2:]]))
+							hsig[systematic+'Down'+str(i)].Scale(1./(BRcoeff*BR[decay[:2]]*BR[decay[2:]]))
 							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-								hsig[systematic+'Up'+catStr].Scale(hsig[catStr].Integral()/hsig[systematic+'Up'+catStr].Integral())
-								hsig[systematic+'Down'+catStr].Scale(hsig[catStr].Integral()/hsig[systematic+'Down'+catStr].Integral())
-							hsig[systematic+'Up'+catStr].Write()
-							hsig[systematic+'Down'+catStr].Write()
-				if htop[catStr].Integral() > 0:  
-					htop[catStr].Write()
+								hsig[systematic+'Up'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Up'+str(i)].Integral())
+								hsig[systematic+'Down'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Down'+str(i)].Integral())
+							hsig[systematic+'Up'+str(i)].Write()
+							hsig[systematic+'Down'+str(i)].Write()
+				if htop[i].Integral() > 0:  
+					htop[i].Write()
 					if doAllSys:
 						for systematic in systematicList:
 							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-								htop[systematic+'Up'+catStr].Scale(htop[catStr].Integral()/htop[systematic+'Up'+catStr].Integral())
-								htop[systematic+'Down'+catStr].Scale(htop[catStr].Integral()/htop[systematic+'Down'+catStr].Integral())  
-							htop[systematic+'Up'+catStr].Write()
-							htop[systematic+'Down'+catStr].Write()
+								htop[systematic+'Up'+str(i)].Scale(htop[i].Integral()/htop[systematic+'Up'+str(i)].Integral())
+								htop[systematic+'Down'+str(i)].Scale(htop[i].Integral()/htop[systematic+'Down'+str(i)].Integral())  
+							htop[systematic+'Up'+str(i)].Write()
+							htop[systematic+'Down'+str(i)].Write()
 					if doQ2sys:
-						htop['q2Up'+catStr].Write()
-						htop['q2Down'+catStr].Write()
-				if hewk[catStr].Integral() > 0:  
-					hewk[catStr].Write()
+						htop['q2Up'+str(i)].Write()
+						htop['q2Down'+str(i)].Write()
+				if hewk[i].Integral() > 0:  
+					hewk[i].Write()
 					if doAllSys:
 						for systematic in systematicList:
 							if systematic=='toppt': continue
 							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-								hewk[systematic+'Up'+catStr].Scale(hewk[catStr].Integral()/hewk[systematic+'Up'+catStr].Integral())
-								hewk[systematic+'Down'+catStr].Scale(hewk[catStr].Integral()/hewk[systematic+'Down'+catStr].Integral()) 
-							hewk[systematic+'Up'+catStr].Write()
-							hewk[systematic+'Down'+catStr].Write()
-				if hqcd[catStr].Integral() > 0:  
-					hqcd[catStr].Write()
+								hewk[systematic+'Up'+str(i)].Scale(hewk[i].Integral()/hewk[systematic+'Up'+str(i)].Integral())
+								hewk[systematic+'Down'+str(i)].Scale(hewk[i].Integral()/hewk[systematic+'Down'+str(i)].Integral()) 
+							hewk[systematic+'Up'+str(i)].Write()
+							hewk[systematic+'Down'+str(i)].Write()
+				if hqcd[i].Integral() > 0:  
+					hqcd[i].Write()
 					if doAllSys:
 						for systematic in systematicList:
 							if systematic=='toppt': continue
 							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-								hqcd[systematic+'Up'+catStr].Scale(hqcd[catStr].Integral()/hqcd[systematic+'Up'+catStr].Integral())
-								hqcd[systematic+'Down'+catStr].Scale(hqcd[catStr].Integral()/hqcd[systematic+'Down'+catStr].Integral()) 
-							hqcd[systematic+'Up'+catStr].Write()
-							hqcd[systematic+'Down'+catStr].Write()
-				hdata[catStr].Write()
+								hqcd[systematic+'Up'+str(i)].Scale(hqcd[i].Integral()/hqcd[systematic+'Up'+str(i)].Integral())
+								hqcd[systematic+'Down'+str(i)].Scale(hqcd[i].Integral()/hqcd[systematic+'Down'+str(i)].Integral()) 
+							hqcd[systematic+'Up'+str(i)].Write()
+							hqcd[systematic+'Down'+str(i)].Write()
+				hdata[i].Write()
 				i+=1
 			outputRfile.Close()
 	
@@ -1175,8 +1198,8 @@ if scaleLumi:
 
 print "MAKING CATEGORIES FOR TOTAL SIGNALS ..."
 makeThetaCats(datahists,sighists,bkghists,iPlot)
-print "MAKING CATEGORIES FOR DECAY CHANNELS ..."
-if len(decays)>1: makeThetaCatsIndDecays(datahists,sighists,bkghists,iPlot)
+# print "MAKING CATEGORIES FOR DECAY CHANNELS ..."
+# if len(decays)>1 and not doBRScan: makeThetaCatsIndDecays(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 

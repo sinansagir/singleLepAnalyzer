@@ -11,7 +11,7 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet_1lepTT_021916_step2newTaus/nominal/' #new tau21<0.6 cut
+step1Dir = '/user_data/jhogan/LJMet_1lepTT_030416_step2AllNewSFs/nominal/' #new tau21 cuts
 #step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal/' #x53
 """
 Note: 
@@ -109,7 +109,7 @@ bjet1PtCut=0
 htCut=0
 stCut=0
 minMlbCut=0
-isEMlist=['E','M']
+isEMlist =['E','M']
 nttaglist=['0p']
 nWtaglist=['0','1p']
 nbtaglist=['0','1','2','3p']
@@ -164,7 +164,7 @@ cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+s
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_minMlb'
+pfix='templates_minMlb_'
 pfix+=datestr+'_'+timestr
 
 def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization

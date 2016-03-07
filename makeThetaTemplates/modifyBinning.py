@@ -5,7 +5,7 @@ from array import array
 from ROOT import *
 
 cutString = 'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateDir = os.getcwd()+'/templates_minMlb_tau21LT0p6_tptp_2016_2_23/'
+templateDir = os.getcwd()+'/templates_minMlb_tau21LT0p6_tptp_2016_3_4/'
 
 rebinHists = True
 xbinsList = {}
@@ -51,7 +51,7 @@ def findfiles(path, filtre):
         for f in fnmatch.filter(files, filtre):
             yield os.path.join(root, f)
             
-rfiles = [file for file in findfiles(templateDir+cutString, '*.root') if '0_2p263fb.root' in file]
+rfiles = [file for file in findfiles(templateDir+cutString, '*.root') if '00_2p318fb.root' in file]
 
 tfile = {}
 outputRfile = {}

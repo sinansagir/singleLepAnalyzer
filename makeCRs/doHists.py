@@ -10,7 +10,7 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet_1lepTT_021516_step2final/nominal/'
+step1Dir = '/user_data/jhogan/LJMet_1lepTT_030416_step2AllNewSFs/nominal/'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -53,8 +53,6 @@ bkgList = [
 		   'TTZl','TTZq',
 		   'Tt','Ts',
 		   'TtW','TbtW',
-# 		   'QCDem30','QCDem50','QCDem80','QCDem120','QCDem170','QCDem300',
-# 		   'QCDmu30','QCDmu50','QCDmu80','QCDmu120','QCDmu170','QCDmu300','QCDmu470','QCDmu600','QCDmu800','QCDmu1000',
  		   'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		   ]
 

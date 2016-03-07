@@ -25,6 +25,6 @@ python doHists.py $condorDir \
                   --stCut=${15} \
                   --minMlbCut=${16} \
                   --isEM=${17} \
-                  --nWtag=${18} \
+                  --nttag=${18} \
                   --nWtag=${19} \
                   --nbtag=${20}

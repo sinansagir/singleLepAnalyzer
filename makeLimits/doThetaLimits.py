@@ -1,6 +1,6 @@
 import os,sys,fnmatch
 
-templateDir='/home/ssagir/CMSSW_7_3_0/src/tptp_Jan16/makeThetaTemplatesWithShapes/templates_minMlb_tau21LT0p6_tptp_2016_2_23'
+templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/makeThetaTemplates/templates_minMlb_tau21LT0p6_bpbp_2016_3_5'
 thetaConfigTemp = os.getcwd()+'/theta_config_template.py'
 
 systematicsInFile = ['pileup','q2','jec','jer','jmr','jms','btag','tau21','pdf','pdfNew','muR','muF','muRFcorrd','muRFcorrdNew','muRFdecorrdNew','toppt','jsf','muRFenv']
@@ -9,13 +9,13 @@ btagChannels = ['nB0','nB1','nB2','nB3p']
 toFilter = ['pdf','muR','muF','muRFcorrd','muRFdecorrdNew','muRFenv']
 toFilter = ['__'+item+'__' for item in toFilter]
 #toFilter+= [chan for chan in btagChannels if chan!='nB3p']
-#toFilter+= ['nB0']
+#toFilter+= ['nW1p']
 #toFilter+= ['qcd__pdfNew','qcd__muRFcorrdNew']
 print toFilter
 
 if not os.path.exists('/user_data/ssagir/limits/'+templateDir.split('/')[-1]): os.system('mkdir /user_data/ssagir/limits/'+templateDir.split('/')[-1]) #prevent writing these (they are large) to brux6 common area
-outDir = '/user_data/ssagir/limits/'+templateDir.split('/')[-1]+'/'
-outDir+= 'all_2p318invfb/'#'pdf_RF_'+'decorrelated/'
+outputDir = '/user_data/ssagir/limits/'+templateDir.split('/')[-1]+'/'
+limitType = 'all'#'pdf_RF_'+'decorrelated/'
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -25,15 +25,7 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    #if 'TTM800' not in rootfile or '2p215fb.root' in rootfile: continue
-    #if '_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0' in rootfile: continue
-    #if '_ST1750' not in rootfile and '_ST2000' not in rootfile: continue
-    #if '_minMlb250' not in rootfile and '_minMlb300' not in rootfile: continue
-    #if 'lep40_MET75_1jet125_2jet75_NJets3_NBJets0_3jet40_4jet0_5jet0_DR1_1Wjet250_1bjet100_HT0_ST0_minMlb200' not in rootfile: continue # HT best set of cuts
-    #if 'lep80_MET40_1jet300_2jet200_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST1500_minMlb0' not in rootfile: continue # minMlb best set of cuts
-    #if 'TTM800' in rootfile or '2p215fb.root' in rootfile: continue
-    #if 'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0' not in rootfile: continue
-    if '_rebinned.root' not in rootfile: continue
+    if '00_2p318fb_rebinned.root' not in rootfile: continue
     if 'TTM1800' in rootfile: continue
     if 'TTM1700' in rootfile: continue
     if 'TTM1600' in rootfile: continue
@@ -46,11 +38,11 @@ f = open(thetaConfigTemp, 'rU')
 thetaConfigLines = f.readlines()
 f.close()
 
-def makeThetaConfig(rFile):
+def makeThetaConfig(rFile,outDir):
 	rFileDir = rFile.split('/')[-2]
-	with open(outDir+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.py','w') as fout:
+	with open(outDir+'/'+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.py','w') as fout:
 		for line in thetaConfigLines:
-			if line.startswith('outDir ='): fout.write('outDir = \''+outDir+rFileDir+'\'')
+			if line.startswith('outDir ='): fout.write('outDir = \''+outDir+'/'+rFileDir+'\'')
 			elif line.startswith('input ='): fout.write('input = \''+rFile+'\'')
 			elif line.startswith('    model = build_model_from_rootfile('): 
 				if len(toFilter)!=0:
@@ -61,23 +53,27 @@ def makeThetaConfig(rFile):
 					fout.write(model)
 				else: fout.write(line)
 			else: fout.write(line)
-	with open(outDir+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.sh','w') as fout:
+	with open(outDir+'/'+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.sh','w') as fout:
 		fout.write('#!/bin/sh \n')
 		fout.write('cd /home/ssagir/CMSSW_7_3_0/src/\n')
 		fout.write('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
 		fout.write('cmsenv\n')
-		fout.write('cd '+outDir+rFileDir+'\n')
-		fout.write('/home/ssagir/CMSSW_7_3_0/src/theta/utils2/theta-auto.py ' + outDir+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.py')
+		fout.write('cd '+outDir+'/'+rFileDir+'\n')
+		fout.write('/home/ssagir/CMSSW_7_3_0/src/theta/utils2/theta-auto.py ' + outDir+'/'+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.py')
 
 count=0
 for file in rootfilelist:
+	signal = file.split('/')[-1].split('_')[2]
+	BRStr = file.split('/')[-1][file.split('/')[-1].find(signal)+len(signal):file.split('/')[-1].find('_2p318fb')]
+	outDir = outputDir+limitType+BRStr+'/'
+	print signal,BRStr
 	if not os.path.exists(outDir): os.system('mkdir '+outDir)
 	os.chdir(outDir)
 	fileDir = file.split('/')[-2]
 	#if os.path.exists(outDir+fileDir+'/'+file.split('/')[-1][:-5]+'.job'): continue
 	if not os.path.exists(outDir+fileDir): os.system('mkdir '+fileDir)
 	os.chdir(fileDir)
-	makeThetaConfig(file)
+	makeThetaConfig(file,outDir)
 
 	dict={'configdir':outDir+fileDir,'configfile':file.split('/')[-1][:-5]}
 
