@@ -11,8 +11,7 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet_1lepTT_030416_step2AllNewSFs/nominal/' #new tau21 cuts
-#step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal/' #x53
+step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal/' #x53
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -52,16 +51,16 @@ bkgList = [
 
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
-whichSignal = 'TT' #TT, BB, or X53X53
-signalMassRange = [700,1800]
+whichSignal = 'X53X53' #TT, BB, or X53X53
+signalMassRange = [700,1600]
 sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
-doAllSys= True
-doQ2sys = True
+doAllSys= False
+doQ2sys = doAllSys
 q2List  = [#energy scale sample to be processed
 	      'TTJetsPHQ2U','TTJetsPHQ2D',
 	      'TtWQ2U','TbtWQ2U',
@@ -94,13 +93,13 @@ except getopt.GetoptError as err:
 	print str(err)
 	sys.exit(1)
 
-lepPtCut=40
-jet1PtCut=300
-jet2PtCut=150
-metCut=75
-njetsCut=3
+lepPtCut=80
+jet1PtCut=200
+jet2PtCut=90
+metCut=100
+njetsCut=4
 nbjetsCut=0
-jet3PtCut=100
+jet3PtCut=0
 jet4PtCut=0
 jet5PtCut=0
 drCut=1
@@ -110,9 +109,9 @@ htCut=0
 stCut=0
 minMlbCut=0
 isEMlist =['E','M']
-nttaglist=['0p']
+nttaglist=['0','1p']
 nWtaglist=['0','1p']
-nbtaglist=['0','1','2','3p']
+nbtaglist=['1','2p']
 
 for o, a in opts:
 	print o, a

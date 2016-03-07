@@ -1,47 +1,13 @@
 import os,sys,datetime,itertools
 
-#Basic kinematic cuts optimization configuration (w/o shapes) -- Step1:
-# lepPtCutList  = [40,50,60,80,100]
-# jet1PtCutList = [125,150,200,300,400,500]
-# jet2PtCutList = [75,100,150,200]
-# metCutList    = [40,50,75,100,125]
-# njetsCutList  = [3,4,5]
-# nbjetsCutList = [0]
-# jet3PtCutList = [30,40,50,75,100,150,200]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [1]
-# Wjet1PtCutList= [0]
-# bjet1PtCutList= [0]
-# htCutList     = [0]
-# stCutList     = [0]
-# minMlbCutList = [0]
-
-#Additional kinematic cuts optimization configuration (w/o shapes) for minMlb -- Step2:
-# lepPtCutList  = [80]
-# jet1PtCutList = [300]
-# jet2PtCutList = [200]
-# metCutList    = [40]
-# njetsCutList  = [3]
-# nbjetsCutList = [0]
-# jet3PtCutList = [100]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [0,1,1.25,1.5]
-# Wjet1PtCutList= [0,200,250,300,400]
-# bjet1PtCutList= [0,100,150,200,300]
-# htCutList     = [0]
-# stCutList     = [0,600,800,1000,1200,1500,1750,2000]
-# minMlbCutList = [0]
-
-#Basic kinematic cuts optimization configuration (w/o shapes) -- selected TpTp optimum cuts -- Jan 19, 2016:
-lepPtCutList  = [40]
-jet1PtCutList = [300]
-jet2PtCutList = [150]
-metCutList    = [75]
-njetsCutList  = [3]
+#Basic kinematic cuts optimization configuration -- X53X53:
+lepPtCutList  = [80]
+jet1PtCutList = [200]
+jet2PtCutList = [90]
+metCutList    = [100]
+njetsCutList  = [4]
 nbjetsCutList = [0]
-jet3PtCutList = [100]
+jet3PtCutList = [0]
 jet4PtCutList = [0]
 jet5PtCutList = [0]
 drCutList     = [1]
@@ -54,9 +20,9 @@ minMlbCutList = [0]
 cutConfigs = list(itertools.product(lepPtCutList,jet1PtCutList,jet2PtCutList,metCutList,njetsCutList,nbjetsCutList,jet3PtCutList,jet4PtCutList,jet5PtCutList,drCutList,Wjet1PtCutList,bjet1PtCutList,htCutList,stCutList,minMlbCutList))
 
 isEMlist =['E','M']
-nttaglist=['0p']
+nttaglist=['0','1p']
 nWtaglist=['0','1p']
-nbtaglist=['0','1','2','3p']
+nbtaglist=['1','2p']
 
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
@@ -64,7 +30,7 @@ outputDir = thisDir+'/'
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_minMlb_tau21LT0p6_tptp'
+pfix='templates_minMlb'
 pfix+='_'+date#+'_'+time
 
 outDir = outputDir+pfix
