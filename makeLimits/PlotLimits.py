@@ -11,18 +11,15 @@ setTDRStyle()
 
 blind=False
 saveKey=''
-signal = 'T'
+signal = 'B'
 lumiPlot = '2.3'
-lumiStr = '2p263'
+lumiStr = '2p318'
 chiral=''#'right'
 discriminant='minMlb'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+chiral
 stat=''#0.75
 isRebinned='_rebinned'+str(stat).replace('.','p')
-tempKey='all_2p318invfb'
-limitDir='/user_data/ssagir/limits/templates_minMlb_tau21LT0p6_tptp_2016_2_23/'+tempKey+'/'
 cutString='lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M700'+chiral+'_'+str(lumiStr)+'fb'+isRebinned+'_expected.txt'	
 
 mass = array('d', [700,800,900,1000,1100,1200,1300])#,1400,1500,1600])
 masserr = array('d', [0,0,0,0,0,0,0])#,0,0,0])
@@ -42,10 +39,25 @@ theory_br = [.1285,.1285,.1285,.1285,.1285,.1285,.1285]#,.1285,.1285,.1285]
 if chiral=='right':theory_xsec  = [0.442,0.190,0.0877,0.0427,0.0217,0.0114,0.00618,0.00342,0.00193,0.00111]
 elif chiral=='left':theory_xsec = [0.442,0.190,0.0877,0.0427,0.0217,0.0114,0.00618,0.00342,0.00193,0.00111]
 else: print "Please enter left or right"
-theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639]#,0.00354,0.00200,0.001148,0.000666,0.000391]
+theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb
+xsecErrUp = [19.,8.5,4.0,2.1,1.1,0.64,0.37,0.22,0.14,0.087,0.056,0.037]#fb
+xsecErrDn = [19.,8.1,3.8,1.9,1.0,0.56,0.32,0.19,0.12,0.072,0.045,0.029]#fb
+theory_xsec_up = [item/1000 for item in xsecErrUp]
+theory_xsec_dn = [item/1000 for item in xsecErrDn]
+if signal=='X53':
+	theory_xsec_up = [0.*item/1000 for item in xsecErrUp]
+	theory_xsec_dn = [0.*item/1000 for item in xsecErrDn]
+ 
+theory_xsec_v    = TVectorD(len(mass),array('d',theory_xsec))
+theory_xsec_up_v = TVectorD(len(mass),array('d',theory_xsec_up))
+theory_xsec_dn_v = TVectorD(len(mass),array('d',theory_xsec_dn))      
+
+theory_xsec_gr = TGraphAsymmErrors(TVectorD(len(mass),mass),theory_xsec_v,TVectorD(len(mass),masserr),TVectorD(len(mass),masserr),theory_xsec_dn_v,theory_xsec_up_v)
+theory_xsec_gr.SetFillStyle(3001)
+theory_xsec_gr.SetFillColor(ROOT.kRed)
 			   
-theory = TGraph(len(theory_xsec))
-for i in range(len(theory_xsec)):
+theory = TGraph(len(mass))
+for i in range(len(mass)):
 	theory.SetPoint(i, mass[i], theory_xsec[i])
 
 def getSensitivity(index, exp):
@@ -59,7 +71,7 @@ def getSensitivity(index, exp):
 	t = (a1*c2-a2*c1)/(a1*b2-a2*b1)
 	return mass[index-1]+s*(mass[index]-mass[index-1]), exp[index-1]+s*(exp[index]-exp[index-1])
 
-def PlotLimits():
+def PlotLimits(limitDir,limitFile,tempKey):
     ljust_i = 10
     print
     print 'mass'.ljust(ljust_i), 'observed'.ljust(ljust_i), 'expected'.ljust(ljust_i), '-2 Sigma'.ljust(ljust_i), '-1 Sigma'.ljust(ljust_i), '+1 Sigma'.ljust(ljust_i), '+2 Sigma'.ljust(ljust_i)
@@ -158,10 +170,14 @@ def PlotLimits():
     expected.Draw("same")
 
     if not blind: observed.Draw("cpsame")
+    theory_xsec_gr.SetLineColor(2)
+    theory_xsec_gr.SetLineStyle(1)
+    theory_xsec_gr.SetLineWidth(2)
+    theory_xsec_gr.Draw("3same") 
     theory.SetLineColor(2)
-    theory.SetLineStyle(2)
+    theory.SetLineStyle(1)
     theory.SetLineWidth(2)
-    theory.Draw("same")                                                              
+    theory.Draw("same")                                                             
         
     latex2 = TLatex()
     latex2.SetNDC()
@@ -182,7 +198,7 @@ def PlotLimits():
     legend.AddEntry(expected, '95% CL expected', "l")
     legend.AddEntry(expected68, '#pm 1#sigma expected', "f")
     legend.AddEntry(expected95, '#pm 2#sigma expected', "f")
-    legend.AddEntry(theory, 'Signal Cross Section', 'l')
+    legend.AddEntry(theory_xsec_gr, 'Signal Cross Section', 'lf')
 
     legend.SetShadowColor(0)
     legend.SetFillStyle(0)
@@ -200,6 +216,32 @@ def PlotLimits():
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.pdf')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.png')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.C')
+    return int(round(limExpected)), int(round(limObserved))
 
-PlotLimits()
+doBRScan = False
+BRs={}
+BRs['BW']=[0.50,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]
+BRs['TH']=[0.25,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]
+BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]
+nBRconf=len(BRs['BW'])
+if not doBRScan: nBRconf=1
+
+tempKeys = ['all']#,'isE','isM','nW0','nW1p','nB0','nB1','nB2','nB3p']
+
+expLims = []
+obsLims = []
+for tempKey in tempKeys:
+	for BRind in range(nBRconf):
+		BRconfStr=''
+		if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
+		limitDir='/user_data/ssagir/limits/templates_minMlb_tau21LT0p6_bpbp_2016_3_5/'+tempKey+BRconfStr+'/'
+		limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M700'+chiral+BRconfStr+'_'+str(lumiStr)+'fb'+isRebinned+'_expected.txt'	
+		expTemp,obsTemp = PlotLimits(limitDir,limitFile,tempKey+BRconfStr)
+		expLims.append(expTemp)
+		obsLims.append(obsTemp)
+print "BRs_bW:",BRs['BW']
+print "BRs_tH:",BRs['TH']
+print "BRs_tZ:",BRs['TZ']
+print "Expected:",expLims
+print "Observed:",obsLims
 
