@@ -10,7 +10,7 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet_1lepTT_030416_step2AllNewSFs/nominal/'
+step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -58,16 +58,16 @@ bkgList = [
 
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
-whichSignal = 'TT' #TT, BB, or T53T53
-signalMassRange = [700,1800]
+whichSignal = 'X53X53' #TT, BB, or X53X53
+signalMassRange = [700,1600]
 sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
-if whichSignal=='T53T53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
+if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-if whichSignal=='T53T53': decays = [''] #decays to tWtW 100% of the time
+if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
-doAllSys= True
-doQ2sys = True
+doAllSys= False
+doQ2sys = False
 q2List  = [#energy scale sample to be processed
 	      'TTJetsPHQ2U','TTJetsPHQ2D',
 	      'TtWQ2U','TbtWQ2U',
@@ -75,22 +75,22 @@ q2List  = [#energy scale sample to be processed
 	      ]
 
 cutList = {
-		   'lepPtCut':40,
-           'metCut':75,
-		   'jet1PtCut':300,
-		   'jet2PtCut':150,
-		   'jet3PtCut':100,
-		   'njetsCut':0,
-		   'nbjetsCut':0,
-		   'jet4PtCut':0,
-		   'jet5PtCut':0,
-		   'drCut':1,
-		   'Wjet1PtCut':0,
-		   'bjet1PtCut':0,
-		   'htCut':0,
-		   'stCut':0,
-		   'minMlbCut':0,
-		   }
+	           'lepPtCut':80,
+                   'metCut':100,
+                   'jet1PtCut':200,
+                   'jet2PtCut':90,
+                   'jet3PtCut':30,
+                   'njetsCut':4,
+                   'nbjetsCut':0,
+                   'jet4PtCut':0,
+                   'jet5PtCut':0,
+                   'drCut':1,
+                   'Wjet1PtCut':0,
+                   'bjet1PtCut':0,
+                   'htCut':0,
+                   'stCut':0,
+                   'minMlbCut':0,
+                   }
 
 cutString = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))+'_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))+'_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))+'_3jet'+str(int(cutList['jet3PtCut']))+'_4jet'+str(int(cutList['jet4PtCut']))+'_5jet'+str(int(cutList['jet5PtCut']))+'_DR'+str(cutList['drCut'])+'_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])+'_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
 
@@ -99,7 +99,7 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar_'
 else: pfix='wjets_'
-pfix+='tptp_'
+pfix+='x53x53_'
 pfix+=datestr+'_'+timestr
 
 if len(sys.argv)>1: outDir=sys.argv[1]
@@ -113,17 +113,17 @@ else:
 if len(sys.argv)>3: isEMlist=[str(sys.argv[3])]
 else: isEMlist=['E','M']
 if len(sys.argv)>4: nttaglist=[str(sys.argv[4])]
-else: 
-	if isTTbarCR: nttaglist=['0p'] #if '0p', the cut will not be applied
-	else: nttaglist=['0p'] #if '0p', the cut will not be applied
+else:
+        if isTTbarCR: nttaglist=['0','1p'] #if '0p', the cut will not be applied                         
+        else: nttaglist=['0','1p'] #if '0p', the cut will not be applied                                  
 if len(sys.argv)>5: nWtaglist=[str(sys.argv[5])]
-else: 
-	if isTTbarCR: nWtaglist=['0p']
-	else: nWtaglist=['0','1p']
+else:
+        if isTTbarCR: nWtaglist=['0','1p']
+        else: nWtaglist=['0','1p']
 if len(sys.argv)>6: nbtaglist=[str(sys.argv[6])]
-else: 
-	if isTTbarCR: nbtaglist=['0','1','2p']
-	else: nbtaglist=['0']
+else:
+        if isTTbarCR: nbtaglist=['1','2p']
+        else: nbtaglist=['0','1p']
 
 def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
 	norm0=hist.Integral()
@@ -172,6 +172,7 @@ for sig in sigList:
 tTreeBkg = {}
 tFileBkg = {}
 for bkg in bkgList+q2List:
+	if bkg in q2List and not doQ2sys: continue
 	print "READING:",bkg
 	print "        nominal"
 	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')

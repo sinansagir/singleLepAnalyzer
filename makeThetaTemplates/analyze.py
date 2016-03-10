@@ -104,7 +104,7 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		weightjsfUpStr      = '1'
 		weightjsfDownStr    = '1'
 	elif 'TTJets' in process and False: 
-		weightStr           = jetSFstr+' * topPtWeight * TrigEffWeightNew * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
+		weightStr           = jetSFstr+' * topPtWeight * TrigEffWeight * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
@@ -119,10 +119,10 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		weightPDFDownStr    = 'pdfDown * '+weightStr
 		weighttopptUpStr    = weightStr
 		weighttopptDownStr  = 'topPtWeight * '+weightStr
-		weightjsfUpStr      = weightStr.replace('JetSF_pTNbwflat','JetSFupwide_pTNbwflat')
-		weightjsfDownStr    = weightStr.replace('JetSF_pTNbwflat','JetSFdnwide_pTNbwflat')
+		weightjsfUpStr      = weightStr.replace('JetSF','JetSFup')
+		weightjsfDownStr    = weightStr.replace('JetSF','JetSFdn')
 	else: 
-		weightStr           = jetSFstr+' * TrigEffWeightNew * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
+		weightStr           = jetSFstr+' * TrigEffWeight * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
@@ -137,8 +137,8 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		weightPDFDownStr    = 'pdfDown * '+weightStr
 		weighttopptUpStr    = weightStr
 		weighttopptDownStr  = 'topPtWeight * '+weightStr
-		weightjsfUpStr      = weightStr.replace('JetSF_pTNbwflat','JetSFupwide_pTNbwflat')
-		weightjsfDownStr    = weightStr.replace('JetSF_pTNbwflat','JetSFdnwide_pTNbwflat')
+		weightjsfUpStr      = weightStr.replace('JetSF','JetSFup')
+		weightjsfDownStr    = weightStr.replace('JetSF','JetSFdn')
 		
 	isEMCut=''
 	if isEM=='E': isEMCut+=' && isElectron==1'
@@ -150,7 +150,7 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 	else: nttagCut+=' && '+nttagLJMETname+'=='+nttag
 	if nttag=='0p': nttagCut=''
 	
-	nWtagLJMETname = 'NJetsWtagged_JMR'
+	nWtagLJMETname = 'NJetsWtagged'
 	if 'Data' in process: nWtagLJMETname = 'NJetsWtagged'
 	nWtagCut=''
 	if 'p' in nWtag: nWtagCut+=' && '+nWtagLJMETname+'>='+nWtag[:-1]

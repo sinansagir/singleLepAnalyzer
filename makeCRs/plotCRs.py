@@ -13,15 +13,21 @@ lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 discriminant = 'minMlb'
 
 m1 = '800'
-sig1='TTM'+m1 # choose the 1st signal to plot
-sig1leg='TT (0.8 TeV)'
-m2 = '1000'
-sig2='TTM'+m2 # choose the 2nd signal to plot
-sig2leg='TT (1.0 TeV)'
+sig1='X53X53M'+m1+'left' # choose the 1st signal to plot                                                 
+sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
+m2 = '800'
+sig2='X53X53M'+m1+'right' # choose the 2nd signal to plot                                                
+sig2leg='X_{5/3}#bar{X}_{5/3} RH (0.8 TeV)'
+#m1 = '800'
+#sig1='TTM'+m1 # choose the 1st signal to plot
+#sig1leg='TT (0.8 TeV)'
+#m2 = '1000'
+#sig2='TTM'+m2 # choose the 2nd signal to plot
+#sig2leg='TT (1.0 TeV)'
 scaleSignals = False
 
 systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdfNew','muRFcorrdNew','toppt','jsf']
-doAllSys = True
+doAllSys = False
 doQ2sys  = True
 if not doAllSys: doQ2sys = False # I assume you don't want Q^2 as well if you are not doing the other shape systematics! (this is just to change one bool)
 
@@ -29,7 +35,7 @@ isRebinned=''#post fix for file names if the name changed b/c of rebinning or so
 doNormByBinWidth=False # not tested, may not work out of the box
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
-isTTbarCR = False # else it is Wjets
+isTTbarCR = True # else it is Wjets
 blind = False
 yLog = True
 doRealPull = False
@@ -41,8 +47,8 @@ saveKey = ''#'_topPtSystOnly'
 if isTTbarCR: cutString=''#'lep80_MET40_1jet300_2jet200_NJets0_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST1500_minMlb0'
 else: cutString=''#'lep80_MET40_1jet300_2jet200_NJets0_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST1500_minMlb0'
 templateDir=os.getcwd()
-if isTTbarCR: templateDir+='/ttbar_tptp_tau21LT0p6_2016_3_4/'+cutString+'/'
-else: templateDir+='/wjets_tptp_tau21LT0p6_2016_3_4/'+cutString+'/'
+if isTTbarCR: templateDir+='/ttbar_x53x53_2016_3_8_18_20_49'+cutString+'/'
+else: templateDir+='/wjets_x53x53_2016_3_8_18_15_58'+cutString+'/'
 tempsig1='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 tempsig2='templates_'+discriminant+'_'+sig2+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
@@ -128,11 +134,11 @@ RFile1 = TFile(templateDir+tempsig1)
 RFile2 = TFile(templateDir+tempsig2)
 isEMlist =['E','M']
 if isTTbarCR: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
-	nWtaglist = ['0p']
+	nttaglist = ['0','1p'] #if '0p', the cut will not be applied
+	nWtaglist = ['0','1p']
 	nbtaglist = ['1','2p']#,'3p']
 else: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
+	nttaglist = ['0','1p'] #if '0p', the cut will not be applied
 	nWtaglist = ['0','1p']
 	nbtaglist = ['0']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))

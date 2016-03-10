@@ -38,7 +38,8 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 	cut += ' && (AK4HTpMETpLepPt > '+str(cutList['stCut'])+')'
 	#cut += ' && (CSCfiltered == 1)'
 	cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1' #standard triggers
-	cut += ' && NJetsHtagged == 0'
+	#cut += ' && NJetsHtagged == 0'
+	cut += ' && NJets_JetSubCalc >= '+str(cutList['njetsCut'])
 	print "Applying Cuts: ", cut
 	
 	isEM  = category['isEM']
@@ -84,7 +85,7 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		for i in range(100): hists[discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process] = R.TH1D(discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)						
 	for key in hists.keys(): hists[key].Sumw2()
 	
-	jetSFstr = 'JetSF_pTNbwflat'
+	jetSFstr = 'JetSF'
 		
 	if 'Data' in process: 
 		weightStr           = '1'
@@ -105,7 +106,7 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		weightjsfUpStr      = '1'
 		weightjsfDownStr    = '1'
 	elif 'TTJets' in process and False: 
-		weightStr           = jetSFstr+' * topPtWeight * TrigEffWeightNew * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
+		weightStr           = jetSFstr+' * topPtWeight * TrigEffWeight * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
@@ -120,10 +121,10 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		weightPDFDownStr    = 'pdfDown * '+weightStr
 		weighttopptUpStr    = weightStr
 		weighttopptDownStr  = 'topPtWeight * '+weightStr
-		weightjsfUpStr      = weightStr.replace(jetSFstr,'JetSFupwide_pTNbwflat')
-		weightjsfDownStr    = weightStr.replace(jetSFstr,'JetSFdnwide_pTNbwflat')
+		weightjsfUpStr      = weightStr.replace(jetSFstr,'JetSFup')
+		weightjsfDownStr    = weightStr.replace(jetSFstr,'JetSFdn')
 	else: 
-		weightStr           = jetSFstr+' * TrigEffWeightNew * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
+		weightStr           = jetSFstr+' * TrigEffWeight * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
@@ -138,8 +139,8 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		weightPDFDownStr    = 'pdfDown * '+weightStr
 		weighttopptUpStr    = weightStr
 		weighttopptDownStr  = 'topPtWeight * '+weightStr
-		weightjsfUpStr      = weightStr.replace(jetSFstr,'JetSFupwide_pTNbwflat')
-		weightjsfDownStr    = weightStr.replace(jetSFstr,'JetSFdnwide_pTNbwflat')
+		weightjsfUpStr      = weightStr.replace(jetSFstr,'JetSFup')
+		weightjsfDownStr    = weightStr.replace(jetSFstr,'JetSFdn')
 
 	isEMCut=''
 	if isEM=='E': isEMCut+=' && isElectron==1'
@@ -151,12 +152,12 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 	else: nttagCut+=' && '+nttagLJMETname+'=='+nttag
 	if nttag=='0p': nttagCut=''
 	
-	nWtagLJMETname = 'NJetsWtagged_0p6'
-	if 'Data' in process: nWtagLJMETname = 'NJetsWtagged_0p6'
+	nWtagLJMETname = 'NJetsWtagged'
+	if 'Data' in process: nWtagLJMETname = 'NJetsWtagged'
 	nWtagCut=''
 	if 'p' in nWtag: nWtagCut+=' && '+nWtagLJMETname+'>='+nWtag[:-1]
 	else: nWtagCut+=' && '+nWtagLJMETname+'=='+nWtag
-	nWtagCut += ' && (('+nWtagLJMETname+' > 0 && NJets_JetSubCalc >= 3) || ('+nWtagLJMETname+' == 0 && NJets_JetSubCalc >= 4))'
+	#nWtagCut += ' && (('+nWtagLJMETname+' > 0 && NJets_JetSubCalc >= 3) || ('+nWtagLJMETname+' == 0 && NJets_JetSubCalc >= 4))'
 		
 	nbtagCut=''
 	if 'p' in nbtag: nbtagCut+=' && NJetsCSVwithSF_JetSubCalc>='+nbtag[:-1]
@@ -172,38 +173,38 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 	
 	tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
 	if doAllSys:
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pileupUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightPileupUpStr  +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pileupDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightPileupDownStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRFcorrdUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRFcorrdUpStr  +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRFcorrdDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRFcorrdDownStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRFenvUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRFenvUpStr  +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRFenvDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRFenvDownStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRUpStr     +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRDownStr   +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muFUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuFUpStr     +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muFDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuFDownStr   +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pdfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightPDFUpStr     +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pdfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightPDFDownStr   +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'topptUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weighttopptUpStr   +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'topptDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weighttopptDownStr +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jmrUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_0p6_shifts[0]')+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jmrDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_0p6_shifts[1]')+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jmsUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_0p6_shifts[2]')+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jmsDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_0p6_shifts[3]')+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'tau21Up'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_0p6_shifts[4]')+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'tau21Down' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_0p6_shifts[5]')+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jsfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightjsfUpStr     +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jsfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightjsfDownStr   +'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pileupUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightPileupUpStr  +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pileupDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightPileupDownStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRFcorrdUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRFcorrdUpStr  +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRFcorrdDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRFcorrdDownStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRFenvUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRFenvUpStr  +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRFenvDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRFenvDownStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRUpStr     +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muRDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuRDownStr   +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muFUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuFUpStr     +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'muFDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightmuFDownStr   +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pdfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightPDFUpStr     +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pdfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightPDFDownStr   +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'topptUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weighttopptUpStr   +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'topptDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weighttopptDownStr +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jmrUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_shifts[0]')+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jmrDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_shifts[1]')+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jmsUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_shifts[2]')+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jmsDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_shifts[3]')+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'tau21Up'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_shifts[4]')+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'tau21Down' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut.replace(nWtagLJMETname,'NJetsWtagged_shifts[5]')+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jsfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightjsfUpStr     +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jsfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightjsfDownStr   +'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
 		if tTree[process+'jerUp']:
-			tTree[process+'jerUp'].Draw(discriminantLJMETName   +' >> '+discriminantName+'jerUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-			tTree[process+'jerDown'].Draw(discriminantLJMETName +' >> '+discriminantName+'jerDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
+			tTree[process+'jerUp'].Draw(discriminantLJMETName   +' >> '+discriminantName+'jerUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+			tTree[process+'jerDown'].Draw(discriminantLJMETName +' >> '+discriminantName+'jerDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
 		if tTree[process+'jecUp']:
-			tTree[process+'jecUp'].Draw(discriminantLJMETName   +' >> '+discriminantName+'jecUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-			tTree[process+'jecDown'].Draw(discriminantLJMETName +' >> '+discriminantName+'jecDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
+			tTree[process+'jecUp'].Draw(discriminantLJMETName   +' >> '+discriminantName+'jecUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+			tTree[process+'jecDown'].Draw(discriminantLJMETName +' >> '+discriminantName+'jecDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
 		if tTree[process+'btagUp']:
-			tTree[process+'btagUp'].Draw(discriminantLJMETName  +' >> '+discriminantName+'btagUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-			tTree[process+'btagDown'].Draw(discriminantLJMETName+' >> '+discriminantName+'btagDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
-		for i in range(100): tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process, 'pdfWeights['+str(i)+'] * '+weightStr+'*('+cut+isEMCut+nWtagCut+nbtagCut+')', 'GOFF')
+			tTree[process+'btagUp'].Draw(discriminantLJMETName  +' >> '+discriminantName+'btagUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+			tTree[process+'btagDown'].Draw(discriminantLJMETName+' >> '+discriminantName+'btagDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		for i in range(100): tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process, 'pdfWeights['+str(i)+'] * '+weightStr+'*('+cut+isEMcut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
 	if nbtag=='0' and discriminantName=='minMlb': discriminantLJMETName=originalLJMETName
 	
 	for key in hists.keys(): hists[key].SetDirectory(0)

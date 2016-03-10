@@ -24,10 +24,10 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'deltaRAK8',
 #	'MTlmet',
 #	'NPV',
-#	'lepPt',
-#	'lepEta',
-# 	'JetEta',
-#	'JetPt' ,
+	'lepPt',
+	'lepEta',
+ 	'JetEta',
+	'JetPt' ,
 #	'Jet1Pt',
 #	'Jet2Pt',
 #	'Jet3Pt',
@@ -35,18 +35,18 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'HT',
 #	'ST',
 #	'MET',
-#	'NJets' ,
-#	'NBJets',
-	'NWJetsSmeared',
-	'NWJetsSmeared0p55SF',
-	'NWJetsSmeared0p55noSF',
-#	'NJetsAK8',
-#	'JetPtAK8',
+	'NJets' ,
+	'NBJets',
+#	'NWJetsSmeared',
+#	'NWJetsSmeared0p55SF',
+#	'NWJetsSmeared0p55noSF',
+	'NJetsAK8',
+	'JetPtAK8',
 #	'JetEtaAK8',
- 	'Tau21',
- 	'Tau21Nm1',
- 	'PrunedSmeared',
- 	'PrunedSmearedNm1',
+# 	'Tau21',
+# 	'Tau21Nm1',
+# 	'PrunedSmeared',
+# 	'PrunedSmearedNm1',
 # 	'mindeltaR',
 #	'deltaRjet1',
 #	'deltaRjet2',
@@ -64,8 +64,8 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'JetPhiAK8',
 #	'Bjet1Pt',
 #	'Wjet1Pt',
-#	'topMass',
-#	'topPt',
+	'topMass',
+	'topPt',
 #	'minMlj',
 #	'minMljDR',
 #	'minMljDPhi',
@@ -87,7 +87,7 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'deltaPhilW',
 #	'deltaPhiWb1',
 #	'deltaPhiWb2',
-#	'WjetPt',
+	'WjetPt',
 #	'PtRel',
 
 # 	'METwJetSF',
@@ -96,11 +96,12 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'Jet6Pt',
 #	'HTtest',
 #	'STnewMET',
-#	'NWJets',
+	'NWJets',
 #	'JetPtBinsAK8',
 #	'Pruned',
 #	'nTrueInt',
 #	'nLepGen',
+	'nttags',
 	]
 
 catList = ['E','M','All']
@@ -125,7 +126,7 @@ Executable = %(dir)s/doCondorKinematics.sh
 Should_Transfer_Files = YES
 transfer_input_files = %(dir)s/doHists.py,%(dir)s/samples.py,%(dir)s/weights.py,%(dir)s/analyze.py
 WhenToTransferOutput = ON_EXIT
-notify_user = Sinan_Sagir@brown.edu
+notify_user = joseph_van_der_list@brown.edu
 
 arguments      = ""
 

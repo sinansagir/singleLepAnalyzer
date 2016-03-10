@@ -11,29 +11,30 @@ lumi=2.3 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
 discriminant = 'minMlb'
-cutString='lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
+cutString='lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet30_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minM\
+lb0'
 saveKey = ''#'_topPtSystOnly'
 
-# m1 = '800'
-# sig1='X53X53M'+m1+'left' # choose the 1st signal to plot
-# sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
-# m2 = '800'
-# sig2='X53X53M'+m1+'right' # choose the 2nd signal to plot
-# sig2leg='X_{5/3}#bar{X}_{5/3} RH (0.8 TeV)'
 m1 = '800'
-sig1='TTM'+m1 # choose the 1st signal to plot
-sig1leg='TT (0.8 TeV)'
-m2 = '1000'
-sig2='TTM'+m2 # choose the 2nd signal to plot
-sig2leg='TT (1.0 TeV)'
+sig1='X53X53M'+m1+'left' #  choose the 1st signal to plot
+sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
+m2 = '800'
+sig2='X53X53M'+m1+'right' #  choose the 2nd signal to plot
+sig2leg='X_{5/3}#bar{X}_{5/3} RH (0.8 TeV)'
+#m1 = '800'
+#sig1='TTM'+m1 # choose the 1st signal to plot
+#sig1leg='TT (0.8 TeV)'
+#m2 = '1000'
+#sig2='TTM'+m2 # choose the 2nd signal to plot
+#sig2leg='TT (1.0 TeV)'
 scaleSignals = False
 
 systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdf','muRFcorrd','toppt','jsf']
-doAllSys = True
+doAllSys = False
 doQ2sys  = True
 if not doAllSys: doQ2sys = False # I assume you don't want Q^2 as well if you are not doing the other shape systematics! (this is just to change one bool)
 
-isRebinned='_rebinned'#post fix for file names if the name changed b/c of rebinning or some other process
+isRebinned=''#'_rebinned'#post fix for file names if the name changed b/c of rebinning or some other process
 doNormByBinWidth=False # not tested, may not work out of the box
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
@@ -42,13 +43,13 @@ yLog  = True
 doRealPull = True
 if doRealPull: doOneBand=False
 
-templateDir=os.getcwd()+'/templates_minMlb_tau21LT0p55_tptp_2016_3_4/'+cutString+'/'
+templateDir=os.getcwd()+'/templates_minMlb_2016_3_7_15_45_48/'+cutString+'/'
 tempsig='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'	
 
 isEMlist =['E','M']
-nttaglist=['0p']
+nttaglist=['0','1p']
 nWtaglist=['0','1p']
-nbtaglist=['0','1','2','3p']
+nbtaglist=['1','2p']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
 
 lumiSys = 0.027 #2.7% lumi uncertainty
@@ -60,28 +61,72 @@ ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty
 qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-			     'top_nT0p_nW0_nB0' :0.15,
-			     'top_nT0p_nW0_nB1' :0.11,
-			     'top_nT0p_nW0_nB2' :0.02,
-			     'top_nT0p_nW0_nB2p':0.02,
-			     'top_nT0p_nW0_nB3p':0.02,
-			     'top_nT0p_nW1p_nB0' :0.15,
-			     'top_nT0p_nW1p_nB1' :0.11,
-			     'top_nT0p_nW1p_nB2' :0.02,
-			     'top_nT0p_nW1p_nB2p':0.02,
-			     'top_nT0p_nW1p_nB3p':0.02,
+			     'top_nT0p_nW0_nB0'  :0,#.15,
+			     'top_nT0p_nW0_nB1'  :0,#.11,
+			     'top_nT0p_nW0_nB2'  :0,#.02,
+			     'top_nT0p_nW0_nB2p' :0,#.02,
+			     'top_nT0p_nW0_nB3p' :0,#.02,
+			     'top_nT0p_nW1p_nB0' :0,#.15,
+			     'top_nT0p_nW1p_nB1' :0,#.11,
+			     'top_nT0p_nW1p_nB2' :0,#.02,
+			     'top_nT0p_nW1p_nB2p':0,#.02,
+			     'top_nT0p_nW1p_nB3p':0,#.02,
+
+			     'top_nT0_nW0_nB0'  :0,#.15,
+			     'top_nT0_nW0_nB1'  :0,#.11,
+			     'top_nT0_nW0_nB2'  :0,#.02,
+			     'top_nT0_nW0_nB2p' :0,#.02,
+			     'top_nT0_nW0_nB3p' :0,#.02,
+			     'top_nT0_nW1p_nB0' :0,#.15,
+			     'top_nT0_nW1p_nB1' :0,#.11,
+			     'top_nT0_nW1p_nB2' :0,#.02,
+			     'top_nT0_nW1p_nB2p':0,#.02,
+			     'top_nT0_nW1p_nB3p':0,#.02,
+
+			     'top_nT1p_nW0_nB0'  :0,#.15,
+			     'top_nT1p_nW0_nB1'  :0,#.11,
+			     'top_nT1p_nW0_nB2'  :0,#.02,
+			     'top_nT1p_nW0_nB2p' :0,#.02,
+			     'top_nT1p_nW0_nB3p' :0,#.02,
+			     'top_nT1p_nW1p_nB0' :0,#.15,
+			     'top_nT1p_nW1p_nB1' :0,#.11,
+			     'top_nT1p_nW1p_nB2' :0,#.02,
+			     'top_nT1p_nW1p_nB2p':0,#.02,
+			     'top_nT1p_nW1p_nB3p':0,#.02,
 			     }
 ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
-			     'ewk_nT0p_nW0_nB0' :0.22,
-			     'ewk_nT0p_nW0_nB1' :0.22,
-			     'ewk_nT0p_nW0_nB2' :0.22,
-			     'ewk_nT0p_nW0_nB2p':0.22,
-			     'ewk_nT0p_nW0_nB3p':0.22,
-			     'ewk_nT0p_nW1p_nB0' :0.03,
-			     'ewk_nT0p_nW1p_nB1' :0.03,
-			     'ewk_nT0p_nW1p_nB2' :0.03,
-			     'ewk_nT0p_nW1p_nB2p':0.03,
-			     'ewk_nT0p_nW1p_nB3p':0.03,
+			     'ewk_nT0p_nW0_nB0'  :0,#.22,
+			     'ewk_nT0p_nW0_nB1'  :0,#.22,
+			     'ewk_nT0p_nW0_nB2'  :0,#.22,
+			     'ewk_nT0p_nW0_nB2p' :0,#.22,
+			     'ewk_nT0p_nW0_nB3p' :0,#.22,
+			     'ewk_nT0p_nW1p_nB0' :0,#.03,
+			     'ewk_nT0p_nW1p_nB1' :0,#.03,
+			     'ewk_nT0p_nW1p_nB2' :0,#.03,
+			     'ewk_nT0p_nW1p_nB2p':0,#.03,
+			     'ewk_nT0p_nW1p_nB3p':0,#.03,
+
+			     'ewk_nT0_nW0_nB0'  :0,#.22,
+			     'ewk_nT0_nW0_nB1'  :0,#.22,
+			     'ewk_nT0_nW0_nB2'  :0,#.22,
+			     'ewk_nT0_nW0_nB2p' :0,#.22,
+			     'ewk_nT0_nW0_nB3p' :0,#.22,
+			     'ewk_nT0_nW1p_nB0' :0,#.03,
+			     'ewk_nT0_nW1p_nB1' :0,#.03,
+			     'ewk_nT0_nW1p_nB2' :0,#.03,
+			     'ewk_nT0_nW1p_nB2p':0,#.03,
+			     'ewk_nT0_nW1p_nB3p':0,#.03,
+
+			     'ewk_nT1p_nW0_nB0'  :0,#.22,
+			     'ewk_nT1p_nW0_nB1'  :0,#.22,
+			     'ewk_nT1p_nW0_nB2'  :0,#.22,
+			     'ewk_nT1p_nW0_nB2p' :0,#.22,
+			     'ewk_nT1p_nW0_nB3p' :0,#.22,
+			     'ewk_nT1p_nW1p_nB0' :0,#.03,
+			     'ewk_nT1p_nW1p_nB1' :0,#.03,
+			     'ewk_nT1p_nW1p_nB2' :0,#.03,
+			     'ewk_nT1p_nW1p_nB2p':0,#.03,
+			     'ewk_nT1p_nW1p_nB3p':0,#.03,
 			     }
 
 def getNormUnc(hist,ibin,modelingUnc):

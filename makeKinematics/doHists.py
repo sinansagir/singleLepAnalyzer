@@ -12,7 +12,7 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet_1lepTT_021916_step2newTaus/nominal/'
+step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -26,25 +26,55 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 #################### CUTS & OUTPUT ########################
 ###########################################################
 
-cutList = {'lepPtCut':40, #40, #0, #
-		   'leadJetPtCut':150, #300, #0, #
-		   'subLeadJetPtCut':75, #150, #0, #
-		   'thirdJetPtCut':30, #100, #0, #
-		   'metCut':60, #75, #0, #
-		   'njetsCut':3, #0, #3, #
-		   'nbjetsCut':0, #3, #
-		   'drCut':0, #1.0, #
-		   }
+lepPtCut=80
+jet1PtCut=200
+jet2PtCut=90
+metCut=100
+njetsCut=4
+nbjetsCut=0
+jet3PtCut=0
+jet4PtCut=0
+jet5PtCut=0
+drCut=1
+Wjet1PtCut=0
+bjet1PtCut=0
+htCut=0
+stCut=0
+minMlbCut=0
+
+cutList = {'lepPtCut':lepPtCut,
+                   'jet1PtCut':jet1PtCut,
+                   'jet2PtCut':jet2PtCut,
+                   'jet3PtCut':jet3PtCut,
+                   'jet4PtCut':jet4PtCut,
+                   'jet5PtCut':jet5PtCut,
+                   'metCut':metCut,
+                   'njetsCut':njetsCut,
+                   'nbjetsCut':nbjetsCut,
+                   'drCut':drCut,
+                   'Wjet1PtCut':Wjet1PtCut,
+                   'bjet1PtCut':bjet1PtCut,
+                   'htCut':htCut,
+                   'stCut':stCut,
+                   'minMlbCut':minMlbCut,
+                   }
 
 if len(sys.argv)>3: catList=[str(sys.argv[3])]
 else: catList=['E','M','All']
 
 scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
-doAllSys= True
+doAllSys= False
 doQ2sys = True
+if not doAllSys: doQ2sys = False
 isotrig = 1
 
-cutString = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))+'_leadJet'+str(int(cutList['leadJetPtCut']))+'_subLeadJet'+str(int(cutList['subLeadJetPtCut']))+'_thirdJet'+str(int(cutList['thirdJetPtCut']))+'_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))+'_DR'+str(int(cutList['drCut']))
+cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
+cutString += '_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))
+cutString += '_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))
+cutString += '_3jet'+str(int(cutList['jet3PtCut']))+'_4jet'+str(int(cutList['jet4PtCut']))
+cutString += '_5jet'+str(int(cutList['jet5PtCut']))+'_DR'+str(cutList['drCut'])
+cutString += '_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])
+cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
 
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
@@ -157,6 +187,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'deltaPhiWb2':('deltaPhitaggedWbJet2',linspace(0,5,51).tolist(),';#Delta#phi(W, 2^{nd} b jet)'), ## 2 B TAG
 	'WjetPt':('WJetTaggedPt',linspace(0,1500,51).tolist(),';W jet p_{T} [GeV]'),
 	'PtRel':('PtRelLepClosestJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
+	'nttags' :('NJetsToptagged',linspace(0,5,6).tolist(),';N Top Tags'),
 	}
 
 ###########################################################
@@ -186,13 +217,13 @@ bkgList = [
 	'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 	]
 
-whichSignal = 'TT' #TT, BB, or T53T53
-signalMassRange = [700,1800]
+whichSignal = 'X53X53' #TT, BB, or X53X53
+signalMassRange = [700,1600]
 sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
-if whichSignal=='T53T53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
+if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-if whichSignal=='T53T53': decays = [''] #decays to tWtW 100% of the time
+if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
@@ -257,6 +288,7 @@ for sig in sigList:
 tTreeBkg = {}
 tFileBkg = {}
 for bkg in bkgList+q2List:
+	if bkg in q2List and not doQ2sys: continue
 	print "READING:",bkg
 	print "        nominal"
 	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')

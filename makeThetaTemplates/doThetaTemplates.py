@@ -58,8 +58,8 @@ doQ2sys = False
 q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
-cutString  = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets0_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-pfix='templates_minMlb'
+cutString  = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet30_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
+pfix='templates_minMlb_2016_3_7_15_45_48'
 iPlot='minMlb'
 
 isEMlist =['E','M']
@@ -99,28 +99,72 @@ ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty
 qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-			     'top_nT0p_nW0_nB0' :0.15,
-			     'top_nT0p_nW0_nB1' :0.11,
-			     'top_nT0p_nW0_nB2' :0.02,
-			     'top_nT0p_nW0_nB2p':0.02,
-			     'top_nT0p_nW0_nB3p':0.02,
-			     'top_nT0p_nW1p_nB0' :0.15,
-			     'top_nT0p_nW1p_nB1' :0.11,
-			     'top_nT0p_nW1p_nB2' :0.02,
-			     'top_nT0p_nW1p_nB2p':0.02,
-			     'top_nT0p_nW1p_nB3p':0.02,
+			     'top_nT0_nW0_nB0'  :0,#.15,
+			     'top_nT0_nW0_nB1'  :0,#.11,
+			     'top_nT0_nW0_nB2'  :0,#.02,
+			     'top_nT0_nW0_nB2p' :0,#.02,
+			     'top_nT0_nW0_nB3p' :0,#.02,
+			     'top_nT0_nW1p_nB0' :0,#.15,
+			     'top_nT0_nW1p_nB1' :0,#.11,
+			     'top_nT0_nW1p_nB2' :0,#.02,
+			     'top_nT0_nW1p_nB2p':0,#.02,
+			     'top_nT0_nW1p_nB3p':0,#.02,
+
+			     'top_nT1p_nW0_nB0'  :0,#.15,
+			     'top_nT1p_nW0_nB1'  :0,#.11,
+			     'top_nT1p_nW0_nB2'  :0,#.02,
+			     'top_nT1p_nW0_nB2p' :0,#.02,
+			     'top_nT1p_nW0_nB3p' :0,#.02,
+			     'top_nT1p_nW1p_nB0' :0,#.15,
+			     'top_nT1p_nW1p_nB1' :0,#.11,
+			     'top_nT1p_nW1p_nB2' :0,#.02,
+			     'top_nT1p_nW1p_nB2p':0,#.02,
+			     'top_nT1p_nW1p_nB3p':0,#.02,
+
+			     'top_nT0p_nW0_nB0'  :0,#.15,
+			     'top_nT0p_nW0_nB1'  :0,#.11,
+			     'top_nT0p_nW0_nB2'  :0,#.02,
+			     'top_nT0p_nW0_nB2p' :0,#.02,
+			     'top_nT0p_nW0_nB3p' :0,#.02,
+			     'top_nT0p_nW1p_nB0' :0,#.15,
+			     'top_nT0p_nW1p_nB1' :0,#.11,
+			     'top_nT0p_nW1p_nB2' :0,#.02,
+			     'top_nT0p_nW1p_nB2p':0,#.02,
+			     'top_nT0p_nW1p_nB3p':0,#.02,
 			     }
 ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
-			     'ewk_nT0p_nW0_nB0' :0.22,
-			     'ewk_nT0p_nW0_nB1' :0.22,
-			     'ewk_nT0p_nW0_nB2' :0.22,
-			     'ewk_nT0p_nW0_nB2p':0.22,
-			     'ewk_nT0p_nW0_nB3p':0.22,
-			     'ewk_nT0p_nW1p_nB0' :0.03,
-			     'ewk_nT0p_nW1p_nB1' :0.03,
-			     'ewk_nT0p_nW1p_nB2' :0.03,
-			     'ewk_nT0p_nW1p_nB2p':0.03,
-			     'ewk_nT0p_nW1p_nB3p':0.03,
+			     'ewk_nT0_nW0_nB0'  :0,#.22,
+			     'ewk_nT0_nW0_nB1'  :0,#.22,
+			     'ewk_nT0_nW0_nB2'  :0,#.22,
+			     'ewk_nT0_nW0_nB2p' :0,#.22,
+			     'ewk_nT0_nW0_nB3p' :0,#.22,
+			     'ewk_nT0_nW1p_nB0' :0,#.03,
+			     'ewk_nT0_nW1p_nB1' :0,#.03,
+			     'ewk_nT0_nW1p_nB2' :0,#.03,
+			     'ewk_nT0_nW1p_nB2p':0,#.03,
+			     'ewk_nT0_nW1p_nB3p':0,#.03,
+
+			     'ewk_nT1p_nW0_nB0'  :0,#.22,
+			     'ewk_nT1p_nW0_nB1'  :0,#.22,
+			     'ewk_nT1p_nW0_nB2'  :0,#.22,
+			     'ewk_nT1p_nW0_nB2p' :0,#.22,
+			     'ewk_nT1p_nW0_nB3p' :0,#.22,
+			     'ewk_nT1p_nW1p_nB0' :0,#.03,
+			     'ewk_nT1p_nW1p_nB1' :0,#.03,
+			     'ewk_nT1p_nW1p_nB2' :0,#.03,
+			     'ewk_nT1p_nW1p_nB2p':0,#.03,
+			     'ewk_nT1p_nW1p_nB3p':0,#.03,
+
+			     'ewk_nT0p_nW0_nB0'  :0,#.22,
+			     'ewk_nT0p_nW0_nB1'  :0,#.22,
+			     'ewk_nT0p_nW0_nB2'  :0,#.22,
+			     'ewk_nT0p_nW0_nB2p' :0,#.22,
+			     'ewk_nT0p_nW0_nB3p' :0,#.22,
+			     'ewk_nT0p_nW1p_nB0' :0,#.03,
+			     'ewk_nT0p_nW1p_nB1' :0,#.03,
+			     'ewk_nT0p_nW1p_nB2' :0,#.03,
+			     'ewk_nT0p_nW1p_nB2p':0,#.03,
+			     'ewk_nT0p_nW1p_nB3p':0,#.03,
 			     }
 addSys = {} #additional uncertainties for specific processes
 for tag in tagList:

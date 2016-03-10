@@ -10,7 +10,7 @@ start_time = time.time()
 lumi=2.3 #for plots
 
 templateDir=os.getcwd()+'/kinematics_substructure'
-lumiInTemplates='2p263'
+lumiInTemplates='2p318'
 
 sig='ttm800' # choose the 1st signal to plot
 sigleg='TT(0.8 TeV)'
@@ -20,7 +20,7 @@ scaleFact1 = 400
 if 'Final' in templateDir: scaleFact1 = 40
 
 systematicList = ['pileup','jec','jer','jsf','jmr','jms','btag','tau21','pdfNew','muRFcorrdNew','toppt']
-doAllSys = True
+doAllSys = False
 doQ2sys = True
 if not doAllSys: doQ2sys = False # I assume you don't want Q^2 as well if you are not doing the other shape systematics! (this is just to change one bool)
 
@@ -146,10 +146,10 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'JetPtBins',
 #	'deltaRAK8',
 #	'NPV',
-#	'lepPt',
-#	'lepEta',
-#	'JetEta',
-#	'JetPt' ,
+	'lepPt',
+	'lepEta',
+	'JetEta',
+	'JetPt' ,
 #	'Jet1Pt',
 #	'Jet2Pt',
 #	'Jet3Pt',
@@ -159,17 +159,18 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'MET',
 #	'METwJetSF',
 #	'METwJetSFraw',
-#	'NJets' ,
-#	'NBJets',
-	'NWJetsSmeared',
-	'NWJetsSmeared0p55SF',
-	'NWJetsSmeared0p55noSF',
+	'NJets' ,
+	'NBJets',
+	'NWJets'
+#	'NWJetsSmeared',
+#	'NWJetsSmeared0p55SF',
+#	'NWJetsSmeared0p55noSF',
 #	'NJetsAK8',
 #	'JetPtAK8',
 #	'JetEtaAK8',
-	'Tau21',
-	'Tau21Nm1',
-	'PrunedSmeared',
+#	'Tau21',
+#	'Tau21Nm1',
+#	'PrunedSmeared',
 #	'mindeltaR',
 #	'deltaRjet1',
 #	'deltaRjet2',
@@ -187,8 +188,8 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'JetPhiAK8',
 #	'Bjet1Pt',
 #	'Wjet1Pt',
-#	'topMass',
-#	'topPt',
+	'topMass',
+	'topPt',
 #	'minMlj',
 #	'minMljDR',
 #	'minMlbDR',
@@ -210,9 +211,8 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'deltaPhilW',
 #	'deltaPhiWb1',
 #	'deltaPhiWb2',
-#	'WjetPt',
-	'PtRel',
-
+	'WjetPt',
+#	'PtRel',
 #	'JetPt',
 #	'JetPtCSF',
 #	'JetPtNSF',
@@ -247,10 +247,11 @@ plotList = [#distribution name as defined in "doHists.py"
 #	'NBJets',
 #	'NBJetsCSF',
 #	'NBJetsNSF',
-#	'NJetsAK8',
+	'NJetsAK8',
 #	'NJetsAK8CSF',
-#	'JetPtAK8',
+	'JetPtAK8',
 #	'JetPtAK8CSF',
+	'nttags',
 	]
 
 fit  = False
@@ -286,8 +287,8 @@ for discriminant in plotList:
 		print discriminant,isEM, "EWK", hEWK.Integral()
 		try: print discriminant,isEM, "QCD", hQCD.Integral()
 		except: pass
-		
 		hData = RFile.Get(histPrefix+'__DATA').Clone()
+		''' fixme
 		hsig1 = RFile.Get(histPrefix+'__'+sig+'bwbw').Clone()
 		hsig2 = RFile.Get(histPrefix+'__'+sig+'tztz').Clone()
 		hsig3 = RFile.Get(histPrefix+'__'+sig+'thth').Clone()
@@ -302,6 +303,7 @@ for discriminant in plotList:
 		hsig1.Scale(1.0/BR['TTBWBW'])
 		hsig2.Scale(1.0/BR['TTTZTZ'])
 		hsig3.Scale(1.0/BR['TTTHTH'])
+		'''
 		if doNormByBinWidth:
 			normByBinWidth(hTOP)
 			normByBinWidth(hEWK)
@@ -420,12 +422,13 @@ for discriminant in plotList:
 			scaleFact1=1
  		#else:
  		#	scaleFact1=25
-                '''
+                ''' #fixme 
+		'''
 		hsig1.Scale(scaleFact1)
 		hsig2.Scale(scaleFact1)
 		hsig3.Scale(scaleFact1)
 		hsig.Scale(scaleFact1)
-		
+		'''
 		stackbkgHT = THStack("stackbkgHT","")
 		try: stackbkgHT.Add(hTOP)
 		except: pass
@@ -448,7 +451,7 @@ for discriminant in plotList:
 			hQCD.SetFillColor(kOrange+5)
 			hQCD.SetLineWidth(2)
 		except: pass
-		
+		''' fixme
 		hsig.SetLineColor(kBlack)
 		hsig.SetLineWidth(3)
 		hsig1.SetLineColor(kRed)
@@ -460,7 +463,7 @@ for discriminant in plotList:
 		hsig3.SetLineColor(kGreen+1)
 		hsig3.SetLineStyle(7)
 		hsig3.SetLineWidth(3)
-		
+		'''
 		hData.SetMarkerStyle(20)
 		hData.SetMarkerSize(1.2)
 		hData.SetLineWidth(2)
@@ -509,10 +512,12 @@ for discriminant in plotList:
 			hsig1.Draw("HIST")
 
 		stackbkgHT.Draw("SAME HIST")
+		''' fixme
 		hsig.Draw("SAME HIST")
 		hsig1.Draw("SAME HIST")
 		hsig2.Draw("SAME HIST")
 		hsig3.Draw("SAME HIST")
+		'''
 		if not blind: hData.Draw("SAME E1 X0") #redraw data so its not hidden
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
@@ -532,7 +537,7 @@ for discriminant in plotList:
 		leg.SetBorderSize(0) 
 		leg.SetTextFont(42)
 		if not blind: leg.AddEntry(hData,"DATA")
-		
+		''' fixme
 		scaleFact1Str = ' x'+str(scaleFact1)
 		if not scaleSignals:
 			scaleFact1Str = ''
@@ -541,6 +546,7 @@ for discriminant in plotList:
 		leg.AddEntry(hsig1,sigleg+' #rightarrow bWbW'+scaleFact1Str,"l")
 		leg.AddEntry(hsig2,sigleg+' #rightarrow tZtZ'+scaleFact1Str,"l")
 		leg.AddEntry(hsig3,sigleg+' #rightarrow tHtH'+scaleFact1Str,"l")
+		'''
 		try: 
 			if hQCD.Integral()/bkgHT.Integral()>.005: leg.AddEntry(hQCD,"QCD","f") #don't plot QCD if it is less than 0.5%
 		except: pass

@@ -14,21 +14,51 @@ start_time = time.time()
 #################### CUTS & OUTPUT ########################
 ###########################################################
 
-cutList = {'lepPtCut':40, #40, #0, #
-		   'leadJetPtCut':150, #300, #0, #
-		   'subLeadJetPtCut':75, #150, #0, #
-		   'thirdJetPtCut':30, #100, #0, #
-		   'metCut':60, #75, #0, #
-		   'njetsCut':3, #3, #0, #
-		   'nbjetsCut':0, #3, #
-		   'drCut':0, #1.0, #
-		   }
+lepPtCut=80
+jet1PtCut=200
+jet2PtCut=90
+metCut=100
+njetsCut=4
+nbjetsCut=0
+jet3PtCut=0
+jet4PtCut=0
+jet5PtCut=0
+drCut=1
+Wjet1PtCut=0
+bjet1PtCut=0
+htCut=0
+stCut=0
+minMlbCut=0
 
-doAllSys= True
-doQ2sys = True
+cutList = {'lepPtCut':lepPtCut,
+                   'jet1PtCut':jet1PtCut,
+                   'jet2PtCut':jet2PtCut,
+                   'jet3PtCut':jet3PtCut,
+                   'jet4PtCut':jet4PtCut,
+                   'jet5PtCut':jet5PtCut,
+                   'metCut':metCut,
+                   'njetsCut':njetsCut,
+                   'nbjetsCut':nbjetsCut,
+                   'drCut':drCut,
+                   'Wjet1PtCut':Wjet1PtCut,
+                   'bjet1PtCut':bjet1PtCut,
+                   'htCut':htCut,
+                   'stCut':stCut,
+                   'minMlbCut':minMlbCut,
+                   }
+
+doAllSys= False
+doQ2sys = False
 isotrig = 1
 
-cutString = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))+'_leadJet'+str(int(cutList['leadJetPtCut']))+'_subLeadJet'+str(int(cutList['subLeadJetPtCut']))+'_thirdJet'+str(int(cutList['thirdJetPtCut']))+'_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))+'_DR'+str(int(cutList['drCut']))
+cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
+cutString += '_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))
+cutString += '_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))
+cutString += '_3jet'+str(int(cutList['jet3PtCut']))+'_4jet'+str(int(cutList['jet4PtCut']))
+cutString += '_5jet'+str(int(cutList['jet5PtCut']))+'_DR'+str(cutList['drCut'])
+cutString += '_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])
+cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
+
 pfix='kinematics_substructure'
 outDir = os.getcwd()+'/'
 outDir+=pfix
@@ -39,13 +69,13 @@ isEMlist = ['E','M','All']
 #################### SAMPLE GROUPS ########################
 ###########################################################
 
-whichSignal = 'TT' #TT, BB, or T53T53
-signalMassRange = [700,1800]
+whichSignal = 'X53X53' #TT, BB, or X53X53
+signalMassRange = [700,1600]
 signals = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
-if whichSignal=='T53T53': signals = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
+if whichSignal=='X53X53': signals = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-if whichSignal=='T53T53': decays = [''] #decays to tWtW 100% of the time
+if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 sigList = {signal+decay:(signal+decay).lower() for signal in signals for decay in decays}
 
 bkgStackList = ['WJets','ZJets','VV','TTV','TTJets','T','QCD']

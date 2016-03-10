@@ -6,8 +6,8 @@ jet1PtCutList = [200]
 jet2PtCutList = [90]
 metCutList    = [100]
 njetsCutList  = [4]
-nbjetsCutList = [0]
-jet3PtCutList = [0]
+nbjetsCutList = [1]
+jet3PtCutList = [30]
 jet4PtCutList = [0]
 jet5PtCutList = [0]
 drCutList     = [1]
@@ -31,7 +31,7 @@ cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='templates_minMlb'
-pfix+='_'+date#+'_'+time
+pfix+='_'+date+'_'+time
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)

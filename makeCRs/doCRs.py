@@ -11,7 +11,7 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = True # else it is Wjets
+isTTbarCR = False # else it is Wjets
 
 if isTTbarCR: 
 	from analyzeTTJetsCR import *
@@ -30,13 +30,13 @@ tList     = ['Tt','Ts','TtW','TbtW']
 
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
-whichSignal = 'TT' #TT, BB, or T53T53
-signalMassRange = [700,1800]
+whichSignal = 'X53X53' #TT, BB, or X53X53
+signalMassRange = [700,1600]
 sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
-if whichSignal=='T53T53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
+if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-if whichSignal=='T53T53': decays = [''] #decays to tWtW 100% of the time
+if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
 #topList = ['TTJetsPH','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
 topList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
@@ -46,16 +46,16 @@ qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','Q
 scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 2318./2263.
-doAllSys = True
+doAllSys = False
 systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdf','pdfNew','muR','muF','muRFcorrd','toppt','jsf','muRFenv','muRFcorrdNew','muRFdecorrdNew']
 normalizeRENORM_PDF = True #normalize the renormalization/pdf uncertainties to nominal templates
-doQ2sys = True
+doQ2sys = False
 q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
 cutString  = ''#'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-if isTTbarCR: pfix='ttbar_tptp_tau21LT0p6_2016_3_5'
-else: pfix='wjets_tptp_tau21LT0p6_2016_3_5'
+if isTTbarCR: pfix='ttbar_x53x53_2016_3_8_18_20_49'
+else: pfix='wjets_x53x53_2016_3_8_18_15_58'
 iPlot='minMlb'
 
 outDir = os.getcwd()+'/'
@@ -65,14 +65,14 @@ if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutSt
 outDir+='/'+cutString
 
 isEMlist =['E','M']
-if isTTbarCR: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
-	nWtaglist = ['0p']
-	nbtaglist = ['0','1','2p']
-else: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
+if isTTbarCR:
+        nttaglist = ['0','1p'] #if '0p', the cut will not be applied        
 	nWtaglist = ['0','1p']
-	nbtaglist = ['0']
+        nbtaglist = ['1','2p']
+else:
+        nttaglist = ['0','1p'] #if '0p', the cut will not be applied                                    
+        nWtaglist = ['0','1p']
+        nbtaglist = ['0']
 catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist))
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
 
