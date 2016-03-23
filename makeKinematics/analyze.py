@@ -13,7 +13,7 @@ negative MC weights, ets) applied below should be checked!
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-def analyze(tTree,process,cutList,isotrig,doAllSys,discriminantName,discriminantDetails,category):
+def analyze(tTree,process,cutList,isotrig,doAllSys,NJetsForWtags,doJetRwt,discriminantName,discriminantDetails,category):
 	print "*****"*20
 	print "*****"*20
 	print "DISTRIBUTION:", discriminantName
@@ -24,8 +24,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,discriminantName,discriminant
 	xbins=array('d', discriminantDetails[1])
 	xAxisLabel=discriminantDetails[2]
 	
-	wtagvar = 'NJetsWtagged_JMR'
-	if 'Data' in process: wtagvar = 'NJetsWtagged'
+	wtagvar = 'NJetsWtagged_0p6'
 
 	print "/////"*5
 	print "PROCESSING: ", process
@@ -37,28 +36,27 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,discriminantName,discriminant
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[1] > '+str(cutList['subLeadJetPtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[2] > '+str(cutList['thirdJetPtCut'])+')'
 	cut += ' && (NJetsHtagged == 0)'
-#	cut += ' && ('+wtagvar+' == 0)'
 	cut += ' && (deltaR_lepClosestJet > 0.4 || PtRelLepClosestJet > 40)'
-	cut += ' && (NJets_JetSubCalc >= '+str(cutList['njetsCut'])+')'
-#	cut += ' && (('+wtagvar+' > 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut'])+') || ('+wtagvar+' == 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut']+1)+'))'
 	cut += ' && (NJetsCSVwithSF_JetSubCalc >= '+str(cutList['nbjetsCut'])+')'
 	cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
+	cut += ' && (NJets_JetSubCalc >= '+str(cutList['njetsCut'])+')'
+	if NJetsForWtags:
+		cut += ' && (('+wtagvar+' > 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut'])+') || ('+wtagvar+' == 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut']+1)+'))'
+	# Cut for jet pt derivation sample
+	#cut += ' && (MT_lepMet < 100)'
 
+	# For N-1 W tagging cuts
 	if 'PrunedSmearedNm1' in discriminantName: cut += ' && (theJetAK8NjettinessTau2_JetSubCalc_PtOrdered/theJetAK8NjettinessTau1_JetSubCalc_PtOrdered < 0.6)'
-
 	massvar = 'theJetAK8PrunedMassJMRSmeared_JetSubCalc'
 	if 'Data' in process: massvar = 'theJetAK8PrunedMass_JetSubCalc_PtOrdered'
-
 	if 'Tau21Nm1' in discriminantName:  cut += ' && ('+massvar+' > 65 && '+massvar+' < 105)'
 
-	
-	doTopRwt = False
-
-	TrigEff = 'TrigEffWeight'
+	# Choose between triggers
+	TrigEff = 'TrigEffWeightNew'
 	if isotrig == 1:
 		cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1'
 	else:
-		TrigEff = 'TrigEffAltWeight'
+		TrigEff = 'TrigEffAltWeightNew'
 		cut += ' && DataPastTriggerAlt == 1 && MCPastTriggerAlt == 1'
 		
 	print "Applying Cuts: ", cut
@@ -119,28 +117,9 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,discriminantName,discriminant
 		weightjsfUpStr    = '1'
 		weightjsfDownStr  = '1'
 
-	elif 'TTJets' in process and doTopRwt:
-		weightStr           = 'TrigEffWeight * JetSF * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
-#		weightStr           = 'topPtWeight * TrigEffWeight * JetSF * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
-		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
-		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
-		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
-		weightmuRFcorrdDownStr = 'renormWeights[3] * '+weightStr
-		weightmuRFenvUpStr  = 'renormUp * '+weightStr
-		weightmuRFenvDownStr= 'renormDown * '+weightStr
-		weightmuRUpStr      = 'renormWeights[4] * '+weightStr
-		weightmuRDownStr    = 'renormWeights[2] * '+weightStr
-		weightmuFUpStr      = 'renormWeights[1] * '+weightStr
-		weightmuFDownStr    = 'renormWeights[0] * '+weightStr
-		weightPDFUpStr      = 'pdfUp * '+weightStr
-		weightPDFDownStr    = 'pdfDown * '+weightStr
-		weighttopptUpStr    = weightStr
-		weighttopptDownStr  = 'topPtWeight * '+weightStr
-		weightjsfUpStr      = weightStr.replace('JetSF','JetSFup')
-		weightjsfDownStr    = weightStr.replace('JetSF','JetSFdn')
 	else: 
-#
-		weightStr           = TrigEff+' * pileupWeight * JetSF_pTNbwflat * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
+		weightStr           = TrigEff+' * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
+		if doJetRwt: weightStr = 'JetSF_pTNbwflat * '+weightStr
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
@@ -155,26 +134,21 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,discriminantName,discriminant
 		weightPDFDownStr    = 'pdfDown * '+weightStr
 		weighttopptUpStr    = weightStr
 		weighttopptDownStr  = 'topPtWeight * '+weightStr
-		weightjsfUpStr      = weightStr.replace('JetSF','JetSFupwide')
-		weightjsfDownStr    = weightStr.replace('JetSF','JetSFdnwide')
+		if doJetRwt:
+			weightjsfUpStr      = weightStr.replace('JetSF','JetSFupwide')
+			weightjsfDownStr    = weightStr.replace('JetSF','JetSFdnwide')
 
+	#special data names
 	if 'Data' in process:
 		origname = discriminantLJMETName
-		if discriminantName == 'NWJetsSmeared':
-			discriminantLJMETName = 'NJetsWtagged_0p6'
-		if '0p55' in discriminantName:
-			discriminantLJMETName = 'NJetsWtagged_0p55'
-		if discriminantName == 'PrunedSmeared':
-			discriminantLJMETName = 'theJetAK8PrunedMass_JetSubCalc_PtOrdered'
-			#discriminantLJMETName = 'theJetAK8PrunedMass_JetSubCalc_new'
-		if origname != discriminantLJMETName:
-			print 'NEW LJMET NAME:',discriminantLJMETName
+		if discriminantName == 'NWJetsSmeared': discriminantLJMETName = 'NJetsWtagged_0p6'
+		if 'PrunedSmeared' in discriminantName: discriminantLJMETName = 'theJetAK8PrunedMass_JetSubCalc_PtOrdered'
+		if origname != discriminantLJMETName: print 'NEW LJMET NAME:',discriminantLJMETName
 
+	#plot with a specific number of b tags
 	if 'Bjet1' in discriminantName or 'Mlb' in discriminantName or 'b1' in discriminantName:
 		cut += ' && (NJetsCSVwithSF_JetSubCalc > 0)'
-	if 'b2' in discriminantName:
-		cut += ' && (NJetsCSVwithSF_JetSubCalc > 1)'
-
+	if 'b2' in discriminantName: cut += ' && (NJetsCSVwithSF_JetSubCalc > 1)'
 	if 'Mlj' in discriminantName: cut += ' && (NJetsCSVwithSF_JetSubCalc == 0)'
 
 	isEMCut=''
@@ -273,4 +247,3 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,discriminantName,discriminant
 	
 	for key in hists.keys(): hists[key].SetDirectory(0)	
 	return hists
-
