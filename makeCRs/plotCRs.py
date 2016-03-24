@@ -410,21 +410,37 @@ for tag in tagList:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
 			leg.AddEntry(hQCD,"QCD","f")
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
-			try: leg.AddEntry(hEWK,"EWK","f")
-			except: pass
+			if isTTbarCR:
+				try: leg.AddEntry(hEWK,"EWK","f")
+				except: pass
+			else:
+				try: leg.AddEntry(hTOP,"TOP","f")
+				except: pass
 			if not blind: leg.AddEntry(hData,"DATA")
-			try: leg.AddEntry(hTOP,"TOP","f")
-			except: pass
+			if isTTbarCR:
+				try: leg.AddEntry(hTOP,"TOP","f")
+				except: pass
+			else:
+				try: leg.AddEntry(hEWK,"EWK","f")
+				except: pass
 			leg.AddEntry(0, "", "")
 			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
 			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 		if not drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
-			try: leg.AddEntry(hEWK,"EWK","f")
-			except: pass
+			if isTTbarCR:
+				try: leg.AddEntry(hEWK,"EWK","f")
+				except: pass
+			else:
+				try: leg.AddEntry(hTOP,"TOP","f")
+				except: pass
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
-			try: leg.AddEntry(hTOP,"TOP","f")
-			except: pass
+			if isTTbarCR:
+				try: leg.AddEntry(hTOP,"TOP","f")
+				except: pass
+			else:
+				try: leg.AddEntry(hEWK,"EWK","f")
+				except: pass
 			if not blind: leg.AddEntry(hData,"DATA")
 			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
 			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
@@ -845,21 +861,37 @@ for tag in tagList:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
 		legmerged.AddEntry(hQCDmerged,"QCD","f")
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
-		try: legmerged.AddEntry(hEWKmerged,"EWK","f")
-		except: pass
+		if isTTbarCR:
+			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
+			except: pass
+		else:
+			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+			except: pass
 		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
-		try: legmerged.AddEntry(hTOPmerged,"TOP","f")
-		except: pass
+		if isTTbarCR:
+			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+			except: pass
+		else:
+			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
+			except: pass
 		legmerged.AddEntry(0, "", "")
 		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 	if not drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
-		try: legmerged.AddEntry(hEWKmerged,"EWK","f")
-		except: pass
+		if isTTbarCR:
+			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
+			except: pass
+		else:
+			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+			except: pass
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
-		try: legmerged.AddEntry(hTOPmerged,"TOP","f")
-		except: pass
+		if isTTbarCR:
+			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+			except: pass
+		else:
+			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
+			except: pass
 		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
