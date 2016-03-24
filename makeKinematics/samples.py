@@ -88,6 +88,7 @@ samples = {
 
 'DY50':'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_25ns',
 
+'WJetsMG':'WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_25ns',
 'WJetsMG100':'WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_25ns',
 'WJetsMG200':'WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_25ns',
 'WJetsMG400':'WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_25ns',
@@ -103,6 +104,7 @@ samples = {
 'TTJets':'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_25ns',
 'WJets':'WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8_25ns',
 
+'TTJetsMG':'TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8_25ns',
 'TTJetsPH':'TT_TuneCUETP8M1_13TeV-powheg-pythia8_highstats_25ns',
 'TTJetsPHQ2U':'TT_TuneCUETP8M1_13TeV-powheg-scaleup-pythia8_25ns',
 'TTJetsPHQ2D':'TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8_25ns',
