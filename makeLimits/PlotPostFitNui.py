@@ -18,7 +18,7 @@ histPrefix=discriminant+'_'+str(lumiStr)+'fb'+spin
 stat=''#0.75
 isRebinned='_rebinned'+str(stat).replace('.','p')
 tempKey='all_forPostFitNuis'
-limitDir='/user_data/ssagir/limits/templates_minMlb_tau21LT0p6_tptp_2016_3_4/'+tempKey+'/'
+limitDir='/user_data/ssagir/limits/templates_minMlb_tptp_2016_3_18/'+tempKey+'/'
 cutString='lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 LH700file='/templates_'+discriminant+'_TTM800'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
 
