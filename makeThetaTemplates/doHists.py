@@ -11,7 +11,7 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal/' #x53
+step1Dir = '/user_data/ssagir/LJMet_1lepX53_032316_step2/nominal/'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -59,8 +59,8 @@ if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' d
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
-doAllSys= False
-doQ2sys = doAllSys
+doAllSys= True
+doQ2sys = True
 q2List  = [#energy scale sample to be processed
 	      'TTJetsPHQ2U','TTJetsPHQ2D',
 	      'TtWQ2U','TbtWQ2U',
@@ -98,8 +98,8 @@ jet1PtCut=200
 jet2PtCut=90
 metCut=100
 njetsCut=4
-nbjetsCut=0
-jet3PtCut=0
+nbjetsCut=1
+jet3PtCut=30
 jet4PtCut=0
 jet5PtCut=0
 drCut=1
@@ -164,7 +164,7 @@ cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='templates_minMlb_'
-pfix+=datestr+'_'+timestr
+pfix+=datestr#+'_'+timestr
 
 def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
 	norm0=hist.Integral()
@@ -190,7 +190,7 @@ def readTree(file):
 	return tFile, tTree 
 
 print "READING TREES"
-shapesFiles = ['jec','jer','btag']#,'jsf']
+shapesFiles = ['jec','jer','btag']
 tTreeData = {}
 tFileData = {}
 for data in dataList:

@@ -46,10 +46,10 @@ qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','Q
 scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 2318./2263.
-doAllSys = False
+doAllSys = True
 systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdf','pdfNew','muR','muF','muRFcorrd','toppt','jsf','muRFenv','muRFcorrdNew','muRFdecorrdNew']
 normalizeRENORM_PDF = True #normalize the renormalization/pdf uncertainties to nominal templates
-doQ2sys = False
+doQ2sys = True
 q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
@@ -65,14 +65,14 @@ if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutSt
 outDir+='/'+cutString
 
 isEMlist =['E','M']
-if isTTbarCR:
-        nttaglist = ['0','1p'] #if '0p', the cut will not be applied        
+if isTTbarCR: 
+	nttaglist = ['0','1p'] #if '0p', the cut will not be applied
 	nWtaglist = ['0','1p']
-        nbtaglist = ['1','2p']
-else:
-        nttaglist = ['0','1p'] #if '0p', the cut will not be applied                                    
-        nWtaglist = ['0','1p']
-        nbtaglist = ['0']
+	nbtaglist = ['0','1','2p']
+else: 
+	nttaglist = ['0p'] #if '0p', the cut will not be applied
+	nWtaglist = ['0','1p']
+	nbtaglist = ['0']
 catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist))
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
 
@@ -92,12 +92,12 @@ def overflow(hist):
 	hist.SetBinError(nBinsX+1,0)
 
 lumiSys = 0.027 #2.7% lumi uncertainty
-trigSys = 0.03 #3% trigger uncertainty
+trigSys = 0.05 #5% trigger uncertainty
 lepIdSys = 0.01 #1% lepton id uncertainty
 lepIsoSys = 0.01 #1% lepton isolation uncertainty
-topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty
-ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty
-qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty
+topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty --> covered by PDF and muRF uncertainties
+ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty --> covered by PDF and muRF uncertainties
+qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty --> covered by PDF and muRF uncertainties
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 
 addSys = {} #additional uncertainties for specific processes
@@ -365,6 +365,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			
 			#Group data processes
 			hdata[catStr] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
+			print datahists[histoPrefix+'_'+dat].Integral()
 			for dat in dataList:
 				if dat!=dataList[0]: hdata[catStr].Add(datahists[histoPrefix+'_'+dat])
 

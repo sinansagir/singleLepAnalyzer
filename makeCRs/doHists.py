@@ -10,7 +10,7 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal'
+step1Dir = '/user_data/ssagir/LJMet_1lepX53_032316_step2/nominal/'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -66,8 +66,8 @@ if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' d
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
-doAllSys= False
-doQ2sys = False
+doAllSys= True
+doQ2sys = True
 q2List  = [#energy scale sample to be processed
 	      'TTJetsPHQ2U','TTJetsPHQ2D',
 	      'TtWQ2U','TbtWQ2U',
@@ -75,22 +75,22 @@ q2List  = [#energy scale sample to be processed
 	      ]
 
 cutList = {
-	           'lepPtCut':80,
-                   'metCut':100,
-                   'jet1PtCut':200,
-                   'jet2PtCut':90,
-                   'jet3PtCut':30,
-                   'njetsCut':4,
-                   'nbjetsCut':0,
-                   'jet4PtCut':0,
-                   'jet5PtCut':0,
-                   'drCut':1,
-                   'Wjet1PtCut':0,
-                   'bjet1PtCut':0,
-                   'htCut':0,
-                   'stCut':0,
-                   'minMlbCut':0,
-                   }
+		   'lepPtCut':80,
+           'metCut':100,
+		   'jet1PtCut':200,
+		   'jet2PtCut':90,
+		   'jet3PtCut':30,
+		   'njetsCut':4,
+		   'nbjetsCut':0,
+		   'jet4PtCut':0,
+		   'jet5PtCut':0,
+		   'drCut':1,
+		   'Wjet1PtCut':0,
+		   'bjet1PtCut':0,
+		   'htCut':0,
+		   'stCut':0,
+		   'minMlbCut':0,
+		   }
 
 cutString = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))+'_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))+'_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))+'_3jet'+str(int(cutList['jet3PtCut']))+'_4jet'+str(int(cutList['jet4PtCut']))+'_5jet'+str(int(cutList['jet5PtCut']))+'_DR'+str(cutList['drCut'])+'_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])+'_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
 
@@ -100,7 +100,7 @@ timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar_'
 else: pfix='wjets_'
 pfix+='x53x53_'
-pfix+=datestr+'_'+timestr
+pfix+=datestr#+'_'+timestr
 
 if len(sys.argv)>1: outDir=sys.argv[1]
 else: 
@@ -113,17 +113,17 @@ else:
 if len(sys.argv)>3: isEMlist=[str(sys.argv[3])]
 else: isEMlist=['E','M']
 if len(sys.argv)>4: nttaglist=[str(sys.argv[4])]
-else:
-        if isTTbarCR: nttaglist=['0','1p'] #if '0p', the cut will not be applied                         
-        else: nttaglist=['0','1p'] #if '0p', the cut will not be applied                                  
+else: 
+	if isTTbarCR: nttaglist=['0','1p'] #if '0p', the cut will not be applied
+	else: nttaglist=['0p'] #if '0p', the cut will not be applied
 if len(sys.argv)>5: nWtaglist=[str(sys.argv[5])]
-else:
-        if isTTbarCR: nWtaglist=['0','1p']
-        else: nWtaglist=['0','1p']
+else: 
+	if isTTbarCR: nWtaglist=['0','1p']
+	else: nWtaglist=['0','1p']
 if len(sys.argv)>6: nbtaglist=[str(sys.argv[6])]
-else:
-        if isTTbarCR: nbtaglist=['1','2p']
-        else: nbtaglist=['0','1p']
+else: 
+	if isTTbarCR: nbtaglist=['0','1','2p']
+	else: nbtaglist=['0']
 
 def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
 	norm0=hist.Integral()
@@ -149,7 +149,7 @@ def readTree(file):
 	return tFile, tTree 
 
 print "READING TREES"
-shapesFiles = ['jec','jer','btag']#,'jsf']
+shapesFiles = ['jec','jer','btag']
 tTreeData = {}
 tFileData = {}
 for data in dataList:
@@ -172,7 +172,6 @@ for sig in sigList:
 tTreeBkg = {}
 tFileBkg = {}
 for bkg in bkgList+q2List:
-	if bkg in q2List and not doQ2sys: continue
 	print "READING:",bkg
 	print "        nominal"
 	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
@@ -212,8 +211,8 @@ for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
 		outDir = os.getcwd()+'/'
 		outDir+=pfix
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
-		if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
-		outDir+='/'+cutString
+		#if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
+		#outDir+='/'+cutString
 		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+outDir+'/'+catDir)
 		outDir+='/'+catDir
 	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3]}
