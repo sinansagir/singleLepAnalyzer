@@ -20,11 +20,12 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar'
 else: pfix='wjets'
-pfix+='_tptp_tau21LT0p6'
+pfix+='_tptp'
 pfix+='_'+datestr#+'_'+timestr
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
+os.system('cp analyzeTTJetsCR.py analyzeWJetsCR.py doHists.py weights.py samples.py doCondorCRs.py doCondorCRs.sh '+outDir+'/')
 os.chdir(outDir)
 
 for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):

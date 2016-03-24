@@ -59,7 +59,7 @@ q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','Tbt
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
 cutString  = 'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-pfix='templates_minMlb_tau21LT0p6_bpbp_2016_3_5'
+pfix='templates_minMlb_tptp_2016_3_18'
 iPlot='minMlb'
 
 isEMlist =['E','M']
@@ -91,37 +91,62 @@ def overflow(hist):
 	hist.SetBinError(nBinsX+1,0)
 
 lumiSys = 0.027 #2.7% lumi uncertainty
-trigSys = 0.03 #3% trigger uncertainty
+trigSys = 0.05 #5% trigger uncertainty
 lepIdSys = 0.01 #1% lepton id uncertainty
 lepIsoSys = 0.01 #1% lepton isolation uncertainty
-topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty
-ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty
-qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty
+topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty --> covered by PDF and muRF uncertainties
+ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty --> covered by PDF and muRF uncertainties
+qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty --> covered by PDF and muRF uncertainties
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-			     'top_nT0p_nW0_nB0' :0.15,
+			     'top_nT0p_nW0_nB0' :0.14,
 			     'top_nT0p_nW0_nB1' :0.11,
-			     'top_nT0p_nW0_nB2' :0.02,
-			     'top_nT0p_nW0_nB2p':0.02,
-			     'top_nT0p_nW0_nB3p':0.02,
-			     'top_nT0p_nW1p_nB0' :0.15,
+			     'top_nT0p_nW0_nB2' :0.006,
+			     'top_nT0p_nW0_nB2p':0.006,
+			     'top_nT0p_nW0_nB3p':0.006,
+			     'top_nT0p_nW1p_nB0' :0.14,
 			     'top_nT0p_nW1p_nB1' :0.11,
-			     'top_nT0p_nW1p_nB2' :0.02,
-			     'top_nT0p_nW1p_nB2p':0.02,
-			     'top_nT0p_nW1p_nB3p':0.02,
+			     'top_nT0p_nW1p_nB2' :0.006,
+			     'top_nT0p_nW1p_nB2p':0.006,
+			     'top_nT0p_nW1p_nB3p':0.006,
 			     }
 ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
-			     'ewk_nT0p_nW0_nB0' :0.22,
-			     'ewk_nT0p_nW0_nB1' :0.22,
-			     'ewk_nT0p_nW0_nB2' :0.22,
-			     'ewk_nT0p_nW0_nB2p':0.22,
-			     'ewk_nT0p_nW0_nB3p':0.22,
-			     'ewk_nT0p_nW1p_nB0' :0.03,
-			     'ewk_nT0p_nW1p_nB1' :0.03,
-			     'ewk_nT0p_nW1p_nB2' :0.03,
-			     'ewk_nT0p_nW1p_nB2p':0.03,
-			     'ewk_nT0p_nW1p_nB3p':0.03,
+			     'ewk_nT0p_nW0_nB0' :0.23,
+			     'ewk_nT0p_nW0_nB1' :0.23,
+			     'ewk_nT0p_nW0_nB2' :0.23,
+			     'ewk_nT0p_nW0_nB2p':0.23,
+			     'ewk_nT0p_nW0_nB3p':0.23,
+			     'ewk_nT0p_nW1p_nB0' :0.02,
+			     'ewk_nT0p_nW1p_nB1' :0.02,
+			     'ewk_nT0p_nW1p_nB2' :0.02,
+			     'ewk_nT0p_nW1p_nB2p':0.02,
+			     'ewk_nT0p_nW1p_nB3p':0.02,
 			     }
+# topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m) -- NO JetSF
+# 			     'top_nT0p_nW0_nB0' :0.14,
+# 			     'top_nT0p_nW0_nB1' :0.07,
+# 			     'top_nT0p_nW0_nB2' :0.16,
+# 			     'top_nT0p_nW0_nB2p':0.16,
+# 			     'top_nT0p_nW0_nB3p':0.16,
+# 			     'top_nT0p_nW1p_nB0' :0.14,
+# 			     'top_nT0p_nW1p_nB1' :0.07,
+# 			     'top_nT0p_nW1p_nB2' :0.16,
+# 			     'top_nT0p_nW1p_nB2p':0.16,
+# 			     'top_nT0p_nW1p_nB3p':0.16,
+# 			     }
+# ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m) -- NO JetSF		
+# 			     'ewk_nT0p_nW0_nB0' :0.21,
+# 			     'ewk_nT0p_nW0_nB1' :0.21,
+# 			     'ewk_nT0p_nW0_nB2' :0.21,
+# 			     'ewk_nT0p_nW0_nB2p':0.21,
+# 			     'ewk_nT0p_nW0_nB3p':0.21,
+# 			     'ewk_nT0p_nW1p_nB0' :0.11,
+# 			     'ewk_nT0p_nW1p_nB1' :0.11,
+# 			     'ewk_nT0p_nW1p_nB2' :0.11,
+# 			     'ewk_nT0p_nW1p_nB2p':0.11,
+# 			     'ewk_nT0p_nW1p_nB3p':0.11,
+# 			     }
+
 addSys = {} #additional uncertainties for specific processes
 for tag in tagList:
 	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]

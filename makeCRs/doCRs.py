@@ -11,7 +11,7 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = True # else it is Wjets
+isTTbarCR = False # else it is Wjets
 
 if isTTbarCR: 
 	from analyzeTTJetsCR import *
@@ -31,7 +31,7 @@ tList     = ['Tt','Ts','TtW','TbtW']
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
 whichSignal = 'TT' #TT, BB, or T53T53
-signalMassRange = [700,1800]
+signalMassRange = [700,1300]
 sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
 if whichSignal=='T53T53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -54,8 +54,8 @@ q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','Tbt
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
 cutString  = ''#'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-if isTTbarCR: pfix='ttbar_tptp_tau21LT0p6_2016_3_5'
-else: pfix='wjets_tptp_tau21LT0p6_2016_3_5'
+if isTTbarCR: pfix='ttbar_tptp_2016_3_18'
+else: pfix='wjets_tptp_2016_3_18'
 iPlot='minMlb'
 
 outDir = os.getcwd()+'/'
@@ -92,12 +92,12 @@ def overflow(hist):
 	hist.SetBinError(nBinsX+1,0)
 
 lumiSys = 0.027 #2.7% lumi uncertainty
-trigSys = 0.03 #3% trigger uncertainty
+trigSys = 0.05 #5% trigger uncertainty
 lepIdSys = 0.01 #1% lepton id uncertainty
 lepIsoSys = 0.01 #1% lepton isolation uncertainty
-topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty
-ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty
-qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty
+topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty --> covered by PDF and muRF uncertainties
+ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty --> covered by PDF and muRF uncertainties
+qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty --> covered by PDF and muRF uncertainties
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 
 addSys = {} #additional uncertainties for specific processes
@@ -365,6 +365,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			
 			#Group data processes
 			hdata[catStr] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
+			print datahists[histoPrefix+'_'+dat].Integral()
 			for dat in dataList:
 				if dat!=dataList[0]: hdata[catStr].Add(datahists[histoPrefix+'_'+dat])
 

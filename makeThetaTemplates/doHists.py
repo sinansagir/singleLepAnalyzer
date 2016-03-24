@@ -11,8 +11,7 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet_1lepTT_030416_step2AllNewSFs/nominal/' #new tau21 cuts
-#step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal/' #x53
+step1Dir = '/user_data/ssagir/LJMet_1lepTT_031816_step2AllNewSFs/nominal/'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -165,7 +164,7 @@ cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='templates_minMlb_'
-pfix+=datestr+'_'+timestr
+pfix+=datestr#+'_'+timestr
 
 def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
 	norm0=hist.Integral()
@@ -191,7 +190,7 @@ def readTree(file):
 	return tFile, tTree 
 
 print "READING TREES"
-shapesFiles = ['jec','jer','btag']#,'jsf']
+shapesFiles = ['jec','jer','btag']
 tTreeData = {}
 tFileData = {}
 for data in dataList:

@@ -1,8 +1,7 @@
 from ROOT import *
 from array import array
-import math
+import os,sys,math
 from math import *
-import os,sys
 
 gROOT.SetBatch(1)
 
@@ -11,7 +10,7 @@ setTDRStyle()
 
 blind=False
 saveKey=''
-signal = 'B'
+signal = 'T'
 lumiPlot = '2.3'
 lumiStr = '2p318'
 chiral=''#'right'
@@ -38,8 +37,7 @@ xsec = array('d', [1,1,1,1,1,1,1])#,1,1,1])
 theory_br = [.1285,.1285,.1285,.1285,.1285,.1285,.1285]#,.1285,.1285,.1285]
 if chiral=='right':theory_xsec  = [0.442,0.190,0.0877,0.0427,0.0217,0.0114,0.00618,0.00342,0.00193,0.00111]
 elif chiral=='left':theory_xsec = [0.442,0.190,0.0877,0.0427,0.0217,0.0114,0.00618,0.00342,0.00193,0.00111]
-else: print "Please enter left or right"
-theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb
+else: theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb
 xsecErrUp = [19.,8.5,4.0,2.1,1.1,0.64,0.37,0.22,0.14,0.087,0.056,0.037]#fb
 xsecErrDn = [19.,8.1,3.8,1.9,1.0,0.56,0.32,0.19,0.12,0.072,0.045,0.029]#fb
 theory_xsec_up = [item/1000 for item in xsecErrUp]
@@ -192,11 +190,13 @@ def PlotLimits(limitDir,limitFile,tempKey):
     if chiral=='left': latex4.DrawLatex(0.40, 0.82, "LH")
     if chiral=='right': latex4.DrawLatex(0.40, 0.82, "RH")
 
-    legend = TLegend(.62,.62,.92,.92) # top right
-    if tempKey=='nB0': legend = TLegend(.62,.32,.92,.62)
+    #legend = TLegend(.62,.62,.92,.92) # top right
+    legend = TLegend(.32,.72,.92,.92) # top right
+    #if tempKey=='nB0': legend = TLegend(.62,.32,.92,.62)
+    if tempKey=='nB0': legend = TLegend(.32,.42,.92,.62)
     if not blind: legend.AddEntry(observed , '95% CL observed', "lp")
-    legend.AddEntry(expected, '95% CL expected', "l")
     legend.AddEntry(expected68, '#pm 1#sigma expected', "f")
+    legend.AddEntry(expected, '95% CL expected', "l")
     legend.AddEntry(expected95, '#pm 2#sigma expected', "f")
     legend.AddEntry(theory_xsec_gr, 'Signal Cross Section', 'lf')
 
@@ -205,6 +205,7 @@ def PlotLimits(limitDir,limitFile,tempKey):
     legend.SetBorderSize(0)
     legend.SetFillColor(0)
     legend.SetLineColor(0)
+    legend.SetNColumns(2)
     legend.Draw()
     
     c4.RedrawAxis()
@@ -226,7 +227,7 @@ BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-tempKeys = ['all']#,'isE','isM','nW0','nW1p','nB0','nB1','nB2','nB3p']
+tempKeys = ['all','isE','isM','nW0','nW1p','nB0','nB1','nB2','nB3p']
 
 expLims = []
 obsLims = []
@@ -234,14 +235,15 @@ for tempKey in tempKeys:
 	for BRind in range(nBRconf):
 		BRconfStr=''
 		if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
-		limitDir='/user_data/ssagir/limits/templates_minMlb_tau21LT0p6_bpbp_2016_3_5/'+tempKey+BRconfStr+'/'
+		limitDir='/user_data/ssagir/limits/templates_minMlb_tptp_2016_3_18/'+tempKey+BRconfStr+'/'
 		limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M700'+chiral+BRconfStr+'_'+str(lumiStr)+'fb'+isRebinned+'_expected.txt'	
 		expTemp,obsTemp = PlotLimits(limitDir,limitFile,tempKey+BRconfStr)
 		expLims.append(expTemp)
 		obsLims.append(obsTemp)
-print "BRs_bW:",BRs['BW']
-print "BRs_tH:",BRs['TH']
-print "BRs_tZ:",BRs['TZ']
+if doBRScan:
+	print "BRs_bW:",BRs['BW']
+	print "BRs_tH:",BRs['TH']
+	print "BRs_tZ:",BRs['TZ']
 print "Expected:",expLims
 print "Observed:",obsLims
 
