@@ -1,4 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+BRIEF INSTRUCTIONS FOR OPTIMIZATION:
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+In doThetaTemplates.py:
+- Optimization should be done w/o systematics since it takes too much computing time with shapes
+- Check bkgList, sigList, dataList, and other ewk/top/qcd background group list to make sure they include
+all the processes you want.
+- Check the categories isEMlist,nttaglist,nWtaglist, and nbtaglist
+In doCondorThetaTemplates.py:
+- Give the list of cuts you want to explore and the output directory information
+
+Once the templates are produced, the limits can be run using the scripts in makeLimits/. 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+DETAILED INSTRUCTIONS:
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 The main code to make histograms is "doThetaTemplates.py":
 To be modified by user (listed in the order as they appear in the script):
 	- input directory (step1 or step2)
