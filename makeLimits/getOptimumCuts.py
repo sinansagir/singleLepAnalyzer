@@ -1,14 +1,8 @@
-#from ROOT import *
 from array import array
-#from numpy import linspace
 from math import *
 import os,sys
 
-#gROOT.SetBatch(1)
-
-from tdrStyle import *
-setTDRStyle()
-
+blind = True #stay blind to data when optimizing selections!
 lumiPlot = '2.2'
 lumiStr = '2p215'
 distribution = 'HT'
@@ -36,13 +30,7 @@ minMlbCutList = [0]#,50,75,100,120,150,200,250,300]
 cutConfigs = list(itertools.product(lepPtCutList,jet1PtCutList,jet2PtCutList,metCutList,njetsCutList,nbjetsCutList,jet3PtCutList,jet4PtCutList,jet5PtCutList,drCutList,Wjet1PtCutList,bjet1PtCutList,htCutList,stCutList,minMlbCutList))
 
 massPoints = [800]
-mass = array('d', massPoints)
-masserr = array('d', [0]*len(massPoints))
 mass_str = [str(item) for item in massPoints]
-
-#theory_br = [.1285,.1285,.1285,.1285,.1285,.1285,.1285]
-theory_xsec_dicts = {'700':0.455,'800':0.196,'900':0.0903,'1000':0.0440,'1100':0.0224,'1200':0.0118,'1300':0.00639}#,0.00354,0.00200,0.001148,0.000666,0.000391]
-theory_xsec = [theory_xsec_dicts[item] for item in mass_str]
 
 expBestCutStr = {}
 expBestLimit  = {}
@@ -54,7 +42,7 @@ obsWorstCutStr = {}
 obsWorstLimit  = {}
 expLimits = {}
 obsLimits = {}
-for i in range(len(mass)):
+for i in range(len(massPoints)):
 	expLimits[mass_str[i]] = {}
 	obsLimits[mass_str[i]] = {}
 	expBestCutStr[mass_str[i]] = ''
@@ -70,17 +58,15 @@ ind=1
 for conf in cutConfigs:
 	lepPtCut,jet1PtCut,jet2PtCut,metCut,njetsCut,nbjetsCut,jet3PtCut,jet4PtCut,jet5PtCut,drCut,Wjet1PtCut,bjet1PtCut,htCut,stCut,minMlbCut=conf[0],conf[1],conf[2],conf[3],conf[4],conf[5],conf[6],conf[7],conf[8],conf[9],conf[10],conf[11],conf[12],conf[13],conf[14]
 	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
-	plotLimits = True
-	for i in range(len(mass)):
+	haveLimits = True
+	for i in range(len(massPoints)):
 		try: 
 			ftemp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
-		except: plotLimits = False
-	if not plotLimits: continue
-	#if leadJetPtCut==1000: continue
-
-	exp   =array('d',[0 for i in range(len(mass))])
-	obs   =array('d',[0 for i in range(len(mass))])
-	for i in range(len(mass)):
+		except: haveLimits = False
+	if not haveLimits: continue
+	exp   =array('d',[0 for i in range(len(massPoints))])
+	obs   =array('d',[0 for i in range(len(massPoints))])
+	for i in range(len(massPoints)):
 		lims = {}
 
 		fobs = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_observed.txt', 'rU')
@@ -122,15 +108,17 @@ print "Run over", ind-1, "sets of cuts"
 print "********************************************************************************"
 print "********************************************************************************"
 print "The best set of cuts:"
-for i in range(len(mass)):
+for i in range(len(massPoints)):
 	print "Expected("+mass_str[i]+"GeV): "+expBestCutStr[mass_str[i]]+" with 95% CL: "+str(expBestLimit[mass_str[i]])
-	print "Observed("+mass_str[i]+"GeV): "+obsBestCutStr[mass_str[i]]+" with 95% CL: "+str(obsBestLimit[mass_str[i]])
+	if not blind: print "Observed("+mass_str[i]+"GeV): "+obsBestCutStr[mass_str[i]]+" with 95% CL: "+str(obsBestLimit[mass_str[i]])
 print "********************************************************************************"
 print "The worst set of cuts:"
-for i in range(len(mass)):
+for i in range(len(massPoints)):
 	print "Expected("+mass_str[i]+"GeV): "+expWorstCutStr[mass_str[i]]+" with 95% CL: "+str(expWorstLimit[mass_str[i]])
-	print "Observed("+mass_str[i]+"GeV): "+obsWorstCutStr[mass_str[i]]+" with 95% CL: "+str(obsWorstLimit[mass_str[i]])
+	if not blind: print "Observed("+mass_str[i]+"GeV): "+obsWorstCutStr[mass_str[i]]+" with 95% CL: "+str(obsWorstLimit[mass_str[i]])
 print "********************************************************************************"
+
+os._exit(1) # skip the plotting in the next lines!
 
 import pylab as pl
 massPoint = '800'
