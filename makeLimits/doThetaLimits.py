@@ -1,21 +1,49 @@
 import os,sys,fnmatch
 
-templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/tptp/makeThetaTemplates/templates_minMlb_tptp_2016_3_18'
+templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53/makeThetaTemplates/'
+templateDir+='templates_minMlb_noJSF_2016_6_22'
 thetaConfigTemp = os.getcwd()+'/theta_config_template.py'
 
-systematicsInFile = ['pileup','q2','jec','jer','jmr','jms','btag','tau21','pdf','pdfNew','muR','muF','muRFcorrd','muRFcorrdNew','muRFdecorrdNew','toppt','jsf','muRFenv']
-btagChannels = ['nB0','nB1','nB2','nB3p']
-#toFilter = [syst for syst in systematicsInFile if syst!='muRFenv']
-toFilter = ['pdf','muR','muF','muRFcorrd','muRFdecorrdNew','muRFenv']
-toFilter = ['__'+item+'__' for item in toFilter]
-#toFilter+= [chan for chan in btagChannels if chan!='nB3p']
-#toFilter+= ['nW1p']
-#toFilter+= ['qcd__pdfNew','qcd__muRFcorrdNew']
-print toFilter
+systematicsInFile = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
+cats = ['isE_nT0_nW0_nB0', 'isE_nT0_nW0_nB1', 'isE_nT0_nW0_nB2p', 'isE_nT0_nW1p_nB0', 'isE_nT0_nW1p_nB1', 'isE_nT0_nW1p_nB2p',
+        'isE_nT1p_nW0_nB0','isE_nT1p_nW0_nB1','isE_nT1p_nW0_nB2p','isE_nT1p_nW1p_nB0','isE_nT1p_nW1p_nB1','isE_nT1p_nW1p_nB2p',
+        'isM_nT0_nW0_nB0', 'isM_nT0_nW0_nB1', 'isM_nT0_nW0_nB2p', 'isM_nT0_nW1p_nB0', 'isM_nT0_nW1p_nB1', 'isM_nT0_nW1p_nB2p',
+        'isM_nT1p_nW0_nB0','isM_nT1p_nW0_nB1','isM_nT1p_nW0_nB2p','isM_nT1p_nW1p_nB0','isM_nT1p_nW1p_nB1','isM_nT1p_nW1p_nB2p',
+        ]
+toFilter0 = ['pdf','muRFdecorrdNew','muRFenv','muR','muF','muRFcorrd'] #always remove in case they are in templates
+#toFilter0+= ['topsf','jsf']
+toFilter0+= ['jsf']
+#toFilter0+= ['topsf']
+#toFilter0 = systematicsInFile
+toFilter0 = ['__'+item+'__' for item in toFilter0]
 
-if not os.path.exists('/user_data/ssagir/limits/'+templateDir.split('/')[-1]): os.system('mkdir /user_data/ssagir/limits/'+templateDir.split('/')[-1]) #prevent writing these (they are large) to brux6 common area
-outputDir = '/user_data/ssagir/limits/'+templateDir.split('/')[-1]+'/'
-limitType = 'all'#'pdf_RF_'+'decorrelated/'
+limitConfs = {#'<limit type>':[filter list]
+			  'all':[],
+			  'isE':['isM'], #only electron channel
+			  'isM':['isE'], #only muon channel
+			  'nT0':['nT1p'], #only 0 t tag category
+			  'nT1p':['nT0'], #only 1p t tag category
+			  'nW0':['nW1p'], #only 0 W tag category
+			  'nW1p':['nW0'], #only 1p W tag category
+			  'nB0':['nB1','nB2p'], #only 0 b tag category
+			  'nB1':['nB0','nB2p'], #only 1 b tag category
+			  'nB2p':['nB0','nB1'], #only 2p b tag category
+			  'noB0':['nB0'], #No 0 b tag category
+			  #'no_nT0_nW0_nB0':['nT0_nW0_nB0'],
+			  }
+# limitConfs = {}
+# for cat in cats: 
+# 	limitConfs[cat] = []
+# 	for cat2 in cats:
+# 		if cat2!=cat: limitConfs[cat].append(cat2)
+
+#os._exit(1)
+limitType = ''#'noSysts'
+outputDir = '/user_data/ssagir/limits/'+templateDir.split('/')[-1]+'/' #prevent writing these (they are large) to brux6 common area
+if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
+outputDir+= '/'+limitType+'/'
+if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
+print outputDir
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -25,12 +53,11 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if '00_2p318fb_rebinned.root' in rootfile or '_modified.root' in rootfile: continue
-    if 'TTM1800' in rootfile: continue
-    if 'TTM1700' in rootfile: continue
-    if 'TTM1600' in rootfile: continue
-    if 'TTM1500' in rootfile: continue
-    if 'TTM1400' in rootfile: continue
+    if 'rebinned_stat0p15' not in rootfile: continue
+    if 'plots' in rootfile: continue
+    #if 'X53X53M1400' in rootfile: continue
+    #if 'X53X53M1500' in rootfile: continue
+    #if 'X53X53M1600' in rootfile: continue
     rootfilelist.append(rootfile)
     i+=1
 
@@ -62,29 +89,31 @@ def makeThetaConfig(rFile,outDir):
 		fout.write('/home/ssagir/CMSSW_7_3_0/src/theta/utils2/theta-auto.py ' + outDir+'/'+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.py')
 
 count=0
-for file in rootfilelist:
-	signal = file.split('/')[-1].split('_')[2]
-	BRStr = file.split('/')[-1][file.split('/')[-1].find(signal)+len(signal):file.split('/')[-1].find('_2p318fb')]
-	outDir = outputDir+limitType+BRStr+'/'
-	print signal,BRStr
-	if not os.path.exists(outDir): os.system('mkdir '+outDir)
-	os.chdir(outDir)
-	fileDir = file.split('/')[-2]
-	#if os.path.exists(outDir+fileDir+'/'+file.split('/')[-1][:-5]+'.job'): continue
-	if not os.path.exists(outDir+fileDir): os.system('mkdir '+fileDir)
-	os.chdir(fileDir)
-	makeThetaConfig(file,outDir)
+for limitConf in limitConfs:
+	toFilter = toFilter0 + limitConfs[limitConf]
+	print limitConf,'=',toFilter
+	for file in rootfilelist:
+		signal = file.split('/')[-1].split('_')[2]
+		BRStr = file.split('/')[-1][file.split('/')[-1].find(signal)+len(signal):file.split('/')[-1].find('_2p318fb')]
+		outDir = outputDir+limitConf+BRStr+'/'
+		print signal,BRStr
+		if not os.path.exists(outDir): os.system('mkdir '+outDir)
+		os.chdir(outDir)
+		fileDir = file.split('/')[-2]
+		#if os.path.exists(outDir+fileDir+'/'+file.split('/')[-1][:-5]+'.job'): continue
+		if not os.path.exists(outDir+fileDir): os.system('mkdir '+fileDir)
+		os.chdir(fileDir)
+		makeThetaConfig(file,outDir)
 
-	dict={'configdir':outDir+fileDir,'configfile':file.split('/')[-1][:-5]}
+		dict={'configdir':outDir+fileDir,'configfile':file.split('/')[-1][:-5]}
 
-	jdf=open(file.split('/')[-1][:-5]+'.job','w')
-	jdf.write(
+		jdf=open(file.split('/')[-1][:-5]+'.job','w')
+		jdf.write(
 """universe = vanilla
 Executable = %(configfile)s.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 Notification = Error
-notify_user = Sinan_Sagir@brown.edu
 
 arguments      = ""
 
@@ -93,11 +122,11 @@ Error = %(configfile)s.err
 Log = %(configfile)s.log
 
 Queue 1"""%dict)
-	jdf.close()
+		jdf.close()
 
-	os.system('chmod +x '+file.split('/')[-1][:-5]+'.sh')
-	os.system('condor_submit '+file.split('/')[-1][:-5]+'.job')
-	os.chdir('..')
-	count+=1
+		os.system('chmod +x '+file.split('/')[-1][:-5]+'.sh')
+		os.system('condor_submit '+file.split('/')[-1][:-5]+'.job')
+		os.chdir('..')
+		count+=1
 print "Total number of jobs submitted:", count
                   
