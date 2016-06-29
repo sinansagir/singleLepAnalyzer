@@ -14,52 +14,11 @@ start_time = time.time()
 #################### CUTS & OUTPUT ########################
 ###########################################################
 
-lepPtCut=80
-jet1PtCut=200
-jet2PtCut=90
-metCut=100
-njetsCut=4
-nbjetsCut=0
-jet3PtCut=0
-jet4PtCut=0
-jet5PtCut=0
-drCut=1
-Wjet1PtCut=0
-bjet1PtCut=0
-htCut=0
-stCut=0
-minMlbCut=0
+doAllSys= True
+doQ2sys = True
+if not doAllSys: doQ2sys = False
 
-cutList = {'lepPtCut':lepPtCut,
-                   'jet1PtCut':jet1PtCut,
-                   'jet2PtCut':jet2PtCut,
-                   'jet3PtCut':jet3PtCut,
-                   'jet4PtCut':jet4PtCut,
-                   'jet5PtCut':jet5PtCut,
-                   'metCut':metCut,
-                   'njetsCut':njetsCut,
-                   'nbjetsCut':nbjetsCut,
-                   'drCut':drCut,
-                   'Wjet1PtCut':Wjet1PtCut,
-                   'bjet1PtCut':bjet1PtCut,
-                   'htCut':htCut,
-                   'stCut':stCut,
-                   'minMlbCut':minMlbCut,
-                   }
-
-doAllSys= False
-doQ2sys = False
-isotrig = 1
-
-cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
-cutString += '_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))
-cutString += '_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))
-cutString += '_3jet'+str(int(cutList['jet3PtCut']))+'_4jet'+str(int(cutList['jet4PtCut']))
-cutString += '_5jet'+str(int(cutList['jet5PtCut']))+'_DR'+str(cutList['drCut'])
-cutString += '_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])
-cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
-
-pfix='kinematics_substructure'
+pfix=str(sys.argv[1])#'kinematics_X53_finalSel_2016_6_2'#_WJetHTbins'
 outDir = os.getcwd()+'/'
 outDir+=pfix
 
@@ -70,32 +29,33 @@ isEMlist = ['E','M','All']
 ###########################################################
 
 whichSignal = 'X53X53' #TT, BB, or X53X53
-signalMassRange = [700,1600]
+signalMassRange = [700,1300]
 signals = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
 if whichSignal=='X53X53': signals = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 sigList = {signal+decay:(signal+decay).lower() for signal in signals for decay in decays}
+signalList = [signal+decay for signal in signals for decay in decays]
 
 bkgStackList = ['WJets','ZJets','VV','TTV','TTJets','T','QCD']
-wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
+if 'withJSF' in pfix or 'WJetsHTbins' in pfix:
+	wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
+else: 
+	wjetList  = ['WJetsMG']
 zjetList  = ['DY50']
 vvList    = ['WW','WZ','ZZ']
 ttvList   = ['TTWl','TTWq','TTZl','TTZq']
-ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 #ttjetList = ['TTJetsPH']
+ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 tList     = ['Tt','Ts','TtW','TbtW']
+qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+topList = ttjetList+tList+ttvList
+ewkList = wjetList+zjetList+vvList
 
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
-signalList = [signal+decay for signal in signals for decay in decays]
-topList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
-#topList = ['TTJetsPH','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
-ewkList = ['DY50','WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500','WW','WZ','ZZ']
-qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 
-systematicList = ['pileup','jec','jer','jsf','jmr','jms','btag','tau21','pdf','pdfNew','muR','muF',
-				  'muRFcorrd','toppt','muRFenv','muRFcorrdNew','muRFdecorrdNew']
+systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','pdfNew','muRFcorrdNew']#,'btagCorr']
 
 q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
@@ -104,8 +64,8 @@ q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','Tbt
 #################### NORMALIZATIONS #######################
 ###########################################################
 
-lumiSys = 0.046 #4.6% lumi uncertainty
-trigSys = 0.03 #3% trigger uncertainty
+lumiSys = 0.027 #4.6% lumi uncertainty
+trigSys = 0.05 #5% trigger uncertainty
 lepIdSys = 0.01 #1% lepton id uncertainty
 lepIsoSys = 0.01 #1% lepton isolation uncertainty
 topXsecSys = 0.0 #55 #5.5% top x-sec uncertainty
@@ -113,15 +73,34 @@ ewkXsecSys = 0.0 #5 #5% ewk x-sec uncertainty
 qcdXsecSys = 0.0 #50 #50% qcd x-sec uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 
-CRuncert = {# averaged from CRs, could depend on the selection, but the difference found to be negligible!
-			'topE':0.112,
-			'topM':0.087,
-			'topAll':0.098,
-			'ewkE':0.260,
-			'ewkM':0.104,
-			'ewkAll':0.172,
-			}
-
+# averaged from CRs, could depend on the selection, but the difference found to be negligible!
+if 'noJSF' in pfix and 'WJetsHTbins' not in pfix:
+	CRuncert = {#Inclusive WJets sample, NOT REWEIGHTED, 23JUNE16--SS
+		'topE':0.10,
+		'topM':0.126,
+		'topAll':0.11,
+		'ewkE':0.15,
+		'ewkM':0.09,
+		'ewkAll':0.12,
+		}
+if 'noJSF' in pfix and 'WJetsHTbins' in pfix:
+	CRuncert = {#HT binned WJets sample, NOT REWEIGHTED, 23JUNE16--SS
+		'topE':0.13,
+		'topM':0.16,
+		'topAll':0.15,
+		'ewkE':0.18,
+		'ewkM':0.22,
+		'ewkAll':0.20,
+		}
+if 'withJSF' in pfix:
+	CRuncert = {#HT binned WJets sample REWEIGHTED with JetSF, 23JUNE16--SS
+		'topE':0.12,
+		'topM':0.14,
+		'topAll':0.13,
+		'ewkE':0.13,
+		'ewkM':0.17,
+		'ewkAll':0.15,
+		}
 def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
 	norm0=hist.Integral()
 	for iBin in range(0,hist.GetNbinsX()+2):
@@ -494,7 +473,7 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 		for signal in signals: yieldErrTable[histoPrefix][signal] += (corrdSys*yieldTable[histoPrefix][signal])**2
 
 		Ratio = yieldTable[histoPrefix]['data']/yieldTable[histoPrefix]['totBkg']
-		yieldErrTable[histoPrefix]['dataOverBkg'] = (Ratio**2) * ((yieldErrTable[histoPrefix]['data']/(yieldTable[histoPrefix]['data']+1e-20))**2 + (yieldErrTable[histoPrefix]['totBkg']/(yieldTable[histoPrefix]['totBkg']+1e-20))**2)
+		yieldErrTable[histoPrefix]['dataOverBkg'] = (Ratio**2) * (yieldErrTable[histoPrefix]['data']/((yieldTable[histoPrefix]['data']+1e-20)**2) + yieldErrTable[histoPrefix]['totBkg']/((yieldTable[histoPrefix]['totBkg']+1e-20)**2))
 
 		hdata[isEM].Write()
 		#write theta histograms in root file, avoid having processes with no event yield (to make theta happy) 
@@ -506,14 +485,14 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 						if systematic=='toppt': continue
 						hsig[isEM+signal+systematic+'Up'].Write()
 						hsig[isEM+signal+systematic+'Down'].Write()
-					for pdfInd in range(100): hsig[isEM+signal+'pdf'+str(pdfInd)].Write()
+					#for pdfInd in range(100): hsig[isEM+signal+'pdf'+str(pdfInd)].Write()
 		if htop[isEM].Integral() > 0:  
 			htop[isEM].Write()
 			if doAllSys:
 				for systematic in systematicList:
 					htop[isEM+systematic+'Up'].Write()
 					htop[isEM+systematic+'Down'].Write()
-				for pdfInd in range(100): htop[isEM+'pdf'+str(pdfInd)].Write()
+				#for pdfInd in range(100): htop[isEM+'pdf'+str(pdfInd)].Write()
 			if doQ2sys:
 				htop[isEM+'q2Up'].Write()
 				htop[isEM+'q2Down'].Write()
@@ -524,7 +503,7 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 					if systematic=='toppt': continue
 					hewk[isEM+systematic+'Up'].Write()
 					hewk[isEM+systematic+'Down'].Write()
-				for pdfInd in range(100): hewk[isEM+'pdf'+str(pdfInd)].Write()
+				#for pdfInd in range(100): hewk[isEM+'pdf'+str(pdfInd)].Write()
 		if hqcd[isEM].Integral() > 0:  
 			hqcd[isEM].Write()
 			if doAllSys:
@@ -533,7 +512,7 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 					if systematic=='toppt': continue
 					hqcd[isEM+systematic+'Up'].Write()
 					hqcd[isEM+systematic+'Down'].Write()
-				for pdfInd in range(100): hqcd[isEM+'pdf'+str(pdfInd)].Write()
+				#for pdfInd in range(100): hqcd[isEM+'pdf'+str(pdfInd)].Write()
 		if hwjets[isEM].Integral() > 0: hwjets[isEM].Write()
 		if hzjets[isEM].Integral() > 0: hzjets[isEM].Write()
 		if httjets[isEM].Integral()> 0: httjets[isEM].Write()
@@ -549,7 +528,6 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 	## PRINTING YIELD TABLE WITH UNCERTAINTIES ##
 	#first print table without background grouping
 	ljust_i = 1
-	print 'CUTS:',cutString
 	print
 	print 'YIELDS'.ljust(20*ljust_i), 
 	for bkg in bkgStackList: print bkg.ljust(ljust_i),
@@ -676,12 +654,16 @@ for dist in distList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	#if dist!='minMlb' and dist!='HT':continue
-	for isEM in isEMlist:
-		print "LOADING: ",isEM
-		datahists.update(pickle.load(open(outDir+'/'+isEM+'/datahists_'+dist+'.p','rb')))
-		bkghists.update(pickle.load(open(outDir+'/'+isEM+'/bkghists_'+dist+'.p','rb')))
-		sighists.update(pickle.load(open(outDir+'/'+isEM+'/sighists_'+dist+'.p','rb')))
+	if dist=='minMlj':continue
+	try:
+		for isEM in isEMlist:
+			print "LOADING: ",isEM
+			datahists.update(pickle.load(open(outDir+'/'+isEM+'/datahists_'+dist+'.p','rb')))
+			bkghists.update(pickle.load(open(outDir+'/'+isEM+'/bkghists_'+dist+'.p','rb')))
+			sighists.update(pickle.load(open(outDir+'/'+isEM+'/sighists_'+dist+'.p','rb')))
+	except:
+		print dist,"could not be found!"
+		continue
 	makeCats(datahists,sighists,bkghists,dist)
 
 print 'AFTER YOU CHECK THE OUTPUT FILES, DELETE THE PICKLE FILES !!!!!!!'

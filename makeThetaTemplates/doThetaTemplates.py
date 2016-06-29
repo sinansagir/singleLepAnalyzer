@@ -14,20 +14,23 @@ start_time = time.time()
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 		       
 bkgStackList = ['WJets','ZJets','VV','TTW','TTZ','TTJets','T','QCD']
-wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
-#wjetList  = ['WJets']
+#wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
+wjetList  = ['WJetsMG']
 zjetList  = ['DY50']
 vvList    = ['WW','WZ','ZZ']
 ttwList   = ['TTWl','TTWq']
 ttzList   = ['TTZl','TTZq']
-#ttjetList = ['TTJets']
+#ttjetList = ['TTJetsPH']
 ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 tList     = ['Tt','Ts','TtW','TbtW']
+qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+topList = ttjetList+tList+ttwList+ttzList
+ewkList = wjetList+zjetList+vvList
 
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
-whichSignal = 'TT' #TT, BB, or X53X53
-signalMassRange = [700,1300]
+whichSignal = 'X53X53' #TT, BB, or X53X53
+signalMassRange = [700,1600]
 sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -42,30 +45,24 @@ BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-#topList = ['TTJets','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
-topList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
-#ewkList = ['DY50','WJets','WW','WZ','ZZ']
-ewkList = ['DY50','WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500','WW','WZ','ZZ']
-qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
-
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 2318./2263.
 doAllSys = True
-systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdf','muR','muF','muRFcorrd','toppt','jsf','muRFenv']
+systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec']#,'btagCorr']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
 doQ2sys = True
 q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
-cutString  = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet30_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-pfix='templates_minMlb_2016_3_7_15_45_48'
+cutString  = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
+pfix='templates_minMlb_noJSF_2016_6_22'
 iPlot='minMlb'
 
 isEMlist =['E','M']
 nttaglist=['0','1p']
 nWtaglist=['0','1p']
-nbtaglist=['1','2p']
+nbtaglist=['0','1','2p']
 catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist))
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
 
@@ -98,87 +95,70 @@ topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty --> covered by PDF and muRF un
 ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty --> covered by PDF and muRF uncertainties
 qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty --> covered by PDF and muRF uncertainties
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
+#Inclusive WJets sample, NOT REWEIGHTED, 23JUNE16--SS
 topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-			     'top_nT0_nW0_nB0'  :0,#.15,
- 			     'top_nT0_nW0_nB1'  :0,#.11,
- 			     'top_nT0_nW0_nB2'  :0,#.02,
- 			     'top_nT0_nW0_nB2p' :0,#.02,
- 			     'top_nT0_nW0_nB3p' :0,#.02,
- 			     'top_nT0_nW1p_nB0' :0,#.15,
- 			     'top_nT0_nW1p_nB1' :0,#.11,
- 			     'top_nT0_nW1p_nB2' :0,#.02,
- 			     'top_nT0_nW1p_nB2p':0,#.02,
- 			     'top_nT0_nW1p_nB3p':0,#.02,
- 			     
-			     'top_nT1p_nW0_nB0'  :0,#.15,
- 			     'top_nT1p_nW0_nB1'  :0,#.11,
- 			     'top_nT1p_nW0_nB2'  :0,#.02,
- 			     'top_nT1p_nW0_nB2p' :0,#.02,
- 			     'top_nT1p_nW0_nB3p' :0,#.02,
- 			     'top_nT1p_nW1p_nB0' :0,#.15,
- 			     'top_nT1p_nW1p_nB1' :0,#.11,
- 			     'top_nT1p_nW1p_nB2' :0,#.02,
- 			     'top_nT1p_nW1p_nB2p':0,#.02,
- 			     'top_nT1p_nW1p_nB3p':0,#.02,
- 
- 			     'top_nT0p_nW0_nB0'  :0,#.15,
- 			     'top_nT0p_nW0_nB1'  :0,#.11,
- 			     'top_nT0p_nW0_nB2'  :0,#.02,
- 			     'top_nT0p_nW0_nB2p' :0,#.02,
- 			     'top_nT0p_nW0_nB3p' :0,#.02,
- 			     'top_nT0p_nW1p_nB0' :0,#.15,
- 			     'top_nT0p_nW1p_nB1' :0,#.11,
- 			     'top_nT0p_nW1p_nB2' :0,#.02,
- 			     'top_nT0p_nW1p_nB2p':0,#.02,
- 			     'top_nT0p_nW1p_nB3p':0,#.02,
+			     'top_nW0_nB0'  :0.08,
+			     'top_nW0_nB1'  :0.11,
+			     'top_nW0_nB2p' :0.15,
+			     'top_nW1p_nB0' :0.08,
+			     'top_nW1p_nB1' :0.11,
+			     'top_nW1p_nB2p':0.15,
 			     }
 ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
-			     'ewk_nT0_nW0_nB0'  :0,#.22,
- 			     'ewk_nT0_nW0_nB1'  :0,#.22,
- 			     'ewk_nT0_nW0_nB2'  :0,#.22,
- 			     'ewk_nT0_nW0_nB2p' :0,#.22,
- 			     'ewk_nT0_nW0_nB3p' :0,#.22,
- 			     'ewk_nT0_nW1p_nB0' :0,#.03,
- 			     'ewk_nT0_nW1p_nB1' :0,#.03,
- 			     'ewk_nT0_nW1p_nB2' :0,#.03,
- 			     'ewk_nT0_nW1p_nB2p':0,#.03,
- 			     'ewk_nT0_nW1p_nB3p':0,#.03,
- 
- 			     'ewk_nT1p_nW0_nB0'  :0,#.22,
- 			     'ewk_nT1p_nW0_nB1'  :0,#.22,
- 			     'ewk_nT1p_nW0_nB2'  :0,#.22,
- 			     'ewk_nT1p_nW0_nB2p' :0,#.22,
- 			     'ewk_nT1p_nW0_nB3p' :0,#.22,
- 			     'ewk_nT1p_nW1p_nB0' :0,#.03,
- 			     'ewk_nT1p_nW1p_nB1' :0,#.03,
- 			     'ewk_nT1p_nW1p_nB2' :0,#.03,
- 			     'ewk_nT1p_nW1p_nB2p':0,#.03,
- 			     'ewk_nT1p_nW1p_nB3p':0,#.03,
- 
- 			     'ewk_nT0p_nW0_nB0'  :0,#.22,
- 			     'ewk_nT0p_nW0_nB1'  :0,#.22,
- 			     'ewk_nT0p_nW0_nB2'  :0,#.22,
- 			     'ewk_nT0p_nW0_nB2p' :0,#.22,
- 			     'ewk_nT0p_nW0_nB3p' :0,#.22,
- 			     'ewk_nT0p_nW1p_nB0' :0,#.03,
- 			     'ewk_nT0p_nW1p_nB1' :0,#.03,
- 			     'ewk_nT0p_nW1p_nB2' :0,#.03,
- 			     'ewk_nT0p_nW1p_nB2p':0,#.03,
- 			     'ewk_nT0p_nW1p_nB3p':0,#.03,
+			     'ewk_nW0_nB0'  :0.12,
+			     'ewk_nW0_nB1'  :0.12,
+			     'ewk_nW0_nB2p' :0.12,
+			     'ewk_nW1p_nB0' :0.12,
+			     'ewk_nW1p_nB1' :0.12,
+			     'ewk_nW1p_nB2p':0.12,
 			     }
+#HT binned WJets sample, NOT REWEIGHTED, 23JUNE16--SS
+# topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
+# 			     'top_nW0_nB0'  :0.20,
+# 			     'top_nW0_nB1'  :0.12,
+# 			     'top_nW0_nB2p' :0.15,
+# 			     'top_nW1p_nB0' :0.20,
+# 			     'top_nW1p_nB1' :0.12,
+# 			     'top_nW1p_nB2p':0.15,
+# 			     }
+# ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
+# 			     'ewk_nW0_nB0'  :0.21,
+# 			     'ewk_nW0_nB1'  :0.21,
+# 			     'ewk_nW0_nB2p' :0.21,
+# 			     'ewk_nW1p_nB0' :0.18,
+# 			     'ewk_nW1p_nB1' :0.18,
+# 			     'ewk_nW1p_nB2p':0.18,
+# 			     }
+#HT binned WJets sample REWEIGHTED with JetSF, 23JUNE16--SS
+# topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
+# 			     'top_nW0_nB0'  :0.15,
+# 			     'top_nW0_nB1'  :0.11,
+# 			     'top_nW0_nB2p' :0.15,
+# 			     'top_nW1p_nB0' :0.15,
+# 			     'top_nW1p_nB1' :0.11,
+# 			     'top_nW1p_nB2p':0.15,
+# 			     }
+# ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
+# 			     'ewk_nW0_nB0'  :0.15,
+# 			     'ewk_nW0_nB1'  :0.15,
+# 			     'ewk_nW0_nB2p' :0.15,
+# 			     'ewk_nW1p_nB0' :0.16,
+# 			     'ewk_nW1p_nB1' :0.16,
+# 			     'ewk_nW1p_nB2p':0.16,
+# 			     }
 
 addSys = {} #additional uncertainties for specific processes
 for tag in tagList:
 	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
-	addSys['top_'+tagStr]   =math.sqrt(topModelingSys['top_'+tagStr]**2+topXsecSys**2)
-	addSys['TTJets_'+tagStr]=math.sqrt(topModelingSys['top_'+tagStr]**2+topXsecSys**2)
-	addSys['T_'+tagStr]     =math.sqrt(topModelingSys['top_'+tagStr]**2+topXsecSys**2)
-	addSys['TTW_'+tagStr]   =math.sqrt(topModelingSys['top_'+tagStr]**2+topXsecSys**2)
-	addSys['TTZ_'+tagStr]   =math.sqrt(topModelingSys['top_'+tagStr]**2+topXsecSys**2)
-	addSys['ewk_'+tagStr]  =math.sqrt(ewkModelingSys['ewk_'+tagStr]**2+ewkXsecSys**2)
-	addSys['WJets_'+tagStr]=math.sqrt(ewkModelingSys['ewk_'+tagStr]**2+ewkXsecSys**2)
-	addSys['ZJets_'+tagStr]=math.sqrt(ewkModelingSys['ewk_'+tagStr]**2+ewkXsecSys**2)
-	addSys['VV_'+tagStr]   =math.sqrt(ewkModelingSys['ewk_'+tagStr]**2+ewkXsecSys**2)
+	addSys['top_'+tagStr]   =math.sqrt(topModelingSys['top_'+tagStr[tagStr.find('nW'):]]**2+topXsecSys**2)
+	addSys['TTJets_'+tagStr]=math.sqrt(topModelingSys['top_'+tagStr[tagStr.find('nW'):]]**2+topXsecSys**2)
+	addSys['T_'+tagStr]     =math.sqrt(topModelingSys['top_'+tagStr[tagStr.find('nW'):]]**2+topXsecSys**2)
+	addSys['TTW_'+tagStr]   =math.sqrt(topModelingSys['top_'+tagStr[tagStr.find('nW'):]]**2+topXsecSys**2)
+	addSys['TTZ_'+tagStr]   =math.sqrt(topModelingSys['top_'+tagStr[tagStr.find('nW'):]]**2+topXsecSys**2)
+	addSys['ewk_'+tagStr]  =math.sqrt(ewkModelingSys['ewk_'+tagStr[tagStr.find('nW'):]]**2+ewkXsecSys**2)
+	addSys['WJets_'+tagStr]=math.sqrt(ewkModelingSys['ewk_'+tagStr[tagStr.find('nW'):]]**2+ewkXsecSys**2)
+	addSys['ZJets_'+tagStr]=math.sqrt(ewkModelingSys['ewk_'+tagStr[tagStr.find('nW'):]]**2+ewkXsecSys**2)
+	addSys['VV_'+tagStr]   =math.sqrt(ewkModelingSys['ewk_'+tagStr[tagStr.find('nW'):]]**2+ewkXsecSys**2)
 	addSys['qcd_'+tagStr]=qcdXsecSys
 	addSys['QCD_'+tagStr]=qcdXsecSys
 
@@ -236,6 +216,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
 		print "       BR Configuration:"+BRconfStr
 		for signal in sigList:
+			print "              Signal:"+signal
 			outputRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
 			outputRfile = R.TFile(outputRfileName,'RECREATE')
 			hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
@@ -566,7 +547,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		for cat in catList:
 			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 			catStr='is'+cat[0]+'_'+tagStr
-			if cat[0]!='E': continue
+			if cat[0]!='E' or cat[1]=='1p': continue
 			print (catStr).ljust(ljust_i),
 		print
 		for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
@@ -574,7 +555,50 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			for cat in catList:
 				tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 				catStr='is'+cat[0]+'_'+tagStr
-				if cat[0]!='E': continue
+				if cat[0]!='E' or cat[1]=='1p': continue
+				histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+				if process=='dataOverBkg':
+					dataTemp = yieldTable[histoPrefix]['data']+1e-20
+					dataTempErr = yieldStatErrTable[histoPrefix]['data']
+					totBkgTemp = yieldTable[histoPrefix]['totBkg']+1e-20
+					totBkgTempErr = yieldStatErrTable[histoPrefix]['totBkg'] # statistical error squared
+					totBkgTempErr += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
+					totBkgTempErr += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
+					totBkgTempErr += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
+					totBkgTempErr += (corrdSys*totBkgTemp)**2
+					dataOverBkgErr = ((dataTemp/totBkgTemp)**2)*(dataTempErr/dataTemp**2+totBkgTempErr/totBkgTemp**2)
+					print ' & '+str(round_sig(dataTemp/totBkgTemp,5))+' $\pm$ '+str(round_sig(math.sqrt(dataOverBkgErr),2)),
+				else:
+					yieldtemp = yieldTable[histoPrefix][process]
+					yielderrtemp = yieldStatErrTable[histoPrefix][process]
+					if process=='totBkg': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
+						yielderrtemp += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
+						yielderrtemp += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
+					elif process in sigList: 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+					elif process!='data': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys[process+'_'+tagStr]*yieldTable[histoPrefix][process])**2
+					if process=='data': print ' & '+str(int(yieldtemp)),
+					elif process not in sigList: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+					else: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+			print '\\\\',
+			print
+		print
+		for cat in catList:
+			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+			catStr='is'+cat[0]+'_'+tagStr
+			if cat[0]!='E' or cat[1]!='1p': continue
+			print (catStr).ljust(ljust_i),
+		print
+		for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
+			print process.ljust(ljust_i),
+			for cat in catList:
+				tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+				catStr='is'+cat[0]+'_'+tagStr
+				if cat[0]!='E' or cat[1]!='1p': continue
 				histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
 				if process=='dataOverBkg':
 					dataTemp = yieldTable[histoPrefix]['data']+1e-20
@@ -610,7 +634,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		for cat in catList:
 			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 			catStr='is'+cat[0]+'_'+tagStr
-			if cat[0]!='M': continue
+			if cat[0]!='M' or cat[1]=='1p': continue
 			print (catStr).ljust(ljust_i),
 		print
 		for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
@@ -618,7 +642,50 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			for cat in catList:
 				tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 				catStr='is'+cat[0]+'_'+tagStr
-				if cat[0]!='M': continue
+				if cat[0]!='M' or cat[1]=='1p': continue
+				histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
+				if process=='dataOverBkg':
+					dataTemp = yieldTable[histoPrefix]['data']+1e-20
+					dataTempErr = yieldStatErrTable[histoPrefix]['data']
+					totBkgTemp = yieldTable[histoPrefix]['totBkg']+1e-20
+					totBkgTempErr = yieldStatErrTable[histoPrefix]['totBkg'] # statistical error squared
+					totBkgTempErr += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
+					totBkgTempErr += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
+					totBkgTempErr += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
+					totBkgTempErr += (corrdSys*totBkgTemp)**2
+					dataOverBkgErr = ((dataTemp/totBkgTemp)**2)*(dataTempErr/dataTemp**2+totBkgTempErr/totBkgTemp**2)
+					print ' & '+str(round_sig(dataTemp/totBkgTemp,5))+' $\pm$ '+str(round_sig(math.sqrt(dataOverBkgErr),2)),
+				else:
+					yieldtemp = yieldTable[histoPrefix][process]
+					yielderrtemp = yieldStatErrTable[histoPrefix][process]
+					if process=='totBkg': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys['top_'+tagStr]*yieldTable[histoPrefix]['top'])**2
+						yielderrtemp += (addSys['ewk_'+tagStr]*yieldTable[histoPrefix]['ewk'])**2
+						yielderrtemp += (addSys['qcd_'+tagStr]*yieldTable[histoPrefix]['qcd'])**2
+					elif process in sigList: 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+					elif process!='data': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys[process+'_'+tagStr]*yieldTable[histoPrefix][process])**2
+					if process=='data': print ' & '+str(int(yieldtemp)),
+					elif process not in sigList: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+					else: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+			print '\\\\',
+			print
+		print
+		for cat in catList:
+			tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+			catStr='is'+cat[0]+'_'+tagStr
+			if cat[0]!='M' or cat[1]!='1p': continue
+			print (catStr).ljust(ljust_i),
+		print
+		for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
+			print process.ljust(ljust_i),
+			for cat in catList:
+				tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+				catStr='is'+cat[0]+'_'+tagStr
+				if cat[0]!='M' or cat[1]!='1p': continue
 				histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
 				if process=='dataOverBkg':
 					dataTemp = yieldTable[histoPrefix]['data']+1e-20
@@ -691,12 +758,55 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		print 'YIELDS'.ljust(20*ljust_i), 
 		for tag in tagList:
 			tagStr = 'nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
+			if tag[0]=='1p': continue
 			print (tagStr).ljust(ljust_i),
 		print
 		for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
 			print process.ljust(ljust_i),
 			for tag in tagList:
 				tagStr = 'nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
+				if tag[0]=='1p': continue
+				histoPrefix=discriminant+'_'+lumiStr+'fb_isE'+'_'+tagStr
+				if process=='dataOverBkg':
+					dataTemp = yieldTable[histoPrefix]['data']+yieldTable[histoPrefix.replace('_isE','_isM')]['data']+1e-20
+					dataTempErr = yieldStatErrTable[histoPrefix]['data']+yieldStatErrTable[histoPrefix.replace('_isE','_isM')]['data']
+					totBkgTemp = yieldTable[histoPrefix]['totBkg']+yieldTable[histoPrefix.replace('_isE','_isM')]['totBkg']+1e-20
+					totBkgTempErr = yieldStatErrTable[histoPrefix]['totBkg']+yieldStatErrTable[histoPrefix.replace('_isE','_isM')]['totBkg'] # statistical error squared
+					totBkgTempErr += (addSys['top_'+tagStr]*(yieldTable[histoPrefix]['top']+yieldTable[histoPrefix.replace('_isE','_isM')]['top']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					totBkgTempErr += (addSys['ewk_'+tagStr]*(yieldTable[histoPrefix]['ewk']+yieldTable[histoPrefix.replace('_isE','_isM')]['ewk']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					totBkgTempErr += (addSys['qcd_'+tagStr]*(yieldTable[histoPrefix]['qcd']+yieldTable[histoPrefix.replace('_isE','_isM')]['qcd']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					totBkgTempErr += (corrdSys*totBkgTemp)**2
+					dataOverBkgErr = ((dataTemp/totBkgTemp)**2)*(dataTempErr/dataTemp**2+totBkgTempErr/totBkgTemp**2)
+					print ' & '+str(round_sig(dataTemp/totBkgTemp,5))+' $\pm$ '+str(round_sig(math.sqrt(dataOverBkgErr),2)),
+				else:
+					yieldtemp = yieldTable[histoPrefix][process]+yieldTable[histoPrefix.replace('_isE','_isM')][process]
+					yielderrtemp = yieldStatErrTable[histoPrefix][process]++yieldStatErrTable[histoPrefix.replace('_isE','_isM')][process]
+					if process=='totBkg': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys['top_'+tagStr]*(yieldTable[histoPrefix]['top']+yieldTable[histoPrefix.replace('_isE','_isM')]['top']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+						yielderrtemp += (addSys['ewk_'+tagStr]*(yieldTable[histoPrefix]['ewk']+yieldTable[histoPrefix.replace('_isE','_isM')]['ewk']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+						yielderrtemp += (addSys['qcd_'+tagStr]*(yieldTable[histoPrefix]['qcd']+yieldTable[histoPrefix.replace('_isE','_isM')]['qcd']))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					elif process in sigList: 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+					elif process!='data': 
+						yielderrtemp += (corrdSys*yieldtemp)**2
+						yielderrtemp += (addSys[process+'_'+tagStr]*(yieldTable[histoPrefix][process]+yieldTable[histoPrefix.replace('_isE','_isM')][process]))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+					if process=='data': print ' & '+str(int(yieldtemp)),
+					elif process not in sigList: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+					else: print ' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(math.sqrt(yielderrtemp),2)),
+			print '\\\\',
+			print
+		print
+		for tag in tagList:
+			tagStr = 'nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
+			if tag[0]!='1p': continue
+			print (tagStr).ljust(ljust_i),
+		print
+		for process in bkgStackList+['ewk','top','qcd','totBkg','data','dataOverBkg']+sigList:
+			print process.ljust(ljust_i),
+			for tag in tagList:
+				tagStr = 'nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
+				if tag[0]!='1p': continue
 				histoPrefix=discriminant+'_'+lumiStr+'fb_isE'+'_'+tagStr
 				if process=='dataOverBkg':
 					dataTemp = yieldTable[histoPrefix]['data']+yieldTable[histoPrefix.replace('_isE','_isM')]['data']+1e-20
@@ -1231,6 +1341,7 @@ def makeThetaCatsIndDecays(datahists,sighists,bkghists,discriminant):
 datahists = {}
 bkghists  = {}
 sighists  = {}
+print "WORKING DIR:",outDir
 for cat in catList:
 	catStr = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 	print "LOADING: ",catStr

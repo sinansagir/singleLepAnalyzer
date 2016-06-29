@@ -1,18 +1,19 @@
 #!/usr/bin/python
 
-import os,sys,time,math,datetime
+import os,sys,time,math,datetime,pickle
 from numpy import linspace
 from weights import *
 from analyze import *
 from samples import *
 import ROOT as R
-import pickle
 
 R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet_1lepX53_021216hadds/nominal'
+#step1Dir = '/user_data/ssagir/LJMet_1lepX53_042716_step3/nominal'
+#step1Dir = '/user_data/ssagir/LJMet_1lepX53_053016_step2/nominal'
+step1Dir = '/user_data/ssagir/LJMet76In74_1lepTT_061316_step2/nominal/'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -26,16 +27,28 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 #################### CUTS & OUTPUT ########################
 ###########################################################
 
-lepPtCut=80
-jet1PtCut=200
-jet2PtCut=90
-metCut=100
-njetsCut=4
-nbjetsCut=0
+if len(sys.argv)>4: cutConf=str(sys.argv[4])
+else: cutConf='preSel'
+
+if cutConf=='preSel':
+	lepPtCut=50 #50,80
+	njetsCut=3 #3,4 
+	drCut=0 #0,1
+if cutConf=='finalSel':
+	lepPtCut=80 #50,80
+	njetsCut=4 #3,4 
+	drCut=1 #0,1
+if cutConf=='finalSelnoDR':
+	lepPtCut=80 #50,80
+	njetsCut=4 #3,4 
+	drCut=0 #0,1
+jet1PtCut=200 #200,200
+jet2PtCut=90 #90,90
+metCut=100 #100,100
+nbjetsCut=1 #1,1
 jet3PtCut=0
 jet4PtCut=0
 jet5PtCut=0
-drCut=1
 Wjet1PtCut=0
 bjet1PtCut=0
 htCut=0
@@ -43,30 +56,29 @@ stCut=0
 minMlbCut=0
 
 cutList = {'lepPtCut':lepPtCut,
-                   'jet1PtCut':jet1PtCut,
-                   'jet2PtCut':jet2PtCut,
-                   'jet3PtCut':jet3PtCut,
-                   'jet4PtCut':jet4PtCut,
-                   'jet5PtCut':jet5PtCut,
-                   'metCut':metCut,
-                   'njetsCut':njetsCut,
-                   'nbjetsCut':nbjetsCut,
-                   'drCut':drCut,
-                   'Wjet1PtCut':Wjet1PtCut,
-                   'bjet1PtCut':bjet1PtCut,
-                   'htCut':htCut,
-                   'stCut':stCut,
-                   'minMlbCut':minMlbCut,
-                   }
+		   'jet1PtCut':jet1PtCut,
+		   'jet2PtCut':jet2PtCut,
+		   'jet3PtCut':jet3PtCut,
+		   'jet4PtCut':jet4PtCut,
+		   'jet5PtCut':jet5PtCut,
+		   'metCut':metCut,
+		   'njetsCut':njetsCut,
+		   'nbjetsCut':nbjetsCut,
+		   'drCut':drCut,
+		   'Wjet1PtCut':Wjet1PtCut,
+		   'bjet1PtCut':bjet1PtCut,
+		   'htCut':htCut,
+		   'stCut':stCut,
+		   'minMlbCut':minMlbCut,
+		   }
 
 if len(sys.argv)>3: catList=[str(sys.argv[3])]
 else: catList=['E','M','All']
 
 scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
-doAllSys= False
+doAllSys= True
 doQ2sys = True
 if not doAllSys: doQ2sys = False
-isotrig = 1
 
 cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
 cutString += '_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))
@@ -79,8 +91,8 @@ cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+s
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates'
-#pfix+=datestr+'_'+timestr
+pfix='kinematics_'
+pfix+=datestr#+'_'+timestr
 
 ###########################################################
 #################### HISTOGRAM DEFS #######################
@@ -129,21 +141,18 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'METwJetSF'   :('corr_JetSFmet_singleLepCalc',linspace(0, 1500, 51).tolist(),';new #slash{E}_{T} from corr (GeV);'),
 	'METwJetSFraw'   :('corr_JetSFRawmet_singleLepCalc',linspace(0, 1500, 51).tolist(),';new #slash{E}_{T} from raw (GeV);'),
 	'NJets' :('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 Jet multiplicity;'),
-	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';CSVIVFv2 Medium tag multiplicity;'),
-	'NWJets':('NJetsWtagged',linspace(0, 6, 7).tolist(),';W tag multiplicity;'),
-	'NWJetsSmeared0p55noSF':('NJetsWtagged_JMR',linspace(0, 6, 7).tolist(),';W tag multiplicity;'),
-	'NWJetsSmeared0p55SF':('NJetsWtagged_0p55',linspace(0, 6, 7).tolist(),';W tag multiplicity;'),
-	'NWJetsSmeared':('NJetsWtagged_0p6',linspace(0, 6, 7).tolist(),';W tag multiplicity;'),
+	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 6, 7).tolist(),';CSVIVFv2 Medium tag multiplicity;'),
+	'NWJets':('NJetsWtagged_0p6',linspace(0, 5, 6).tolist(),';W tag multiplicity;'),
 	'NJetsAK8':('NJetsAK8_JetSubCalc',linspace(0, 8, 9).tolist(),';AK8 Jet multiplicity;'),
 	'JetPtAK8':('theJetAK8Pt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';AK8 Jet p_{T} (GeV);'),
 	'JetPtBinsAK8':('theJetAK8Pt_JetSubCalc_PtOrdered',bigbins,';AK8 Jet p_{T} (GeV);'),
 	'JetEtaAK8':('theJetAK8Eta_JetSubCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK8 Jet #eta;'),
 	'Tau21'  :('theJetAK8NjettinessTau2_JetSubCalc_PtOrdered/theJetAK8NjettinessTau1_JetSubCalc_PtOrdered',linspace(0, 1, 51).tolist(),';AK8 Jet #tau_{2}/#tau_{1};'),
-	'Tau21Nm1'  :('theJetAK8NjettinessTau2_JetSubCalc_PtOrdered/theJetAK8NjettinessTau1_JetSubCalc_PtOrdered',linspace(0, 1, 51).tolist(),';AK8 Jet #tau_{2}/#tau_{1};'),
+	'Tau32'  :('theJetAK8NjettinessTau3_JetSubCalc_PtOrdered/theJetAK8NjettinessTau2_JetSubCalc_PtOrdered',linspace(0, 1, 51).tolist(),';AK8 Jet #tau_{3}/#tau_{2};'),
 	'Pruned' :('theJetAK8PrunedMass_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 Jet Pruned mass (GeV);'),
 	'PrunedSmeared' :('theJetAK8PrunedMassJMRSmeared_JetSubCalc',linspace(0, 500, 51).tolist(),';AK8 Jet Pruned mass (GeV);'),
-	'PrunedSmearedNm1' :('theJetAK8PrunedMassJMRSmeared_JetSubCalc',linspace(0, 500, 51).tolist(),';AK8 Jet Pruned mass (GeV);'),
-	'mindeltaR':('deltaR_lepClosestJet',linspace(0, 5, 51).tolist(),';min #DeltaR(l, jet);'),
+	'SDMass' :('theJetAK8SoftDropMass_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 Jet Soft Drop mass (GeV);'),
+	'mindeltaR':('minDR_lepJet',linspace(0, 5, 51).tolist(),';min #DeltaR(l, jet);'),
 	'deltaRjet1':('deltaR_lepJets[0]',linspace(0, 5, 51).tolist(),';#DeltaR(l, 1^{st} jet);'),
 	'deltaRjet2':('deltaR_lepJets[1]',linspace(0, 5, 51).tolist(),';#DeltaR(l, 2^{nd} jet);'),
 	'deltaRjet3':('deltaR_lepJets[2]',linspace(0, 5, 51).tolist(),';#DeltaR(l, 3^{rd} jet);'),
@@ -160,7 +169,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'Tau2':('theJetAK8NjettinessTau2_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{2}'),
 	'JetPhi':('theJetPhi_JetSubCalc_PtOrdered',linspace(-3.2,3.2,65).tolist(),';AK4 Jet #phi'),
 	'JetPhiAK8':('theJetAK8Phi_JetSubCalc_PtOrdered',linspace(-3.2,3.2,65).tolist(),';AK8 Jet #phi'),
-	'Bjet1Pt':('BJetLeadPtWithSF_JetSubCalc',linspace(0,1500,51).tolist(),';1^{st} b jet p_{T} [GeV]'),  ## B TAG
+	'Bjet1Pt':('BJetLeadPt',linspace(0,1500,51).tolist(),';1^{st} b jet p_{T} [GeV]'),  ## B TAG
 	'Wjet1Pt':('WJetLeadPt',linspace(0,1500,51).tolist(),';1^{st} W jet p_{T} [GeV]'),
 	'topMass':('topMass',linspace(0,1500,51).tolist(),';reconstructed M(t) [GeV]'),
 	'topPt':('topPt',linspace(0,1500,51).tolist(),';reconstructed pT(t) [GeV]'),
@@ -186,8 +195,9 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'deltaPhiWb1':('deltaPhitaggedWbJet1',linspace(0,5,51).tolist(),';#Delta#phi(W, 1^{st} b jet)'), ## B TAG
 	'deltaPhiWb2':('deltaPhitaggedWbJet2',linspace(0,5,51).tolist(),';#Delta#phi(W, 2^{nd} b jet)'), ## 2 B TAG
 	'WjetPt':('WJetTaggedPt',linspace(0,1500,51).tolist(),';W jet p_{T} [GeV]'),
-	'PtRel':('PtRelLepClosestJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
-	'nttags' :('NJetsToptagged',linspace(0,5,6).tolist(),';N Top Tags'),
+	'PtRel':('ptRel_lepJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
+	'NTJets' :('NJetsToptagged_tau0p69',linspace(0,4,5).tolist(),';Top Tag Multiplicity'),
+	'NTJetsSF' :('NJetsToptagged_tau0p69_SF',linspace(0,4,5).tolist(),';Top Tag Multiplicity'),
 	}
 
 ###########################################################
@@ -196,6 +206,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 
 bkgList = [
 	'DY50',
+	'WJetsMG',
 	'WJetsMG100',
 	'WJetsMG200',
 	'WJetsMG400',
@@ -204,7 +215,7 @@ bkgList = [
 	'WJetsMG1200',
 	'WJetsMG2500',
 	'WW','WZ','ZZ',
-#	'TTJetsPH',
+	#'TTJetsPH',
 	'TTJetsPH0to700inc',
 	'TTJetsPH700to1000inc',
 	'TTJetsPH1000toINFinc',
@@ -265,7 +276,7 @@ def readTree(file):
 	return tFile, tTree 
 
 print "READING TREES"
-shapesFiles = ['jec','jer','btag']
+shapesFiles = ['jec','jer']#,'btagCorr']
 tTreeData = {}
 tFileData = {}
 for data in dataList:
@@ -327,27 +338,27 @@ for category in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
 		outDir+='/'+cutString
-		if not os.path.exists(outDir+'/'+category): os.system('mkdir '+category)
+		if not os.path.exists(outDir+'/'+category): os.system('mkdir '+outDir+'/'+category)
 		outDir+='/'+category
 	for data in dataList: 
-		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,iPlot,plotList[iPlot],category))
+		datahists.update(analyze(tTreeData,data,cutList,False,iPlot,plotList[iPlot],category))
 		if catInd==nCats: del tFileData[data]
 	for bkg in bkgList: 
-		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,iPlot,plotList[iPlot],category))
+		bkghists.update(analyze(tTreeBkg,bkg,cutList,doAllSys,iPlot,plotList[iPlot],category))
 		if catInd==nCats: del tFileBkg[bkg]
 		if doAllSys and catInd==nCats:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
 	for sig in sigList: 
 		for decay in decays: 
-			sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,iPlot,plotList[iPlot],category))
+			sighists.update(analyze(tTreeSig,sig+decay,cutList,doAllSys,iPlot,plotList[iPlot],category))
 			if catInd==nCats: del tFileSig[sig+decay]
 			if doAllSys and catInd==nCats:
 				for syst in shapesFiles:
 					for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
 	if doQ2sys: 
 		for q2 in q2List: 
-			bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,iPlot,plotList[iPlot],category))
+			bkghists.update(analyze(tTreeBkg,q2,cutList,False,iPlot,plotList[iPlot],category))
 			if catInd==nCats: del tFileBkg[q2]
 
 	#Negative Bin Correction

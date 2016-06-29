@@ -7,7 +7,7 @@ jet2PtCutList = [90]
 metCutList    = [100]
 njetsCutList  = [4]
 nbjetsCutList = [1]
-jet3PtCutList = [30]
+jet3PtCutList = [0]
 jet4PtCutList = [0]
 jet5PtCutList = [0]
 drCutList     = [1]
@@ -22,7 +22,7 @@ cutConfigs = list(itertools.product(lepPtCutList,jet1PtCutList,jet2PtCutList,met
 isEMlist =['E','M']
 nttaglist=['0','1p']
 nWtaglist=['0','1p']
-nbtaglist=['1','2p']
+nbtaglist=['0','1','2p']
 
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
@@ -30,7 +30,7 @@ outputDir = thisDir+'/'
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_minMlb_x53x53'
+pfix='templates_minMlb_noJSF'
 pfix+='_'+date#+'_'+time
 
 outDir = outputDir+pfix
@@ -67,8 +67,6 @@ for conf in cutConfigs:
 Executable = %(dir)s/doCondorThetaTemplates.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-notify_user = Sinan_Sagir@brown.edu
-
 arguments      = ""
 
 Output = condor.out

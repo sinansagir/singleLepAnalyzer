@@ -10,9 +10,9 @@ outDir = os.getcwd()+'/'
 lumi = 2.3
 discriminant = 'minMlb'
 rfilePostFix = ''#'_rebinned2'
-tempVersion = 'templates_minMlb_x53x53_2016_4_28'
-cutString = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet30_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateFile = '../makeThetaTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
+tempVersion = 'templates_minMlb_noJSF_2016_6_22'
+cutString = '/lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
+templateFile = '/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53/makeThetaTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signals'): os.system('mkdir '+outDir+tempVersion+'/signals')
 
@@ -21,7 +21,7 @@ channels = ['isE','isM']
 ttags = ['nT0','nT1p']
 wtags = ['nW0','nW1p']
 btags = ['nB0','nB1','nB2p']
-systematics = ['topsf','pileup','jec','jer','jmr','jms','btag','tau21','jsf','muR','muF','muRFcorrd','muRFenv','pdf']#,'muRFcorrdNew','muRFdecorrdNew','pdfNew']
+systematics = ['pileup','muRFcorrd','muR','muF','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec']#,'muRFcorrdNew','pdfNew']#,'btagCorr']
 
 signameList = [
 		   'X53X53M700left',

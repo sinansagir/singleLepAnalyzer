@@ -18,8 +18,10 @@ from ROOT import *
 #    threshold larger than 100% (>1.) in the argument
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-cutString = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateDir = os.getcwd()+'/templates_minMlb_noJSF_2016_6_22/'+cutString
+pfix='ttbar_noJSF_notTag_2016_6_22'
+if len(sys.argv)>1: pfix=sys.argv[1]
+cutString = ''#'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
+templateDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 rebinHists = True
 xbinsList = {}
@@ -160,7 +162,7 @@ rfiles = [file for file in findfiles(templateDir, '*.root') if '00left_2p318fb.r
 rfiles = [file for file in rfiles if 'rebinned' not in file]
 
 stat = 0.3 # 30% statistical uncertainty requirement
-if len(sys.argv)>1: stat=float(sys.argv[1])
+if len(sys.argv)>2: stat=float(sys.argv[2])
 
 rebinTFile = TFile(rfiles[0])
 datahists = [k.GetName() for k in rebinTFile.GetListOfKeys() if '__DATA' in k.GetName()]
@@ -245,77 +247,6 @@ for file in rfiles:
 			if '__pdf__' not in histName and '__pdfNew__' not in histName: continue
 		if not any([item in histName and not removalKeys[item] for item in removalKeys.keys()]):
 			rebinnedHists[histName].Write()
-
-	muRUphists = [k.GetName() for k in tfile[iRfile].GetListOfKeys() if 'muR__plus' in k.GetName()]
-	for hist in muRUphists:
-		newMuRFName = 'muRFcorrdNew'
-# 		if 'ewk' in hist: newMuRFName = 'muRFcorrdNewEWK'
-# 		if 'top' in hist: newMuRFName = 'muRFcorrdNewTOP'
-# 		if 'qcd' in hist: newMuRFName = 'muRFcorrdNewQCD'
-# 		if 'sig' in hist: newMuRFName = 'muRFcorrdNewSIG'
-		muRFcorrdNewUpHist = rebinnedHists[hist].Clone(hist.replace('muR__plus',newMuRFName+'__plus'))
-		muRFcorrdNewDnHist = rebinnedHists[hist].Clone(hist.replace('muR__plus',newMuRFName+'__minus'))
-		muRFdecorrdNewUpHist = rebinnedHists[hist].Clone(hist.replace('muR__plus','muRFdecorrdNew__plus'))
-		muRFdecorrdNewDnHist = rebinnedHists[hist].Clone(hist.replace('muR__plus','muRFdecorrdNew__minus'))
-		histList = [
-			rebinnedHists[hist[:hist.find('__mu')]], #nominal
-			rebinnedHists[hist], #renormWeights[4]
-			rebinnedHists[hist.replace('muR__plus','muR__minus')], #renormWeights[2]
-			rebinnedHists[hist.replace('muR__plus','muF__plus')], #renormWeights[1]
-			rebinnedHists[hist.replace('muR__plus','muF__minus')], #renormWeights[0]
-			rebinnedHists[hist.replace('muR__plus','muRFcorrd__plus')], #renormWeights[5]
-			rebinnedHists[hist.replace('muR__plus','muRFcorrd__minus')] #renormWeights[3]
-			]
-		for ibin in range(1,histList[0].GetNbinsX()+1):
-			weightList = [histList[ind].GetBinContent(ibin) for ind in range(len(histList))]
-			indCorrdUp = weightList.index(max(weightList))
-			indCorrdDn = weightList.index(min(weightList))
-			indDeCorrdUp = weightList.index(max(weightList[:-2]))
-			indDeCorrdDn = weightList.index(min(weightList[:-2]))
-
-			muRFcorrdNewUpHist.SetBinContent(ibin,histList[indCorrdUp].GetBinContent(ibin))
-			muRFcorrdNewDnHist.SetBinContent(ibin,histList[indCorrdDn].GetBinContent(ibin))
-			muRFdecorrdNewUpHist.SetBinContent(ibin,histList[indDeCorrdUp].GetBinContent(ibin))
-			muRFdecorrdNewDnHist.SetBinContent(ibin,histList[indDeCorrdDn].GetBinContent(ibin))
-
-			muRFcorrdNewUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
-			muRFcorrdNewDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
-			muRFdecorrdNewUpHist.SetBinError(ibin,histList[indDeCorrdUp].GetBinError(ibin))
-			muRFdecorrdNewDnHist.SetBinError(ibin,histList[indDeCorrdDn].GetBinError(ibin))
-		if 'sig__mu' in hist and normalizeRENORM: #normalize the renorm/fact shapes to nominal
-			renormNomHist = tfile[iRfile].Get(hist[:hist.find('__mu')]).Clone()
-			muRFcorrdNewUpHist.Scale(renormNomHist.Integral()/muRFcorrdNewUpHist.Integral())
-			muRFcorrdNewDnHist.Scale(renormNomHist.Integral()/muRFcorrdNewDnHist.Integral())
-			muRFdecorrdNewUpHist.Scale(renormNomHist.Integral()/muRFdecorrdNewUpHist.Integral())
-			muRFdecorrdNewDnHist.Scale(renormNomHist.Integral()/muRFdecorrdNewDnHist.Integral())
-		muRFcorrdNewUpHist.Write()
-		muRFcorrdNewDnHist.Write()
-		muRFdecorrdNewUpHist.Write()
-		muRFdecorrdNewDnHist.Write()
-
-	pdfUphists = [k.GetName() for k in tfile[iRfile].GetListOfKeys() if 'pdf0' in k.GetName()]
-	for hist in pdfUphists:
-		newPDFName = 'pdfNew'
-# 		if 'ewk' in hist: newPDFName = 'pdfNewEWK'
-# 		if 'top' in hist: newPDFName = 'pdfNewTOP'
-# 		if 'qcd' in hist: newPDFName = 'pdfNewQCD'
-# 		if 'sig' in hist: newPDFName = 'pdfNewSIG'
-		pdfNewUpHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+'__plus'))
-		pdfNewDnHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+'__minus'))
-		for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
-			weightList = [rebinnedHists[hist.replace('pdf0','pdf'+str(pdfInd))].GetBinContent(ibin) for pdfInd in range(100)]
-			indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
-			indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
-			pdfNewUpHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinContent(ibin))
-			pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
-			pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
-			pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
-		if 'sig__pdf' in hist and normalizePDF: #normalize the renorm/fact shapes to nominal
-			renormNomHist = tfile[iRfile].Get(hist[:hist.find('__pdf')]).Clone()
-			pdfNewUpHist.Scale(renormNomHist.Integral()/pdfNewUpHist.Integral())
-			pdfNewDnHist.Scale(renormNomHist.Integral()/pdfNewDnHist.Integral())
-		pdfNewUpHist.Write()
-		pdfNewDnHist.Write()
 
 	outputRfile[iRfile].Close()
 	tfile[iRfile].Close()

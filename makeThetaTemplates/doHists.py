@@ -11,7 +11,9 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet_1lepX53_032316_step2/nominal/'
+#step1Dir = '/user_data/ssagir/LJMet_1lepX53_042716_step3/nominal/'
+#step1Dir = '/user_data/ssagir/LJMet_1lepX53_053016_step2/nominal/'
+step1Dir = '/user_data/ssagir/LJMet76In74_1lepTT_061316_step2/nominal/'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -24,8 +26,7 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 
 bkgList = [
 		   'DY50',
-# 		   'WJets',
-# 		   'WJetsMG',
+		   'WJetsMG',
 		   'WJetsMG100',
 		   'WJetsMG200',
 		   'WJetsMG400',
@@ -34,8 +35,6 @@ bkgList = [
 		   'WJetsMG1200',
 		   'WJetsMG2500',
 		   'WW','WZ','ZZ',
-# 		   'TTJets',
-#  		   'TTJetsMG',
 #  		   'TTJetsPH',
  		   'TTJetsPH0to700inc',
  		   'TTJetsPH700to1000inc',
@@ -99,7 +98,7 @@ jet2PtCut=90
 metCut=100
 njetsCut=4
 nbjetsCut=1
-jet3PtCut=30
+jet3PtCut=0
 jet4PtCut=0
 jet5PtCut=0
 drCut=1
@@ -163,7 +162,7 @@ cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+s
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_minMlb_'
+pfix='templates_minMlb'
 pfix+=datestr#+'_'+timestr
 
 def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
@@ -190,7 +189,7 @@ def readTree(file):
 	return tFile, tTree 
 
 print "READING TREES"
-shapesFiles = ['jec','jer','btag']
+shapesFiles = ['jec','jer']#,'btagCorr']
 tTreeData = {}
 tFileData = {}
 for data in dataList:

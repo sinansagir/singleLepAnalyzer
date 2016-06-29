@@ -9,10 +9,10 @@ outDir = os.getcwd()+'/'
 
 lumi = 2.3
 discriminant = 'minMlb'
-rfilePostFix = ''#'_rebinned'
-tempVersion = 'templates_minMlb_x53x53_2016_4_28'
-cutString = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet30_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateFile = '../makeThetaTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
+rfilePostFix = '_rebinned_stat0p15'
+tempVersion = 'templates_minMlb_noJSF_2016_6_22'
+cutString = '/lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
+templateFile = '/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53/makeThetaTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signalIndChannels'): os.system('mkdir '+outDir+tempVersion+'/signalIndChannels')
 
@@ -21,30 +21,45 @@ channels = ['isE','isM']
 ttags = ['nT0','nT1p']
 wtags = ['nW0','nW1p']
 btags = ['nB0','nB1','nB2p']
-systematics = ['topsf','pileup','jec','jer','jmr','jms','btag','tau21','jsf','muR','muF','muRFcorrd','muRFenv','pdf']#,'muRFcorrdNew','muRFdecorrdNew','pdfNew']
+systematics = ['pileup','topsf','jmr','jms','tau21','btag','mistag','jer','jec','muRFcorrdNew','pdfNew']#,'btagCorr']
+#systematics = ['btag']
 
 signameList = [
-		   'X53X53M700left',
+# 		   'X53X53M700left',
 		   'X53X53M800left',
-		   'X53X53M900left',
-		   'X53X53M1000left',
-		   'X53X53M1100left',
-		   'X53X53M1200left',
-		   'X53X53M1300left',
+# 		   'X53X53M900left',
+# 		   'X53X53M1000left',
+# 		   'X53X53M1100left',
+# 		   'X53X53M1200left',
+# 		   'X53X53M1300left',
 # 		   'X53X53M1400left',
 # 		   'X53X53M1500left',
 # 		   'X53X53M1600left',
-		   'X53X53M700right',
-		   'X53X53M800right',
-		   'X53X53M900right',
-		   'X53X53M1000right',
-		   'X53X53M1100right',
-		   'X53X53M1200right',
-		   'X53X53M1300right',
+# 		   'X53X53M700right',
+# 		   'X53X53M800right',
+# 		   'X53X53M900right',
+# 		   'X53X53M1000right',
+# 		   'X53X53M1100right',
+# 		   'X53X53M1200right',
+# 		   'X53X53M1300right',
 # 		   'X53X53M1400right',
 # 		   'X53X53M1500right',
 # 		   'X53X53M1600right',
 		       ]
+
+def normByBinWidth(result):
+	result.SetBinContent(0,0)
+	result.SetBinContent(result.GetNbinsX()+1,0)
+	result.SetBinError(0,0)
+	result.SetBinError(result.GetNbinsX()+1,0)
+	
+	for bin in range(1,result.GetNbinsX()+1):
+		width=result.GetBinWidth(bin)
+		content=result.GetBinContent(bin)
+		error=result.GetBinError(bin)
+		
+		result.SetBinContent(bin, content/width)
+		result.SetBinError(bin, error/width)
 
 for signal in signameList:
 	RFile = R.TFile(templateFile.replace('TTM900',signal))
@@ -79,6 +94,9 @@ for signal in signameList:
 								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__minus').Clone()
 								hDn.Add(htempDown)
 						except:pass
+						normByBinWidth(hNm)
+						normByBinWidth(hUp)
+						normByBinWidth(hDn)
 						hNm.Draw()
 						hUp.Draw()
 						hDn.Draw()
@@ -125,10 +143,10 @@ for signal in signameList:
 						hUp.SetMarkerSize(.05)
 						hDn.SetMarkerSize(.05)
 
-						hUp.GetYaxis().SetTitle('Events')
+						hUp.GetYaxis().SetTitle('Events / 1 GeV')
 						hUp.GetYaxis().SetLabelSize(0.10)
 						hUp.GetYaxis().SetTitleSize(0.1)
-						hUp.GetYaxis().SetTitleOffset(.6)
+						hUp.GetYaxis().SetTitleOffset(.8)
 		
 						#hUp.SetMaximum(1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 						hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
@@ -198,8 +216,8 @@ for signal in signameList:
 						legend.SetFillColor(0);
 						legend.SetLineColor(0);
 						legend.AddEntry(hNm,signal,'l')
-						legend.AddEntry(hUp,syst.replace('topsf','t tag').replace('muRFcorrdNew','muRF').replace('muRFdecorrdNew','muRF').replace('muRFcorrd','muRF').replace('muRFenv','muRF').replace('pdfNew','PDF').replace('toppt','Top Pt').replace('jsf','JSF').replace('jec','JEC').replace('q2','Q^{2}').replace('miniiso','miniIso').replace('pileup','Pileup').replace('jer','JER').replace('btag','b tag').replace('pdf','PDF').replace('jmr','JMR').replace('jms','JMS').replace('tau21','#tau_{2}/#tau_{1}')+' Up','l')
-						legend.AddEntry(hDn,syst.replace('topsf','t tag').replace('muRFcorrdNew','muRF').replace('muRFdecorrdNew','muRF').replace('muRFcorrd','muRF').replace('muRFenv','muRF').replace('pdfNew','PDF').replace('toppt','Top Pt').replace('jsf','JSF').replace('jec','JEC').replace('q2','Q^{2}').replace('miniiso','miniIso').replace('pileup','Pileup').replace('jer','JER').replace('btag','b tag').replace('pdf','PDF').replace('jmr','JMR').replace('jms','JMS').replace('tau21','#tau_{2}/#tau_{1}')+' Down','l')
+						legend.AddEntry(hUp,syst.replace('topsf','t tag').replace('muRFcorrdNew','muRF').replace('muRFdecorrdNew','muRF').replace('muRFcorrd','muRF').replace('muRFenv','muRF').replace('pdfNew','PDF').replace('toppt','Top Pt').replace('jsf','JSF').replace('jec','JEC').replace('q2','Q^{2}').replace('pileup','Pileup').replace('jer','JER').replace('btag','b tag').replace('pdf','PDF').replace('jmr','JMR').replace('jms','JMS').replace('tau21','#tau_{2}/#tau_{1}')+' Up','l')
+						legend.AddEntry(hDn,syst.replace('topsf','t tag').replace('muRFcorrdNew','muRF').replace('muRFdecorrdNew','muRF').replace('muRFcorrd','muRF').replace('muRFenv','muRF').replace('pdfNew','PDF').replace('toppt','Top Pt').replace('jsf','JSF').replace('jec','JEC').replace('q2','Q^{2}').replace('pileup','Pileup').replace('jer','JER').replace('btag','b tag').replace('pdf','PDF').replace('jmr','JMR').replace('jms','JMS').replace('tau21','#tau_{2}/#tau_{1}')+' Down','l')
 
 						legend.Draw('same')
 	
@@ -240,20 +258,19 @@ for signal in signameList:
 	
 						Tex2 = R.TLatex()
 						Tex2.SetNDC()
-						Tex2.SetTextSize(0.05)
+						Tex2.SetTextSize(0.06)
 						Tex2.SetTextAlign(21)
 						if ch=='isE': channelTxt = 'e+jets'
 						if ch=='isM': channelTxt = '#mu+jets'
-						btagTxt = '#b tags = '+btag[2:]
-						if btag.endswith('p'): btagTxt = '#b tags #geq '+btag[2:-1]
-						wtagTxt = '#W tags = '+wtag[2:]
-						if wtag.endswith('p'): wtagTxt = '#W tags #geq '+wtag[2:-1]
-						ttagTxt = '#t tags = '+ttag[2:]
-						if ttag.endswith('p'): ttagTxt = '#t tags #geq '+ttag[2:-1]
+						tagTxt = ''
+						if 'p' in ttag: tagTxt+='#geq'+ttag[2:-1]+' t, '
+						else: tagTxt+=ttag[2:]+' t, '
+						if 'p' in wtag: tagTxt+='#geq'+wtag[2:-1]+' W, '
+						else: tagTxt+=wtag[2:]+' W, '
+						if 'p' in btag: tagTxt+='#geq'+btag[2:-1]+' b'
+						else: tagTxt+=btag[2:]+' b'
 						Tex2.DrawLatex(textx, 0.85, channelTxt)
-						Tex2.DrawLatex(textx, 0.80, btagTxt)
-						Tex2.DrawLatex(textx, 0.75, wtagTxt)
-						Tex2.DrawLatex(textx, 0.70, ttagTxt)
+						Tex2.DrawLatex(textx, 0.77, tagTxt)
 					
 						canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+ch+'_'+ttag+'_'+wtag+'_'+btag+'.pdf')
 						canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+ch+'_'+ttag+'_'+wtag+'_'+btag+'.png')

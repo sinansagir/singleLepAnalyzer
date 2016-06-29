@@ -10,39 +10,46 @@ start_time = time.time()
 lumi=2.3 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
+pfix=str(sys.argv[1])
+
 discriminant = 'minMlb'
-cutString='lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet30_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
+cutString='lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 saveKey = ''#'_topPtSystOnly'
 
 m1 = '800'
 sig1='X53X53M'+m1+'left' #  choose the 1st signal to plot
 sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
-m2 = '800'
-sig2='X53X53M'+m1+'right' #  choose the 2nd signal to plot
-sig2leg='X_{5/3}#bar{X}_{5/3} RH (0.8 TeV)'
+m2 = '1100'
+sig2='X53X53M'+m2+'right' #  choose the 2nd signal to plot
+sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
 scaleSignals = False
+fixedSigScale = 10#25 #works when histograms are scaled by bin width
 
-systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdf','muRFcorrd','toppt','jsf']
+systematicList = ['pileup','toppt','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
+systematicList+= ['topsf']#,'jsf']
+if 'withJSF' in pfix:
+	systematicList+= ['jsf']
 doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False # I assume you don't want Q^2 as well if you are not doing the other shape systematics! (this is just to change one bool)
 
-isRebinned='_rebinned'#post fix for file names if the name changed b/c of rebinning or some other process
-doNormByBinWidth=False # not tested, may not work out of the box
-doOneBand = False
+isRebinned=str(sys.argv[2])#'_rebinned_stat0p2'#post fix for file names if the name changed b/c of rebinning or some other process
+doNormByBinWidth=True
+doOneBand = int(sys.argv[3])#True
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
 yLog  = True
-doRealPull = True
+doRealPull = int(sys.argv[4])#True
 if doRealPull: doOneBand=False
 
-templateDir=os.getcwd()+'/templates_minMlb_2016_3_7_15_45_48/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'/'+cutString+'/'
 tempsig='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'	
 
 isEMlist =['E','M']
 nttaglist=['0','1p']
+if 'notTag' in pfix: nttaglist=['0p']
 nWtaglist=['0','1p']
-nbtaglist=['1','2p']
+nbtaglist=['0','1','2p']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
 
 lumiSys = 0.027 #2.7% lumi uncertainty
@@ -53,74 +60,60 @@ topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty --> covered by PDF and muRF un
 ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty --> covered by PDF and muRF uncertainties
 qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty --> covered by PDF and muRF uncertainties
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
-topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-			     'top_nT0p_nW0_nB0'  :0,#.15,
-			     'top_nT0p_nW0_nB1'  :0,#.11,
-			     'top_nT0p_nW0_nB2'  :0,#.02,
-			     'top_nT0p_nW0_nB2p' :0,#.02,
-			     'top_nT0p_nW0_nB3p' :0,#.02,
-			     'top_nT0p_nW1p_nB0' :0,#.15,
-			     'top_nT0p_nW1p_nB1' :0,#.11,
-			     'top_nT0p_nW1p_nB2' :0,#.02,
-			     'top_nT0p_nW1p_nB2p':0,#.02,
-			     'top_nT0p_nW1p_nB3p':0,#.02,
-
-			     'top_nT0_nW0_nB0'  :0,#.15,
-			     'top_nT0_nW0_nB1'  :0,#.11,
-			     'top_nT0_nW0_nB2'  :0,#.02,
-			     'top_nT0_nW0_nB2p' :0,#.02,
-			     'top_nT0_nW0_nB3p' :0,#.02,
-			     'top_nT0_nW1p_nB0' :0,#.15,
-			     'top_nT0_nW1p_nB1' :0,#.11,
-			     'top_nT0_nW1p_nB2' :0,#.02,
-			     'top_nT0_nW1p_nB2p':0,#.02,
-			     'top_nT0_nW1p_nB3p':0,#.02,
-
-			     'top_nT1p_nW0_nB0'  :0,#.15,
-			     'top_nT1p_nW0_nB1'  :0,#.11,
-			     'top_nT1p_nW0_nB2'  :0,#.02,
-			     'top_nT1p_nW0_nB2p' :0,#.02,
-			     'top_nT1p_nW0_nB3p' :0,#.02,
-			     'top_nT1p_nW1p_nB0' :0,#.15,
-			     'top_nT1p_nW1p_nB1' :0,#.11,
-			     'top_nT1p_nW1p_nB2' :0,#.02,
-			     'top_nT1p_nW1p_nB2p':0,#.02,
-			     'top_nT1p_nW1p_nB3p':0,#.02,
-			     }
-ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
-			     'ewk_nT0p_nW0_nB0'  :0,#.22,
-			     'ewk_nT0p_nW0_nB1'  :0,#.22,
-			     'ewk_nT0p_nW0_nB2'  :0,#.22,
-			     'ewk_nT0p_nW0_nB2p' :0,#.22,
-			     'ewk_nT0p_nW0_nB3p' :0,#.22,
-			     'ewk_nT0p_nW1p_nB0' :0,#.03,
-			     'ewk_nT0p_nW1p_nB1' :0,#.03,
-			     'ewk_nT0p_nW1p_nB2' :0,#.03,
-			     'ewk_nT0p_nW1p_nB2p':0,#.03,
-			     'ewk_nT0p_nW1p_nB3p':0,#.03,
-
-			     'ewk_nT0_nW0_nB0'  :0,#.22,
-			     'ewk_nT0_nW0_nB1'  :0,#.22,
-			     'ewk_nT0_nW0_nB2'  :0,#.22,
-			     'ewk_nT0_nW0_nB2p' :0,#.22,
-			     'ewk_nT0_nW0_nB3p' :0,#.22,
-			     'ewk_nT0_nW1p_nB0' :0,#.03,
-			     'ewk_nT0_nW1p_nB1' :0,#.03,
-			     'ewk_nT0_nW1p_nB2' :0,#.03,
-			     'ewk_nT0_nW1p_nB2p':0,#.03,
-			     'ewk_nT0_nW1p_nB3p':0,#.03,
-
-			     'ewk_nT1p_nW0_nB0'  :0,#.22,
-			     'ewk_nT1p_nW0_nB1'  :0,#.22,
-			     'ewk_nT1p_nW0_nB2'  :0,#.22,
-			     'ewk_nT1p_nW0_nB2p' :0,#.22,
-			     'ewk_nT1p_nW0_nB3p' :0,#.22,
-			     'ewk_nT1p_nW1p_nB0' :0,#.03,
-			     'ewk_nT1p_nW1p_nB1' :0,#.03,
-			     'ewk_nT1p_nW1p_nB2' :0,#.03,
-			     'ewk_nT1p_nW1p_nB2p':0,#.03,
-			     'ewk_nT1p_nW1p_nB3p':0,#.03,
-			     }
+#Inclusive WJets sample, NOT REWEIGHTED, 4JUNE16--SS
+if 'noJSF' in pfix and 'WJetsHTbins' not in pfix:
+	topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
+					 'top_nW0_nB0'  :0.07,
+					 'top_nW0_nB1'  :0.11,
+					 'top_nW0_nB2p' :0.14,
+					 'top_nW1p_nB0' :0.07,
+					 'top_nW1p_nB1' :0.11,
+					 'top_nW1p_nB2p':0.14,
+					 }
+	ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
+					 'ewk_nW0_nB0'  :0.10,
+					 'ewk_nW0_nB1'  :0.10,
+					 'ewk_nW0_nB2p' :0.10,
+					 'ewk_nW1p_nB0' :0.13,
+					 'ewk_nW1p_nB1' :0.13,
+					 'ewk_nW1p_nB2p':0.13,
+					 }
+#HT binned WJets sample, NOT REWEIGHTED, 4JUNE16--SS
+if 'noJSF' in pfix and 'WJetsHTbins' in pfix:
+	topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
+					 'top_nW0_nB0'  :0.19,
+					 'top_nW0_nB1'  :0.12,
+					 'top_nW0_nB2p' :0.15,
+					 'top_nW1p_nB0' :0.19,
+					 'top_nW1p_nB1' :0.12,
+					 'top_nW1p_nB2p':0.15,
+					 }
+	ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
+					 'ewk_nW0_nB0'  :0.21,
+					 'ewk_nW0_nB1'  :0.21,
+					 'ewk_nW0_nB2p' :0.21,
+					 'ewk_nW1p_nB0' :0.17,
+					 'ewk_nW1p_nB1' :0.17,
+					 'ewk_nW1p_nB2p':0.17,
+					 }
+#HT binned WJets sample REWEIGHTED with JetSF, 4JUNE16--SS
+if 'withJSF' in pfix:
+	topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
+					 'top_nW0_nB0'  :0.14,
+					 'top_nW0_nB1'  :0.11,
+					 'top_nW0_nB2p' :0.145,
+					 'top_nW1p_nB0' :0.14,
+					 'top_nW1p_nB1' :0.11,
+					 'top_nW1p_nB2p':0.145,
+					 }
+	ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
+					 'ewk_nW0_nB0'  :0.14,
+					 'ewk_nW0_nB1'  :0.14,
+					 'ewk_nW0_nB2p' :0.14,
+					 'ewk_nW1p_nB0' :0.17,
+					 'ewk_nW1p_nB1' :0.17,
+					 'ewk_nW1p_nB2p':0.17,
+					 }
 
 def getNormUnc(hist,ibin,modelingUnc):
 	contentsquared = hist.GetBinContent(ibin)**2
@@ -155,6 +148,7 @@ def formatUpperHist(histogram):
 	if yLog:
 		uPad.SetLogy()
 		if not doNormByBinWidth: histogram.SetMaximum(200*histogram.GetMaximum())
+		if doNormByBinWidth: histogram.SetMaximum(10*histogram.GetMaximum())
 		
 def formatLowerHist(histogram):
 	histogram.GetXaxis().SetLabelSize(.12)
@@ -198,6 +192,7 @@ systHists = {}
 totBkgTemp1 = {}
 totBkgTemp2 = {}
 totBkgTemp3 = {}
+print RFile1
 for tag in tagList:
 	for isEM in isEMlist:
 		histPrefix=discriminant+'_'+lumiInTemplates+'fb_'
@@ -223,33 +218,41 @@ for tag in tagList:
 		hsig2.Scale(xsec[sig2])
 		if doNormByBinWidth:
 			normByBinWidth(hTOP)
-			normByBinWidth(hEWK)
-			normByBinWidth(hQCD)
+			try: normByBinWidth(hEWK)
+			except: pass
+			try: normByBinWidth(hQCD)
+			except: pass
 			normByBinWidth(hsig1)
 			normByBinWidth(hsig2)
 			normByBinWidth(hData)
 
 		if doAllSys:
 			for sys in systematicList:
+				print sys
 				for ud in ['minus','plus']:
 					systHists['top'+catStr+sys+ud] = RFile1.Get(histPrefix+'__top__'+sys+'__'+ud).Clone()
-					systHists['top'+catStr+sys+ud] = systHists['top'+catStr+sys+ud].Clone()
+					if doNormByBinWidth: normByBinWidth(systHists['top'+catStr+sys+ud])
 					try: 
 						systHists['ewk'+catStr+sys+ud] = RFile1.Get(histPrefix+'__ewk__'+sys+'__'+ud).Clone()
+						if doNormByBinWidth: normByBinWidth(systHists['ewk'+catStr+sys+ud])
 					except: pass
 					try: 
 						systHists['qcd'+catStr+sys+ud] = RFile1.Get(histPrefix+'__qcd__'+sys+'__'+ud).Clone()
+						if doNormByBinWidth: normByBinWidth(systHists['qcd'+catStr+sys+ud])
 					except: pass
 		if doQ2sys:
 			for ud in ['minus','plus']:
 				systHists['top'+catStr+'q2'+ud] = RFile1.Get(histPrefix+'__top__q2__'+ud).Clone()
+				if doNormByBinWidth: normByBinWidth(systHists['top'+catStr+'q2'+ud])
 				systHists['q2'+catStr+ud] = systHists['top'+catStr+'q2'+ud].Clone()
 				try:
 					systHists['ewk'+catStr+'q2'+ud] = RFile1.Get(histPrefix+'__ewk').Clone()
+					if doNormByBinWidth: normByBinWidth(systHists['ewk'+catStr+'q2'+ud])
 					systHists['q2'+catStr+ud].Add(systHists['ewk'+catStr+'q2'+ud])
 				except: pass
 				try:
 					systHists['qcd'+catStr+'q2'+ud] = RFile1.Get(histPrefix+'__qcd').Clone()
+					if doNormByBinWidth: normByBinWidth(systHists['qcd'+catStr+'q2'+ud])
 					systHists['q2'+catStr+ud].Add(systHists['qcd'+catStr+'q2'+ud])
 				except: pass
 
@@ -267,8 +270,8 @@ for tag in tagList:
 			errorUp = 0.
 			errorDn = 0.
 			errorStatOnly = bkgHT.GetBinError(ibin)**2
-			errorNorm = getNormUnc(hTOP,ibin,topModelingSys['top_'+tagStr])
-			try: errorNorm += getNormUnc(hEWK,ibin,ewkModelingSys['ewk_'+tagStr])
+			errorNorm = getNormUnc(hTOP,ibin,topModelingSys['top_'+tagStr[tagStr.find('nW'):]])
+			try: errorNorm += getNormUnc(hEWK,ibin,ewkModelingSys['ewk_'+tagStr[tagStr.find('nW'):]])
 			except: pass
 			try: errorNorm += getNormUnc(hQCD,ibin,0.0)
 			except: pass
@@ -324,6 +327,9 @@ for tag in tagList:
 		if not scaleSignals:
 			scaleFact1=1
 			scaleFact2=1
+		if doNormByBinWidth:
+			scaleFact1=fixedSigScale
+			scaleFact2=fixedSigScale
 # 			else:
 # 				scaleFact1=25
 # 				scaleFact2=25
@@ -431,18 +437,20 @@ for tag in tagList:
 		chLatex = TLatex()
 		chLatex.SetNDC()
 		chLatex.SetTextSize(0.06)
-		chLatex.SetTextAlign(11) # align right
+		chLatex.SetTextAlign(21) # align right
 		chString = ''
 		if isEM=='E': chString+='e+jets'
 		if isEM=='M': chString+='#mu+jets'
+		tagString = ''
 		if tag[0]!='0p': 
-			if 'p' in tag[0]: chString+=', #geq'+tag[0][:-1]+' t'
-			else: chString+=', '+tag[0]+' t'
-		if 'p' in tag[1]: chString+=', #geq'+tag[1][:-1]+' W'
-		else: chString+=', '+tag[1]+' W'
-		if 'p' in tag[2]: chString+=', #geq'+tag[2][:-1]+' b'
-		else: chString+=', '+tag[2]+' b'
-		chLatex.DrawLatex(0.16, 0.82, chString)
+			if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
+			else: tagString+=tag[0]+' t, '
+		if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
+		else: tagString+=tag[1]+' W, '
+		if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b'
+		else: tagString+=tag[2]+' b'
+		chLatex.DrawLatex(0.28, 0.83, chString)
+		chLatex.DrawLatex(0.28, 0.77, tagString)
 
 		if drawQCD: leg = TLegend(0.45,0.52,0.95,0.87)
 		if not drawQCD: leg = TLegend(0.45,0.6,0.95,0.85)
@@ -459,28 +467,41 @@ for tag in tagList:
 		if not scaleSignals:
 			scaleFact1Str = ''
 			scaleFact2Str = ''
+		if doNormByBinWidth:
+			scaleFact1Str = ' x'+str(fixedSigScale)
+			scaleFact2Str = ' x'+str(fixedSigScale)
 		if drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
 			leg.AddEntry(hQCD,"QCD","f")
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
-			try: leg.AddEntry(hEWK,"EWK","f")
-			except: pass
-			if not blind: leg.AddEntry(hData,"DATA")
-			try: leg.AddEntry(hTOP,"TOP","f")
-			except: pass
-			leg.AddEntry(0, "", "")
-			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
-			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+			try: #if "EWK" exists!
+				leg.AddEntry(hEWK,"EWK","f")
+				#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
+				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+				try: leg.AddEntry(hTOP,"TOP","f")
+				except: pass
+				leg.AddEntry(0, "", "")
+				if not blind: leg.AddEntry(hData,"DATA")			
+			except: #if "EWK" does not exist!
+				try: leg.AddEntry(hTOP,"TOP","f")
+				except: pass
+				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+				if not blind: leg.AddEntry(hData,"DATA")
 		if not drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
-			try: leg.AddEntry(hEWK,"EWK","f")
-			except: pass
-			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
-			try: leg.AddEntry(hTOP,"TOP","f")
-			except: pass
-			if not blind: leg.AddEntry(hData,"DATA")
-			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
-			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+			try: #if "EWK" exists!
+				leg.AddEntry(hEWK,"EWK","f")
+				leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
+				try: leg.AddEntry(hTOP,"TOP","f")
+				except: pass
+				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+				if not blind: leg.AddEntry(hData,"DATA")			
+			except: #if "EWK" does not exist!
+				try: leg.AddEntry(hTOP,"TOP","f")
+				except: pass
+				leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
+				if not blind: leg.AddEntry(hData,"DATA")
+				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 		leg.Draw("same")
 
 		prelimTex=TLatex()
@@ -664,8 +685,10 @@ for tag in tagList:
 	hsig2merged.Scale(xsec[sig2])
 	if doNormByBinWidth:
 		normByBinWidth(hTOPmerged)
-		normByBinWidth(hEWKmerged)
-		normByBinWidth(hQCDmerged)
+		try: normByBinWidth(hEWKmerged)
+		except: pass
+		try: normByBinWidth(hQCDmerged)
+		except: pass
 		normByBinWidth(hsig1merged)
 		normByBinWidth(hsig2merged)
 		normByBinWidth(hDatamerged)
@@ -713,8 +736,8 @@ for tag in tagList:
 		errorUp = 0.
 		errorDn = 0.
 		errorStatOnly = bkgHTmerged.GetBinError(ibin)**2
-		errorNorm = getNormUnc(hTOPmerged,ibin,topModelingSys['top_'+tagStr])
-		try: errorNorm += getNormUnc(hEWKmerged,ibin,ewkModelingSys['ewk_'+tagStr])
+		errorNorm = getNormUnc(hTOPmerged,ibin,topModelingSys['top_'+tagStr[tagStr.find('nW'):]])
+		try: errorNorm += getNormUnc(hEWKmerged,ibin,ewkModelingSys['ewk_'+tagStr[tagStr.find('nW'):]])
 		except: pass
 		try: errorNorm += getNormUnc(hQCDmerged,ibin,0.0)
 		except: pass
@@ -770,6 +793,9 @@ for tag in tagList:
 	if not scaleSignals:
 		scaleFact1merged=1
 		scaleFact2merged=1
+	if doNormByBinWidth:
+		scaleFact1merged=fixedSigScale
+		scaleFact2merged=fixedSigScale
 	hsig1merged.Scale(scaleFact1merged)
 	hsig2merged.Scale(scaleFact2merged)
 	
@@ -862,16 +888,18 @@ for tag in tagList:
 	chLatexmerged = TLatex()
 	chLatexmerged.SetNDC()
 	chLatexmerged.SetTextSize(0.06)
-	chLatexmerged.SetTextAlign(11) # align right
+	chLatexmerged.SetTextAlign(21) # align right
 	chString = 'e/#mu+jets'
+	tagString = ''
 	if tag[0]!='0p':
-		if 'p' in tag[0]: chString+=', #geq'+tag[0][:-1]+' t'
-		else: chString+=', '+tag[0]+' t'
-	if 'p' in tag[1]: chString+=', #geq'+tag[1][:-1]+' W'
-	else: chString+=', '+tag[1]+' W'
-	if 'p' in tag[2]: chString+=', #geq'+tag[2][:-1]+' b'
-	else: chString+=', '+tag[2]+' b'
-	chLatexmerged.DrawLatex(0.16, 0.82, chString)
+		if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
+		else: tagString+=tag[0]+' t, '
+	if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
+	else: tagString+=tag[1]+' W, '
+	if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b'
+	else: tagString+=tag[2]+' b'
+	chLatexmerged.DrawLatex(0.28, 0.83, chString)
+	chLatexmerged.DrawLatex(0.28, 0.77, tagString)
 
 	if drawQCDmerged: legmerged = TLegend(0.45,0.52,0.95,0.87)
 	if not drawQCDmerged: legmerged = TLegend(0.45,0.6,0.95,0.85)
@@ -888,28 +916,41 @@ for tag in tagList:
 	if not scaleSignals:
 		scaleFact1Str = ''
 		scaleFact2Str = ''
+	if doNormByBinWidth:
+		scaleFact1Str = ' x'+str(fixedSigScale)
+		scaleFact2Str = ' x'+str(fixedSigScale)
 	if drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
 		legmerged.AddEntry(hQCDmerged,"QCD","f")
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
-		try: legmerged.AddEntry(hEWKmerged,"EWK","f")
-		except: pass
-		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
-		try: legmerged.AddEntry(hTOPmerged,"TOP","f")
-		except: pass
-		legmerged.AddEntry(0, "", "")
-		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
-		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+		try: #if "EWK" exists!
+			legmerged.AddEntry(hEWKmerged,"EWK","f")
+			#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
+			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+			except: pass
+			legmerged.AddEntry(0, "", "")
+			if not blind: legmerged.AddEntry(hDatamerged,"DATA")
+		except: #if "EWK" does not exist!
+			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+			except: pass
+			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+			if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 	if not drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
-		try: legmerged.AddEntry(hEWKmerged,"EWK","f")
-		except: pass
-		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
-		try: legmerged.AddEntry(hTOPmerged,"TOP","f")
-		except: pass
-		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
-		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
-		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+		try: #if "EWK" exists! 
+			legmerged.AddEntry(hEWKmerged,"EWK","f")
+			legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
+			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+			except: pass
+			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+			if not blind: legmerged.AddEntry(hDatamerged,"DATA")		
+		except: #if "EWK" does not exist!
+			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+			except: pass
+			legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
+			if not blind: legmerged.AddEntry(hDatamerged,"DATA")
+			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 	legmerged.Draw("same")
 
 	prelimTex=TLatex()

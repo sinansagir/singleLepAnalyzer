@@ -12,14 +12,10 @@ start_time = time.time()
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
 isTTbarCR = False # else it is Wjets
-
-if isTTbarCR: 
-	from analyzeTTJetsCR import *
-else:
-	from analyzeWJetsCR import *
 		       
 bkgStackList = ['WJets','ZJets','VV','TTW','TTZ','TTJets','T','QCD']
-wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
+#wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
+wjetList  = ['WJetsMG']
 zjetList  = ['DY50']
 vvList    = ['WW','WZ','ZZ']
 ttwList   = ['TTWl','TTWq']
@@ -27,6 +23,9 @@ ttzList   = ['TTZl','TTZq']
 #ttjetList = ['TTJetsPH']
 ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 tList     = ['Tt','Ts','TtW','TbtW']
+qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+topList = ttjetList+tList+ttwList+ttzList
+ewkList = wjetList+zjetList+vvList
 
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
@@ -38,24 +37,19 @@ if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' d
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
-#topList = ['TTJetsPH','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
-topList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
-ewkList = ['DY50','WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500','WW','WZ','ZZ']
-qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
-
 scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 2318./2263.
 doAllSys = True
-systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdf','pdfNew','muR','muF','muRFcorrd','toppt','jsf','muRFenv','muRFcorrdNew','muRFdecorrdNew']
+systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','pdfNew','muRFcorrdNew','muRFdecorrdNew']#,'btagCorr']
 normalizeRENORM_PDF = True #normalize the renormalization/pdf uncertainties to nominal templates
 doQ2sys = True
 q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
 q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
 
 cutString  = ''#'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-if isTTbarCR: pfix='ttbar_x53x53_2016_3_8_18_20_49'
-else: pfix='wjets_x53x53_2016_3_8_18_15_58'
+if isTTbarCR: pfix='ttbar_noJSF_notTag_2016_6_22'
+else: pfix='wjets_noJSF_notTag_2016_6_22'
 iPlot='minMlb'
 
 outDir = os.getcwd()+'/'
@@ -66,8 +60,8 @@ outDir+='/'+cutString
 
 isEMlist =['E','M']
 if isTTbarCR: 
-	nttaglist = ['0','1p'] #if '0p', the cut will not be applied
-	nWtaglist = ['0','1p']
+	nttaglist = ['0p'] #if '0p', the cut will not be applied
+	nWtaglist = ['0p']
 	nbtaglist = ['0','1','2p']
 else: 
 	nttaglist = ['0p'] #if '0p', the cut will not be applied
@@ -365,7 +359,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			
 			#Group data processes
 			hdata[catStr] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
-			print datahists[histoPrefix+'_'+dat].Integral()
 			for dat in dataList:
 				if dat!=dataList[0]: hdata[catStr].Add(datahists[histoPrefix+'_'+dat])
 

@@ -3,6 +3,7 @@
 import os,sys,time,math,datetime,pickle,itertools
 from numpy import linspace
 from weights import *
+from analyze import *
 from samples import *
 import ROOT as R
 
@@ -10,7 +11,9 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet_1lepX53_032316_step2/nominal/'
+#step1Dir = '/user_data/ssagir/LJMet_1lepX53_042716_step3/nominal/'
+#step1Dir = '/user_data/ssagir/LJMet_1lepX53_053016_step2/nominal'
+step1Dir = '/user_data/ssagir/LJMet76In74_1lepTT_061316_step2/nominal/'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -24,15 +27,9 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 if len(sys.argv)>2: isTTbarCR=int(sys.argv[2])
 else: isTTbarCR = False # else it is Wjets
 
-if isTTbarCR: 
-	from analyzeTTJetsCR import *
-else:
-	from analyzeWJetsCR import *
-
 bkgList = [
 		   'DY50',
-# 		   'WJets',
-# 		   'WJetsMG',
+		   'WJetsMG',
 		   'WJetsMG100',
 		   'WJetsMG200',
 		   'WJetsMG400',
@@ -41,9 +38,7 @@ bkgList = [
 		   'WJetsMG1200',
 		   'WJetsMG2500',
 		   'WW','WZ','ZZ',
-# 		   'TTJets',
-#  		   'TTJetsMG',
-#  		   'TTJetsPH',
+ 		   #'TTJetsPH',
  		   'TTJetsPH0to700inc',
  		   'TTJetsPH700to1000inc',
  		   'TTJetsPH1000toINFinc',
@@ -76,7 +71,7 @@ q2List  = [#energy scale sample to be processed
 
 cutList = {
 		   'lepPtCut':80,
-           'metCut':100,
+		   'metCut':100,
 		   'jet1PtCut':200,
 		   'jet2PtCut':90,
 		   'jet3PtCut':30,
@@ -97,9 +92,8 @@ cutString = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-if isTTbarCR: pfix='ttbar_'
-else: pfix='wjets_'
-pfix+='x53x53_'
+if isTTbarCR: pfix='ttbar_nottag_'
+else: pfix='wjets_nottag_'
 pfix+=datestr#+'_'+timestr
 
 if len(sys.argv)>1: outDir=sys.argv[1]
@@ -114,7 +108,7 @@ if len(sys.argv)>3: isEMlist=[str(sys.argv[3])]
 else: isEMlist=['E','M']
 if len(sys.argv)>4: nttaglist=[str(sys.argv[4])]
 else: 
-	if isTTbarCR: nttaglist=['0','1p'] #if '0p', the cut will not be applied
+	if isTTbarCR: nttaglist=['0p'] #if '0p', the cut will not be applied
 	else: nttaglist=['0p'] #if '0p', the cut will not be applied
 if len(sys.argv)>5: nWtaglist=[str(sys.argv[5])]
 else: 
@@ -149,7 +143,7 @@ def readTree(file):
 	return tFile, tTree 
 
 print "READING TREES"
-shapesFiles = ['jec','jer','btag']
+shapesFiles = ['jec','jer']#,'btagCorr']
 tTreeData = {}
 tFileData = {}
 for data in dataList:

@@ -3,12 +3,12 @@ import os,sys,datetime,itertools
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-isTTbarCR = 1 # 1:TTBar, 0:Wjets
+isTTbarCR = 0 # 1:TTBar, 0:Wjets
 
 isEMlist =['E','M']
 if isTTbarCR: 
-	nttaglist = ['0','1p'] #if '0p', the cut will not be applied
-	nWtaglist = ['0','1p']
+	nttaglist = ['0p'] #if '0p', the cut will not be applied
+	nWtaglist = ['0p']
 	nbtaglist = ['0','1','2p']
 else: 
 	nttaglist = ['0p'] #if '0p', the cut will not be applied
@@ -20,12 +20,12 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar'
 else: pfix='wjets'
-pfix+='_x53x53'
+pfix+='_noJSF_notTag'
 pfix+='_'+datestr#+'_'+timestr
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
-os.system('cp analyzeTTJetsCR.py analyzeWJetsCR.py doHists.py weights.py samples.py doCondorCRs.py doCondorCRs.sh '+outDir+'/')
+os.system('cp analyze.py doHists.py weights.py samples.py doCondorCRs.py doCondorCRs.sh '+outDir+'/')
 os.chdir(outDir)
 
 for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
@@ -42,7 +42,6 @@ for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
 Executable = %(dir)s/doCondorCRs.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-
 arguments      = ""
 
 Output = condor.out

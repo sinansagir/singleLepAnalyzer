@@ -11,28 +11,34 @@ lumi=2.3 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
 discriminant = 'minMlb'
+pfix=str(sys.argv[1])
 
 m1 = '800'
-sig1='X53X53M'+m1+'left' # choose the 1st signal to plot                                                 
+sig1='X53X53M'+m1+'left' #  choose the 1st signal to plot
 sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
-m2 = '800'
-sig2='X53X53M'+m1+'right' # choose the 2nd signal to plot                                                
-sig2leg='X_{5/3}#bar{X}_{5/3} RH (0.8 TeV)'
+m2 = '1100'
+sig2='X53X53M'+m2+'right' #  choose the 2nd signal to plot
+sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
 scaleSignals = False
 
-systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdfNew','muRFcorrdNew','toppt','jsf']
+systematicList = ['pileup','toppt','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
+systematicList+= ['topsf']#,'jsf']
+if 'withJSF' in pfix:
+	systematicList+= ['jsf']
 doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False # I assume you don't want Q^2 as well if you are not doing the other shape systematics! (this is just to change one bool)
 
-isRebinned=''#post fix for file names if the name changed b/c of rebinning or some other process
-doNormByBinWidth=False # not tested, may not work out of the box
-doOneBand = False
+isRebinned='_rebinned_stat0p3'#post fix for file names if the name changed b/c of rebinning or some other process
+doNormByBinWidth=True # not tested, may not work out of the box
+doOneBand = int(sys.argv[2])#False
 if not doAllSys: doOneBand = True # Don't change this!
-isTTbarCR = True # else it is Wjets
+
+isTTbarCR = int(sys.argv[4]) # else it is Wjets
+
 blind = False
-yLog = True
-doRealPull = True
+yLog  = True
+doRealPull = int(sys.argv[3])#False
 if doRealPull: doOneBand=False
 
 histPrefix=discriminant+'_'+lumiInTemplates+'fb_'
@@ -41,8 +47,8 @@ saveKey = ''#'_topPtSystOnly'
 if isTTbarCR: cutString=''#'lep80_MET40_1jet300_2jet200_NJets0_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST1500_minMlb0'
 else: cutString=''#'lep80_MET40_1jet300_2jet200_NJets0_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST1500_minMlb0'
 templateDir=os.getcwd()
-if isTTbarCR: templateDir+='/ttbar_x53x53_2016_3_8_18_20_49/'+cutString+'/'
-else: templateDir+='/wjets_x53x53_2016_3_8_18_15_58/'+cutString+'/'
+if isTTbarCR: templateDir+='/ttbar_'+pfix+'/'+cutString+'/'
+else: templateDir+='/wjets_'+pfix+'/'+cutString+'/'
 tempsig1='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 tempsig2='templates_'+discriminant+'_'+sig2+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
@@ -87,6 +93,7 @@ def formatUpperHist(histogram):
 	if yLog:
 		uPad.SetLogy()
 		if not doNormByBinWidth: histogram.SetMaximum(200*histogram.GetMaximum())
+		if doNormByBinWidth: histogram.SetMaximum(10*histogram.GetMaximum())
 		
 def formatLowerHist(histogram):
 	histogram.GetXaxis().SetLabelSize(.12)
@@ -128,9 +135,9 @@ RFile1 = TFile(templateDir+tempsig1)
 RFile2 = TFile(templateDir+tempsig2)
 isEMlist =['E','M']
 if isTTbarCR: 
-	nttaglist = ['0','1p'] #if '0p', the cut will not be applied
-	nWtaglist = ['0','1p']
-	nbtaglist = ['1','2p']#,'3p']
+	nttaglist = ['0p'] #if '0p', the cut will not be applied
+	nWtaglist = ['0p']
+	nbtaglist = ['0','1','2p']
 else: 
 	nttaglist = ['0p'] #if '0p', the cut will not be applied
 	nWtaglist = ['0','1p']
@@ -165,8 +172,10 @@ for tag in tagList:
 		hsig2.Scale(xsec[sig2])
 		if doNormByBinWidth:
 			normByBinWidth(hTOP)
-			normByBinWidth(hEWK)
-			normByBinWidth(hQCD)
+			try: normByBinWidth(hEWK)
+			except: pass
+			try: normByBinWidth(hQCD)
+			except: pass
 			normByBinWidth(hsig1)
 			normByBinWidth(hsig2)
 			normByBinWidth(hData)
@@ -175,23 +184,28 @@ for tag in tagList:
 			for sys in systematicList:
 				for ud in ['minus','plus']:
 					systHists['top'+catStr+sys+ud] = RFile1.Get(histPrefix+'__top__'+sys+'__'+ud).Clone()
-					systHists['top'+catStr+sys+ud] = systHists['top'+catStr+sys+ud].Clone()
+					if doNormByBinWidth: normByBinWidth(systHists['top'+catStr+sys+ud])
 					try: 
 						systHists['ewk'+catStr+sys+ud] = RFile1.Get(histPrefix+'__ewk__'+sys+'__'+ud).Clone()
+						if doNormByBinWidth: normByBinWidth(systHists['ewk'+catStr+sys+ud])
 					except: pass
 					try: 
 						systHists['qcd'+catStr+sys+ud] = RFile1.Get(histPrefix+'__qcd__'+sys+'__'+ud).Clone()
+						if doNormByBinWidth: normByBinWidth(systHists['qcd'+catStr+sys+ud])
 					except: pass
 		if doQ2sys:
 			for ud in ['minus','plus']:
 				systHists['top'+catStr+'q2'+ud] = RFile1.Get(histPrefix+'__top__q2__'+ud).Clone()
+				if doNormByBinWidth: normByBinWidth(systHists['top'+catStr+'q2'+ud])
 				systHists['q2'+catStr+ud] = systHists['top'+catStr+'q2'+ud].Clone()
 				try:
 					systHists['ewk'+catStr+'q2'+ud] = RFile1.Get(histPrefix+'__ewk').Clone()
+					if doNormByBinWidth: normByBinWidth(systHists['ewk'+catStr+'q2'+ud])
 					systHists['q2'+catStr+ud].Add(systHists['ewk'+catStr+'q2'+ud])
 				except: pass
 				try:
 					systHists['qcd'+catStr+'q2'+ud] = RFile1.Get(histPrefix+'__qcd').Clone()
+					if doNormByBinWidth: normByBinWidth(systHists['qcd'+catStr+'q2'+ud])
 					systHists['q2'+catStr+ud].Add(systHists['qcd'+catStr+'q2'+ud])
 				except: pass
 
@@ -374,22 +388,24 @@ for tag in tagList:
 		if not blind: hData.Draw("SAME E1 X0") #redraw data so its not hidden
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
-
+		
 		chLatex = TLatex()
 		chLatex.SetNDC()
 		chLatex.SetTextSize(0.06)
-		chLatex.SetTextAlign(11) # align right
+		chLatex.SetTextAlign(21) # align right
 		chString = ''
 		if isEM=='E': chString+='e+jets'
 		if isEM=='M': chString+='#mu+jets'
-		if tag[0]!='0p': 
-			if 'p' in tag[0]: chString+=', #geq'+tag[0][:-1]+' t'
-			else: chString+=', '+tag[0]+' t'
-		if 'p' in tag[1]: chString+=', #geq'+tag[1][:-1]+' W'
-		else: chString+=', '+tag[1]+' W'
-		if 'p' in tag[2]: chString+=', #geq'+tag[2][:-1]+' b'
-		else: chString+=', '+tag[2]+' b'
-		chLatex.DrawLatex(0.16, 0.82, chString)
+		tagString = ''
+		#if tag[0]!='0p': 
+		if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
+		else: tagString+=tag[0]+' t, '
+		if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
+		else: tagString+=tag[1]+' W, '
+		if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b'
+		else: tagString+=tag[2]+' b'
+		chLatex.DrawLatex(0.28, 0.83, chString)
+		chLatex.DrawLatex(0.28, 0.77, tagString)
 
 		if drawQCD: leg = TLegend(0.45,0.52,0.95,0.87)
 		if not drawQCD: leg = TLegend(0.45,0.6,0.95,0.85)
@@ -416,7 +432,8 @@ for tag in tagList:
 			else:
 				try: leg.AddEntry(hTOP,"TOP","f")
 				except: pass
-			if not blind: leg.AddEntry(hData,"DATA")
+			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
+			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 			if isTTbarCR:
 				try: leg.AddEntry(hTOP,"TOP","f")
 				except: pass
@@ -424,8 +441,7 @@ for tag in tagList:
 				try: leg.AddEntry(hEWK,"EWK","f")
 				except: pass
 			leg.AddEntry(0, "", "")
-			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
-			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+			if not blind: leg.AddEntry(hData,"DATA")
 		if not drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
 			if isTTbarCR:
@@ -441,9 +457,9 @@ for tag in tagList:
 			else:
 				try: leg.AddEntry(hEWK,"EWK","f")
 				except: pass
-			if not blind: leg.AddEntry(hData,"DATA")
 			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
 			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+			if not blind: leg.AddEntry(hData,"DATA")
 		leg.Draw("same")
 
 		prelimTex=TLatex()
@@ -627,8 +643,10 @@ for tag in tagList:
 	hsig2merged.Scale(xsec[sig2])
 	if doNormByBinWidth:
 		normByBinWidth(hTOPmerged)
-		normByBinWidth(hEWKmerged)
-		normByBinWidth(hQCDmerged)
+		try: normByBinWidth(hEWKmerged)
+		except: pass
+		try: normByBinWidth(hQCDmerged)
+		except: pass
 		normByBinWidth(hsig1merged)
 		normByBinWidth(hsig2merged)
 		normByBinWidth(hDatamerged)
@@ -827,20 +845,22 @@ for tag in tagList:
 	if not blind: hDatamerged.Draw("SAME E1 X0") #redraw data so its not hidden
 	uPad.RedrawAxis()
 	bkgHTgerrmerged.Draw("SAME E2")
-
+	
 	chLatexmerged = TLatex()
 	chLatexmerged.SetNDC()
 	chLatexmerged.SetTextSize(0.06)
-	chLatexmerged.SetTextAlign(11) # align right
+	chLatexmerged.SetTextAlign(21) # align right
 	chString = 'e/#mu+jets'
-	if tag[0]!='0p':
-		if 'p' in tag[0]: chString+=', #geq'+tag[0][:-1]+' t'
-		else: chString+=', '+tag[0]+' t'
-	if 'p' in tag[1]: chString+=', #geq'+tag[1][:-1]+' W'
-	else: chString+=', '+tag[1]+' W'
-	if 'p' in tag[2]: chString+=', #geq'+tag[2][:-1]+' b'
-	else: chString+=', '+tag[2]+' b'
-	chLatexmerged.DrawLatex(0.16, 0.82, chString)
+	tagString = ''
+	#if tag[0]!='0p':
+	if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
+	else: tagString+=tag[0]+' t, '
+	if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
+	else: tagString+=tag[1]+' W, '
+	if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b'
+	else: tagString+=tag[2]+' b'
+	chLatexmerged.DrawLatex(0.28, 0.83, chString)
+	chLatexmerged.DrawLatex(0.28, 0.77, tagString)
 
 	if drawQCDmerged: legmerged = TLegend(0.45,0.52,0.95,0.87)
 	if not drawQCDmerged: legmerged = TLegend(0.45,0.6,0.95,0.85)
@@ -867,7 +887,8 @@ for tag in tagList:
 		else:
 			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
 			except: pass
-		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
+		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
+		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 		if isTTbarCR:
 			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
 			except: pass
@@ -875,8 +896,7 @@ for tag in tagList:
 			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
 			except: pass
 		legmerged.AddEntry(0, "", "")
-		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
-		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 	if not drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
 		if isTTbarCR:
@@ -892,9 +912,9 @@ for tag in tagList:
 		else:
 			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
 			except: pass
-		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 	legmerged.Draw("same")
 
 	prelimTex=TLatex()
