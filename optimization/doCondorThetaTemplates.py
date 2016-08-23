@@ -35,8 +35,8 @@ import os,sys,datetime,itertools
 # minMlbCutList = [0]
 
 #Basic kinematic cuts optimization configuration (w/o shapes) -- selected TpTp optimum cuts -- Jan 19, 2016:
-lepPtCutList  = [40]
-jet1PtCutList = [300]
+lepPtCutList  = [40,50]
+jet1PtCutList = [300,400]
 jet2PtCutList = [150]
 metCutList    = [75]
 njetsCutList  = [3]
@@ -53,24 +53,17 @@ minMlbCutList = [0]
 
 cutConfigs = list(itertools.product(lepPtCutList,jet1PtCutList,jet2PtCutList,metCutList,njetsCutList,nbjetsCutList,jet3PtCutList,jet4PtCutList,jet5PtCutList,drCutList,Wjet1PtCutList,bjet1PtCutList,htCutList,stCutList,minMlbCutList))
 
-isEMlist =['E','M']
-nttaglist=['0p']
-nWtaglist=['0','1p']
-nbtaglist=['0','1','2','3p']
-
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_minMlb_tptp'
+pfix='templates'
 pfix+='_'+date#+'_'+time
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
-os.system('cp analyze.py doHists.py weights.py samples.py doCondorThetaTemplates.py doCondorThetaTemplates.sh '+outDir+'/')
-os.chdir(outDir)
 
 count=0
 for conf in cutConfigs:
@@ -80,23 +73,18 @@ for conf in cutConfigs:
 	if (jet4PtCut >= jet3PtCut or jet5PtCut >= jet3PtCut) and jet3PtCut!=0: continue
 	if jet5PtCut >= jet4PtCut and jet4PtCut!=0: continue
 	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
+	os.chdir(outDir)
 	print cutString
 	if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+cutString)
 	os.chdir(cutString)
-	for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
-		catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-		print catDir
-		if not os.path.exists(outDir+'/'+cutString+'/'+catDir): os.system('mkdir '+catDir)
-		os.chdir(catDir)
 
-		dict={'dir':outputDir,'lepPtCut':lepPtCut,'jet1PtCut':jet1PtCut,'jet2PtCut':jet2PtCut,
-			  'metCut':metCut,'njetsCut':njetsCut,'nbjetsCut':nbjetsCut,'jet3PtCut':jet3PtCut,
-			  'jet4PtCut':jet4PtCut,'jet5PtCut':jet5PtCut,'drCut':drCut,'Wjet1PtCut':Wjet1PtCut,
-			  'bjet1PtCut':bjet1PtCut,'htCut':htCut,'stCut':stCut,'minMlbCut':minMlbCut,
-			  'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3]}
+	dict={'dir':outputDir,'lepPtCut':lepPtCut,'jet1PtCut':jet1PtCut,'jet2PtCut':jet2PtCut,
+		  'metCut':metCut,'njetsCut':njetsCut,'nbjetsCut':nbjetsCut,'jet3PtCut':jet3PtCut,
+		  'jet4PtCut':jet4PtCut,'jet5PtCut':jet5PtCut,'drCut':drCut,'Wjet1PtCut':Wjet1PtCut,
+		  'bjet1PtCut':bjet1PtCut,'htCut':htCut,'stCut':stCut,'minMlbCut':minMlbCut}
 
-		jdf=open('condor.job','w')
-		jdf.write(
+	jdf=open('condor.job','w')
+	jdf.write(
 """universe = vanilla
 Executable = %(dir)s/doCondorThetaTemplates.sh
 Should_Transfer_Files = YES
@@ -109,15 +97,14 @@ Output = condor.out
 Error = condor.err
 Log = condor.log
 Notification = Error
-Arguments = %(dir)s %(lepPtCut)s %(jet1PtCut)s %(jet2PtCut)s %(metCut)s %(njetsCut)s %(nbjetsCut)s %(jet3PtCut)s %(jet4PtCut)s %(jet5PtCut)s %(drCut)s %(Wjet1PtCut)s %(bjet1PtCut)s %(htCut)s %(stCut)s %(minMlbCut)s %(isEM)s %(nttag)s %(nWtag)s %(nbtag)s
+Arguments = %(dir)s %(lepPtCut)s %(jet1PtCut)s %(jet2PtCut)s %(metCut)s %(njetsCut)s %(nbjetsCut)s %(jet3PtCut)s %(jet4PtCut)s %(jet5PtCut)s %(drCut)s %(Wjet1PtCut)s %(bjet1PtCut)s %(htCut)s %(stCut)s %(minMlbCut)s
 
 Queue 1"""%dict)
-		jdf.close()
+	jdf.close()
 
-		os.system('condor_submit condor.job')
-		os.chdir('..')
-		count+=1
+	os.system('condor_submit condor.job')
 	os.chdir('..')
+	count+=1
 									
 print "Total jobs submitted:", count
 
