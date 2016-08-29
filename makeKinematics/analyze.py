@@ -14,7 +14,7 @@ negative MC weights, ets) applied below should be checked!
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-def analyze(tTree,process,cutList,isotrig,doAllSys,NJetsForWtags,doJetRwt,discriminantName,discriminantDetails,category):
+def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,discriminantName,discriminantDetails,category,region):
 	print "*****"*20
 	print "*****"*20
 	print "DISTRIBUTION:", discriminantName
@@ -36,13 +36,18 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,NJetsForWtags,doJetRwt,discri
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[2] > '+str(cutList['jet3PtCut'])+')'
 	cut += ' && (NJetsHtagged == 0)'
 	cut += ' && (minDR_lepJet > 0.4 || ptRel_lepJet > 40)'
-	cut += ' && (NJetsCSVwithSF_JetSubCalc >= '+str(cutList['nbjetsCut'])+')'
-	cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
 	cut += ' && (NJets_JetSubCalc >= '+str(cutList['njetsCut'])+')'
-
+	if 'CR' in region:
+		cut += ' && (deltaR_lepJets[1] >= 0.4 && deltaR_lepJets[1] < '+str(cutList['drCut'])+')'
+		if 'TT' in region: cut += ' && (NJetsCSVwithSF_JetSubCalc >= 2)'
+		elif 'WJ' in region: cut += ' && (NJetsCSVwithSF_JetSubCalc == 0)'
+	
+	else:
+		cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
+		cut += ' && (NJetsCSVwithSF_JetSubCalc >= '+str(cutList['nbjetsCut'])+')'
 
 	wtagvar = 'NJetsWtagged_0p6'
-	if NJetsForWtags:
+	if region == 'Final':
 		cut += ' && (('+wtagvar+' > 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut'])+') || ('+wtagvar+' == 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut']+1)+'))'
 
 	# For N-1 W tagging cuts
