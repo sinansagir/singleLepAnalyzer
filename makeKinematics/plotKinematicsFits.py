@@ -8,42 +8,36 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 # INPUT SETTINGS
-templateDir=os.getcwd()+'/kinematics_Presel'
+templateDir=os.getcwd()+'/kinematics_JetSFCalc0bMoreBins_Pileup69mb'
 lumiInTemplates='12p892'
-plotLabel = ''
+plotLabel = '_Apply2x'
 
 #isEMlist=['E','M','All']
 isEMlist=['All']
 
 # SIGNAL SETTINGS
-sig='ttm800' # choose the 1st signal to plot
-sigleg='TT(0.8 TeV)'
+sig='ttm1000' # choose the 1st signal to plot
+sigleg='TT(1.0 TeV)'
 scaleSignals = True
-scaleFact1 = 400
-if 'Final' in templateDir or 'CR' in templateDir: scaleFact1 = 40
+scaleFact1 = 800
+if 'Final' in templateDir or 'CR' in templateDir: scaleFact1 = 80
 scaleFact1Str = ' x'+str(scaleFact1)
 if not scaleSignals: scaleFact1Str = ''
 
 # SYSTEMATICS SETTINGS
 doAllSys = True
 doQ2sys = True
-doJetRwt = True
+doJetRwt = False
 if not doAllSys: doQ2sys = False
-systematicList = ['pileup','jec','jer','btag','mistag','tau21','pdfNew','muRFcorrdNew','toppt','trigeff']
+systematicList = ['pileup','jec','jer','btag','tau21','muRFcorrdNew','mistag','pdfNew','trigeff']
 if doJetRwt: systematicList.append('jsf')
 
 # NORMALIZATION UNCERTAINTIES
 lumiSys = 0.062 # lumi uncertainty
-eltrigSys = 0.03 # trigger uncertainty
-mutrigSys = 0.011 # trigger uncertainty
-elIdSys = 0.01 # lepton id uncertainty
-muIdSys = 0.011 # lepton id uncertainty
-elIsoSys = 0.01 # lepton isolation uncertainty
-muIsoSys = 0.03 # lepton isolation uncertainty
-elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
-mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
-# cheating for plots while total values are similar
-corrdSys = math.sqrt(mucorrdSys**2+elcorrdSys**2)
+trigSys = 0.03 # trigger uncertainty
+lepIdSys = 0.01 # lepton id uncertainty
+lepIsoSys = 0.011 # lepton isolation uncertainty
+corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 
 def getNormUnc(hist,ibin,modelingUnc):
 	contentsquared = hist.GetBinContent(ibin)**2
@@ -52,12 +46,12 @@ def getNormUnc(hist,ibin,modelingUnc):
 	return error	
 		
 CRuncert = {
-	'topE':0.078,
-	'topM':0.215,
-	'topAll':0.156,
-	'ewkE':0.061,
-	'ewkM':0.124,
-	'ewkAll':0.098,
+	'topE':0.0,#0.085,#
+	'topM':0.0,#0.222,#
+	'topAll':0.0,#0.163,#
+	'ewkE':0.0,#0.064,#
+	'ewkM':0.0,#0.126,#
+	'ewkAll':0.0,#0.100,#
 	}
 
 # PLOT SETTINGS
@@ -66,8 +60,9 @@ isRebinned=''#post fix for file names if the name changed b/c of rebinning or so
 doNormByBinWidth = False # not tested, may not work out of the box
 doOneBand = False
 blind = False
-yLog = False
+yLog = True
 doRealPull = False
+fit = True
 if not doAllSys: doOneBand = True # Don't change this!
 if doRealPull: doOneBand=False
 
@@ -78,53 +73,17 @@ totBkgTemp2 = {}
 totBkgTemp3 = {}
 
 plotList = [#distribution name as defined in "makeTemplates.py"
-	'MTlmet',
-	'lepPt' ,
-	'lepEta',
-	'mindeltaR',
-	'PtRel',
-	'deltaRjet1',
-	'deltaRjet2',
-	'deltaRjet3',
-	'minMlb' ,
-	'minMlj',
-	'deltaRAK8',
-	'NPV'   ,
-	'JetEta',
-	'JetPt' ,
-	'Jet1Pt',
-	'Jet2Pt',
-	'Jet3Pt',
-	'Jet4Pt',
-	'HT'    ,
-	'ST'    ,
-	'MET'   ,
-	'NJets' ,
-	'NBJets',
-	'NWJets',
-	'NTJets',
-	'NJetsAK8',
-	'JetPtAK8',
-	'JetEtaAK8',
-	'Tau21'  ,
-	'Tau21Nm1'  ,
-	'Tau32'  ,
-	'Tau32Nm1'  ,
-	'Pruned' ,
-	'PrunedNm1' ,
-	'SoftDropMass', 
-	'SoftDropMassNm1', 
-	'Bjet1Pt',
-	'Wjet1Pt',
-	'Tjet1Pt',
-	#
-	#'topPt',
-	#'JetPtBins' ,
+	#'HT'    ,
+	#'ST'    ,
+	#'MET'   ,
+	#'NJets' ,
+	'JetPtBins' ,
 	#'Jet1PtBins',
 	#'Jet2PtBins',
 	#'Jet3PtBins',
 	#'Jet4PtBins',
 	#'JetPtBinsAK8',
+
 	]
 
 def formatUpperHist(histogram):
@@ -140,6 +99,7 @@ def formatUpperHist(histogram):
 		histogram.GetYaxis().SetLabelSize(0.058)
 		histogram.GetYaxis().SetTitleSize(0.08)
 		histogram.GetYaxis().SetTitleOffset(.79)
+		histogram.GetXaxis().SetRangeUser(0,2500)
 
 	if 'JetPt' in histogram.GetName() or 'JetEta' in histogram.GetName() or 'JetPhi' in histogram.GetName() or 'Pruned' in histogram.GetName() or 'Tau' in histogram.GetName(): histogram.GetYaxis().SetTitle("Jets")
 	histogram.GetYaxis().CenterTitle()
@@ -156,6 +116,7 @@ def formatLowerHist(histogram):
 	histogram.GetXaxis().SetTitleSize(0.15)
 	histogram.GetXaxis().SetTitleOffset(0.95)
 	histogram.GetXaxis().SetNdivisions(506)
+	histogram.GetXaxis().SetRangeUser(0,2500)
 
 	histogram.GetYaxis().SetLabelSize(0.10)
 	histogram.GetYaxis().SetTitleSize(0.14)
@@ -215,7 +176,6 @@ for discriminant in plotList:
 		except: pass
 		
 		hData = RFile.Get(histPrefix+'__DATA').Clone()
-
 		hsig1 = RFile.Get(histPrefix+'__'+sig+'bwbw').Clone()
 		hsig2 = RFile.Get(histPrefix+'__'+sig+'tztz').Clone()
 		hsig3 = RFile.Get(histPrefix+'__'+sig+'thth').Clone()
@@ -411,6 +371,7 @@ for discriminant in plotList:
 			lPad.SetLeftMargin(.12)
 			lPad.SetGridy()
 			lPad.Draw()
+
 		if not doNormByBinWidth: hData.SetMaximum(1.2*max(hData.GetMaximum(),bkgHT.GetMaximum()))
 
 		hData.SetMinimum(0.015)
@@ -433,10 +394,10 @@ for discriminant in plotList:
 
 		stackbkgHT.Draw("SAME HIST")
 
-		hsig.Draw("SAME HIST")
-		hsig1.Draw("SAME HIST")
-		hsig2.Draw("SAME HIST")
-		hsig3.Draw("SAME HIST")
+		#hsig.Draw("SAME HIST")
+		#hsig1.Draw("SAME HIST")
+		#hsig2.Draw("SAME HIST")
+		#hsig3.Draw("SAME HIST")
 
 		if not blind: hData.Draw("SAME E1 X0") #redraw data so its not hidden
 		uPad.RedrawAxis()
@@ -453,8 +414,8 @@ for discriminant in plotList:
 			elif 'NPV' in discriminant or 'Eta' in discriminant or 'deltaRjet2' in discriminant:
 				leg = TLegend(0.72,0.43,0.95,0.90)
 			elif blind: leg = TLegend(0.43,0.35,0.97,0.88)
-			else: leg = TLegend(0.43,0.22,0.97,0.88)
-			#else: leg = TLegend(0.6,0.6,0.97,0.88)
+			#else: leg = TLegend(0.43,0.22,0.97,0.88)
+			else: leg = TLegend(0.43,0.43,0.97,0.88)
 		leg.SetShadowColor(0)
 		leg.SetFillColor(0)
 		leg.SetFillStyle(0)
@@ -481,10 +442,10 @@ for discriminant in plotList:
 		else:
 			if not blind: leg.AddEntry(hData,"DATA")
 
-			leg.AddEntry(hsig,sigleg+' nominal BRs'+scaleFact1Str,"l")
-			leg.AddEntry(hsig1,sigleg+' #rightarrow bWbW'+scaleFact1Str,"l")
-			leg.AddEntry(hsig2,sigleg+' #rightarrow tZtZ'+scaleFact1Str,"l")
-			leg.AddEntry(hsig3,sigleg+' #rightarrow tHtH'+scaleFact1Str,"l")
+			#leg.AddEntry(hsig,sigleg+' nominal BRs'+scaleFact1Str,"l")
+			#leg.AddEntry(hsig1,sigleg+' #rightarrow bWbW'+scaleFact1Str,"l")
+			#leg.AddEntry(hsig2,sigleg+' #rightarrow tZtZ'+scaleFact1Str,"l")
+			#leg.AddEntry(hsig3,sigleg+' #rightarrow tHtH'+scaleFact1Str,"l")
 
 			try: 
 				if hQCD.Integral()/bkgHT.Integral()>.005: leg.AddEntry(hQCD,"QCD","f") #don't plot QCD if it is less than 0.5%
@@ -540,6 +501,67 @@ for discriminant in plotList:
 			pull.SetLineColor(1)
 			formatLowerHist(pull)
 			pull.Draw("E1")
+
+			if fit and discriminant == 'JetPtBins':
+
+				flat = TF1("flat","pol0",700,2500);
+				line = TF1("line","pol1",150,800);
+				line.SetLineWidth(2);
+
+#				pull.Fit("flat","R")
+				'''
+				fitresult = pull.Fit("line","RS")
+				cov = fitresult.GetCovarianceMatrix()
+				p0p0cov = cov(0,0)
+				p0p1cov = cov(0,1)
+				p1p1cov = cov(1,1)
+				print 'covariance p0-p0 =',p0p0cov
+				print 'covariance p0-p1 =',p0p1cov
+				print 'covariance p1-p1 =',p1p1cov
+				fitresult = pull.Fit("flat","R+S")
+				cov = fitresult.GetCovarianceMatrix()
+				p0p0cov = cov(0,0)
+				p0p1cov = cov(0,1)
+				p1p1cov = cov(1,1)
+				print 'covariance p0-p0 =',p0p0cov
+				print 'covariance p0-p1 =',p0p1cov
+				print 'covariance p1-p1 =',p1p1cov
+				'''
+#				jsf0b = TF1("jsf0b","1.24507 - 0.000664768*x",350,1030)
+#				jsf20b = TF1("jsf20b","0.568135",1015,1500);
+#				jsfup0b = TF1("jsfup0b","max(0.568135 + 0.052292,1.24507 - 0.000664768*x + sqrt(0.000506216376592 + 3.1532423475e-09*x*x - 2*x*1.17981363543e-06))",350,1500)
+#				jsfdn0b = TF1("jsfdn0b","max(0.568135 - 0.052292,1.24507 - 0.000664768*x - sqrt(0.000506216376592 + 3.1532423475e-09*x*x - 2*x*1.17981363543e-06))",350,1500)
+#				jsfup0b = TF1("jsfup0b","max(max(0.747382 + 0.164524,1.09383 - 0.000477777*x + sqrt(0.00314541714554 + 2.18390370364e-08*x*x - 2*x*7.85447860996e-06)),max(0.568135 + 0.052292,1.24507 - 0.000664768*x + sqrt(0.000506216376592 + 3.1532423475e-09*x*x - 2*x*1.17981363543e-06)))",350,1500)
+#				jsfdn0b = TF1("jsfdn0b","min(max(0.747382 - 0.164524,1.09383 - 0.000477777*x - sqrt(0.00314541714554 + 2.18390370364e-08*x*x - 2*x*7.85447860996e-06)),max(0.568135 - 0.052292,1.24507 - 0.000664768*x - sqrt(0.000506216376592 + 3.1532423475e-09*x*x - 2*x*1.17981363543e-06)))",350,1500)
+#				jsfup20b =TF1("jsfup20b","0.568135 + 0.052292",1020,1500);
+#				jsfdn20b =TF1("jsfdn20b","0.568135 - 0.052292",1020,1500);
+
+				jsf0b = TF1("jsf0b","1.09502 - 0.00045995*x",150,820)
+				jsf20b = TF1("jsf20b","0.726255",800,2500);
+				#jsfup0b = TF1("jsfup0b","max(max(0.747382 + 0.164524,1.09383 - 0.000477777*x + sqrt(0.00314541714554 + 2.18390370364e-08*x*x - 2*x*7.85447860996e-06)),max(0.726255 + 0.0190384,1.09502 - 0.00045995*x + sqrt(2.41563501145e-05 + 3.64859173927e-10*x*x - 2*x*8.66909413702e-08)))",150,2500)
+				#jsfdn0b = TF1("jsfdn0b","min(max(0.747382 - 0.164524,1.09383 - 0.000477777*x - sqrt(0.00314541714554 + 2.18390370364e-08*x*x - 2*x*7.85447860996e-06)),max(0.726255 - 0.0190384,1.09502 - 0.00045995*x - sqrt(2.41563501145e-05 + 3.64859173927e-10*x*x - 2*x*8.66909413702e-08)))",150,2500)
+				jsfup0b = TF1("jsfup0b","1",150,2500)
+				jsfdn0b = TF1("jsfdn0b","max((0.726255 - 0.0190384)*(0.726255 - 0.0190384),(1.09502 - 0.00045995*x)*(1.09502 - 0.00045995*x))",150,2500)
+#				jsfup0b = TF1("jsfup0b","max(0.726255 + 0.0190384,1.09502 - 0.00045995*x + sqrt(2.41563501145e-05 + 3.64859173927e-10*x*x - 2*x*8.66909413702e-08))",150,2500)
+#				jsfdn0b = TF1("jsfdn0b","max(0.726255 - 0.0190384,1.09502 - 0.00045995*x - sqrt(2.41563501145e-05 + 3.64859173927e-10*x*x - 2*x*8.66909413702e-08))",150,2500)
+#				jsfup20b =TF1("jsfup20b","0.726255 + 0.0190384",1020,1500);
+#				jsfdn20b =TF1("jsfdn20b","0.726255 - 0.0190384",1020,1500);
+
+				jsf0b.SetLineColor(kRed)
+				jsf0b.SetLineWidth(2)
+				jsfup0b.SetLineColor(kBlue)
+				jsfdn0b.SetLineColor(kBlue)
+				jsfup0b.SetLineWidth(2)
+				jsfdn0b.SetLineWidth(2)
+				#jsf20b.SetLineColor(kRed)
+				#jsf20b.SetLineWidth(2)
+				#jsfup20b.SetLineColor(kBlue)
+				#jsfdn20b.SetLineColor(kBlue)
+				#jsfup20b.SetLineWidth(2)
+				#jsfdn20b.SetLineWidth(2)
+
+				pull.Draw("E1")
+
 		
 			BkgOverBkg = pull.Clone("bkgOverbkg")
 			BkgOverBkg.Divide(bkgHT, bkgHT)
@@ -595,8 +617,16 @@ for discriminant in plotList:
 			if not doOneBand: pullLegend.AddEntry(pullUncBandTot , "Bkg stat. #oplus all syst." , "f")
 			else: 
 				pullLegend.AddEntry(pullUncBandTot , "Bkg stat. #oplus syst." , "f")
+				if fit and discriminant == 'JetPtBins':
+					pullLegend.AddEntry(jsf0b, "Fit","l")
+					pullLegend.AddEntry(jsfup0b, "#pm 1#sigma","l")
+
 			pullLegend.Draw("SAME")
 			pull.Draw("SAME")
+			jsf0b.Draw("same")
+			jsfup0b.Draw("same")
+			jsfdn0b.Draw("same")
+			jsf20b.Draw("same")
 			lPad.RedrawAxis()
 
 		if blind == False and doRealPull:
@@ -621,8 +651,7 @@ for discriminant in plotList:
 		savePrefix+=histPrefix+isRebinned
 		if doRealPull: savePrefix+='_pull'
 		if yLog: savePrefix+='_logy'
-		savePrefix+=plotLabel
-
+		savePrefix += plotLabel
 		if doOneBand:
 			c1.SaveAs(savePrefix+"_totBand.pdf")
 			c1.SaveAs(savePrefix+"_totBand.png")
@@ -632,6 +661,8 @@ for discriminant in plotList:
 			c1.SaveAs(savePrefix+".png")
 			c1.SaveAs(savePrefix+".C")
 			
+			
+
 	RFile.Close()
 
 print("--- %s minutes ---" % (round(time.time() - start_time, 2)/60))
