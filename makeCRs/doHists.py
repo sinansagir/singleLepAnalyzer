@@ -10,7 +10,7 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet_1lepTT_030416_step2AllNewSFs/nominal/'
+step1Dir = '/user_data/ssagir/LJMet_1lepTT_031816_step2AllNewSFs/nominal/'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -100,7 +100,7 @@ timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar_'
 else: pfix='wjets_'
 pfix+='tptp_'
-pfix+=datestr+'_'+timestr
+pfix+=datestr#+'_'+timestr
 
 if len(sys.argv)>1: outDir=sys.argv[1]
 else: 
@@ -149,7 +149,7 @@ def readTree(file):
 	return tFile, tTree 
 
 print "READING TREES"
-shapesFiles = ['jec','jer','btag']#,'jsf']
+shapesFiles = ['jec','jer','btag']
 tTreeData = {}
 tFileData = {}
 for data in dataList:
@@ -211,8 +211,8 @@ for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
 		outDir = os.getcwd()+'/'
 		outDir+=pfix
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
-		if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
-		outDir+='/'+cutString
+		#if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
+		#outDir+='/'+cutString
 		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+outDir+'/'+catDir)
 		outDir+='/'+catDir
 	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3]}

@@ -83,7 +83,9 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		for i in range(100): hists[discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process] = R.TH1D(discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)				
 	for key in hists.keys(): hists[key].Sumw2()
 	
-	jetSFstr = 'JetSF_pTNbwflat'
+	jetSFstr   = 'JetSF_pTNbwflat'
+	jetSFupstr = 'JetSFupwide_pTNbwflat'
+	jetSFdnstr = 'JetSFdnwide_pTNbwflat'
 		
 	if 'Data' in process: 
 		weightStr           = '1'
@@ -119,8 +121,8 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		weightPDFDownStr    = 'pdfDown * '+weightStr
 		weighttopptUpStr    = weightStr
 		weighttopptDownStr  = 'topPtWeight * '+weightStr
-		weightjsfUpStr      = weightStr.replace('JetSF_pTNbwflat','JetSFupwide_pTNbwflat')
-		weightjsfDownStr    = weightStr.replace('JetSF_pTNbwflat','JetSFdnwide_pTNbwflat')
+		weightjsfUpStr      = weightStr.replace(jetSFstr,jetSFupstr)
+		weightjsfDownStr    = weightStr.replace(jetSFstr,jetSFdnstr)
 	else: 
 		weightStr           = jetSFstr+' * TrigEffWeightNew * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc) * '+str(weight[process])
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
@@ -137,8 +139,8 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		weightPDFDownStr    = 'pdfDown * '+weightStr
 		weighttopptUpStr    = weightStr
 		weighttopptDownStr  = 'topPtWeight * '+weightStr
-		weightjsfUpStr      = weightStr.replace('JetSF_pTNbwflat','JetSFupwide_pTNbwflat')
-		weightjsfDownStr    = weightStr.replace('JetSF_pTNbwflat','JetSFdnwide_pTNbwflat')
+		weightjsfUpStr      = weightStr.replace(jetSFstr,jetSFupstr)
+		weightjsfDownStr    = weightStr.replace(jetSFstr,jetSFdnstr)
 		
 	isEMCut=''
 	if isEM=='E': isEMCut+=' && isElectron==1'

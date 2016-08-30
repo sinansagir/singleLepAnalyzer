@@ -1,6 +1,6 @@
 import os,sys,fnmatch
 
-templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/makeThetaTemplates/templates_minMlb_tau21LT0p6_bpbp_2016_3_5'
+templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/tptp/makeThetaTemplates/templates_minMlb_tptp_2016_3_18'
 thetaConfigTemp = os.getcwd()+'/theta_config_template.py'
 
 systematicsInFile = ['pileup','q2','jec','jer','jmr','jms','btag','tau21','pdf','pdfNew','muR','muF','muRFcorrd','muRFcorrdNew','muRFdecorrdNew','toppt','jsf','muRFenv']
@@ -25,7 +25,7 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if '00_2p318fb_rebinned.root' not in rootfile: continue
+    if '00_2p318fb_rebinned.root' in rootfile or '_modified.root' in rootfile: continue
     if 'TTM1800' in rootfile: continue
     if 'TTM1700' in rootfile: continue
     if 'TTM1600' in rootfile: continue
