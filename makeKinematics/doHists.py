@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import os,sys,time,math,datetime
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
 from numpy import linspace
 from weights import *
 from analyze import *

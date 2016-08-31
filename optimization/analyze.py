@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
+import os,sys
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
 from array import array
 from weights import *
-import ROOT as R
+from ROOT import TFile,TTree,TH1D
 
 """
 --This function will make theta templates for a given distribution and a category
@@ -47,40 +50,40 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 	catStr = isEM+'_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag
 	
 	hists = {}
-	hists[discriminantName+'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+	hists[discriminantName+'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		hists[discriminantName+'pileupUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'pileupUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'pileupDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'pileupDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'muRFcorrdUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process]=R.TH1D(discriminantName+'muRFcorrdUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'muRFcorrdDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process]=R.TH1D(discriminantName+'muRFcorrdDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'muRFenvUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process] = R.TH1D(discriminantName+'muRFenvUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'muRFenvDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process] = R.TH1D(discriminantName+'muRFenvDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'muRUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'muRUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'muRDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'muRDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'muFUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'muFUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'muFDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'muFDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'pdfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'pdfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'pdfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'pdfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'topptUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'topptUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'topptDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'topptDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'jmrUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jmrUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'jmrDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jmrDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'jmsUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jmsUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'jmsDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jmsDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'tau21Up'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'tau21Up'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'tau21Down' +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'tau21Down' +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'jsfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jsfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		hists[discriminantName+'jsfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jsfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)						
+		hists[discriminantName+'pileupUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'pileupUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'pileupDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'pileupDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'muRFcorrdUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process]=TH1D(discriminantName+'muRFcorrdUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'muRFcorrdDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process]=TH1D(discriminantName+'muRFcorrdDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'muRFenvUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process] = TH1D(discriminantName+'muRFenvUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'muRFenvDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process] = TH1D(discriminantName+'muRFenvDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'muRUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'muRUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'muRDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'muRDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'muFUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'muFUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'muFDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'muFDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'pdfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'pdfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'pdfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'pdfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'topptUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'topptUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'topptDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'topptDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'jmrUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jmrUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'jmrDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jmrDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'jmsUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jmsUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'jmsDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jmsDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'tau21Up'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'tau21Up'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'tau21Down' +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'tau21Down' +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'jsfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jsfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[discriminantName+'jsfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jsfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)						
 		if tTree[process+'jerUp']: 
-			hists[discriminantName+'jerUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jerUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-			hists[discriminantName+'jerDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jerDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+			hists[discriminantName+'jerUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jerUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+			hists[discriminantName+'jerDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jerDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 		if tTree[process+'jecUp']:
-			hists[discriminantName+'jecUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jecUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-			hists[discriminantName+'jecDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'jecDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+			hists[discriminantName+'jecUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jecUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+			hists[discriminantName+'jecDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'jecDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 		if tTree[process+'btagUp']:
-			hists[discriminantName+'btagUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'btagUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-			hists[discriminantName+'btagDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process]  = R.TH1D(discriminantName+'btagDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)						
-		for i in range(100): hists[discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process] = R.TH1D(discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)				
+			hists[discriminantName+'btagUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'btagUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+			hists[discriminantName+'btagDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process]  = TH1D(discriminantName+'btagDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)						
+		for i in range(100): hists[discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process] = TH1D(discriminantName+'pdf'+str(i)+'_'+lumiStr+'fb_is'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)				
 	for key in hists.keys(): hists[key].Sumw2()
 	
 	jetSFstr = 'JetSF_pTNbwflat'

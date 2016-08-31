@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
 import os,sys,time,math,datetime,pickle,itertools
-from numpy import linspace
-from weights import *
-from samples import *
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
 import ROOT as R
+from weights import *
 
 R.gROOT.SetBatch(1)
 start_time = time.time()

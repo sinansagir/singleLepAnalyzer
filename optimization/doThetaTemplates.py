@@ -1,13 +1,15 @@
 #!/usr/bin/python
 
 import os,sys,time,math,datetime,pickle,itertools,getopt
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
 from numpy import linspace
 from weights import *
 from analyze import *
 from samples import *
-import ROOT as R
+from ROOT import TFile,TTree,TH1D,gROOT
 
-R.gROOT.SetBatch(1)
+gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
@@ -307,7 +309,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		print "       BR Configuration:"+BRconfStr
 		for signal in sigList:
 			outputRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
-			outputRfile = R.TFile(outputRfileName,'RECREATE')
+			outputRfile = TFile(outputRfileName,'RECREATE')
 			hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
 			hwjets,hzjets,httjets,ht,httw,httz,hvv={},{},{},{},{},{},{}
 			for cat in catList:
@@ -835,7 +837,7 @@ def makeThetaCatsIndDecays(datahists,sighists,bkghists,discriminant):
 	i=0
 	for decay in decays:
 		for signal in sigList:
-			outputRfile = R.TFile(outDir+'/templates_'+discriminant+'_'+signal+decay+'_'+lumiStr+'fb'+'.root','RECREATE')
+			outputRfile = TFile(outDir+'/templates_'+discriminant+'_'+signal+decay+'_'+lumiStr+'fb'+'.root','RECREATE')
 			hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
 			hwjets,hzjets,httjets,ht,httw,httz,hvv={},{},{},{},{},{},{}
 			for cat in catList:
@@ -1321,7 +1323,7 @@ def readTree(file):
 	if not os.path.exists(file): 
 		print "Error: File does not exist! Aborting ...",file
 		os._exit(1)
-	tFile = R.TFile(file,'READ')
+	tFile = TFile(file,'READ')
 	tTree = tFile.Get('ljmet')
 	return tFile, tTree 
 

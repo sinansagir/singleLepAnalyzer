@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-#import ROOT as R
+import os,sys
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
 from ROOT import TH1D,TTree,TFile
 from array import array
 from weights import *
