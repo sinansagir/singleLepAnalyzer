@@ -1,21 +1,19 @@
 import os,sys,fnmatch
 
-templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/tptp/makeThetaTemplates/templates_minMlb_tptp_2016_3_18'
-thetaConfigTemp = os.getcwd()+'/theta_config_template.py'
+templateDir='/user_data/jhogan/CMSSW_7_4_14/src/SLA_80X/makeThetaTemplates/templates_minMlb_ObjRev'
+thetaConfigTemp = os.getcwd()+'/theta_config_template_noTops.py'
 
-systematicsInFile = ['pileup','q2','jec','jer','jmr','jms','btag','tau21','pdf','pdfNew','muR','muF','muRFcorrd','muRFcorrdNew','muRFdecorrdNew','toppt','jsf','muRFenv']
+if not os.path.exists('/user_data/jhogan/CMSSW_7_4_14/src/SLA_80X/makeLimits/results/'+templateDir.split('/')[-1]): os.system('mkdir -p /user_data/jhogan/CMSSW_7_4_14/src/SLA_80X/makeLimits/results/'+templateDir.split('/')[-1]) #prevent writing these (they are large) to brux6 common area
+outputDir = '/user_data/jhogan/CMSSW_7_4_14/src/SLA_80X/makeLimits/results/'+templateDir.split('/')[-1]+'/'
+limitType = 'all'
+
+toFilter = []
 btagChannels = ['nB0','nB1','nB2','nB3p']
+#toFilter+= [chan for chan in btagChannels if chan!='nB0']
+#toFilter+= ['nW0']
+#systematicsInFile = ['pileup','topsf','jec','jer','jmr','jms','btag','tau21''mistag','muR','muF','muRFcorrd','toppt','jsf']
 #toFilter = [syst for syst in systematicsInFile if syst!='muRFenv']
-toFilter = ['pdf','muR','muF','muRFcorrd','muRFdecorrdNew','muRFenv']
-toFilter = ['__'+item+'__' for item in toFilter]
-#toFilter+= [chan for chan in btagChannels if chan!='nB3p']
-#toFilter+= ['nW1p']
-#toFilter+= ['qcd__pdfNew','qcd__muRFcorrdNew']
 print toFilter
-
-if not os.path.exists('/user_data/ssagir/limits/'+templateDir.split('/')[-1]): os.system('mkdir /user_data/ssagir/limits/'+templateDir.split('/')[-1]) #prevent writing these (they are large) to brux6 common area
-outputDir = '/user_data/ssagir/limits/'+templateDir.split('/')[-1]+'/'
-limitType = 'all'#'pdf_RF_'+'decorrelated/'
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -25,12 +23,8 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if '00_2p318fb_rebinned.root' in rootfile or '_modified.root' in rootfile: continue
-    if 'TTM1800' in rootfile: continue
-    if 'TTM1700' in rootfile: continue
-    if 'TTM1600' in rootfile: continue
-    if 'TTM1500' in rootfile: continue
-    if 'TTM1400' in rootfile: continue
+    if '_12p892fb_rebinned_stat0p3.root' not in rootfile: continue
+    #if '_bW' not in rootfile: continue
     rootfilelist.append(rootfile)
     i+=1
 
@@ -64,13 +58,12 @@ def makeThetaConfig(rFile,outDir):
 count=0
 for file in rootfilelist:
 	signal = file.split('/')[-1].split('_')[2]
-	BRStr = file.split('/')[-1][file.split('/')[-1].find(signal)+len(signal):file.split('/')[-1].find('_2p318fb')]
+	BRStr = file.split('/')[-1][file.split('/')[-1].find(signal)+len(signal):file.split('/')[-1].find('_12p892fb')]
 	outDir = outputDir+limitType+BRStr+'/'
 	print signal,BRStr
 	if not os.path.exists(outDir): os.system('mkdir '+outDir)
 	os.chdir(outDir)
 	fileDir = file.split('/')[-2]
-	#if os.path.exists(outDir+fileDir+'/'+file.split('/')[-1][:-5]+'.job'): continue
 	if not os.path.exists(outDir+fileDir): os.system('mkdir '+fileDir)
 	os.chdir(fileDir)
 	makeThetaConfig(file,outDir)
@@ -84,6 +77,7 @@ Executable = %(configfile)s.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 Notification = Error
+request_memory = 3072
 notify_user = Sinan_Sagir@brown.edu
 
 arguments      = ""
