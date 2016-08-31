@@ -7,60 +7,51 @@ from weights import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=2.3 #for plots
+lumi=12.9 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
+templateDir=os.getcwd()
+isTTbarCR = True # else it is Wjets
+if isTTbarCR: templateDir+='/ttbar_tptp_ObjRev'+'/'
+else: templateDir+='/wjets_tptp_ObjRev'+'/'
+
+histPrefix=discriminant+'_'+lumiInTemplates+'fb_'
+isRebinned='' #post fix to match ROOT file names if needed
+saveKey = '' #tag for plot names
+cutString=''
+tempsig1='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
+tempsig2='templates_'+discriminant+'_'+sig2+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 discriminant = 'minMlb'
 
 m1 = '800'
 sig1='TTM'+m1 # choose the 1st signal to plot
 sig1leg='TT (0.8 TeV)'
-m2 = '1100'
+m2 = '1000'
 sig2='TTM'+m2 # choose the 2nd signal to plot
-sig2leg='TT (1.1 TeV)'
+sig2leg='TT (1.0 TeV)'
 scaleSignals = False
 
-systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdfNew','muRFcorrdNew','toppt','jsf']
+systematicList = ['pileup','jec','jer','btag','tau21','mistag','muRFcorrdNew','pdfNew','jsf','trigeff']
 doAllSys = True
 doQ2sys  = True
-if not doAllSys: doQ2sys = False # I assume you don't want Q^2 as well if you are not doing the other shape systematics! (this is just to change one bool)
-
-isRebinned=''#post fix for file names if the name changed b/c of rebinning or some other process
+if not doAllSys: doQ2sys = False
 doNormByBinWidth=False # not tested, may not work out of the box
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
-isTTbarCR = True # else it is Wjets
 blind = False
 yLog = True
 doRealPull = True
 if doRealPull: doOneBand=False
 
-histPrefix=discriminant+'_'+lumiInTemplates+'fb_'
-saveKey = ''#'_topPtSystOnly'
-
-if isTTbarCR: cutString=''#'lep80_MET40_1jet300_2jet200_NJets0_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST1500_minMlb0'
-else: cutString=''#'lep80_MET40_1jet300_2jet200_NJets0_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST1500_minMlb0'
-templateDir=os.getcwd()
-if isTTbarCR: templateDir+='/ttbar_tptp_2016_3_18/'+cutString+'/'
-else: templateDir+='/wjets_tptp_2016_3_18/'+cutString+'/'
-tempsig1='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
-tempsig2='templates_'+discriminant+'_'+sig2+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
-
-lumiSys = 0.027 #2.7% lumi uncertainty
-trigSys = 0.05 #5% trigger uncertainty
-lepIdSys = 0.01 #1% lepton id uncertainty
-lepIsoSys = 0.01 #1% lepton isolation uncertainty
-topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty --> covered by PDF and muRF uncertainties
-ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty --> covered by PDF and muRF uncertainties
-qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty --> covered by PDF and muRF uncertainties
-corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
+lumiSys = 0.062 # lumi uncertainty
+trigSys = 0.03 # trigger uncertainty
+lepIdSys = 0.011 # lepton id uncertainty
+lepIsoSys = 0.01 # lepton isolation uncertainty
+corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total el/mu values are close
 
 def getNormUnc(hist,ibin):
 	contentsquared = hist.GetBinContent(ibin)**2
-	error = corrdSys*corrdSys*contentsquared  #correlated uncertainties
-	if 'top' in hist.GetName(): error += topXsecSys*topXsecSys*contentsquared # cross section
-	if 'ewk' in hist.GetName(): error += ewkXsecSys*ewkXsecSys*contentsquared # cross section
-	if 'qcd' in hist.GetName(): error += qcdXsecSys*qcdXsecSys*contentsquared # cross section
+	error = corrdSys*corrdSys*contentsquared 
 	return error
 
 def formatUpperHist(histogram):
@@ -69,7 +60,6 @@ def formatUpperHist(histogram):
 	if blind == True:
 		histogram.GetXaxis().SetLabelSize(0.08)
 		histogram.GetXaxis().SetTitleSize(0.08)
-		#histogram.GetXaxis().SetTitle(xTitle)
 		histogram.GetYaxis().SetLabelSize(0.08)
 		histogram.GetYaxis().SetTitleSize(0.08)
 		histogram.GetYaxis().SetTitleOffset(1.2)
@@ -93,7 +83,6 @@ def formatLowerHist(histogram):
 	histogram.GetXaxis().SetTitleSize(0.15)
 	histogram.GetXaxis().SetTitleOffset(0.95)
 	histogram.GetXaxis().SetNdivisions(506)
-	#histogram.GetXaxis().SetTitle("S_{T} (GeV)")
 
 	histogram.GetYaxis().SetLabelSize(0.12)
 	histogram.GetYaxis().SetTitleSize(0.14)
@@ -126,13 +115,14 @@ def normByBinWidth(result):
 
 RFile1 = TFile(templateDir+tempsig1)
 RFile2 = TFile(templateDir+tempsig2)
+print RFile1
 isEMlist =['E','M']
 if isTTbarCR: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
+	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['1','2p']#,'3p']
+	nbtaglist = ['1','2p']
 else: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
+	nttaglist = ['0p']
 	nWtaglist = ['0','1p']
 	nbtaglist = ['0']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
@@ -266,9 +256,6 @@ for tag in tagList:
 		if not scaleSignals:
 			scaleFact1=1
 			scaleFact2=1
-# 			else:
-# 				scaleFact1=25
-# 				scaleFact2=25
 		hsig1.Scale(scaleFact1)
 		hsig2.Scale(scaleFact2)
 
@@ -276,7 +263,7 @@ for tag in tagList:
 		try: drawQCD = hQCD.Integral()/bkgHT.Integral()>.005 #don't plot QCD if it is less than 0.5%
 		except: pass
 
-		stackbkgHT = THStack("stackbkgHT","")#"CMS Preliminary, 5 fb^{-1} at #sqrt{s} = 13 TeV;H_{T} (GeV)")
+		stackbkgHT = THStack("stackbkgHT","")
 		if isTTbarCR:
 			try: stackbkgHT.Add(hTOP)
 			except: pass
@@ -424,7 +411,6 @@ for tag in tagList:
 				try: leg.AddEntry(hEWK,"EWK","f")
 				except: pass
 			leg.AddEntry(0, "", "")
-			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
 			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 		if not drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
@@ -442,7 +428,6 @@ for tag in tagList:
 				try: leg.AddEntry(hEWK,"EWK","f")
 				except: pass
 			if not blind: leg.AddEntry(hData,"DATA")
-			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
 			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 		leg.Draw("same")
 
@@ -566,7 +551,6 @@ for tag in tagList:
 				if hData.GetBinContent(binNo)!=0:
 					MCerror = 0.5*(totBkgTemp3[catStr].GetErrorYhigh(binNo-1)+totBkgTemp3[catStr].GetErrorYlow(binNo-1))
 					pull.SetBinContent(binNo,(hData.GetBinContent(binNo)-bkgHT.GetBinContent(binNo))/math.sqrt(MCerror**2+hData.GetBinError(binNo)**2))
-					#pull.SetBinContent(binNo,(hData.GetBinContent(binNo)-bkgHT.GetBinContent(binNo))/math.sqrt(bkgHT.GetBinError(binNo)**2+hData.GetBinError(binNo)**2))
 				else: pull.SetBinContent(binNo,0.)
 			pull.SetMaximum(3)
 			pull.SetMinimum(-3)
@@ -875,7 +859,6 @@ for tag in tagList:
 			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
 			except: pass
 		legmerged.AddEntry(0, "", "")
-		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 	if not drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
@@ -893,7 +876,6 @@ for tag in tagList:
 			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
 			except: pass
 		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
-		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 	legmerged.Draw("same")
 
@@ -999,7 +981,6 @@ for tag in tagList:
 			if hDatamerged.GetBinContent(binNo)!=0:
 				MCerror = 0.5*(totBkgTemp3['lep'+tagStr].GetErrorYhigh(binNo-1)+totBkgTemp3['lep'+tagStr].GetErrorYlow(binNo-1))
 				pullmerged.SetBinContent(binNo,(hDatamerged.GetBinContent(binNo)-bkgHTmerged.GetBinContent(binNo))/math.sqrt(MCerror**2+hDatamerged.GetBinError(binNo)**2))
-				#pullmerged.SetBinContent(binNo,(hDatamerged.GetBinContent(binNo)-bkgHTmerged.GetBinContent(binNo))/math.sqrt(bkgHTmerged.GetBinError(binNo)**2+hDatamerged.GetBinError(binNo)**2))
 			else: pullmerged.SetBinContent(binNo,0.)
 		pullmerged.SetMaximum(3)
 		pullmerged.SetMinimum(-3)

@@ -2,9 +2,9 @@
 
 import os,sys,time,math
 
-templateYields = 'templates_minMlb_tptp_2016_3_18/lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0/yields_minMlb_2p318fb.txt' 
-ttbarYields = '../makeCRs/ttbar_tptp_2016_3_18/yields_minMlb_2p318fb.txt'
-wjetsYields = '../makeCRs/wjets_tptp_2016_3_18/yields_minMlb_2p318fb.txt'
+templateYields = 'templates_minMlb_ObjRev/SelectionFile/yields_minMlb_12p892fb.txt' 
+ttbarYields = '../makeCRs/ttbar_tptp_ObjRev/yields_minMlb_12p892fb.txt'
+wjetsYields = '../makeCRs/wjets_tptp_ObjRev/yields_minMlb_12p892fb.txt'
 
 ftemplate = open(templateYields, 'rU')
 templatelines = ftemplate.readlines()
@@ -37,35 +37,46 @@ for cat in templatelines[MpJetsLineTemplateInd].split()[2:]:
 	ind+=1
 
 yields = {}
-yields['top_E_nB0']  = sum([yieldsEl[cat] for cat in yieldsEl.keys() if 'top' in cat and 'nB0' in cat])
+yields['top_E_nB0_nW0']  = sum([yieldsEl[cat] for cat in yieldsEl.keys() if 'top' in cat and 'nB0' in cat and 'nW0' in cat])
+yields['top_E_nB0_nW1p']  = sum([yieldsEl[cat] for cat in yieldsEl.keys() if 'top' in cat and 'nB0' in cat and 'nW1p' in cat])
 yields['top_E_nB1']  = sum([yieldsEl[cat] for cat in yieldsEl.keys() if 'top' in cat and 'nB1' in cat])
 yields['top_E_nB2p'] = sum([yieldsEl[cat] for cat in yieldsEl.keys() if 'top' in cat and ('nB2' in cat or 'nB3p' in cat)])
-yields['ewk_E_nW0']  = sum([yieldsEl[cat] for cat in yieldsEl.keys() if 'ewk' in cat and 'nB0' in cat and 'nW0' in cat])
-yields['ewk_E_nW1p'] = sum([yieldsEl[cat] for cat in yieldsEl.keys() if 'ewk' in cat and 'nB0' in cat and 'nW1p' in cat])
+yields['ewk_E_nW0']  = sum([yieldsEl[cat] for cat in yieldsEl.keys() if 'ewk' in cat and 'nW0' in cat])
+yields['ewk_E_nW1p'] = sum([yieldsEl[cat] for cat in yieldsEl.keys() if 'ewk' in cat and 'nW1p' in cat])
 
-yields['top_M_nB0']  = sum([yieldsMu[cat] for cat in yieldsMu.keys() if 'top' in cat and 'nB0' in cat])
+yields['top_M_nB0_nW0']  = sum([yieldsMu[cat] for cat in yieldsMu.keys() if 'top' in cat and 'nB0' in cat and 'nW0' in cat])
+yields['top_M_nB0_nW1p']  = sum([yieldsMu[cat] for cat in yieldsMu.keys() if 'top' in cat and 'nB0' in cat and 'nW1p' in cat])
 yields['top_M_nB1']  = sum([yieldsMu[cat] for cat in yieldsMu.keys() if 'top' in cat and 'nB1' in cat])
 yields['top_M_nB2p'] = sum([yieldsMu[cat] for cat in yieldsMu.keys() if 'top' in cat and ('nB2' in cat or 'nB3p' in cat)])
-yields['ewk_M_nW0']  = sum([yieldsMu[cat] for cat in yieldsMu.keys() if 'ewk' in cat and 'nB0' in cat and 'nW0' in cat])
-yields['ewk_M_nW1p'] = sum([yieldsMu[cat] for cat in yieldsMu.keys() if 'ewk' in cat and 'nB0' in cat and 'nW1p' in cat])
+yields['ewk_M_nW0']  = sum([yieldsMu[cat] for cat in yieldsMu.keys() if 'ewk' in cat and 'nW0' in cat])
+yields['ewk_M_nW1p'] = sum([yieldsMu[cat] for cat in yieldsMu.keys() if 'ewk' in cat and 'nW1p' in cat])
 
 dataOverBkg = {}
-dataOverBkg['top_E_nB0'] = abs(1-float(ttbarlines[EpJetsLineTtbarInd+14].strip().split()[2]))
-dataOverBkg['top_M_nB0'] = abs(1-float(ttbarlines[MpJetsLineTtbarInd+14].strip().split()[2]))
-dataOverBkg['top_E_nB1'] = abs(1-float(ttbarlines[EpJetsLineTtbarInd+14].strip().split()[6]))
-dataOverBkg['top_M_nB1'] = abs(1-float(ttbarlines[MpJetsLineTtbarInd+14].strip().split()[6]))
-dataOverBkg['top_E_nB2p']= abs(1-float(ttbarlines[EpJetsLineTtbarInd+14].strip().split()[10]))
-dataOverBkg['top_M_nB2p']= abs(1-float(ttbarlines[MpJetsLineTtbarInd+14].strip().split()[10]))
+dataOverBkg['top_E_nB1'] = abs(1-float(ttbarlines[EpJetsLineTtbarInd+14].strip().split()[2]))
+dataOverBkg['top_M_nB1'] = abs(1-float(ttbarlines[MpJetsLineTtbarInd+14].strip().split()[2]))
+dataOverBkg['top_E_nB2p']= abs(1-float(ttbarlines[EpJetsLineTtbarInd+14].strip().split()[6]))
+dataOverBkg['top_M_nB2p']= abs(1-float(ttbarlines[MpJetsLineTtbarInd+14].strip().split()[6]))
 
+dataOverBkg['top_E_nB0_nW0'] = abs(1-float(ttbarlines[EpJetsLineTtbarInd+14].strip().split()[2]))
+dataOverBkg['top_M_nB0_nW0'] = abs(1-float(ttbarlines[MpJetsLineTtbarInd+14].strip().split()[2]))
 dataOverBkg['ewk_E_nW0'] = abs(1-float(wjetslines[EpJetsLineWjetsInd+14].strip().split()[2]))
 dataOverBkg['ewk_M_nW0'] = abs(1-float(wjetslines[MpJetsLineWjetsInd+14].strip().split()[2]))
+dataOverBkg['top_E_nB0_nW1p'] = abs(1-float(ttbarlines[EpJetsLineTtbarInd+14].strip().split()[6]))
+dataOverBkg['top_M_nB0_nW1p'] = abs(1-float(ttbarlines[MpJetsLineTtbarInd+14].strip().split()[6]))
 dataOverBkg['ewk_E_nW1p']= abs(1-float(wjetslines[EpJetsLineWjetsInd+14].strip().split()[6]))
 dataOverBkg['ewk_M_nW1p']= abs(1-float(wjetslines[MpJetsLineWjetsInd+14].strip().split()[6]))
 
 for key in yields.keys():
 	#print key, yields[key]
 	if '_M_' in key: continue
-	print key.replace('E_',''),':',(yields[key]*dataOverBkg[key]+yields[key.replace('_E_','_M_')]*dataOverBkg[key.replace('_E_','_M_')])/(yields[key]+yields[key.replace('_E_','_M_')])
+	if key == 'top_E_nB0_nW0':
+		sumE = yields[key]+yields[key.replace('nW0','nW1p')]
+		sumM = yields[key.replace('_E_','_M_')]+yields[key.replace('_E_','_M_').replace('nW0','nW1p')]
+		numE = yields[key]*dataOverBkg[key]+yields[key.replace('nW0','nW1p')]*dataOverBkg[key.replace('nW0','nW1p')]
+		numM = yields[key.replace('_E_','_M_')]*dataOverBkg[key.replace('_E_','_M_')]+yields[key.replace('_E_','_M_').replace('nW0','nW1p')]*dataOverBkg[key.replace('_E_','_M_').replace('nW0','nW1p')]
+		print key.replace('E_',''),':',(numE+numM)/(sumE+sumM)
+	elif key == 'top_E_nB0_nW1p': continue
+	else: print key.replace('E_',''),':',(yields[key]*dataOverBkg[key]+yields[key.replace('_E_','_M_')]*dataOverBkg[key.replace('_E_','_M_')])/(yields[key]+yields[key.replace('_E_','_M_')])
 print
 
 ewk_isE=(yields['ewk_E_nW0']*dataOverBkg['ewk_E_nW0']+yields['ewk_E_nW1p']*dataOverBkg['ewk_E_nW1p'])/(yields['ewk_E_nW0']+yields['ewk_E_nW1p'])
@@ -75,9 +86,9 @@ print 'ewk_isE :',ewk_isE
 print 'ewk_isM :',ewk_isM 
 print 'ewk_all :',ewk_all
 
-top_isE=(yields['top_E_nB0']*dataOverBkg['top_E_nB0']+yields['top_E_nB1']*dataOverBkg['top_E_nB1']+yields['top_E_nB2p']*dataOverBkg['top_E_nB2p'])/(yields['top_E_nB0']+yields['top_E_nB1']+yields['top_E_nB2p'])
-top_isM=(yields['top_M_nB0']*dataOverBkg['top_M_nB0']+yields['top_M_nB1']*dataOverBkg['top_M_nB1']+yields['top_M_nB2p']*dataOverBkg['top_M_nB2p'])/(yields['top_M_nB0']+yields['top_M_nB1']+yields['top_M_nB2p'])
-top_all=((yields['top_E_nB0']+yields['top_E_nB1']+yields['top_E_nB2p'])*top_isE+(yields['top_M_nB0']+yields['top_M_nB1']+yields['top_M_nB2p'])*top_isM)/(yields['top_E_nB0']+yields['top_E_nB1']+yields['top_E_nB2p']+yields['top_M_nB0']+yields['top_M_nB1']+yields['top_M_nB2p'])
+top_isE=(yields['top_E_nB0_nW0']*dataOverBkg['top_E_nB0_nW0']+yields['top_E_nB0_nW1p']*dataOverBkg['top_E_nB0_nW1p']+yields['top_E_nB1']*dataOverBkg['top_E_nB1']+yields['top_E_nB2p']*dataOverBkg['top_E_nB2p'])/(yields['top_E_nB0_nW0']+yields['top_E_nB0_nW1p']+yields['top_E_nB1']+yields['top_E_nB2p'])
+top_isM=(yields['top_M_nB0_nW0']*dataOverBkg['top_M_nB0_nW0']+yields['top_M_nB0_nW1p']*dataOverBkg['top_M_nB0_nW1p']+yields['top_M_nB1']*dataOverBkg['top_M_nB1']+yields['top_M_nB2p']*dataOverBkg['top_M_nB2p'])/(yields['top_M_nB0_nW0']+yields['top_M_nB0_nW1p']+yields['top_M_nB1']+yields['top_M_nB2p'])
+top_all=((yields['top_E_nB0_nW0']+yields['top_E_nB0_nW1p']+yields['top_E_nB1']+yields['top_E_nB2p'])*top_isE+(yields['top_M_nB0_nW0']+yields['top_M_nB0_nW1p']+yields['top_M_nB1']+yields['top_M_nB2p'])*top_isM)/(yields['top_E_nB0_nW0']+yields['top_E_nB0_nW1p']+yields['top_E_nB1']+yields['top_E_nB2p']+yields['top_M_nB0_nW0']+yields['top_M_nB0_nW1p']+yields['top_M_nB1']+yields['top_M_nB2p'])
 print 'top_isE :',top_isE
 print 'top_isM :',top_isM 
 print 'top_all :',top_all 

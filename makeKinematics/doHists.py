@@ -29,22 +29,20 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 
 # INPUT
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet_1lepTT_031816_step2AllNewSFs/nominal/' #w/ new pdf weights
+step1Dir = '/user_data/jhogan/LJMet_1lepTT_082916_step2newSF/nominal/' #w/ new pdf weights
 
 # OUTPUT
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='kinematics'
-#pfix+=datestr+'_'+timestr
 
 ##################################################
 #################### CUTS ########################
 ##################################################
 
-# bool for presel (Nj > 2) or final sel (split by W tags)
-NJetsForWtags = False
-
+# region determines how jet/bjet/dR cuts work: Pre, Final, TTCR, WJCR
+region = 'Pre'
 cutList = {'lepPtCut':40,
 	   'leadJetPtCut':150, #300, #
 	   'subLeadJetPtCut':75, #150, #
@@ -62,12 +60,8 @@ else: catList=['E','M','All']
 scaleSignalXsecTo1pb = False
 doAllSys= True
 doQ2sys = True
-
-# bool for isolated / non-isolated triggers
-isotrig = 1
-
-# bool to turn on/off jet pt reweighting
 doJetRwt = True
+isotrig = 1
 
 cutString = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))+'_leadJet'+str(int(cutList['leadJetPtCut']))+'_subLeadJet'+str(int(cutList['subLeadJetPtCut']))+'_thirdJet'+str(int(cutList['thirdJetPtCut']))+'_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))+'_DR'+str(int(cutList['drCut']))
 
@@ -76,7 +70,8 @@ cutString = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']
 #################### HISTOGRAM DEFS #######################
 ###########################################################
 
-bigbins = [0,50,100,150,200,250,300,350,400,450,500,600,700,800,1000,1200,1500]
+#bigbins = [0,50,100,150,200,250,300,350,400,450,500,600,700,800,1000,1200,1500]
+bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,5000]
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 
@@ -166,6 +161,11 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 ###########################################################
 
 bkgList = [
+	#'WJetsMG',
+	#'TTJetsMG',
+	#'TTJetsPH700to1000inc',
+	#'TTJetsPH700mtt',
+	#'QCDht100','QCDht200',
 	'DY50',
 	'WJetsMG100',
 	'WJetsMG200',
@@ -175,18 +175,14 @@ bkgList = [
 	'WJetsMG1200',
 	'WJetsMG2500',
 	'WW','WZ','ZZ',
-	'WJetsMG',
-	'TTJetsMG',
-	'TTJetsPH0to700inc',
-	'TTJetsPH700to1000inc',
+	'TTJetsPH0to1000inc',
 	'TTJetsPH1000toINFinc',
-	'TTJetsPH700mtt',
 	'TTJetsPH1000mtt',
 	'TTWl','TTWq',
 	'TTZl','TTZq',
-	'Tt','Ts',
+	'Tt','Tbt','Ts',
 	'TtW','TbtW',
-	'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+	'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 	]
 
 whichSignal = 'TT' #TT, BB, or T53T53
@@ -201,8 +197,8 @@ dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
 q2List  = [#energy scale sample to be processed
 	'TTJetsPHQ2U','TTJetsPHQ2D',
-	'TtWQ2U','TbtWQ2U',
-	'TtWQ2D','TbtWQ2D',
+	#'TtWQ2U','TbtWQ2U',
+	#'TtWQ2D','TbtWQ2D',
 	]
 
 ###########################################################
@@ -278,7 +274,7 @@ print "FINISHED READING"
 #################### RUN ANALYSE.PY #######################
 ###########################################################
 
-#def analyze(tTree,process,cutList,isotrig,doAllSys,NJetsForWtags,doJetRwt,discriminantName,discriminantDetails,category):
+#def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,discriminantName,discriminantDetails,category,region):
 
 if len(sys.argv)>2: iPlot=sys.argv[2]
 else: iPlot='minMlb'
@@ -300,24 +296,24 @@ for category in catList:
 		if not os.path.exists(outDir+'/'+category): os.system('mkdir -p '+outDir+'/'+category)
 		outDir+='/'+category
 	for data in dataList: 
-		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,NJetsForWtags,doJetRwt,iPlot,plotList[iPlot],category))
+		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region))
 		if catInd==nCats: del tFileData[data]
 	for bkg in bkgList: 
-		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,NJetsForWtags,doJetRwt,iPlot,plotList[iPlot],category))
+		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region))
 		if catInd==nCats: del tFileBkg[bkg]
 		if doAllSys and catInd==nCats:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
 	for sig in sigList: 
 		for decay in decays: 
-			sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,NJetsForWtags,doJetRwt,iPlot,plotList[iPlot],category))
+			sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region))
 			if catInd==nCats: del tFileSig[sig+decay]
 			if doAllSys and catInd==nCats:
 				for syst in shapesFiles:
 					for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
 	if doQ2sys: 
 		for q2 in q2List: 
-			bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,NJetsForWtags,doJetRwt,iPlot,plotList[iPlot],category))
+			bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region))
 			if catInd==nCats: del tFileBkg[q2]
 
 	#Negative Bin Correction

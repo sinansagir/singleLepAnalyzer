@@ -11,24 +11,13 @@ R.gROOT.SetBatch(1)
 start_time = time.time()
 
 ###########################################################
-#################### CUTS & OUTPUT ########################
+#######################  OUTPUT ###########################
 ###########################################################
-
-cutList = {'lepPtCut':40, #40, #0, #
-		   'leadJetPtCut':150, #300, #0, #
-		   'subLeadJetPtCut':75, #150, #0, #
-		   'thirdJetPtCut':30, #100, #0, #
-		   'metCut':60, #75, #0, #
-		   'njetsCut':3, #3, #0, #
-		   'nbjetsCut':0, #3, #
-		   'drCut':0, #1.0, #
-		   }
 
 doAllSys= True
 doQ2sys = True
 isotrig = 1
 
-cutString = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))+'_leadJet'+str(int(cutList['leadJetPtCut']))+'_subLeadJet'+str(int(cutList['subLeadJetPtCut']))+'_thirdJet'+str(int(cutList['thirdJetPtCut']))+'_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))+'_DR'+str(int(cutList['drCut']))
 pfix='kinematics_substructure'
 outDir = os.getcwd()+'/'
 outDir+=pfix
@@ -53,44 +42,43 @@ wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','W
 zjetList  = ['DY50']
 vvList    = ['WW','WZ','ZZ']
 ttvList   = ['TTWl','TTWq','TTZl','TTZq']
-ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
-#ttjetList = ['TTJetsPH']
-tList     = ['Tt','Ts','TtW','TbtW']
+ttjetList = ['TTJetsPH0to1000inc','TTJetsPH1000toINFinc','TTJetsPH1000mtt']
+tList     = ['Tt','Tbt','Ts','TtW','TbtW']
 
 dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 signalList = [signal+decay for signal in signals for decay in decays]
-topList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
-#topList = ['TTJetsPH','TTWl','TTZl','TTWq','TTZq','Tt','Ts','TtW','TbtW']
+topList = ['TTJetsPH0to1000inc','TTJetsPH1000toINFinc','TTJetsPH1000mtt','TTWl','TTZl','TTWq','TTZq','Tt','Tbt','Ts','TtW','TbtW']
 ewkList = ['DY50','WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500','WW','WZ','ZZ']
-qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+qcdList = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 
-systematicList = ['pileup','jec','jer','jsf','jmr','jms','btag','tau21','pdf','pdfNew','muR','muF',
-				  'muRFcorrd','toppt','muRFenv','muRFcorrdNew','muRFdecorrdNew']
+systematicList = ['pileup','jec','jer','jsf','btag','mistag','tau21','pdfNew','muR','muF',
+		  'muRFcorrd','toppt','muRFcorrdNew','trigeff']
 
-q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
-q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
+q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','Tbt','Ts','TtWQ2U','TbtWQ2U']
+q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','Tbt','Ts','TtWQ2D','TbtWQ2D']
 
 ###########################################################
 #################### NORMALIZATIONS #######################
 ###########################################################
 
-lumiSys = 0.046 #4.6% lumi uncertainty
-trigSys = 0.03 #3% trigger uncertainty
-lepIdSys = 0.01 #1% lepton id uncertainty
-lepIsoSys = 0.01 #1% lepton isolation uncertainty
-topXsecSys = 0.0 #55 #5.5% top x-sec uncertainty
-ewkXsecSys = 0.0 #5 #5% ewk x-sec uncertainty
-qcdXsecSys = 0.0 #50 #50% qcd x-sec uncertainty
-corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
+lumiSys = 0.062 #4.6% lumi uncertainty
+eltrigSys = 0.03 #5% trigger uncertainty
+mutrigSys = 0.011 #5% trigger uncertainty
+elIdSys = 0.01 #1% lepton id uncertainty
+muIdSys = 0.011 #1% lepton id uncertainty
+elIsoSys = 0.01 #1% lepton isolation uncertainty
+muIsoSys = 0.03 #1% lepton isolation uncertainty
+elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
+mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
 CRuncert = {# averaged from CRs, could depend on the selection, but the difference found to be negligible!
-			'topE':0.112,
-			'topM':0.087,
-			'topAll':0.098,
-			'ewkE':0.260,
-			'ewkM':0.104,
-			'ewkAll':0.172,
-			}
+	'topE':0.078,
+	'topM':0.215,
+	'topAll':0.156,
+	'ewkE':0.061,
+	'ewkM':0.124,
+	'ewkAll':0.098,
+	}
 
 def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
 	norm0=hist.Integral()
@@ -224,18 +212,6 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 				hsig[isEM+signal+'muRFcorrdNewUp'] = hsig[isEM+signal+decays[0]+'muRFcorrdUp'].Clone(histoPrefix+'__'+signal+'__muRFcorrdNew__plus')
 				hsig[isEM+signal+'muRFcorrdNewDown'] = hsig[isEM+signal+decays[0]+'muRFcorrdUp'].Clone(histoPrefix+'__'+signal+'__muRFcorrdNew__minus')
 
-			htop[isEM+'muRFdecorrdNewUp'] = htop[isEM+'muRFcorrdUp'].Clone(histoPrefix+'__top__muRFdecorrdNew__plus')
-			htop[isEM+'muRFdecorrdNewDown'] = htop[isEM+'muRFcorrdUp'].Clone(histoPrefix+'__top__muRFdecorrdNew__minus')
-			hewk[isEM+'muRFdecorrdNewUp'] = hewk[isEM+'muRFcorrdUp'].Clone(histoPrefix+'__ewk__muRFdecorrdNew__plus')
-			hewk[isEM+'muRFdecorrdNewDown'] = hewk[isEM+'muRFcorrdUp'].Clone(histoPrefix+'__ewk__muRFdecorrdNew__minus')
-			hqcd[isEM+'muRFdecorrdNewUp'] = hqcd[isEM+'muRFcorrdUp'].Clone(histoPrefix+'__qcd__muRFdecorrdNew__plus')
-			hqcd[isEM+'muRFdecorrdNewDown'] = hqcd[isEM+'muRFcorrdUp'].Clone(histoPrefix+'__qcd__muRFdecorrdNew__minus')
-			for signal in sigList.keys(): hsig[isEM+signal+'muRFdecorrdNewUp'] = hsig[isEM+signal+'muRFcorrdUp'].Clone(histoPrefix+'__'+sigList[signal]+'__muRFdecorrdNew__plus')
-			for signal in sigList.keys(): hsig[isEM+signal+'muRFdecorrdNewDown'] = hsig[isEM+signal+'muRFcorrdUp'].Clone(histoPrefix+'__'+sigList[signal]+'__muRFdecorrdNew__minus')
-			for signal in signals: 
-				hsig[isEM+signal+'muRFdecorrdNewUp'] = hsig[isEM+signal+decays[0]+'muRFcorrdUp'].Clone(histoPrefix+'__'+signal+'__muRFdecorrdNew__plus')
-				hsig[isEM+signal+'muRFdecorrdNewDown'] = hsig[isEM+signal+decays[0]+'muRFcorrdUp'].Clone(histoPrefix+'__'+signal+'__muRFdecorrdNew__minus')
-
 			# nominal,renormWeights[4],renormWeights[2],renormWeights[1],renormWeights[0],renormWeights[5],renormWeights[3]
 			histPrefixList = ['','muRUp','muRDown','muFUp','muFDown','muRFcorrdUp','muRFcorrdDown']
 			for ibin in range(1,htop[isEM].GetNbinsX()+1):
@@ -256,18 +232,6 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 					indSigRFcorrdUp[signal] = weightListSig[signal].index(max(weightListSig[signal]))
 					indSigRFcorrdDn[signal] = weightListSig[signal].index(min(weightListSig[signal]))
 
-				indTopRFdecorrdUp = weightListTop.index(max(weightListTop[:-2]))
-				indTopRFdecorrdDn = weightListTop.index(min(weightListTop[:-2]))
-				indEwkRFdecorrdUp = weightListEwk.index(max(weightListEwk[:-2]))
-				indEwkRFdecorrdDn = weightListEwk.index(min(weightListEwk[:-2]))
-				indQcdRFdecorrdUp = weightListQcd.index(max(weightListQcd[:-2]))
-				indQcdRFdecorrdDn = weightListQcd.index(min(weightListQcd[:-2]))
-				indSigRFdecorrdUp = {}
-				indSigRFdecorrdDn = {}
-				for signal in sigList.keys()+signals: 
-					indSigRFdecorrdUp[signal] = weightListSig[signal].index(max(weightListSig[signal][:-2]))
-					indSigRFdecorrdDn[signal] = weightListSig[signal].index(min(weightListSig[signal][:-2]))
-				
 				htop[isEM+'muRFcorrdNewUp'].SetBinContent(ibin,htop[isEM+histPrefixList[indTopRFcorrdUp]].GetBinContent(ibin))
 				htop[isEM+'muRFcorrdNewDown'].SetBinContent(ibin,htop[isEM+histPrefixList[indTopRFcorrdDn]].GetBinContent(ibin))
 				hewk[isEM+'muRFcorrdNewUp'].SetBinContent(ibin,hewk[isEM+histPrefixList[indEwkRFcorrdUp]].GetBinContent(ibin))
@@ -277,16 +241,6 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 				for signal in sigList.keys()+signals: 
 					hsig[isEM+signal+'muRFcorrdNewUp'].SetBinContent(ibin,hsig[isEM+signal+histPrefixList[indSigRFcorrdUp[signal]]].GetBinContent(ibin))
 					hsig[isEM+signal+'muRFcorrdNewDown'].SetBinContent(ibin,hsig[isEM+signal+histPrefixList[indSigRFcorrdDn[signal]]].GetBinContent(ibin))
-				htop[isEM+'muRFdecorrdNewUp'].SetBinContent(ibin,htop[isEM+histPrefixList[indTopRFdecorrdUp]].GetBinContent(ibin))
-				htop[isEM+'muRFdecorrdNewDown'].SetBinContent(ibin,htop[isEM+histPrefixList[indTopRFdecorrdDn]].GetBinContent(ibin))
-				hewk[isEM+'muRFdecorrdNewUp'].SetBinContent(ibin,hewk[isEM+histPrefixList[indEwkRFdecorrdUp]].GetBinContent(ibin))
-				hewk[isEM+'muRFdecorrdNewDown'].SetBinContent(ibin,hewk[isEM+histPrefixList[indEwkRFdecorrdDn]].GetBinContent(ibin))
-				hqcd[isEM+'muRFdecorrdNewUp'].SetBinContent(ibin,hqcd[isEM+histPrefixList[indQcdRFdecorrdUp]].GetBinContent(ibin))
-				hqcd[isEM+'muRFdecorrdNewDown'].SetBinContent(ibin,hqcd[isEM+histPrefixList[indQcdRFdecorrdDn]].GetBinContent(ibin))
-				for signal in sigList.keys()+signals: 
-					hsig[isEM+signal+'muRFdecorrdNewUp'].SetBinContent(ibin,hsig[isEM+signal+histPrefixList[indSigRFdecorrdUp[signal]]].GetBinContent(ibin))
-					hsig[isEM+signal+'muRFdecorrdNewDown'].SetBinContent(ibin,hsig[isEM+signal+histPrefixList[indSigRFdecorrdDn[signal]]].GetBinContent(ibin))
-
 				htop[isEM+'muRFcorrdNewUp'].SetBinError(ibin,htop[isEM+histPrefixList[indTopRFcorrdUp]].GetBinError(ibin))
 				htop[isEM+'muRFcorrdNewDown'].SetBinError(ibin,htop[isEM+histPrefixList[indTopRFcorrdDn]].GetBinError(ibin))
 				hewk[isEM+'muRFcorrdNewUp'].SetBinError(ibin,hewk[isEM+histPrefixList[indEwkRFcorrdUp]].GetBinError(ibin))
@@ -296,15 +250,6 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 				for signal in sigList.keys()+signals: 
 					hsig[isEM+signal+'muRFcorrdNewUp'].SetBinError(ibin,hsig[isEM+signal+histPrefixList[indSigRFcorrdUp[signal]]].GetBinError(ibin))
 					hsig[isEM+signal+'muRFcorrdNewDown'].SetBinError(ibin,hsig[isEM+signal+histPrefixList[indSigRFcorrdDn[signal]]].GetBinError(ibin))
-				htop[isEM+'muRFdecorrdNewUp'].SetBinError(ibin,htop[isEM+histPrefixList[indTopRFdecorrdUp]].GetBinError(ibin))
-				htop[isEM+'muRFdecorrdNewDown'].SetBinError(ibin,htop[isEM+histPrefixList[indTopRFdecorrdDn]].GetBinError(ibin))
-				hewk[isEM+'muRFdecorrdNewUp'].SetBinError(ibin,hewk[isEM+histPrefixList[indEwkRFdecorrdUp]].GetBinError(ibin))
-				hewk[isEM+'muRFdecorrdNewDown'].SetBinError(ibin,hewk[isEM+histPrefixList[indEwkRFdecorrdDn]].GetBinError(ibin))
-				hqcd[isEM+'muRFdecorrdNewUp'].SetBinError(ibin,hqcd[isEM+histPrefixList[indQcdRFdecorrdUp]].GetBinError(ibin))
-				hqcd[isEM+'muRFdecorrdNewDown'].SetBinError(ibin,hqcd[isEM+histPrefixList[indQcdRFdecorrdDn]].GetBinError(ibin))
-				for signal in sigList.keys()+signals: 
-					hsig[isEM+signal+'muRFdecorrdNewUp'].SetBinError(ibin,hsig[isEM+signal+histPrefixList[indSigRFdecorrdUp[signal]]].GetBinError(ibin))
-					hsig[isEM+signal+'muRFdecorrdNewDown'].SetBinError(ibin,hsig[isEM+signal+histPrefixList[indSigRFdecorrdDn[signal]]].GetBinError(ibin))
 
 			for pdfInd in range(100):
 				hqcd[isEM+'pdf'+str(pdfInd)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__pdf'+str(pdfInd))
@@ -449,22 +394,63 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 			for signal in sigList.keys(): yieldErrTable[histoPrefix][signal] += hsig[isEM+signal].GetBinError(ibin)**2
 			for signal in signals: yieldErrTable[histoPrefix][signal] += hsig[isEM+signal].GetBinError(ibin)**2
 			
-		yieldErrTable[histoPrefix]['top']    += (corrdSys*yieldTable[histoPrefix]['top'])**2+(topXsecSys*yieldTable[histoPrefix]['top'])**2+(CRuncert['top'+isEM]*yieldTable[histoPrefix]['top'])**2
-		yieldErrTable[histoPrefix]['ewk']    += (corrdSys*yieldTable[histoPrefix]['ewk'])**2+(ewkXsecSys*yieldTable[histoPrefix]['ewk'])**2+(CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['ewk'])**2
-		yieldErrTable[histoPrefix]['qcd']    += (corrdSys*yieldTable[histoPrefix]['qcd'])**2+(qcdXsecSys*yieldTable[histoPrefix]['qcd'])**2
-		yieldErrTable[histoPrefix]['totBkg'] += (corrdSys*yieldTable[histoPrefix]['totBkg'])**2+(topXsecSys*yieldTable[histoPrefix]['top'])**2+(CRuncert['top'+isEM]*yieldTable[histoPrefix]['top'])**2+(ewkXsecSys*yieldTable[histoPrefix]['ewk'])**2+(CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['ewk'])**2+(qcdXsecSys*yieldTable[histoPrefix]['qcd'])**2
-		yieldErrTable[histoPrefix]['WJets']  += (corrdSys*yieldTable[histoPrefix]['WJets'])**2+(ewkXsecSys*yieldTable[histoPrefix]['WJets'])**2+(CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['WJets'])**2
-		yieldErrTable[histoPrefix]['ZJets']  += (corrdSys*yieldTable[histoPrefix]['ZJets'])**2+(ewkXsecSys*yieldTable[histoPrefix]['ZJets'])**2+(CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['ZJets'])**2
-		yieldErrTable[histoPrefix]['VV']     += (corrdSys*yieldTable[histoPrefix]['VV'])**2+(ewkXsecSys*yieldTable[histoPrefix]['VV'])**2+(CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['VV'])**2
-		yieldErrTable[histoPrefix]['TTV']    += (corrdSys*yieldTable[histoPrefix]['TTV'])**2+(topXsecSys*yieldTable[histoPrefix]['TTV'])**2+(CRuncert['top'+isEM]*yieldTable[histoPrefix]['TTV'])**2
-		yieldErrTable[histoPrefix]['TTJets'] += (corrdSys*yieldTable[histoPrefix]['TTJets'])**2+(topXsecSys*yieldTable[histoPrefix]['TTJets'])**2+(CRuncert['top'+isEM]*yieldTable[histoPrefix]['TTJets'])**2
-		yieldErrTable[histoPrefix]['T']      += (corrdSys*yieldTable[histoPrefix]['T'])**2+(topXsecSys*yieldTable[histoPrefix]['T'])**2+(CRuncert['top'+isEM]*yieldTable[histoPrefix]['T'])**2
-		yieldErrTable[histoPrefix]['QCD']    += (corrdSys*yieldTable[histoPrefix]['QCD'])**2+(qcdXsecSys*yieldTable[histoPrefix]['qcd'])**2
-		for signal in sigList.keys(): yieldErrTable[histoPrefix][signal] += (corrdSys*yieldTable[histoPrefix][signal])**2
-		for signal in signals: yieldErrTable[histoPrefix][signal] += (corrdSys*yieldTable[histoPrefix][signal])**2
+		if 'E' in isEM or 'M' in isEM: 
+			if 'E' in isEM: corrdSys = elcorrdSys
+			if 'M' in isEM: corrdSys = mucorrdSys
+			yieldErrTable[histoPrefix]['top']    += (corrdSys*yieldTable[histoPrefix]['top'])**2
+			yieldErrTable[histoPrefix]['ewk']    += (corrdSys*yieldTable[histoPrefix]['ewk'])**2
+			yieldErrTable[histoPrefix]['qcd']    += (corrdSys*yieldTable[histoPrefix]['qcd'])**2
+			yieldErrTable[histoPrefix]['totBkg'] += (corrdSys*yieldTable[histoPrefix]['totBkg'])**2
+			yieldErrTable[histoPrefix]['WJets']  += (corrdSys*yieldTable[histoPrefix]['WJets'])**2
+			yieldErrTable[histoPrefix]['ZJets']  += (corrdSys*yieldTable[histoPrefix]['ZJets'])**2
+			yieldErrTable[histoPrefix]['VV']     += (corrdSys*yieldTable[histoPrefix]['VV'])**2
+			yieldErrTable[histoPrefix]['TTV']    += (corrdSys*yieldTable[histoPrefix]['TTV'])**2
+			yieldErrTable[histoPrefix]['TTJets'] += (corrdSys*yieldTable[histoPrefix]['TTJets'])**2
+			yieldErrTable[histoPrefix]['T']      += (corrdSys*yieldTable[histoPrefix]['T'])**2
+			yieldErrTable[histoPrefix]['QCD']    += (corrdSys*yieldTable[histoPrefix]['QCD'])**2
+			for signal in sigList.keys(): yieldErrTable[histoPrefix][signal] += (corrdSys*yieldTable[histoPrefix][signal])**2
+			for signal in signals: yieldErrTable[histoPrefix][signal] += (corrdSys*yieldTable[histoPrefix][signal])**2
 
-		Ratio = yieldTable[histoPrefix]['data']/yieldTable[histoPrefix]['totBkg']
-		yieldErrTable[histoPrefix]['dataOverBkg'] = (Ratio**2) * ((yieldErrTable[histoPrefix]['data']/(yieldTable[histoPrefix]['data']+1e-20))**2 + (yieldErrTable[histoPrefix]['totBkg']/(yieldTable[histoPrefix]['totBkg']+1e-20))**2)
+		elif 'All' in isEM and 'E' in isEMlist:
+			yieldErrTable[histoPrefix]['top']    += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['top'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['top'])**2
+			yieldErrTable[histoPrefix]['ewk']    += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['ewk'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['ewk'])**2
+			yieldErrTable[histoPrefix]['qcd']    += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['qcd'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['qcd'])**2
+			yieldErrTable[histoPrefix]['totBkg'] += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['totBkg'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['totBkg'])**2
+			yieldErrTable[histoPrefix]['WJets']  += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['WJets'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['WJets'])**2
+			yieldErrTable[histoPrefix]['ZJets']  += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['ZJets'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['ZJets'])**2
+			yieldErrTable[histoPrefix]['VV']     += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['VV'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['VV'])**2
+			yieldErrTable[histoPrefix]['TTV']    += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['TTV'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['TTV'])**2
+			yieldErrTable[histoPrefix]['TTJets'] += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['TTJets'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['TTJets'])**2
+			yieldErrTable[histoPrefix]['T']      += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['T'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['T'])**2   
+			yieldErrTable[histoPrefix]['QCD']    += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')]['QCD'])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')]['QCD'])**2
+			for signal in sigList.keys(): yieldErrTable[histoPrefix][signal] += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')][signal])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')][signal])**2
+			for signal in signals: yieldErrTable[histoPrefix][signal] += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')][signal])**2+(mucorrdSys*yieldTable[histoPrefix.replace('All','M')][signal])**2
+		elif 'All' in isEM and 'E' not in isEMlist:
+			corrdSys = (elcorrdSys+mucorrdSys)/2; #approximate with an average if E and M weren't run
+			yieldErrTable[histoPrefix]['top']    += (corrdSys*yieldTable[histoPrefix]['top'])**2
+			yieldErrTable[histoPrefix]['ewk']    += (corrdSys*yieldTable[histoPrefix]['ewk'])**2
+			yieldErrTable[histoPrefix]['qcd']    += (corrdSys*yieldTable[histoPrefix]['qcd'])**2
+			yieldErrTable[histoPrefix]['totBkg'] += (corrdSys*yieldTable[histoPrefix]['totBkg'])**2
+			yieldErrTable[histoPrefix]['WJets']  += (corrdSys*yieldTable[histoPrefix]['WJets'])**2
+			yieldErrTable[histoPrefix]['ZJets']  += (corrdSys*yieldTable[histoPrefix]['ZJets'])**2
+			yieldErrTable[histoPrefix]['VV']     += (corrdSys*yieldTable[histoPrefix]['VV'])**2
+			yieldErrTable[histoPrefix]['TTV']    += (corrdSys*yieldTable[histoPrefix]['TTV'])**2
+			yieldErrTable[histoPrefix]['TTJets'] += (corrdSys*yieldTable[histoPrefix]['TTJets'])**2
+			yieldErrTable[histoPrefix]['T']      += (corrdSys*yieldTable[histoPrefix]['T'])**2
+			yieldErrTable[histoPrefix]['QCD']    += (corrdSys*yieldTable[histoPrefix]['QCD'])**2
+			for signal in sigList.keys(): yieldErrTable[histoPrefix][signal] += (corrdSys*yieldTable[histoPrefix][signal])**2
+			for signal in signals: yieldErrTable[histoPrefix][signal] += (corrdSys*yieldTable[histoPrefix][signal])**2
+
+		yieldErrTable[histoPrefix]['top']    += (CRuncert['top'+isEM]*yieldTable[histoPrefix]['top'])**2
+		yieldErrTable[histoPrefix]['ewk']    += (CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['ewk'])**2
+		yieldErrTable[histoPrefix]['totBkg'] += (CRuncert['top'+isEM]*yieldTable[histoPrefix]['top'])**2+(CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['ewk'])**2
+		yieldErrTable[histoPrefix]['WJets']  += (CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['WJets'])**2
+		yieldErrTable[histoPrefix]['ZJets']  += (CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['ZJets'])**2
+		yieldErrTable[histoPrefix]['VV']     += (CRuncert['ewk'+isEM]*yieldTable[histoPrefix]['VV'])**2
+		yieldErrTable[histoPrefix]['TTV']    += (CRuncert['top'+isEM]*yieldTable[histoPrefix]['TTV'])**2
+		yieldErrTable[histoPrefix]['TTJets'] += (CRuncert['top'+isEM]*yieldTable[histoPrefix]['TTJets'])**2
+		yieldErrTable[histoPrefix]['T']      += (CRuncert['top'+isEM]*yieldTable[histoPrefix]['T'])**2
+		yieldErrTable[histoPrefix]['dataOverBkg'] = (yieldTable[histoPrefix]['dataOverBkg']**2) * (yieldErrTable[histoPrefix]['data']/(yieldTable[histoPrefix]['data']+1e-20)**2 + yieldErrTable[histoPrefix]['totBkg']/(yieldTable[histoPrefix]['totBkg']+1e-20)**2)
 
 		hdata[isEM].Write()
 		#write theta histograms in root file, avoid having processes with no event yield (to make theta happy) 
@@ -499,7 +485,6 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 			hqcd[isEM].Write()
 			if doAllSys:
 				for systematic in systematicList:
-#					if systematic=='toppt' or systematic == 'pdf' or systematic == 'pdfNew' or systematic == 'muR' or systematic == 'muF' or systematic == 'muRFcorrd' or systematic == 'muRFcorrdNew' or systematic == 'muRFdecorrdNew': continue
 					if systematic=='toppt': continue
 					hqcd[isEM+systematic+'Up'].Write()
 					hqcd[isEM+systematic+'Down'].Write()
@@ -620,7 +605,8 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 		print process.ljust(ljust_i),
 		for isEM in isEMlist:
 			histoPrefix=discriminant+'_'+lumiStr+'fb_'+isEM
-			print ' & '+str(round_sig(yieldTable[histoPrefix][process],4))+' $\pm$ '+str(round_sig(math.sqrt(yieldErrTable[histoPrefix][process]),2)),
+			if process == 'data': print ' & '+str(yieldTable[histoPrefix][process])+' $\pm$ '+str(math.sqrt(yieldErrTable[histoPrefix][process])),
+			else: print ' & '+str(round_sig(yieldTable[histoPrefix][process],4))+' $\pm$ '+str(round_sig(math.sqrt(yieldErrTable[histoPrefix][process]),2)),
 		print '\\\\',
 		print
 				
