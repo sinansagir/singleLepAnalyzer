@@ -34,7 +34,7 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[1] > '+str(cutList['jet2PtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[2] > '+str(cutList['jet3PtCut'])+')'
 	cut += ' && (minDR_lepJet > 0.4 || ptRel_lepJet > 40)' # 2D cut
-	cut += ' && (deltaR_lepJets[1] > '+str(cutList['drCut'])+')'
+	cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
 	cut += ' && (NJets_JetSubCalc >= '+str(cutList['njetsCut'])+')'
 	cut += ' && DataPastTrigger == 1' # MC has no HLT (could test requiring signal to pass) && MCPastTrigger == 1' #standard triggers
 	cut += ' && NJetsHtagged == 0'
@@ -89,7 +89,7 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 	
         jetSFstr ='1'
 	if 'WJetsMG'in process or 'QCD' in process:	
-		jetSFstr   = 'JetSF_pTNbwflat'
+		jetSFstr   = 'JetSF_80X'
 	
 	if 'Data' in process: 
 		weightStr           = '1'
@@ -133,9 +133,10 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 	if nttag=='0p': nttagCut=''
 	
 	nWtagLJMETname = 'NJetsWtagged_0p6'
-	nWtagCut=''
-	if 'p' in nWtag: nWtagCut+=' && '+nWtagLJMETname+'>='+nWtag[:-1]+' && NJets_JetSubCalc >='+ str(cutList['njetsCut'])
-	else: nWtagCut+=' && '+nWtagLJMETname+'=='+nWtag+ ' && NJets_JetSubCalc>='+str(cutList['njetsCut']+1)
+        nWtagCut=''
+	if '0p' in nWtag: nWtagCut += ' && (('+nWtagLJMETname+' > 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut'])+') || ('+nWtagLJMETname+' == 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut']+1)+'))'
+	elif 'p' in nWtag: nWtagCut+=' && '+nWtagLJMETname+'>='+nWtag[:-1]+' && NJets_JetSubCalc >='+ str(cutList['njetsCut'])
+	else: nWtagCut+=' && '+nWtagLJMETname+'=='+nWtag +' && NJets_JetSubCalc >=' +str(cutList['njetsCut']+1)
 	
 	nbtagLJMETname = 'NJetsCSVwithSF_JetSubCalc'
 	nbtagCut=''
