@@ -173,9 +173,13 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'topptDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weighttopptDownStr +'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jsfUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightjsfUpStr     +'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jsfDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightjsfDownStr   +'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
+		if discriminantLJMETName == 'minMleppBjet': discriminantLJMETName = discriminantLJMETName+'_shifts[0]'
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'btagUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut_btagUp+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[0]')+')', 'GOFF')
+		discriminantLJMETName = discriminantLJMETName.replace('_shifts[0]','_shifts[1]')
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'btagDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut_btagDn+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[1]')+')', 'GOFF')
+		discriminantLJMETName = discriminantLJMETName.replace('_shifts[1]','_shifts[2]')
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'mistagUp'     +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut_mistagUp+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[2]')+')', 'GOFF')
+		discriminantLJMETName = discriminantLJMETName.replace('_shifts[2]','_shifts[3]')
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'mistagDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut_mistagDn+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[3]')+')', 'GOFF')
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'tau21Up'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[0]')+nbtagCut+')', 'GOFF')
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'tau21Down' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[1]')+nbtagCut+')', 'GOFF')
