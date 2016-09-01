@@ -43,7 +43,7 @@ pfix='kinematics'
 #################### CUTS ########################
 ##################################################
 
-# region determines how jet/bjet/dR cuts work: PS, SR, CR (categorized), TTCR, WJCR (to give default btag cuts)
+# region determines how jet/bjet/dR cuts work: PS, SR, TTCR, WJCR. Still need to define cutList values here.
 region = 'PS'
 cutList = {'lepPtCut':40,
 	   'leadJetPtCut':150, #300, #
@@ -51,8 +51,8 @@ cutList = {'lepPtCut':40,
 	   'thirdJetPtCut':30, #100, #
 	   'metCut':60, #75, #
 	   'njetsCut':3,
-	   'nbjetsCut':0,
-	   'drCut':0, #1.0, #
+	   'nbjetsCut':0,       #interpreted as >= for TTCR, == for WJCR
+	   'drCut':0, #1.0, #   #interpreted as < cut for CR regions
 	   }
 
 if len(sys.argv)>3: catList=[str(sys.argv[3])]

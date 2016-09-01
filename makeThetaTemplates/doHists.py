@@ -65,7 +65,7 @@ if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' d
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
-region = 'SR'
+region = 'SR' #no need to change
 isotrig = 1
 doJetRwt = 1
 doAllSys= True
