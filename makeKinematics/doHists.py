@@ -1,11 +1,13 @@
 #!/usr/bin/python
 
 import os,sys,time,math,datetime
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
 from numpy import linspace
 from weights import *
-from analyze import *
+from analyzeAll import *
 from samples import *
-import ROOT as R
+from ROOT import gROOT,TTree,TFile,TH1D
 import pickle
 
 def round_sig(x,sig=2):
@@ -14,7 +16,7 @@ def round_sig(x,sig=2):
 	except:
 		return round(x,5)
 
-R.gROOT.SetBatch(1)
+gROOT.SetBatch(1)
 start_time = time.time()
 
 """
@@ -41,16 +43,16 @@ pfix='kinematics'
 #################### CUTS ########################
 ##################################################
 
-# region determines how jet/bjet/dR cuts work: Pre, Final, TTCR, WJCR
-region = 'Pre'
+# region determines how jet/bjet/dR cuts work: PS, SR, TTCR, WJCR. Still need to define cutList values here.
+region = 'PS'
 cutList = {'lepPtCut':40,
 	   'leadJetPtCut':150, #300, #
 	   'subLeadJetPtCut':75, #150, #
 	   'thirdJetPtCut':30, #100, #
 	   'metCut':60, #75, #
 	   'njetsCut':3,
-	   'nbjetsCut':0,
-	   'drCut':0, #1.0, #
+	   'nbjetsCut':0,       #interpreted as >= for TTCR, == for WJCR
+	   'drCut':0, #1.0, #   #interpreted as < cut for CR regions
 	   }
 
 if len(sys.argv)>3: catList=[str(sys.argv[3])]
@@ -228,7 +230,7 @@ def readTree(file):
 	if not os.path.exists(file): 
 		print "Error: File does not exist! Aborting ...",file
 		os._exit(1)
-	tFile = R.TFile(file,'READ')
+	tFile = TFile(file,'READ')
 	tTree = tFile.Get('ljmet')
 	return tFile, tTree 
 
