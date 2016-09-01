@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import os,sys,time,math,pickle,itertools
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
 from ROOT import *
 from weights import *
 

@@ -1,13 +1,15 @@
 #!/usr/bin/python
 
 import os,sys,time,math,datetime,pickle,itertools,getopt
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
 from numpy import linspace
 from weights import *
-from analyze import *
+from analyzeAll import *
 from samples import *
-import ROOT as R
+from ROOT import TFile,TTree,TH1D,gROOT
 
-R.gROOT.SetBatch(1)
+gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
@@ -79,6 +81,9 @@ BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
+region = 'SR' #no need to change
+isotrig = 1
+doJetRwt = 1
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 2318./2263.
@@ -307,7 +312,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		print "       BR Configuration:"+BRconfStr
 		for signal in sigList:
 			outputRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
-			outputRfile = R.TFile(outputRfileName,'RECREATE')
+			outputRfile = TFile(outputRfileName,'RECREATE')
 			hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
 			hwjets,hzjets,httjets,ht,httw,httz,hvv={},{},{},{},{},{},{}
 			for cat in catList:
@@ -835,7 +840,7 @@ def makeThetaCatsIndDecays(datahists,sighists,bkghists,discriminant):
 	i=0
 	for decay in decays:
 		for signal in sigList:
-			outputRfile = R.TFile(outDir+'/templates_'+discriminant+'_'+signal+decay+'_'+lumiStr+'fb'+'.root','RECREATE')
+			outputRfile = TFile(outDir+'/templates_'+discriminant+'_'+signal+decay+'_'+lumiStr+'fb'+'.root','RECREATE')
 			hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
 			hwjets,hzjets,httjets,ht,httw,httz,hvv={},{},{},{},{},{},{}
 			for cat in catList:
@@ -1321,7 +1326,7 @@ def readTree(file):
 	if not os.path.exists(file): 
 		print "Error: File does not exist! Aborting ...",file
 		os._exit(1)
-	tFile = R.TFile(file,'READ')
+	tFile = TFile(file,'READ')
 	tTree = tFile.Get('ljmet')
 	return tFile, tTree 
 
@@ -1372,24 +1377,24 @@ for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
 	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3]}
 	for data in dataList: 
-		datahists.update(analyze(tTreeData,data,cutList,False,iPlot,plotList[iPlot],category))
+		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region))
 		if catInd==nCats: del tFileData[data]
 	for bkg in bkgList: 
-		bkghists.update(analyze(tTreeBkg,bkg,cutList,doAllSys,iPlot,plotList[iPlot],category))
+		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region))
 		if catInd==nCats: del tFileBkg[bkg]
 		if doAllSys and catInd==nCats:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
 	for sig in sigList: 
 		for decay in decays: 
-			sighists.update(analyze(tTreeSig,sig+decay,cutList,doAllSys,iPlot,plotList[iPlot],category))
+			sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region))
 			if catInd==nCats: del tFileSig[sig+decay]
 			if doAllSys and catInd==nCats:
 				for syst in shapesFiles:
 					for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
 	if doQ2sys: 
 		for q2 in q2List: 
-			bkghists.update(analyze(tTreeBkg,q2,cutList,False,iPlot,plotList[iPlot],category))
+			bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region))
 			if catInd==nCats: del tFileBkg[q2]
 	catInd+=1
 	
