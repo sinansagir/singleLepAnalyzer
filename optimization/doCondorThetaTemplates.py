@@ -1,50 +1,16 @@
 import os,sys,datetime,itertools
 
-#Basic kinematic cuts optimization configuration (w/o shapes) -- Step1:
-# lepPtCutList  = [40,50,60,80,100]
-# jet1PtCutList = [125,150,200,300,400,500]
-# jet2PtCutList = [75,100,150,200]
-# metCutList    = [40,50,75,100,125]
-# njetsCutList  = [3,4,5]
-# nbjetsCutList = [0]
-# jet3PtCutList = [30,40,50,75,100,150,200]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [1]
-# Wjet1PtCutList= [0]
-# bjet1PtCutList= [0]
-# htCutList     = [0]
-# stCutList     = [0]
-# minMlbCutList = [0]
-
-#Additional kinematic cuts optimization configuration (w/o shapes) for minMlb -- Step2:
-# lepPtCutList  = [80]
-# jet1PtCutList = [300]
-# jet2PtCutList = [200]
-# metCutList    = [40]
-# njetsCutList  = [3]
-# nbjetsCutList = [0]
-# jet3PtCutList = [100]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [0,1,1.25,1.5]
-# Wjet1PtCutList= [0,200,250,300,400]
-# bjet1PtCutList= [0,100,150,200,300]
-# htCutList     = [0]
-# stCutList     = [0,600,800,1000,1200,1500,1750,2000]
-# minMlbCutList = [0]
-
-#Basic kinematic cuts optimization configuration (w/o shapes) -- selected TpTp optimum cuts -- Jan 19, 2016:
-lepPtCutList  = [40,50]
-jet1PtCutList = [300,400]
-jet2PtCutList = [150]
-metCutList    = [75]
-njetsCutList  = [3]
+#Basic kinematic cuts optimization configuration (w/o shapes) -- x53x53/2016 dataset:
+lepPtCutList  = [30, 50, 60, 80, 100,150]
+jet1PtCutList = [50, 100, 150, 200, 250, 300, 450]
+jet2PtCutList = [30, 50, 90, 150, 300]
+metCutList    = [30, 50, 80, 100, 150, 200, 250]
+njetsCutList  = [3, 4, 5]
 nbjetsCutList = [0]
-jet3PtCutList = [100]
+jet3PtCutList = [0]
 jet4PtCutList = [0]
 jet5PtCutList = [0]
-drCutList     = [1]
+drCutList     = [0.75, 1, 1.25]
 Wjet1PtCutList= [0]
 bjet1PtCutList= [0]
 htCutList     = [0]
@@ -59,7 +25,7 @@ outputDir = thisDir+'/'
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates'
+pfix='templates_minMlb'
 pfix+='_'+date#+'_'+time
 
 outDir = outputDir+pfix
@@ -72,7 +38,9 @@ for conf in cutConfigs:
 	if jet3PtCut >= jet2PtCut or jet4PtCut >= jet2PtCut or jet5PtCut >= jet2PtCut: continue
 	if (jet4PtCut >= jet3PtCut or jet5PtCut >= jet3PtCut) and jet3PtCut!=0: continue
 	if jet5PtCut >= jet4PtCut and jet4PtCut!=0: continue
-	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
+	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_DR'+str(drCut)
+	cutString+= '_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_3jet'+str(int(jet3PtCut))#+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))
+	#cutString+= '_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
 	os.chdir(outDir)
 	print cutString
 	if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+cutString)
@@ -89,7 +57,7 @@ for conf in cutConfigs:
 Executable = %(dir)s/doCondorThetaTemplates.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-notify_user = Sinan_Sagir@brown.edu
+request_memory = 3072
 
 arguments      = ""
 

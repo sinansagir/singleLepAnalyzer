@@ -38,11 +38,11 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	catStr = isEM
 	if len(category) > 1:
 		isCategorized = True
-		isEM  = 'is'+category['isEM']
+		isEM  = category['isEM']
 		nttag = category['nttag']
 		nWtag = category['nWtag']
 		nbtag = category['nbtag']
-		catStr = isEM+'_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag
+		catStr = 'is'+isEM+'_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag
 
 	# Define general cuts
 	cut = ''
@@ -51,7 +51,6 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[0] > '+str(cutList['jet1PtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[1] > '+str(cutList['jet2PtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[2] > '+str(cutList['jet3PtCut'])+')'
-	cut += ' && (NJetsHtagged == 0)'
 	cut += ' && (minDR_lepJet > 0.4 || ptRel_lepJet > 40)'
 	cut += ' && (NJets_JetSubCalc >= '+str(cutList['njetsCut'])+')'
 	if 'CR' in region:
@@ -90,9 +89,9 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		weightjsfUpStr    = '1'
 		weightjsfDownStr  = '1'
 	else: 
-		weightStr           =  jetSFstr+ ' * ' + TrigEff+' * pileupWeight * isoSF * lepIdSF * MCWeight_singleLepCalc * EGammaGsfSF * MuTrkSF/abs(MCWeight_singleLepCalc) * '+str(weight[process])
-		weightTrigEffUpStr   = weightStr.replace(TrigEff,'TrigEffWeightUncert')
-		weightTrigEffDownStr = weightStr
+		weightStr           =  jetSFstr+ ' * ' + TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * MuTrkSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
+		weightTrigEffUpStr  = weightStr.replace(TrigEff,'TrigEffWeightUncert')
+		weightTrigEffDownStr= weightStr
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
@@ -116,9 +115,6 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	if 'SoftDropMassNm1' in iPlot: cut+=  ' && (theJetAK8NjettinessTau3_JetSubCalc_PtOrdered/theJetAK8NjettinessTau2_JetSubCalc_PtOrdered < 0.81)'
 	if 'Tau21Nm1' in iPlot:  cut += ' && ('+pruned_massvar+' > 65 && '+pruned_massvar+' < 105)'
 	if 'Tau32Nm1' in iPlot:  cut += ' && ('+soft_massvar+' > 105 && '+ soft_massvar+' < 220)'
-
-      	#special data names
-	#if 'Data' in process:
 
 	#plot with a specific number of b tags
 	if not isCategorized:
@@ -156,8 +152,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		if nbtag=='0' and iPlot=='minMlb': 
 			originalLJMETName=plotTreeName
 			plotTreeName='minMleppJet'
-	else:
-		if 'SR' in region: cut += ' && (('+nWtagLJMETname+' > 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut'])+') || ('+nWtagLJMETname+' == 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut']+1)+'))'
+# 	else:
+# 		if 'SR' in region: cut += ' && (('+nWtagLJMETname+' > 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut'])+') || ('+nWtagLJMETname+' == 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut']+1)+'))'
 
 	fullcut = cut+isEMCut+nttagCut+nWtagCut+nbtagCut
 
