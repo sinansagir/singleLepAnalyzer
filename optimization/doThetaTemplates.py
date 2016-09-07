@@ -6,7 +6,7 @@ parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from numpy import linspace
 from weights import *
-from analyzeAll import *
+from analyze import *
 from samples import *
 
 gROOT.SetBatch(1)
@@ -28,7 +28,7 @@ step1Dir = '/user_data/ssagir/LJMet_1lep_080116_step2/nominal'
 region = 'SR' #no need to change
 isotrig = 1
 doJetRwt = 0
-iPlot='minMlb'
+iPlot='ST'
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 3990./2318.
