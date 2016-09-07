@@ -1,74 +1,35 @@
-from ROOT import *
-from array import array
+#!/usr/bin/python
+
+from ROOT import gROOT,TGraph,TCanvas,TLatex,TLine,TLegend
+import os,sys,math,itertools
 from numpy import linspace
-from math import *
-import os,sys
+from array import array
 
 gROOT.SetBatch(1)
 
 from tdrStyle import *
 setTDRStyle()
 
-lumiPlot = '2.2'
-lumiStr = '2p215'
-spin=''#'right'
-distribution = 'HT'
-limitDir='/user_data/ssagir/limits/limits_HT_2016_1_13_9_49_29/'
-#postfix='VaryinglepPt' # for varying lepPt
-#postfix='VaryingMET' # for varying MET
-#postfix='VaryingJet1Pts' # for varying jet1Pts
-#postfix='VaryingJet2Pts' # for varying jet2Pts
-#postfix='VaryingJet3Pts' # for varying jet3Pts
-#postfix='VaryingNjets' # for varying NJets
-#postfix='VaryingDRs' # for varying DRs
-#postfix='VaryingWJet1Pts' # for varying Wjet1Pts
-#postfix='VaryingBJet1Pts' # for varying bjet1Pts
-#postfix='VaryingHTs' # for varying HTs
-#postfix='VaryingSTs' # for varying STs
-postfix='VaryingminMlbs' # for varying minMlbs
-stat=''#0.75
-isRebinned=''#'_rebinned_modified'+str(stat).replace('.','p')
+lumiPlot = '12.9'
+lumiStr = '12p892'
+distribution = 'minMlb'
+signal = 'X53X53'
+chiral = 'left'
+spin = 'left'
+limitDir='/user_data/ssagir/x53x53_limits_2016/templates_minMlb_2016_9_3/all/'#_beforeRebinning/'
+postfix = '' # for plot names in order to save them as different files
+isRebinned='_rebinned_stat0p3'
 xrange_min=700.
-xrange_max=1300.
-yrange_min=.0003+.03
-yrange_max=1.55
+xrange_max=1200.
+yrange_min=.0003+.01
+yrange_max=3.05
 
-if postfix=='VaryinglepPt': lepPtCutList = [40,50,60,80,100]
-else: lepPtCutList = [40]
-if postfix=='VaryingJet1Pts': jet1PtCutList = [125,150,200,300,400,500]
-else: jet1PtCutList = [125]
-if postfix=='VaryingJet2Pts': jet2PtCutList = [75,100,150,200]
-else: jet2PtCutList = [75]
-if postfix=='VaryingMET': metCutList = [40,50,75,100,125]
-else: metCutList = [75]
-if postfix=='VaryingNjets': njetsCutList = [3,4,5]
-else: njetsCutList = [3]
-nbjetsCutList = [0]
-if postfix=='VaryingJet3Pts': jet3PtCutList = [30,40,50,75,100,150,200]
-else: jet3PtCutList = [40]
-jet4PtCutList = [0]
-jet5PtCutList = [0]
-if postfix=='VaryingDRs': drCutList = [0,1,1.25,1.5]
-else: drCutList = [1]
-if postfix=='VaryingWJet1Pts': Wjet1PtCutList = [0,200,250,300,400]
-else: Wjet1PtCutList = [0]
-if postfix=='VaryingBJet1Pts': bjet1PtCutList = [0,100,150,200,300]
-else: bjet1PtCutList = [0]
-if postfix=='VaryingHTs': htCutList = [0]
-else: htCutList = [0]
-if postfix=='VaryingSTs': stCutList = [0,600,800,1000,1200,1500,1750,2000]
-else: stCutList = [0]#1500]
-if postfix=='VaryingminMlbs': minMlbCutList = [0,50,75,100,120,150,200,250,300]
-else: minMlbCutList = [200]
-
-#minMlbCutList = [0]
-massPoints = [700,800,900,1000,1100,1200,1300]
+massPoints = [700,800,900,1000,1100,1200]#,1300,1400,1500,1600]
 mass = array('d', massPoints)
 masserr = array('d', [0]*len(massPoints))
 mass_str = [str(item) for item in massPoints]
 
-#theory_br = [.1285,.1285,.1285,.1285,.1285,.1285,.1285]
-theory_xsec_dicts = {'700':0.455,'800':0.196,'900':0.0903,'1000':0.0440,'1100':0.0224,'1200':0.0118,'1300':0.00639}#,0.00354,0.00200,0.001148,0.000666,0.000391]
+theory_xsec_dicts = {'700':0.455,'800':0.196,'900':0.0903,'1000':0.0440,'1100':0.0224,'1200':0.0118,'1300':0.00639,'1400':0.00354,'1500':0.00200,'1600':0.001148}
 theory_xsec = [theory_xsec_dicts[item] for item in mass_str]
 xsec = array('d', [1]*len(massPoints)) # scales the limits
 
@@ -87,25 +48,25 @@ def getSensitivity(index, exp):
 	t = (a1*c2-a2*c1)/(a1*b2-a2*b1)
 	return mass[index-1]+s*(mass[index]-mass[index-1]), exp[index-1]+s*(exp[index]-exp[index-1])
 
+cutStrings = [x for x in os.walk(limitDir).next()[1]]
+
+bestSelection = 'lep30_MET100_NJets3_NBJets0_DR0.75_1jet250_2jet50_3jet0'
+
 observed = {}
 expected = {}
 expected68 = {}
 expected95 = {}
 crossingList = {}
-crossingList2 = {}
-ind=1                                                                                               
-for conf in cutConfigs:
-	lepPtCut,jet1PtCut,jet2PtCut,metCut,njetsCut,nbjetsCut,jet3PtCut,jet4PtCut,jet5PtCut,drCut,Wjet1PtCut,bjet1PtCut,htCut,stCut,minMlbCut=conf[0],conf[1],conf[2],conf[3],conf[4],conf[5],conf[6],conf[7],conf[8],conf[9],conf[10],conf[11],conf[12],conf[13],conf[14]
-	#if drCut==1: Wjet1PtCut,bjet1PtCut,stCut=0,0,0
-	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
+ind=0
+for cutString in cutStrings:
 	plotLimits = True
-	for i in range(len(mass)):
-		try: 
-			ftemp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
-		except: plotLimits = False
+	for kutle in mass_str:
+		if not os.path.exists(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+kutle+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt'): 
+			plotLimits = False
 	if not plotLimits: continue
-	print
-	print cutString
+	if (ind % 500)==0: 
+		print "Finished",ind,"out of",len(cutStrings) 
+		print cutString
 	cutString0 = cutString
 
 	exp   =array('d',[0 for i in range(len(mass))])
@@ -117,9 +78,6 @@ for conf in cutConfigs:
 	exp95H=array('d',[0 for i in range(len(mass))])
 	exp95L=array('d',[0 for i in range(len(mass))])
 
-	ljust_i = 10
-	print
-	print 'mass'.ljust(ljust_i), 'observed'.ljust(ljust_i), 'expected'.ljust(ljust_i), '-2 Sigma'.ljust(ljust_i), '-1 Sigma'.ljust(ljust_i), '+1 Sigma'.ljust(ljust_i), '+2 Sigma'.ljust(ljust_i)
 	observed[cutString] = TGraph(len(mass))
 	expected[cutString] = TGraph(len(mass))
 
@@ -127,11 +85,11 @@ for conf in cutConfigs:
 	for i in range(len(mass)):
 		lims = {}
 
-		fobs = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+spin+'_'+lumiStr+'fb'+isRebinned+'_observed.txt', 'rU')
+		fobs = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+mass_str[i]+chiral+'_'+lumiStr+'fb'+isRebinned+'_observed.txt', 'rU')
 		linesObs = fobs.readlines()
 		fobs.close()
 
-		fexp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_TTM'+mass_str[i]+spin+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
+		fexp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+mass_str[i]+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
 		linesExp = fexp.readlines()
 		fexp.close()
 
@@ -165,19 +123,8 @@ for conf in cutConfigs:
 				isCrossed = True
 
 		round_i = 5
-		print str(mass[i]).ljust(ljust_i), str(round(lims[-1],round_i)).ljust(ljust_i), str(round(lims[.5],round_i)).ljust(ljust_i), str(round(lims[.025],round_i)).ljust(ljust_i), str(round(lims[.16],round_i)).ljust(ljust_i), str(round(lims[.84],round_i)).ljust(ljust_i), str(round(lims[.975],round_i)).ljust(ljust_i)
 	if not isCrossed:
 		crossingList[cutString]=0
-		crossingList2[cutString]=0
-
-	print
-
-	observed[cutString].SetLineColor(ROOT.kBlack)
-	observed[cutString].SetLineWidth(2)
-	observed[cutString].SetMarkerStyle(20)							
-	expected[cutString].SetLineColor(ind)
-	expected[cutString].SetLineWidth(2)
-	expected[cutString].SetLineStyle(1)
 	ind+=1
 
 sensitivity = 0
@@ -193,7 +140,7 @@ for key in crossingList.keys():
 		insensitivity = crossingList[key]
 		insensitivityStr = key
 print "********************************************************************************"
-print "Run over", ind-1, "sets of cuts"
+print "Run over", ind, "sets of cuts"
 print "********************************************************************************"
 print "The best set of cuts are ", sensitivityStr
 print "with sensitivity up to ", sensitivity, "GeV"
@@ -202,82 +149,92 @@ print "The worst set of cuts are ", insensitivityStr
 print "with sensitivity up to ", insensitivity, "GeV"
 
 if sensitivityStr!='None': cutString0 = sensitivityStr
-                                               
-c0 = TCanvas("c0","Limits", 1000, 800)
-c0.SetBottomMargin(0.15)
-c0.SetRightMargin(0.06)
-c0.SetLogy()
+
+legends = {}
+legends['lep']  = TLegend(.15,.70,.93,.93) # for varying lepPt
+legends['MET']  = TLegend(.15,.70,.93,.93) # for varying MET
+legends['1jet'] = TLegend(.15,.72,.93,.93) # for varying jet1Pts
+legends['2jet'] = TLegend(.15,.76,.93,.93) # for varying jet2Pts
+legends['3jet'] = TLegend(.15,.70,.93,.93) # for varying jet3Pts
+legends['NJets']= TLegend(.15,.82,.93,.93) # for varying Njets
+legends['DR']   = TLegend(.15,.76,.93,.93) # for varying DRs
+
+bestSelection = 'lep30_MET150_NJets4_NBJets0_DR0.75_1jet450_2jet150_3jet0' #minMlb
+#bestSelection = 'lep30_MET100_NJets3_NBJets0_DR0.75_1jet250_2jet50_3jet0' #ST
+canvs = {}
+for sel in bestSelection.split('_'):
+	if 'NBJets' in sel or '3jet' in sel: continue
+	variedCut = ''
+	for key in legends.keys():
+		if key in sel: variedCut = key
+	postfix = 'vary'+variedCut
 	
-expected[cutString0].Draw('AL')
-expected[cutString0].GetYaxis().SetRangeUser(yrange_min,yrange_max)
-expected[cutString0].GetXaxis().SetRangeUser(xrange_min,xrange_max)
-expected[cutString0].GetXaxis().SetTitle("T' mass [GeV]")
-expected[cutString0].GetYaxis().SetTitle("#sigma (T#bar{T})[pb]")
+	canvs[variedCut] = TCanvas(variedCut,"Limits", 1000, 800)
+	canvs[variedCut].SetBottomMargin(0.15)
+	canvs[variedCut].SetRightMargin(0.06)
+	canvs[variedCut].SetLogy()
+	
+	expected[cutString0].Draw('AL')
+	expected[cutString0].SetLineColor(1)
+	expected[cutString0].SetLineWidth(2)
+	expected[cutString0].SetLineStyle(1)
+	expected[cutString0].GetYaxis().SetRangeUser(yrange_min,yrange_max)
+	expected[cutString0].GetXaxis().SetRangeUser(xrange_min,xrange_max)
+	if 'X53' in signal:
+		expected[cutString0].GetXaxis().SetTitle('X_{5/3} mass [GeV]')
+		expected[cutString0].GetYaxis().SetTitle('#sigma(X_{5/3}#bar{X}_{5/3})[pb] - '+chiral.replace('left','LH').replace('right','RH'))
+	else:
+		expected[cutString0].GetXaxis().SetTitle('T mass [GeV]')
+		expected[cutString0].GetYaxis().SetTitle('#sigma(T#bar{T})[pb]')
 
-for key in expected.keys():
-	#if key == cutString0: continue
-	expected[key].Draw("same")
+	cutStrs = sorted([item for item in expected.keys() if (bestSelection.split(sel)[0] in item and bestSelection.split(sel)[1] in item)], key=lambda cut: float(cut[cut.find(variedCut)+len(variedCut):cut.find(variedCut)+cut[cut.find(variedCut):].find('_')]))
+		
+	ind=2
+	for cutString in cutStrs:
+		if cutString == cutString0: continue
+		#if not (bestSelection.split(sel)[0] in cutString and bestSelection.split(sel)[1] in cutString): continue						
+		expected[cutString].SetLineColor(ind)
+		expected[cutString].SetLineWidth(2)
+		expected[cutString].SetLineStyle(1)
+		expected[cutString].Draw("same")
+		ind+=1
+	
+	for cutString in cutStrs:
+		#if not (bestSelection.split(sel)[0] in cutString and bestSelection.split(sel)[1] in cutString): continue
+		legendStr=cutString.replace('_NBJets0','').replace('_1jet','_Ljet').replace('_2jet','_SLjet').replace('_3jet0','')
+		try: legends[variedCut].AddEntry(expected[cutString], legendStr, "l")
+		except: 
+			print "Couldn't add the legend !!!!"
+			pass
 
-theory.SetLineColor(2)
-theory.SetLineStyle(1)
-theory.SetLineWidth(2)
-theory.Draw("same")
+	theory.SetLineColor(2)
+	theory.SetLineStyle(2)
+	theory.SetLineWidth(4)
+	theory.Draw("same")
+	
+# 	sensitivityline = TLine(sensitivity,yrange_min,sensitivity,yrange_max)
+# 	sensitivityline.SetLineStyle(2)
+# 	sensitivityline.Draw("same")
+# 	insensitivityline = TLine(insensitivity,yrange_min,insensitivity,yrange_max)
+# 	insensitivityline.Draw("same")
+# 	insensitivityline.SetLineStyle(2)
 
-sensitivityline = TLine(sensitivity,yrange_min,sensitivity,yrange_max)
-sensitivityline.SetLineStyle(2)
-sensitivityline.Draw("same")
-insensitivityline = TLine(insensitivity,yrange_min,insensitivity,yrange_max)
-insensitivityline.Draw("same")
-insensitivityline.SetLineStyle(2)
+	prelimtex = TLatex()
+	prelimtex.SetNDC()
+	prelimtex.SetTextSize(0.03)
+	prelimtex.SetTextAlign(11) # align right
+	prelimtex.DrawLatex(0.58, 0.96, "CMS Preliminary, " + str(lumiPlot) + " fb^{-1} (13 TeV)")
 
-prelimtex = TLatex()
-prelimtex.SetNDC()
-prelimtex.SetTextSize(0.03)
-prelimtex.SetTextAlign(11) # align right
-prelimtex.DrawLatex(0.58, 0.96, "CMS Preliminary, " + str(lumiPlot) + " fb^{-1} (13 TeV)")
+	legends[variedCut].SetShadowColor(0);
+	legends[variedCut].SetFillColor(0);
+	legends[variedCut].SetLineColor(0);
+	legends[variedCut].Draw()                                               
+	canvs[variedCut].RedrawAxis()
 
-if postfix=='VaryinglepPt':   legend = TLegend(.15,.70,.93,.93) # for varying lepPt
-if postfix=='VaryingMET':     legend = TLegend(.15,.70,.93,.93) # for varying MET
-if postfix=='VaryingJet1Pts': legend = TLegend(.15,.72,.93,.93) # for varying jet1Pts
-if postfix=='VaryingJet2Pts': legend = TLegend(.15,.82,.93,.93) # for varying jet2Pts
-if postfix=='VaryingJet3Pts': legend = TLegend(.15,.70,.93,.93) # for varying jet3Pts
-if postfix=='VaryingNjets':   legend = TLegend(.15,.82,.93,.93) # for varying Njets
-if postfix=='VaryingDRs':     legend = TLegend(.15,.76,.93,.93) # for varying DRs
-if postfix=='VaryingWJet1Pts':legend = TLegend(.15,.76,.93,.93) # for varying WJet1Pts
-if postfix=='VaryingBJet1Pts':legend = TLegend(.15,.76,.93,.93) # for varying bJet1Pts
-if postfix=='VaryingHTs':     legend = TLegend(.15,.82,.93,.93) # for varying HTs
-if postfix=='VaryingSTs':     legend = TLegend(.15,.60,.93,.93) # for varying STs
-if postfix=='VaryingminMlbs': legend = TLegend(.15,.60,.93,.93) # for varying minMlbs
-
-for lepPtCut in lepPtCutList:
-	for metCut in metCutList:
-		for jet1PtCut in jet1PtCutList:
-			for jet2PtCut in jet2PtCutList:
-				for jet3PtCut in jet3PtCutList:
-					for njetsCut in njetsCutList:
-						for drCut in drCutList:
-							for Wjet1PtCut in Wjet1PtCutList:
-								for bjet1PtCut in bjet1PtCutList:
-									for htCut in htCutList:
-										for stCut in stCutList:
-											for minMlbCut in minMlbCutList:
-												#if drCut==1: Wjet1PtCut,bjet1PtCut,stCut=0,0,0
-												cutKey = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
-												legendStr='lep'+str(lepPtCut)+'_MET'+str(metCut)+'_Ljet'+str(jet1PtCut)+'_SLjet'+str(jet2PtCut)+'_SSLjet'+str(jet3PtCut)+'_Njets'+str(int(njetsCut))+'_DR'+str((drCut))+'_LWjet'+str((Wjet1PtCut))+'_LBjet'+str((bjet1PtCut))+'_HT'+str((htCut))+'_ST'+str((stCut))+'_minMlb'+str((minMlbCut))
-												try: legend.AddEntry(expected[cutKey], legendStr, "l")
-												except: pass
-
-legend.SetShadowColor(0);
-legend.SetFillColor(0);
-legend.SetLineColor(0);
-legend.Draw()                                               
-c0.RedrawAxis()
-
-folder='.'
-if not os.path.exists(folder+'/'+limitDir.split('/')[-2]+'plots'): os.system('mkdir '+folder+'/'+limitDir.split('/')[-2]+'plots')
-c0.SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.root')
-c0.SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.pdf')
-c0.SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.png')
-c0.SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.C')
-
+	folder='.'
+	if not os.path.exists(folder+'/'+limitDir.split('/')[-2]+'plots'): os.system('mkdir '+folder+'/'+limitDir.split('/')[-2]+'plots')
+	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.root')
+	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.pdf')
+	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.png')
+	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.eps')
 

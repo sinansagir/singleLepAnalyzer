@@ -56,8 +56,8 @@ nRun['WJetsMG200'] = 14888384.
 nRun['WJetsMG400'] = 5469282.
 nRun['WJetsMG600'] = 3722395. #ext = 14410862.
 nRun['WJetsMG800'] = 6314257.
-nRun['WJetsMG1200'] = 6817172.
-nRun['WJetsMG2500'] = 2254248.
+nRun['WJetsMG1200']= 6817172.
+nRun['WJetsMG2500']= 2254248.
 nRun['Ts'] = 622990. #from 1000000
 nRun['Tt'] = 3279200.
 nRun['Tbt']= 1682400.

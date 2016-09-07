@@ -7,15 +7,15 @@ cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='kinematics_Presel'
+pfix+='_'+date#+'_'+time
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
 os.chdir(outDir)
 
 catList = ['E','M','All']
-#catList = ['All']
 
-plotList = [#distribution name as defined in "makeTemplates.py"
+plotList = [#distribution name as defined in "doHists.py"
 	'MTlmet',
 	'lepPt' ,
 	'lepEta',
@@ -35,6 +35,8 @@ plotList = [#distribution name as defined in "makeTemplates.py"
 	'Jet2Pt',
 	'Jet3Pt',
 	'Jet4Pt',
+	'Jet5Pt',
+	'Jet6Pt',
 	'HT'    ,
 	'ST'    ,
 	'MET'   ,
@@ -58,8 +60,6 @@ plotList = [#distribution name as defined in "makeTemplates.py"
 	'Tjet1Pt',
 	
 	#'topPt',
-	#'Jet5Pt',
-	#'Jet6Pt',
 	#'JetPtBins' ,
 	#'Jet1PtBins',
 	#'Jet2PtBins',
@@ -101,12 +101,9 @@ for distribution in plotList:
 """universe = vanilla
 Executable = %(dir)s/doCondorKinematics.sh
 Should_Transfer_Files = YES
-transfer_input_files = %(dir)s/doHists.py,%(dir)s/samples.py,%(dir)s/weights.py,%(dir)s/analyze.py
 WhenToTransferOutput = ON_EXIT
-notify_user = jmhogan@fnal.gov
 request_memory = 3072
-arguments      = ""
-
+arguments = ""
 Output = condor_%(dist)s.out
 Error = condor_%(dist)s.err
 Log = condor_%(dist)s.log

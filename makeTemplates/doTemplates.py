@@ -11,24 +11,22 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = False # else it is Wjets
-cutString=''
-iPlot='minMlb'
-if isTTbarCR: pfix='/ttbar_'+iPlot+'_2016_9_6'+'/'
-else: pfix='/wjets_'+iPlot+'_2016_9_6'+'/'
+cutString='SelectionFile'
+pfix='templates_minMlb_ObjRev'
 outDir = os.getcwd()+'/'
 outDir+=pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
 if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
 outDir+='/'+cutString
 
+iPlot='minMlb'
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 3990./2318.
-doAllSys = True
+doAllSys = False
 doQ2sys = True
 if not doAllSys: doQ2sys = False
-systematicList = ['pileup','jec','jer','btag','tau21','mistag','trigeff']#,'muRFcorrdNew','pdfNew','jsf']
+systematicList = ['pileup','jec','jer','btag','tau21','mistag','muR','muF','muRFcorrd','toppt','jsf','topsf','trigeff']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
 		       
 bkgStackList = ['ZJets','VV','TTW','TTZ','T','QCD','WJets','TTJets']
@@ -38,7 +36,7 @@ vvList    = ['WW','WZ','ZZ']
 ttwList   = ['TTWl','TTWq']
 ttzList   = ['TTZl','TTZq']
 ttjetList = ['TTJetsPH1000toINFinc','TTJetsPH1000mtt']
-ttjetList+= ['TTJetsPH0to1000inc']#1','TTJetsPH0to1000inc2','TTJetsPH0to1000inc3','TTJetsPH0to1000inc4','TTJetsPH0to1000inc5','TTJetsPH0to1000inc6','TTJetsPH0to1000inc7','TTJetsPH0to1000inc8']
+ttjetList+= ['TTJetsPH0to1000inc1','TTJetsPH0to1000inc2','TTJetsPH0to1000inc3','TTJetsPH0to1000inc4','TTJetsPH0to1000inc5','TTJetsPH0to1000inc6','TTJetsPH0to1000inc7','TTJetsPH0to1000inc8']
 tList     = ['Tt','Tbt','Ts','TtW','TbtW']
 
 topList = ttjetList+ttwList+ttzList+tList
@@ -66,14 +64,9 @@ nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
 isEMlist =['E','M']
-if isTTbarCR: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
-	nWtaglist = ['0p']
-	nbtaglist = ['1','2p']
-else: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
-	nWtaglist = ['0','1p']
-	nbtaglist = ['0']
+nttaglist=['0','1p']
+nWtaglist=['0','1p']
+nbtaglist=['1','2p']
 catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist))
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
 
@@ -102,18 +95,39 @@ muIsoSys = 0.03 #1% lepton isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
+topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
+	'top_nT0_nW0_nB1'   :0.,
+	'top_nT0_nW0_nB2p'  :0.,
+	'top_nT0_nW1p_nB1'  :0.,
+	'top_nT0_nW1p_nB2p' :0.,
+	'top_nT1p_nW0_nB1'  :0.,
+	'top_nT1p_nW0_nB2p' :0.,
+	'top_nT1p_nW1p_nB1' :0.,
+	'top_nT1p_nW1p_nB2p':0.,
+	}
+ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
+	'ewk_nT0_nW0_nB1'   :0.,
+	'ewk_nT0_nW0_nB2p'  :0.,
+	'ewk_nT0_nW1p_nB1'  :0.,
+	'ewk_nT0_nW1p_nB2p' :0.,
+	'ewk_nT1p_nW0_nB1'  :0.,
+	'ewk_nT1p_nW0_nB2p' :0.,
+	'ewk_nT1p_nW1p_nB1' :0.,
+	'ewk_nT1p_nW1p_nB2p':0.,
+	}
+
 addSys = {} #additional uncertainties for specific processes
 for tag in tagList:
 	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
-	addSys['top_'+tagStr]   =0.0
-	addSys['TTJets_'+tagStr]=0.0
-	addSys['T_'+tagStr]     =0.0
-	addSys['TTW_'+tagStr]   =0.0
-	addSys['TTZ_'+tagStr]   =0.0
-	addSys['ewk_'+tagStr]  =0.0
-	addSys['WJets_'+tagStr]=0.0
-	addSys['ZJets_'+tagStr]=0.0
-	addSys['VV_'+tagStr]   =0.0
+	addSys['top_'+tagStr]   =math.sqrt(topModelingSys['top_'+tagStr]**2)
+	addSys['TTJets_'+tagStr]=math.sqrt(topModelingSys['top_'+tagStr]**2)
+	addSys['T_'+tagStr]     =math.sqrt(topModelingSys['top_'+tagStr]**2)
+	addSys['TTW_'+tagStr]   =math.sqrt(topModelingSys['top_'+tagStr]**2)
+	addSys['TTZ_'+tagStr]   =math.sqrt(topModelingSys['top_'+tagStr]**2)
+	addSys['ewk_'+tagStr]  =math.sqrt(ewkModelingSys['ewk_'+tagStr]**2)
+	addSys['WJets_'+tagStr]=math.sqrt(ewkModelingSys['ewk_'+tagStr]**2)
+	addSys['ZJets_'+tagStr]=math.sqrt(ewkModelingSys['ewk_'+tagStr]**2)
+	addSys['VV_'+tagStr]   =math.sqrt(ewkModelingSys['ewk_'+tagStr]**2)
 	addSys['qcd_'+tagStr]=0.0
 	addSys['QCD_'+tagStr]=0.0
 
@@ -246,21 +260,21 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							for bkg in topList: 
 								if bkg not in ttjetList: htop[systematic+ud+str(i)].Add(bkghists[histoPrefix+'_'+bkg])
 				for pdfInd in range(100):
-					hqcd['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__pdf'+str(pdfInd))
-					hewk['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__pdf'+str(pdfInd))
-					htop['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+topList[0]].Clone(histoPrefix+'__top__pdf'+str(pdfInd))
+					hqcd['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__pdf'+str(pdfInd))
+					hewk['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__pdf'+str(pdfInd))
+					htop['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+topList[0]].Clone(histoPrefix+'__top__pdf'+str(pdfInd))
 					for bkg in qcdList: 
-						if bkg!=qcdList[0]: hqcd['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+						if bkg!=qcdList[0]: hqcd['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
 					for bkg in ewkList: 
-						if bkg!=ewkList[0]: hewk['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+						if bkg!=ewkList[0]: hewk['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
 					for bkg in topList: 
-						if bkg!=topList[0]: htop['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+						if bkg!=topList[0]: htop['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
 					for signal in sigList:
 						i=BRconfStr+catStr+signal
-						hsig['pdf'+str(pdfInd)+'_'+str(i)] = sighists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__pdf'+str(pdfInd))
+						hsig['pdf'+str(pdfInd)+'_'+str(i)] = sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__pdf'+str(pdfInd))
 						if doBRScan: hsig['pdf'+str(pdfInd)+'_'+str(i)].Scale(BRs[decays[0][:2]][BRind]*BRs[decays[0][2:]][BRind]/(BR[decays[0][:2]]*BR[decays[0][2:]]))
 						for decay in decays:
-							htemp = sighists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decay].Clone()
+							htemp = sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decay].Clone()
 							if doBRScan: htemp.Scale(BRs[decay[:2]][BRind]*BRs[decay[2:]][BRind]/(BR[decay[:2]]*BR[decay[2:]]))
 							if decay!=decays[0]:hsig['pdf'+str(pdfInd)+'_'+str(i)].Add(htemp)
 					i=BRconfStr+catStr

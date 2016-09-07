@@ -13,27 +13,28 @@ lumi=12.9 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
 templateDir=os.getcwd()
-isTTbarCR = True # else it is Wjets
-if isTTbarCR: templateDir+='/ttbar_tptp_ObjRev'+'/'
-else: templateDir+='/wjets_tptp_ObjRev'+'/'
+isTTbarCR = False # else it is Wjets
+discriminant = 'minMlb'
+if isTTbarCR: templateDir+='/ttbar_'+discriminant+'_2016_9_6'+'/'
+else: templateDir+='/wjets_'+discriminant+'_2016_9_6'+'/'
 
 histPrefix=discriminant+'_'+lumiInTemplates+'fb_'
 isRebinned='' #post fix to match ROOT file names if needed
 saveKey = '' #tag for plot names
 cutString=''
-tempsig1='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
-tempsig2='templates_'+discriminant+'_'+sig2+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
-discriminant = 'minMlb'
 
 m1 = '800'
-sig1='TTM'+m1 # choose the 1st signal to plot
-sig1leg='TT (0.8 TeV)'
-m2 = '1000'
-sig2='TTM'+m2 # choose the 2nd signal to plot
-sig2leg='TT (1.0 TeV)'
+sig1='X53X53M'+m1+'left' #  choose the 1st signal to plot
+sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
+m2 = '1100'
+sig2='X53X53M'+m2+'right' #  choose the 2nd signal to plot
+sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
 scaleSignals = False
 
-systematicList = ['pileup','jec','jer','btag','tau21','mistag','muRFcorrdNew','pdfNew','jsf','trigeff']
+tempsig1='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
+tempsig2='templates_'+discriminant+'_'+sig2+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
+
+systematicList = ['pileup','jec','jer','btag','tau21','mistag','trigeff']#,'muRFcorrdNew','pdfNew','jsf']
 doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False

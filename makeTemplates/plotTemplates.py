@@ -21,14 +21,14 @@ cutString='SelectionFile'
 tempsig='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 m1 = '800'
-sig1='TTM'+m1 # choose the 1st signal to plot
-sig1leg='TT (0.8 TeV)'
-m2 = '1000'
-sig2='TTM'+m2 # choose the 2nd signal to plot
-sig2leg='TT (1.0 TeV)'
+sig1='X53X53M'+m1+'left' #  choose the 1st signal to plot
+sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
+m2 = '1100'
+sig2='X53X53M'+m2+'right' #  choose the 2nd signal to plot
+sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
 scaleSignals = False
 
-systematicList = ['pileup','jec','jer','btag','tau21','mistag','muRFcorrdNew','pdfNew','jsf','trigeff']
+systematicList = ['pileup','jec','jer','btag','tau21','mistag','trigeff']#,'muRFcorrdNew','pdfNew','jsf']
 doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
@@ -41,12 +41,9 @@ doRealPull = True
 if doRealPull: doOneBand=False
 
 isEMlist =['E','M']
-#nttaglist=['0','1p']
-#nWtaglist=['0','0p','1p']
-#nbtaglist=['0','1','2','2p','3p']
-nttaglist=['0p']
+nttaglist=['0','1p']
 nWtaglist=['0','1p']
-nbtaglist=['0','1','2','3p']
+nbtaglist=['1','2p']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
 
 lumiSys = 0.062 # lumi uncertainty
