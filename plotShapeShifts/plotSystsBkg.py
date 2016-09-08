@@ -10,7 +10,7 @@ outDir = os.getcwd()+'/'
 lumi = 2.3
 discriminant = 'minMlb'
 rfilePostFix = ''#'_modified'
-tempVersion = 'templates_minMlb_noJSF_2016_6_22'
+tempVersion = 'templates_minMlb_noJSF_2016_9_8'
 cutString = '/lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 templateFile = '/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53/makeThetaTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
@@ -21,7 +21,7 @@ bkgList = ['top','ewk','qcd'] #some uncertainties will be skipped depending on t
 channels = ['isE','isM']
 ttags = ['nT0','nT1p']
 wtags = ['nW0','nW1p']
-btags = ['nB0','nB1','nB2p']
+btags = ['nB1','nB2p']
 systematics = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','q2']#,'muRFcorrdNew','pdfNew']#,'btagCorr']
 		
 RFile = R.TFile(templateFile)
@@ -241,7 +241,7 @@ for syst in systematics:
 
 	canv.SaveAs(tempVersion+'/bkgs/'+syst+saveKey+'.pdf')
 	canv.SaveAs(tempVersion+'/bkgs/'+syst+saveKey+'.png')
-	canv.SaveAs(tempVersion+'/bkgs/'+syst+saveKey+'.root')
+	canv.SaveAs(tempVersion+'/bkgs/'+syst+saveKey+'.eps')
 
 RFile.Close()
 
