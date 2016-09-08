@@ -87,8 +87,8 @@ systematicList = ['pileup','jec','jer','jmr','jms','btag','tau21','pdf','muR','m
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
 skipPDF_muRF = True
 doQ2sys = False
-q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
-q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
+q2UpList   = ['TTJetsPHQ2U','Tt','Ts','TtWQ2U','TbtWQ2U']+ttwList+ttzList
+q2DownList = ['TTJetsPHQ2D','Tt','Ts','TtWQ2D','TbtWQ2D']+ttwList+ttzList
 
 try: 
 	opts, args = getopt.getopt(sys.argv[2:], "", ["lepPtCut=",

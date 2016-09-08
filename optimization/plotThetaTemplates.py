@@ -568,13 +568,11 @@ for tag in tagList:
 		if doOneBand:
 			c1.SaveAs(savePrefix+"totBand.pdf")
 			c1.SaveAs(savePrefix+"totBand.png")
-			c1.SaveAs(savePrefix+"totBand.root")
-			c1.SaveAs(savePrefix+"totBand.C")
+			c1.SaveAs(savePrefix+"totBand.eps")
 		else:
 			c1.SaveAs(savePrefix+".pdf")
 			c1.SaveAs(savePrefix+".png")
-			c1.SaveAs(savePrefix+".root")
-			c1.SaveAs(savePrefix+".C")
+			c1.SaveAs(savePrefix+".eps")
 		try: del hTOP
 		except: pass
 		try: del hEWK
@@ -958,13 +956,11 @@ for tag in tagList:
 	if doOneBand: 
 		c1merged.SaveAs(savePrefixmerged+"totBand.pdf")
 		c1merged.SaveAs(savePrefixmerged+"totBand.png")
-		c1merged.SaveAs(savePrefixmerged+"totBand.root")
-		c1merged.SaveAs(savePrefixmerged+"totBand.C")
+		c1merged.SaveAs(savePrefixmerged+"totBand.eps")
 	else: 
 		c1merged.SaveAs(savePrefixmerged+".pdf")
 		c1merged.SaveAs(savePrefixmerged+".png")
-		c1merged.SaveAs(savePrefixmerged+".root")
-		c1merged.SaveAs(savePrefixmerged+".C")
+		c1merged.SaveAs(savePrefixmerged+".eps")
 	try: del hTOPmerged
 	except: pass
 	try: del hEWKmerged

@@ -35,16 +35,33 @@ import os,sys,datetime,itertools
 # minMlbCutList = [0]
 
 #Basic kinematic cuts optimization configuration (w/o shapes) -- selected TpTp optimum cuts -- Jan 19, 2016:
-lepPtCutList  = [40,50]
-jet1PtCutList = [300,400]
-jet2PtCutList = [150]
-metCutList    = [75]
-njetsCutList  = [3]
+# lepPtCutList  = [40,50]
+# jet1PtCutList = [300,400]
+# jet2PtCutList = [150]
+# metCutList    = [75]
+# njetsCutList  = [3]
+# nbjetsCutList = [0]
+# jet3PtCutList = [100]
+# jet4PtCutList = [0]
+# jet5PtCutList = [0]
+# drCutList     = [1]
+# Wjet1PtCutList= [0]
+# bjet1PtCutList= [0]
+# htCutList     = [0]
+# stCutList     = [0]
+# minMlbCutList = [0]
+
+
+lepPtCutList  = [30, 50, 60, 80, 100]
+jet1PtCutList = [50, 100, 150, 200, 250, 300, 450]
+jet2PtCutList = [30, 50, 90, 150, 300]
+metCutList    = [30, 50, 80, 100, 150, 200, 250]
+njetsCutList  = [3, 4, 5]
 nbjetsCutList = [0]
-jet3PtCutList = [100]
+jet3PtCutList = [0]
 jet4PtCutList = [0]
 jet5PtCutList = [0]
-drCutList     = [1]
+drCutList     = [0.75, 1, 1.25]
 Wjet1PtCutList= [0]
 bjet1PtCutList= [0]
 htCutList     = [0]
@@ -72,38 +89,38 @@ for conf in cutConfigs:
 	if jet3PtCut >= jet2PtCut or jet4PtCut >= jet2PtCut or jet5PtCut >= jet2PtCut: continue
 	if (jet4PtCut >= jet3PtCut or jet5PtCut >= jet3PtCut) and jet3PtCut!=0: continue
 	if jet5PtCut >= jet4PtCut and jet4PtCut!=0: continue
-	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
-	os.chdir(outDir)
-	print cutString
-	if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+cutString)
-	os.chdir(cutString)
-
-	dict={'dir':outputDir,'lepPtCut':lepPtCut,'jet1PtCut':jet1PtCut,'jet2PtCut':jet2PtCut,
-		  'metCut':metCut,'njetsCut':njetsCut,'nbjetsCut':nbjetsCut,'jet3PtCut':jet3PtCut,
-		  'jet4PtCut':jet4PtCut,'jet5PtCut':jet5PtCut,'drCut':drCut,'Wjet1PtCut':Wjet1PtCut,
-		  'bjet1PtCut':bjet1PtCut,'htCut':htCut,'stCut':stCut,'minMlbCut':minMlbCut}
-
-	jdf=open('condor.job','w')
-	jdf.write(
-"""universe = vanilla
-Executable = %(dir)s/doCondorThetaTemplates.sh
-Should_Transfer_Files = YES
-WhenToTransferOutput = ON_EXIT
-notify_user = Sinan_Sagir@brown.edu
-
-arguments      = ""
-
-Output = condor.out
-Error = condor.err
-Log = condor.log
-Notification = Error
-Arguments = %(dir)s %(lepPtCut)s %(jet1PtCut)s %(jet2PtCut)s %(metCut)s %(njetsCut)s %(nbjetsCut)s %(jet3PtCut)s %(jet4PtCut)s %(jet5PtCut)s %(drCut)s %(Wjet1PtCut)s %(bjet1PtCut)s %(htCut)s %(stCut)s %(minMlbCut)s
-
-Queue 1"""%dict)
-	jdf.close()
-
-	os.system('condor_submit condor.job')
-	os.chdir('..')
+# 	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_3jet'+str(int(jet3PtCut))+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))+'_DR'+str(drCut)+'_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
+# 	os.chdir(outDir)
+# 	print cutString
+# 	if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+cutString)
+# 	os.chdir(cutString)
+# 
+# 	dict={'dir':outputDir,'lepPtCut':lepPtCut,'jet1PtCut':jet1PtCut,'jet2PtCut':jet2PtCut,
+# 		  'metCut':metCut,'njetsCut':njetsCut,'nbjetsCut':nbjetsCut,'jet3PtCut':jet3PtCut,
+# 		  'jet4PtCut':jet4PtCut,'jet5PtCut':jet5PtCut,'drCut':drCut,'Wjet1PtCut':Wjet1PtCut,
+# 		  'bjet1PtCut':bjet1PtCut,'htCut':htCut,'stCut':stCut,'minMlbCut':minMlbCut}
+# 
+# 	jdf=open('condor.job','w')
+# 	jdf.write(
+# """universe = vanilla
+# Executable = %(dir)s/doCondorThetaTemplates.sh
+# Should_Transfer_Files = YES
+# WhenToTransferOutput = ON_EXIT
+# notify_user = Sinan_Sagir@brown.edu
+# 
+# arguments      = ""
+# 
+# Output = condor.out
+# Error = condor.err
+# Log = condor.log
+# Notification = Error
+# Arguments = %(dir)s %(lepPtCut)s %(jet1PtCut)s %(jet2PtCut)s %(metCut)s %(njetsCut)s %(nbjetsCut)s %(jet3PtCut)s %(jet4PtCut)s %(jet5PtCut)s %(drCut)s %(Wjet1PtCut)s %(bjet1PtCut)s %(htCut)s %(stCut)s %(minMlbCut)s
+# 
+# Queue 1"""%dict)
+# 	jdf.close()
+# 
+# 	os.system('condor_submit condor.job')
+# 	os.chdir('..')
 	count+=1
 									
 print "Total jobs submitted:", count
