@@ -12,8 +12,6 @@ pfix='kinematics_'+cutConf+'_noJSF'
 pfix+='_'+date#+'_'+time
 
 plotList = [#distribution name as defined in "doHists.py"
-#	'deltaRAK8',
-#	'MTlmet',
 	'NPV',
 	'lepPt',
 	'lepEta',
@@ -40,59 +38,11 @@ plotList = [#distribution name as defined in "doHists.py"
 	'deltaRjet1',
 	'deltaRjet2',
 	'deltaRjet3',
-#	'METphi',
-#	'lepPhi',
-#	'lepDxy',
-#	'lepDz',
-#	'lepCharge',
-#	'lepIso',
-#	'Tau1',
-#	'Tau2',
-#	'Tau3',
-#	'JetPhi',
-#	'JetPhiAK8',
-	'Bjet1Pt',
-	'Wjet1Pt',
-	'topMass',
-	'topPt',
-	'minMlj',
-#	'minMljDR',
-#	'minMljDPhi',
-#	'minMlbDR',
-#	'minMlbDPhi',
-#	'nonMinMlbDR',
-#	'MWb1',
-#	'MWb2',
-#	'HT4jets',
-#	'deltaRlb1',
-#	'deltaRlb2',
-#	'deltaRtW',
-#	'deltaRlW',
-#	'deltaRWb1',
-#	'deltaRWb2',
-#	'deltaPhilb1',
-#	'deltaPhilb2',
-#	'deltaPhitW',
-#	'deltaPhilW',
-#	'deltaPhiWb1',
-#	'deltaPhiWb2',
-	'WjetPt',
 	'PtRel',
-# 	'METwJetSF',
-# 	'METwJetSFraw',
-#	'HTtest',
-#	'STnewMET',
-# 	'NWJets',
-#	'JetPtBinsAK8',
-	'Pruned',
 	'PrunedSmeared',
 	'SDMass',
-#	'nTrueInt',
-#	'nLepGen',
-	'NTJets',
 	'NTJetsSF',
 	'minMlb',
-	'minMlbDR',
 	]
 
 catList = ['E','M','All']
@@ -119,12 +69,12 @@ Executable = %(dir)s/doCondorKinematics.sh
 Should_Transfer_Files = YES
 transfer_input_files = %(dir)s/doHists.py,%(dir)s/samples.py,%(dir)s/weights.py,%(dir)s/analyze.py
 WhenToTransferOutput = ON_EXIT
+request_memory = 3072
 Output = condor_%(dist)s.out
 Error = condor_%(dist)s.err
 Log = condor_%(dist)s.log
 Notification = Error
 Arguments = %(dir)s %(dist)s %(cat)s %(cut)s
-
 Queue 1"""%dict)
 		jdf.close()
 

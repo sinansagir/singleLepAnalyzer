@@ -57,8 +57,8 @@ dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
 systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','pdfNew','muRFcorrdNew']#,'btagCorr']
 
-q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
-q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
+q2UpList   = ['TTJetsPHQ2U','Tt','Ts','TtWQ2U','TbtWQ2U']+ttvList
+q2DownList = ['TTJetsPHQ2D','Tt','Ts','TtWQ2D','TbtWQ2D']+ttvList
 
 ###########################################################
 #################### NORMALIZATIONS #######################
@@ -75,11 +75,11 @@ corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 
 # averaged from CRs, could depend on the selection, but the difference found to be negligible!
 if 'noJSF' in pfix and 'WJetsHTbins' not in pfix:
-	CRuncert = {#Inclusive WJets sample, NOT REWEIGHTED, 23JUNE16--SS
-		'topE':0.10,
+	CRuncert = {#Inclusive WJets sample, NOT REWEIGHTED, 8SEP16--SS
+		'topE':0.105,
 		'topM':0.126,
-		'topAll':0.11,
-		'ewkE':0.15,
+		'topAll':0.116,
+		'ewkE':0.16,
 		'ewkM':0.09,
 		'ewkAll':0.12,
 		}
@@ -101,20 +101,6 @@ if 'withJSF' in pfix:
 		'ewkM':0.17,
 		'ewkAll':0.15,
 		}
-def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
-	norm0=hist.Integral()
-	for iBin in range(0,hist.GetNbinsX()+2):
-		if hist.GetBinContent(iBin)<0: hist.SetBinContent(iBin,0)
-		if hist.Integral()!=0 and norm0>0: hist.Scale(norm0/hist.Integral())
-		
-def overflow(hist):
-	nBinsX=hist.GetXaxis().GetNbins()
-	content=hist.GetBinContent(nBinsX)+hist.GetBinContent(nBinsX+1)
-	error=math.sqrt(hist.GetBinError(nBinsX)**2+hist.GetBinError(nBinsX+1)**2)
-	hist.SetBinContent(nBinsX,content)
-	hist.SetBinError(nBinsX,error)
-	hist.SetBinContent(nBinsX+1,0)
-	hist.SetBinError(nBinsX+1,0)
 
 def round_sig(x,sig=2):
 	try:

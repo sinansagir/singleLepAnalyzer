@@ -60,6 +60,7 @@ def formatUpperHist(histogram):
 		else: histogram.GetYaxis().SetTitleOffset(.71)
 
 	if 'JetPt' in histogram.GetName() or 'JetEta' in histogram.GetName() or 'JetPhi' in histogram.GetName() or 'Pruned' in histogram.GetName() or 'Tau' in histogram.GetName(): histogram.GetYaxis().SetTitle(histogram.GetYaxis().GetTitle().replace("Events","Jets"))
+	if 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,b)] (GeV)")
 	histogram.GetYaxis().CenterTitle()
 	histogram.SetMinimum(0.00101)
 	if not yLog: 
@@ -78,9 +79,17 @@ def formatLowerHist(histogram):
 
 	histogram.GetYaxis().SetLabelSize(0.12)
 	histogram.GetYaxis().SetTitleSize(0.14)
-	if stackbkgHT.GetMaximum()>1e4: histogram.GetYaxis().SetTitleOffset(.52)
-	elif stackbkgHT.GetMaximum()>1e3: histogram.GetYaxis().SetTitleOffset(.45)
-	else: histogram.GetYaxis().SetTitleOffset(.37)
+	if stackbkgHT.GetMaximum()>1e4: 
+		if doRealPull: histogram.GetYaxis().SetTitleOffset(.37)
+		else: histogram.GetYaxis().SetTitleOffset(.52)
+
+	elif stackbkgHT.GetMaximum()>1e3: 
+		if doRealPull: histogram.GetYaxis().SetTitleOffset(.40)
+		else: histogram.GetYaxis().SetTitleOffset(.45)
+
+	else: 
+		if doRealPull: histogram.GetYaxis().SetTitleOffset(.32)
+		else: histogram.GetYaxis().SetTitleOffset(.37)
 	histogram.GetYaxis().SetTitle('Data/Bkg')
 	histogram.GetYaxis().SetNdivisions(5)
 	if doRealPull: histogram.GetYaxis().SetRangeUser(min(-2.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(2.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
@@ -132,11 +141,11 @@ def getNormUnc(hist,ibin,modelingUnc):
 
 # averaged from CRs, could depend on the selection, but the difference found to be negligible!		
 if 'noJSF' in pfix and 'WJetsHTbins' not in pfix:
-	CRuncert = {#Inclusive WJets sample, NOT REWEIGHTED, 23JUNE16--SS
-		'topE':0.10,
+	CRuncert = {#Inclusive WJets sample, NOT REWEIGHTED, 8SEP16--SS
+		'topE':0.105,
 		'topM':0.126,
-		'topAll':0.11,
-		'ewkE':0.15,
+		'topAll':0.116,
+		'ewkE':0.16,
 		'ewkM':0.09,
 		'ewkAll':0.12,
 		}
@@ -716,7 +725,7 @@ for discriminant in plotList:
 			pull.SetFillColor(2)
 			pull.SetLineColor(2)
 			formatLowerHist(pull)
-			pull.GetYaxis().SetTitle('Pull')
+			pull.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
 			pull.Draw("HIST")
 
 		#c1.Write()
@@ -729,13 +738,11 @@ for discriminant in plotList:
 		if doOneBand:
 			c1.SaveAs(savePrefix+"_totBand.pdf")
 			c1.SaveAs(savePrefix+"_totBand.png")
-			c1.SaveAs(savePrefix+"_totBand.root")
-			#c1.SaveAs(savePrefix+"totBand.C")
+			c1.SaveAs(savePrefix+"_totBand.eps")
 		else:
 			c1.SaveAs(savePrefix+".pdf")
 			c1.SaveAs(savePrefix+".png")
-			c1.SaveAs(savePrefix+".root")
-			#c1.SaveAs(savePrefix+".C")
+			c1.SaveAs(savePrefix+".eps")
 			
 	RFile.Close()
 
