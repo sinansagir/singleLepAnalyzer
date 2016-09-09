@@ -30,7 +30,7 @@ def get_model():
     try: model.add_lognormal_uncertainty('lumiSys', math.log(1.027), '*', '*')
     except: pass
 
-    #modeling uncertainties: Inclusive WJets sample, NOT REWEIGHTED, 23JUNE16--SS
+    #modeling uncertainties: Inclusive WJets sample, NOT REWEIGHTED, 8SEP16--SS
     for obs in obsvs:
 		if 'nT0_nW0_nB0' in obs:
 			try: model.add_lognormal_uncertainty('top0T0W0BSys',  math.log(1.08), 'top', obs) # from ttbar CR
@@ -326,8 +326,8 @@ model = get_model()
 
 model_summary(model)
 
-plot_exp, plot_obs = bayesian_limits(model,'all', n_toy = 5000, n_data = 500)
-#plot_exp, plot_obs = bayesian_limits(model,'all', n_toy = 100000, n_data = 1000)
+#plot_exp, plot_obs = bayesian_limits(model,'all', n_toy = 5000, n_data = 500)
+plot_exp, plot_obs = bayesian_limits(model,'all', n_toy = 100000, n_data = 1000)
 #plot_exp, plot_obs = bayesian_limits(model,'expected')
 plot_exp.write_txt('limits_'+rFileName+'_expected.txt')
 plot_obs.write_txt('limits_'+rFileName+'_observed.txt')

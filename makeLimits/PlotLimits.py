@@ -16,14 +16,17 @@ lumiStr = '2p318'
 chiral='right'#'right'
 discriminant='minMlb'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+chiral
-stat='0p3'#0.75
-isRebinned='_rebinned_stat'+str(stat).replace('.','p')
 cutString='lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 
-mass = array('d', [700,800,900,1000,1100,1200,1300,1400,1500])#,1600])
-masserr = array('d', [0,0,0,0,0,0,0,0,0])#,0])
 mass_str = ['700','800','900','1000','1100','1200','1300','1400','1500']#,'1600']
+theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391][:len(mass_str)]#pb
+scale_up = [1.9,1.9,1.9,1.8,1.8,1.8,1.7,1.8,1.7,1.6,1.7,1.7][:len(mass_str)]#%
+scale_dn = [1.9,1.8,1.7,1.6,1.6,1.5,1.5,1.5,1.5,1.5,1.5,1.5][:len(mass_str)]#%
+pdf_up   = [3.7,3.9,4.1,4.4,4.7,5.1,5.6,6.1,6.7,7.0,8.0,9.0][:len(mass_str)]#%
+pdf_dn   = [3.6,3.7,3.9,4.0,4.2,4.5,4.8,5.2,5.6,6.1,6.6,7.2][:len(mass_str)]#%
 
+mass   =array('d', [float(item) for item in mass_str])
+masserr=array('d',[0 for i in range(len(mass))])
 exp   =array('d',[0 for i in range(len(mass))])
 experr=array('d',[0 for i in range(len(mass))])
 obs   =array('d',[0 for i in range(len(mass))])
@@ -33,41 +36,9 @@ exp68L=array('d',[0 for i in range(len(mass))])
 exp95H=array('d',[0 for i in range(len(mass))])
 exp95L=array('d',[0 for i in range(len(mass))])
 
-xsec = array('d', [1,1,1,1,1,1,1,1,1])#,1])
-theory_br = [.1285,.1285,.1285,.1285,.1285,.1285,.1285]#,.1285,.1285,.1285]
-if chiral=='right':theory_xsec  = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148]
-elif chiral=='left':theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148]
-else: theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb
-xsecErrUp = [19.,8.5,4.0,2.1,1.1,0.64,0.37,0.22,0.14,0.087,0.056,0.037]#fb
-xsecErrDn = [19.,8.1,3.8,1.9,1.0,0.56,0.32,0.19,0.12,0.072,0.045,0.029]#fb
-theory_xsec_up = [item/1000 for item in xsecErrUp]
-theory_xsec_dn = [item/1000 for item in xsecErrDn]
-if signal=='X53':
-	theory_xsec_up = [
-				 math.sqrt((0.019*theory_xsec[0])**2+(0.037*theory_xsec[0])**2),
-				 math.sqrt((0.019*theory_xsec[1])**2+(0.039*theory_xsec[1])**2),
-				 math.sqrt((0.019*theory_xsec[2])**2+(0.041*theory_xsec[2])**2),
-				 math.sqrt((0.018*theory_xsec[3])**2+(0.044*theory_xsec[3])**2),
-				 math.sqrt((0.018*theory_xsec[4])**2+(0.047*theory_xsec[4])**2),
-				 math.sqrt((0.018*theory_xsec[5])**2+(0.051*theory_xsec[5])**2),
-				 math.sqrt((0.017*theory_xsec[6])**2+(0.056*theory_xsec[6])**2),
-				 math.sqrt((0.018*theory_xsec[7])**2+(0.061*theory_xsec[7])**2),
-				 math.sqrt((0.017*theory_xsec[8])**2+(0.067*theory_xsec[8])**2),
-				 math.sqrt((0.016*theory_xsec[9])**2+(0.070*theory_xsec[9])**2),
-				 ]
-	theory_xsec_dn = [
-				 math.sqrt((0.019*theory_xsec[0])**2+(0.036*theory_xsec[0])**2),
-				 math.sqrt((0.018*theory_xsec[1])**2+(0.037*theory_xsec[1])**2),
-				 math.sqrt((0.017*theory_xsec[2])**2+(0.039*theory_xsec[2])**2),
-				 math.sqrt((0.016*theory_xsec[3])**2+(0.040*theory_xsec[3])**2),
-				 math.sqrt((0.016*theory_xsec[4])**2+(0.042*theory_xsec[4])**2),
-				 math.sqrt((0.015*theory_xsec[5])**2+(0.045*theory_xsec[5])**2),
-				 math.sqrt((0.015*theory_xsec[6])**2+(0.048*theory_xsec[6])**2),
-				 math.sqrt((0.015*theory_xsec[7])**2+(0.052*theory_xsec[7])**2),
-				 math.sqrt((0.015*theory_xsec[8])**2+(0.056*theory_xsec[8])**2),
-				 math.sqrt((0.015*theory_xsec[9])**2+(0.061*theory_xsec[9])**2),
-				 ]
- 
+theory_xsec_up = [math.sqrt((scale*xsec)**2+(pdf*xsec)**2)/100 for xsec,scale,pdf in zip(theory_xsec,scale_up,pdf_up)]
+theory_xsec_dn = [math.sqrt((scale*xsec)**2+(pdf*xsec)**2)/100 for xsec,scale,pdf in zip(theory_xsec,scale_dn,pdf_dn)]
+
 theory_xsec_v    = TVectorD(len(mass),array('d',theory_xsec))
 theory_xsec_up_v = TVectorD(len(mass),array('d',theory_xsec_up))
 theory_xsec_dn_v = TVectorD(len(mass),array('d',theory_xsec_dn))      
@@ -115,20 +86,20 @@ def PlotLimits(limitDir,limitFile,tempKey):
         	continue
         
         lims[-1] = float(linesObs[1].strip().split()[1])
-        obs[i] = float(linesObs[1].strip().split()[1]) * xsec[i]
+        obs[i] = float(linesObs[1].strip().split()[1])
         obserr[i] = 0
         
         lims[.5] = float(linesExp[1].strip().split()[1])
-        exp[i] = float(linesExp[1].strip().split()[1]) * xsec[i]
+        exp[i] = float(linesExp[1].strip().split()[1])
         experr[i] = 0
         lims[.16] = float(linesExp[1].strip().split()[4])
-        exp68L[i] = float(linesExp[1].strip().split()[4]) * xsec[i]
+        exp68L[i] = float(linesExp[1].strip().split()[4])
         lims[.84] = float(linesExp[1].strip().split()[5])
-        exp68H[i] = float(linesExp[1].strip().split()[5]) * xsec[i]
+        exp68H[i] = float(linesExp[1].strip().split()[5])
         lims[.025] = float(linesExp[1].strip().split()[2])
-        exp95L[i] = float(linesExp[1].strip().split()[2]) * xsec[i]
+        exp95L[i] = float(linesExp[1].strip().split()[2])
         lims[.975] = float(linesExp[1].strip().split()[3])
-        exp95H[i] = float(linesExp[1].strip().split()[3]) * xsec[i]
+        exp95H[i] = float(linesExp[1].strip().split()[3])
     
         if i!=0:
         	if(exp[i]>theory_xsec[i] and exp[i-1]<theory_xsec[i-1]) or (exp[i]<theory_xsec[i] and exp[i-1]>theory_xsec[i-1]):
@@ -244,10 +215,9 @@ def PlotLimits(limitDir,limitFile,tempKey):
     folder = '.'
     outDir=folder+'/'+limitDir.split('/')[-3]+'plots'
     if not os.path.exists(outDir): os.system('mkdir '+outDir)
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.root')
+    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.eps')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.pdf')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.png')
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.C')
     return int(round(limExpected)), int(round(limObserved))
 
 doBRScan = False
@@ -265,17 +235,18 @@ tempKeys = ['all','noB0','isE','isM','nW0','nW1p','nB0','nB1','nB2p','nT0','nT1p
 #         'isM_nT0_nW0_nB0', 'isM_nT0_nW0_nB1', 'isM_nT0_nW0_nB2p', 'isM_nT0_nW1p_nB0', 'isM_nT0_nW1p_nB1', 'isM_nT0_nW1p_nB2p',
 #         'isM_nT1p_nW0_nB0','isM_nT1p_nW0_nB1','isM_nT1p_nW0_nB2p','isM_nT1p_nW1p_nB0','isM_nT1p_nW1p_nB1','isM_nT1p_nW1p_nB2p',
 #         ]
-dirs = {'ttag_Inclusive':'templates_minMlb_noJSF_2016_6_22',#_lessToys',
+dirs = {'ttag_Inclusive':'templates_minMlb_noJSF_2016_9_8',#_lessToys',
 		'ttag_HTbins':'templates_minMlb_noJSF_2016_6_22_WJetsHTbins',
 		'ttag_HTbinsJSF':'templates_minMlb_withJSF_2016_6_22',
 		'no_ttag_Inclusive':'templates_minMlb_noJSF_notTag_2016_6_22',
 		'no_ttag_HTbins':'templates_minMlb_noJSF_notTag_2016_6_22_WJetsHTbins',
 		'no_ttag_HTbinsJSF':'templates_minMlb_withJSF_notTag_2016_6_22',
 		}
-dirKeyList = ['ttag_Inclusive','ttag_HTbins','ttag_HTbinsJSF',
-              'no_ttag_Inclusive','no_ttag_HTbins','no_ttag_HTbinsJSF']
-binnings = ['0p1','0p15','0p2','0p3','0p4','0p5','0p75','1p0','Custom']
-#binnings = ['0p15']
+dirKeyList = ['ttag_Inclusive',#'ttag_HTbins','ttag_HTbinsJSF',
+              #'no_ttag_Inclusive','no_ttag_HTbins','no_ttag_HTbinsJSF',
+              ]
+#binnings = ['0p1','0p15','0p2','0p3','0p4','0p5','0p75','1p0','Custom']
+binnings = ['0p15','0p3']
 
 expLims = {}
 obsLims = {}

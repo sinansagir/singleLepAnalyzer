@@ -1,7 +1,7 @@
 import os,sys,fnmatch
 
 templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53/makeThetaTemplates/'
-templateDir+='templates_minMlb_noJSF_2016_6_22'
+templateDir+='templates_minMlb_noJSF_2016_9_8'
 thetaConfigTemp = os.getcwd()+'/theta_config_template.py'
 
 systematicsInFile = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
@@ -16,19 +16,20 @@ toFilter0+= ['jsf']
 #toFilter0+= ['topsf']
 #toFilter0 = systematicsInFile
 toFilter0 = ['__'+item+'__' for item in toFilter0]
+toFilter0+= ['_nB0_']
 
 limitConfs = {#'<limit type>':[filter list]
 			  'all':[],
-			  'isE':['isM'], #only electron channel
-			  'isM':['isE'], #only muon channel
-			  'nT0':['nT1p'], #only 0 t tag category
-			  'nT1p':['nT0'], #only 1p t tag category
-			  'nW0':['nW1p'], #only 0 W tag category
-			  'nW1p':['nW0'], #only 1p W tag category
-			  'nB0':['nB1','nB2p'], #only 0 b tag category
-			  'nB1':['nB0','nB2p'], #only 1 b tag category
-			  'nB2p':['nB0','nB1'], #only 2p b tag category
-			  'noB0':['nB0'], #No 0 b tag category
+			  'isE':['_isM_'], #only electron channel
+			  'isM':['_isE_'], #only muon channel
+			  'nT0':['_nT1p_'], #only 0 t tag category
+			  'nT1p':['_nT0_'], #only 1p t tag category
+			  'nW0':['_nW1p_'], #only 0 W tag category
+			  'nW1p':['_nW0_'], #only 1p W tag category
+			  #'nB0':['nB1','nB2p'], #only 0 b tag category
+			  'nB1':['_nB2p_'], #only 1 b tag category
+			  'nB2p':['_nB1_'], #only 2p b tag category
+			  #'noB0':['nB0'], #No 0 b tag category
 			  #'no_nT0_nW0_nB0':['nT0_nW0_nB0'],
 			  }
 # limitConfs = {}
@@ -95,7 +96,7 @@ for limitConf in limitConfs:
 	for file in rootfilelist:
 		signal = file.split('/')[-1].split('_')[2]
 		BRStr = file.split('/')[-1][file.split('/')[-1].find(signal)+len(signal):file.split('/')[-1].find('_2p318fb')]
-		outDir = outputDir+limitConf+BRStr+'/'
+		outDir = outputDir+limitConf+BRStr+'_moreToys/'
 		print signal,BRStr
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		os.chdir(outDir)
@@ -114,9 +115,8 @@ Executable = %(configfile)s.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 Notification = Error
-
+request_memory = 3072
 arguments      = ""
-
 Output = %(configfile)s.out
 Error = %(configfile)s.err
 Log = %(configfile)s.log
