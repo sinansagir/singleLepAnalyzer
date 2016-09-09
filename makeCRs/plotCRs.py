@@ -21,7 +21,7 @@ sig2='X53X53M'+m2+'right' #  choose the 2nd signal to plot
 sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
 scaleSignals = False
 
-systematicList = ['pileup','toppt','jmr','jms','tau21','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
+systematicList = ['pileup','toppt','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
 systematicList+= ['topsf']#,'jsf']
 if 'withJSF' in pfix:
 	systematicList+= ['jsf']
