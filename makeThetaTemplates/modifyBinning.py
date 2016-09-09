@@ -19,7 +19,7 @@ from ROOT import *
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 cutString = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateDir = os.getcwd()+'/templates_minMlb_noJSF_2016_6_22/'+cutString
+templateDir = os.getcwd()+'/templates_minMlb_noJSF_2016_9_8/'+cutString
 
 rebinHists = True
 xbinsList = {}

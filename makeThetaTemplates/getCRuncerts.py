@@ -2,9 +2,9 @@
 
 import os,sys,time,math
 
-templateYields = 'templates_minMlb_noJSF_2016_6_22/lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0/yields_minMlb_2p318fb.txt' 
-ttbarYields = '../makeCRs/ttbar_noJSF_notTag_2016_6_22/yields_minMlb_2p318fb.txt'
-wjetsYields = '../makeCRs/wjets_noJSF_notTag_2016_6_22/yields_minMlb_2p318fb.txt'
+templateYields = 'templates_minMlb_noJSF_2016_9_8/lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0/yields_minMlb_2p318fb.txt' 
+ttbarYields = '../makeCRs/ttbar_noJSF_notTag_2016_9_8/yields_minMlb_2p318fb.txt'
+wjetsYields = '../makeCRs/wjets_noJSF_notTag_2016_9_8/yields_minMlb_2p318fb.txt'
 
 ftemplate = open(templateYields, 'rU')
 templatelines = ftemplate.readlines()

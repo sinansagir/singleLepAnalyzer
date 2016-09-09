@@ -52,11 +52,11 @@ doAllSys = True
 systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec']#,'btagCorr']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
 doQ2sys = True
-q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
-q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
+q2UpList   = ['TTJetsPHQ2U','Tt','Ts','TtWQ2U','TbtWQ2U']+ttwList+ttzList
+q2DownList = ['TTJetsPHQ2D','Tt','Ts','TtWQ2D','TbtWQ2D']+ttwList+ttzList
 
 cutString  = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-pfix='templates_minMlb_noJSF_2016_6_22'
+pfix='templates_minMlb_noJSF_2016_9_8'
 iPlot='minMlb'
 
 isEMlist =['E','M']

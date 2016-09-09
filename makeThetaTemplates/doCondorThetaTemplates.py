@@ -67,14 +67,13 @@ for conf in cutConfigs:
 Executable = %(dir)s/doCondorThetaTemplates.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
+request_memory = 3072
 arguments      = ""
-
 Output = condor.out
 Error = condor.err
 Log = condor.log
 Notification = Error
 Arguments = %(dir)s %(lepPtCut)s %(jet1PtCut)s %(jet2PtCut)s %(metCut)s %(njetsCut)s %(nbjetsCut)s %(jet3PtCut)s %(jet4PtCut)s %(jet5PtCut)s %(drCut)s %(Wjet1PtCut)s %(bjet1PtCut)s %(htCut)s %(stCut)s %(minMlbCut)s %(isEM)s %(nttag)s %(nWtag)s %(nbtag)s
-
 Queue 1"""%dict)
 		jdf.close()
 
@@ -87,4 +86,4 @@ print "Total jobs submitted:", count
 
 
 
-                  
+           

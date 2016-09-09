@@ -49,7 +49,7 @@ isEMlist =['E','M']
 nttaglist=['0','1p']
 if 'notTag' in pfix: nttaglist=['0p']
 nWtaglist=['0','1p']
-nbtaglist=['0','1','2p']
+nbtaglist=['1','2p']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
 
 lumiSys = 0.027 #2.7% lumi uncertainty
@@ -60,23 +60,23 @@ topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty --> covered by PDF and muRF un
 ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty --> covered by PDF and muRF uncertainties
 qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty --> covered by PDF and muRF uncertainties
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
-#Inclusive WJets sample, NOT REWEIGHTED, 4JUNE16--SS
+#Inclusive WJets sample, NOT REWEIGHTED, 8SEP16--SS
 if 'noJSF' in pfix and 'WJetsHTbins' not in pfix:
 	topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-					 'top_nW0_nB0'  :0.07,
+					 'top_nW0_nB0'  :0.08,
 					 'top_nW0_nB1'  :0.11,
-					 'top_nW0_nB2p' :0.14,
-					 'top_nW1p_nB0' :0.07,
+					 'top_nW0_nB2p' :0.15,
+					 'top_nW1p_nB0' :0.08,
 					 'top_nW1p_nB1' :0.11,
-					 'top_nW1p_nB2p':0.14,
+					 'top_nW1p_nB2p':0.15,
 					 }
 	ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
-					 'ewk_nW0_nB0'  :0.10,
-					 'ewk_nW0_nB1'  :0.10,
-					 'ewk_nW0_nB2p' :0.10,
-					 'ewk_nW1p_nB0' :0.13,
-					 'ewk_nW1p_nB1' :0.13,
-					 'ewk_nW1p_nB2p':0.13,
+					 'ewk_nW0_nB0'  :0.12,
+					 'ewk_nW0_nB1'  :0.12,
+					 'ewk_nW0_nB2p' :0.12,
+					 'ewk_nW1p_nB0' :0.12,
+					 'ewk_nW1p_nB1' :0.12,
+					 'ewk_nW1p_nB2p':0.12,
 					 }
 #HT binned WJets sample, NOT REWEIGHTED, 4JUNE16--SS
 if 'noJSF' in pfix and 'WJetsHTbins' in pfix:
@@ -159,18 +159,13 @@ def formatLowerHist(histogram):
 
 	histogram.GetYaxis().SetLabelSize(0.12)
 	histogram.GetYaxis().SetTitleSize(0.14)
-	histogram.GetYaxis().SetTitleOffset(.37)
+	if doRealPull: histogram.GetYaxis().SetTitleOffset(.32)
+	else: histogram.GetYaxis().SetTitleOffset(.37)
 	histogram.GetYaxis().SetTitle('Data/Bkg')
 	histogram.GetYaxis().SetNdivisions(5)
 	if doRealPull: histogram.GetYaxis().SetRangeUser(min(-2.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(2.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
 	else: histogram.GetYaxis().SetRangeUser(0,2.99)
 	histogram.GetYaxis().CenterTitle()
-
-def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
-	norm0=hist.Integral()
-	for iBin in range(0,hist.GetNbinsX()+2):
-		if hist.GetBinContent(iBin)<0: hist.SetBinContent(iBin,0)
-	if hist.Integral()!=0: hist.Scale(norm0/hist.Integral())
 
 def normByBinWidth(result):
 	result.SetBinContent(0,0)
@@ -635,7 +630,7 @@ for tag in tagList:
 				pull.SetFillColor(kGray+2)
 				pull.SetLineColor(kGray+2)
 			formatLowerHist(pull)
-			pull.GetYaxis().SetTitle('Pull')
+			pull.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
 			pull.Draw("HIST")
 
 		#c1.Write()
@@ -648,13 +643,11 @@ for tag in tagList:
 		if doOneBand:
 			c1.SaveAs(savePrefix+"totBand.pdf")
 			c1.SaveAs(savePrefix+"totBand.png")
-			c1.SaveAs(savePrefix+"totBand.root")
-			c1.SaveAs(savePrefix+"totBand.C")
+			c1.SaveAs(savePrefix+"totBand.eps")
 		else:
 			c1.SaveAs(savePrefix+".pdf")
 			c1.SaveAs(savePrefix+".png")
-			c1.SaveAs(savePrefix+".root")
-			c1.SaveAs(savePrefix+".C")
+			c1.SaveAs(savePrefix+".eps")
 		try: del hTOP
 		except: pass
 		try: del hEWK
@@ -1066,7 +1059,7 @@ for tag in tagList:
 			pullmerged.SetFillColor(kGray+2)
 			pullmerged.SetLineColor(kGray+2)
 		formatLowerHist(pullmerged)
-		pullmerged.GetYaxis().SetTitle('Pull')
+		pullmerged.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
 		pullmerged.Draw("HIST")
 
 	#c1merged.Write()
@@ -1079,13 +1072,11 @@ for tag in tagList:
 	if doOneBand: 
 		c1merged.SaveAs(savePrefixmerged+"totBand.pdf")
 		c1merged.SaveAs(savePrefixmerged+"totBand.png")
-		c1merged.SaveAs(savePrefixmerged+"totBand.root")
-		c1merged.SaveAs(savePrefixmerged+"totBand.C")
+		c1merged.SaveAs(savePrefixmerged+"totBand.eps")
 	else: 
 		c1merged.SaveAs(savePrefixmerged+".pdf")
 		c1merged.SaveAs(savePrefixmerged+".png")
-		c1merged.SaveAs(savePrefixmerged+".root")
-		c1merged.SaveAs(savePrefixmerged+".C")
+		c1merged.SaveAs(savePrefixmerged+".eps")
 	try: del hTOPmerged
 	except: pass
 	try: del hEWKmerged
