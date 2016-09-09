@@ -21,7 +21,7 @@ sig2='X53X53M'+m2+'right' #  choose the 2nd signal to plot
 sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
 scaleSignals = False
 
-systematicList = ['pileup','toppt','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
+systematicList = ['pileup','toppt','jmr','jms','tau21','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
 systematicList+= ['topsf']#,'jsf']
 if 'withJSF' in pfix:
 	systematicList+= ['jsf']
@@ -104,18 +104,13 @@ def formatLowerHist(histogram):
 
 	histogram.GetYaxis().SetLabelSize(0.12)
 	histogram.GetYaxis().SetTitleSize(0.14)
-	histogram.GetYaxis().SetTitleOffset(.37)
+	if doRealPull: histogram.GetYaxis().SetTitleOffset(.32)
+	else: histogram.GetYaxis().SetTitleOffset(.37)
 	histogram.GetYaxis().SetTitle('Data/Bkg')
 	histogram.GetYaxis().SetNdivisions(5)
 	if doRealPull: histogram.GetYaxis().SetRangeUser(min(-2.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(2.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
 	else: histogram.GetYaxis().SetRangeUser(0,2.99)
 	histogram.GetYaxis().CenterTitle()
-
-def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
-	norm0=hist.Integral()
-	for iBin in range(0,hist.GetNbinsX()+2):
-		if hist.GetBinContent(iBin)<0: hist.SetBinContent(iBin,0)
-	if hist.Integral()!=0: hist.Scale(norm0/hist.Integral())
 
 def normByBinWidth(result):
 	result.SetBinContent(0,0)
@@ -593,7 +588,7 @@ for tag in tagList:
 				pull.SetFillColor(kGray+2)
 				pull.SetLineColor(kGray+2)
 			formatLowerHist(pull)
-			pull.GetYaxis().SetTitle('Pull')
+			pull.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
 			pull.Draw("HIST")
 
 		#c1.Write()
@@ -606,13 +601,11 @@ for tag in tagList:
 		if doOneBand:
 			c1.SaveAs(savePrefix+"totBand.pdf")
 			c1.SaveAs(savePrefix+"totBand.png")
-			c1.SaveAs(savePrefix+"totBand.root")
-			c1.SaveAs(savePrefix+"totBand.C")
+			c1.SaveAs(savePrefix+"totBand.eps")
 		else:
 			c1.SaveAs(savePrefix+".pdf")
 			c1.SaveAs(savePrefix+".png")
-			c1.SaveAs(savePrefix+".root")
-			c1.SaveAs(savePrefix+".C")
+			c1.SaveAs(savePrefix+".eps")
 		try: del hTOP
 		except: pass
 		try: del hEWK
@@ -1030,7 +1023,7 @@ for tag in tagList:
 			pullmerged.SetFillColor(kGray+2)
 			pullmerged.SetLineColor(kGray+2)
 		formatLowerHist(pullmerged)
-		pullmerged.GetYaxis().SetTitle('Pull')
+		pullmerged.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
 		pullmerged.Draw("HIST")
 
 	#c1merged.Write()
@@ -1043,13 +1036,11 @@ for tag in tagList:
 	if doOneBand: 
 		c1merged.SaveAs(savePrefixmerged+"totBand.pdf")
 		c1merged.SaveAs(savePrefixmerged+"totBand.png")
-		c1merged.SaveAs(savePrefixmerged+"totBand.root")
-		c1merged.SaveAs(savePrefixmerged+"totBand.C")
+		c1merged.SaveAs(savePrefixmerged+"totBand.eps")
 	else: 
 		c1merged.SaveAs(savePrefixmerged+".pdf")
 		c1merged.SaveAs(savePrefixmerged+".png")
-		c1merged.SaveAs(savePrefixmerged+".root")
-		c1merged.SaveAs(savePrefixmerged+".C")
+		c1merged.SaveAs(savePrefixmerged+".eps")
 	try: del hTOPmerged
 	except: pass
 	try: del hEWKmerged

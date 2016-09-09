@@ -3,7 +3,7 @@ import os,sys,datetime,itertools
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-isTTbarCR = 0 # 1:TTBar, 0:Wjets
+isTTbarCR = 1 # 1:TTBar, 0:Wjets
 
 isEMlist =['E','M']
 if isTTbarCR: 
@@ -42,8 +42,8 @@ for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist)):
 Executable = %(dir)s/doCondorCRs.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
+request_memory = 3072
 arguments      = ""
-
 Output = condor.out
 Error = condor.err
 Log = condor.log

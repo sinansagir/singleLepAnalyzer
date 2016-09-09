@@ -69,7 +69,6 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		if discriminantName=='minMlb': 
 			originalLJMETName=discriminantLJMETName
 			discriminantLJMETName='minMleppJet'
-	if nbtag!='0': nbtagCut+=' && (minMleppBjet > '+str(cutList['minMlbCut'])+')'
 	
 	print 'Flavour: '+isEM+' #ttags: '+nttag+' #Wtags: '+nWtag+' #btags: '+nbtag
 	print 'discriminantLJMETName: '+discriminantLJMETName
@@ -191,10 +190,13 @@ def analyze(tTree,process,cutList,doAllSys,discriminantName,discriminantDetails,
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'jmsDown'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[3]')+nbtagCut+')', 'GOFF')
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'tau21Up'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[4]')+nbtagCut+')', 'GOFF')
 		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'tau21Down' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[5]')+nbtagCut+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'btagUp'    +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[0]')+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'btagDown'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[1]')+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'mistagUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[2]')+')', 'GOFF')
-		tTree[process].Draw(discriminantLJMETName+' >> '+discriminantName+'mistagDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[3]')+')', 'GOFF')
+		if nbtag!='0': BTAGName = discriminantLJMETName+'_shifts[0]'
+		else: BTAGName = discriminantLJMETName
+		print BTAGName
+		tTree[process].Draw(BTAGName.replace('_shifts[0]','_shifts[0]')+' >> '+discriminantName+'btagUp'    +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[0]')+')', 'GOFF')
+		tTree[process].Draw(BTAGName.replace('_shifts[0]','_shifts[1]')+' >> '+discriminantName+'btagDown'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[1]')+')', 'GOFF')
+		tTree[process].Draw(BTAGName.replace('_shifts[0]','_shifts[2]')+' >> '+discriminantName+'mistagUp'  +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[2]')+')', 'GOFF')
+		tTree[process].Draw(BTAGName.replace('_shifts[0]','_shifts[3]')+' >> '+discriminantName+'mistagDown'+'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[3]')+')', 'GOFF')
 		if tTree[process+'jerUp']:
 			tTree[process+'jerUp'].Draw(discriminantLJMETName   +' >> '+discriminantName+'jerUp'   +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')
 			tTree[process+'jerDown'].Draw(discriminantLJMETName +' >> '+discriminantName+'jerDown' +'_'+lumiStr+'fb_is'+catStr+'_'+process, weightStr+'*('+cut+isEMCut+nttagCut+nWtagCut+nbtagCut+')', 'GOFF')

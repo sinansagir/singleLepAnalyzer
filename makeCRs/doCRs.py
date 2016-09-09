@@ -3,7 +3,6 @@
 import os,sys,time,math,datetime,pickle,itertools
 from numpy import linspace
 from weights import *
-from samples import *
 import ROOT as R
 
 R.gROOT.SetBatch(1)
@@ -11,7 +10,7 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = False # else it is Wjets
+isTTbarCR = True # else it is Wjets
 		       
 bkgStackList = ['WJets','ZJets','VV','TTW','TTZ','TTJets','T','QCD']
 #wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
@@ -44,12 +43,12 @@ doAllSys = True
 systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','pdfNew','muRFcorrdNew','muRFdecorrdNew']#,'btagCorr']
 normalizeRENORM_PDF = True #normalize the renormalization/pdf uncertainties to nominal templates
 doQ2sys = True
-q2UpList   = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2U','Tt','TtW','TtWQ2U','TbtWQ2U']
-q2DownList = ['TTWl','TTZl','TTWq','TTZq','TTJetsPHQ2D','Tt','TtW','TtWQ2D','TbtWQ2D']
+q2UpList   = ['TTJetsPHQ2U','Tt','Ts','TtWQ2U','TbtWQ2U']+ttwList+ttzList
+q2DownList = ['TTJetsPHQ2D','Tt','Ts','TtWQ2D','TbtWQ2D']+ttwList+ttzList
 
 cutString  = ''#'lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-if isTTbarCR: pfix='ttbar_noJSF_notTag_2016_6_22'
-else: pfix='wjets_noJSF_notTag_2016_6_22'
+if isTTbarCR: pfix='ttbar_noJSF_notTag_2016_9_9'
+else: pfix='wjets_noJSF_notTag_2016_9_9'
 iPlot='minMlb'
 
 outDir = os.getcwd()+'/'

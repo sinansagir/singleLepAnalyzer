@@ -18,7 +18,7 @@ from ROOT import *
 #    threshold larger than 100% (>1.) in the argument
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-pfix='ttbar_noJSF_notTag_2016_6_22'
+pfix='wjets_noJSF_notTag_2016_9_9'
 if len(sys.argv)>1: pfix=sys.argv[1]
 cutString = ''#'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 templateDir = os.getcwd()+'/'+pfix+'/'+cutString
@@ -161,7 +161,7 @@ def findfiles(path, filtre):
 rfiles = [file for file in findfiles(templateDir, '*.root') if '00left_2p318fb.root' in file or '00right_2p318fb.root' in file]
 rfiles = [file for file in rfiles if 'rebinned' not in file]
 
-stat = 0.3 # 30% statistical uncertainty requirement
+stat = 0.30 # 30% statistical uncertainty requirement
 if len(sys.argv)>2: stat=float(sys.argv[2])
 
 rebinTFile = TFile(rfiles[0])
