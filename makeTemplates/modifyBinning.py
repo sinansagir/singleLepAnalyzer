@@ -19,14 +19,16 @@ start_time = time.time()
 #    threshold larger than 100% (>1.) in the argument
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-cutString = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateDir = os.getcwd()+'/templates_minMlb_noJSF_2016_6_22/'+cutString
-rfile = templateDir+'/templates_minMlb_2p318fb.root'
+cutString = 'lep30_MET150_NJets4_DR1_1jet450_2jet150'
+templateDir = os.getcwd()+'/templates_minMlb_2016_9_14/'+cutString
+combinefile = templateDir+'/templates_minMlb_12p892fb.root'
 rebinCombine = True #else rebins theta tempaltes
-normalizeRENORM = True #does it only for signals
-normalizePDF    = True #does it only for signals
+normalizeRENORM = True #only for signals
+normalizePDF    = True #only for signals
+#X53X53, TT, BB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
+sigName = 'X53X53' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
 
-stat = 0.3 # 30% statistical uncertainty requirement
+stat = 0.2 # 30% statistical uncertainty requirement
 if len(sys.argv)>1: stat=float(sys.argv[1])
 
 if rebinCombine:
@@ -44,8 +46,8 @@ def findfiles(path, filtre):
             yield os.path.join(root, f)
 
 #Setup the selection of the files to be rebinned:          
-rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file]
-if rebinCombine: rfiles = [rfile]
+rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and combinefile.split('/')[-1] not in file]
+if rebinCombine: rfiles = [combinefile]
 
 tfile = TFile(rfiles[0])
 datahists = [k.GetName() for k in tfile.GetListOfKeys() if '__'+dataName in k.GetName()]
@@ -107,13 +109,12 @@ for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 
 iRfile=0
 for rfile in rfiles: 
-	print "REBINNING FILE:",file
+	print "REBINNING FILE:",rfile
 	tfiles = {}
 	outputRfiles = {}
 	tfiles[iRfile] = TFile(rfile)	
 	outputRfiles[iRfile] = TFile(rfile.replace('.root','_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
 
-	print "==> I will use this binning choice to rebin original histograms:"
 	print "PROGRESS:"
 	for chn in channels:
 		print "         ",chn
@@ -136,10 +137,10 @@ for rfile in rfiles:
 			
 		#Constructing muRF shapes
 		muRUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'muR'+upTag in k.GetName() and chn in k.GetName()]
+		newMuRFName = 'muRFcorrdNew'
 		for hist in muRUphists:
-			newMuRFName = 'muRFcorrdNew'
-			muRFcorrdNewUpHist = rebinnedHists[hist].Clone(hist.replace('muRUp',newMuRFName+upTag))
-			muRFcorrdNewDnHist = rebinnedHists[hist].Clone(hist.replace('muRUp',newMuRFName+downTag))
+			muRFcorrdNewUpHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+upTag))
+			muRFcorrdNewDnHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+downTag))
 			histList = [
 				rebinnedHists[hist[:hist.find('__mu')]], #nominal
 				rebinnedHists[hist], #renormWeights[4]
@@ -159,7 +160,7 @@ for rfile in rfiles:
 
 				muRFcorrdNewUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
 				muRFcorrdNewDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
-			if 'sig__mu' in hist and normalizeRENORM: #normalize the renorm/fact shapes to nominal
+			if ('sig__mu' in hist and normalizeRENORM) or (rebinCombine and '__'+sigName in hist and '__mu' in hist and normalizeRENORM): #normalize the renorm/fact shapes to nominal
 				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__mu')]).Clone()
 				muRFcorrdNewUpHist.Scale(renormNomHist.Integral()/muRFcorrdNewUpHist.Integral())
 				muRFcorrdNewDnHist.Scale(renormNomHist.Integral()/muRFcorrdNewDnHist.Integral())
@@ -168,8 +169,8 @@ for rfile in rfiles:
 
 		#Constructing PDF shapes
 		pdfUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'pdf0' in k.GetName() and chn in k.GetName()]
+		newPDFName = 'pdfNew'
 		for hist in pdfUphists:
-			newPDFName = 'pdfNew'
 			pdfNewUpHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+upTag))
 			pdfNewDnHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+downTag))
 			for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
@@ -180,7 +181,7 @@ for rfile in rfiles:
 				pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
 				pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
 				pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
-			if 'sig__pdf' in hist and normalizePDF: #normalize the renorm/fact shapes to nominal
+			if ('sig__pdf' in hist and normalizePDF) or (rebinCombine and '__'+sigName in hist and '__pdf' in hist and normalizePDF): #normalize the renorm/fact shapes to nominal
 				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__pdf')]).Clone()
 				pdfNewUpHist.Scale(renormNomHist.Integral()/pdfNewUpHist.Integral())
 				pdfNewDnHist.Scale(renormNomHist.Integral()/pdfNewDnHist.Integral())
