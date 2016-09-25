@@ -11,11 +11,11 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = False # else it is Wjets
+isTTbarCR = 1 # else it is Wjets
 cutString=''
 iPlot='minMlb'
-if isTTbarCR: pfix='/ttbar_'+iPlot+'_2016_9_6'+'/'
-else: pfix='/wjets_'+iPlot+'_2016_9_6'+'/'
+if isTTbarCR: pfix='/ttbar_'+iPlot+'_2016_9_14/'
+else: pfix='/wjets_'+iPlot+'_2016_9_14/'
 outDir = os.getcwd()+'/'
 outDir+=pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
@@ -28,7 +28,7 @@ lumiScaleCoeff = 3990./2318.
 doAllSys = True
 doQ2sys = True
 if not doAllSys: doQ2sys = False
-systematicList = ['pileup','jec','jer','btag','tau21','mistag','trigeff']#,'muRFcorrdNew','pdfNew','jsf']
+systematicList = ['pileup','jec','jer','btag','mistag','tau21','topsf','toppt','muR','muF','muRFcorrd','jsf','trigeff']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
 		       
 bkgStackList = ['ZJets','VV','TTW','TTZ','T','QCD','WJets','TTJets']
@@ -123,7 +123,7 @@ def round_sig(x,sig=2):
 	except:
 		return round(x,5)
 
-postTag = 'isSR_'
+postTag = 'isCR_'
 ###########################################################
 #################### CATEGORIZATION #######################
 ###########################################################
@@ -246,21 +246,21 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							for bkg in topList: 
 								if bkg not in ttjetList: htop[systematic+ud+str(i)].Add(bkghists[histoPrefix+'_'+bkg])
 				for pdfInd in range(100):
-					hqcd['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__pdf'+str(pdfInd))
-					hewk['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__pdf'+str(pdfInd))
-					htop['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+topList[0]].Clone(histoPrefix+'__top__pdf'+str(pdfInd))
+					hqcd['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+qcdList[0]].Clone(histoPrefix+'__qcd__pdf'+str(pdfInd))
+					hewk['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+ewkList[0]].Clone(histoPrefix+'__ewk__pdf'+str(pdfInd))
+					htop['pdf'+str(pdfInd)+'_'+str(i)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+topList[0]].Clone(histoPrefix+'__top__pdf'+str(pdfInd))
 					for bkg in qcdList: 
-						if bkg!=qcdList[0]: hqcd['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+						if bkg!=qcdList[0]: hqcd['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
 					for bkg in ewkList: 
-						if bkg!=ewkList[0]: hewk['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+						if bkg!=ewkList[0]: hewk['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
 					for bkg in topList: 
-						if bkg!=topList[0]: htop['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+						if bkg!=topList[0]: htop['pdf'+str(pdfInd)+'_'+str(i)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
 					for signal in sigList:
 						i=BRconfStr+catStr+signal
-						hsig['pdf'+str(pdfInd)+'_'+str(i)] = sighists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__pdf'+str(pdfInd))
+						hsig['pdf'+str(pdfInd)+'_'+str(i)] = sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__pdf'+str(pdfInd))
 						if doBRScan: hsig['pdf'+str(pdfInd)+'_'+str(i)].Scale(BRs[decays[0][:2]][BRind]*BRs[decays[0][2:]][BRind]/(BR[decays[0][:2]]*BR[decays[0][2:]]))
 						for decay in decays:
-							htemp = sighists[histoPrefix.replace('_'+lumiStr,lumiStr).replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decay].Clone()
+							htemp = sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decay].Clone()
 							if doBRScan: htemp.Scale(BRs[decay[:2]][BRind]*BRs[decay[2:]][BRind]/(BR[decay[:2]]*BR[decay[2:]]))
 							if decay!=decays[0]:hsig['pdf'+str(pdfInd)+'_'+str(i)].Add(htemp)
 					i=BRconfStr+catStr
@@ -351,6 +351,28 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					yieldStatErrTable[histoPrefix][signal] += hsig[i].GetBinError(ibin)**2
 				i=BRconfStr+catStr
 
+		#scale signal cross section to 1pb
+		print "SCALING SIGNAL TEMPLATES TO 1pb ..."
+		if scaleSignalXsecTo1pb:
+			for signal in sigList:
+				thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
+				thetaRfile = TFile(thetaRfileName,'RECREATE')
+				for cat in catList:
+					tagStr = 'nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
+					catStr = 'is'+cat[0]+'_'+tagStr
+					i=BRconfStr+catStr+signal
+					hsig[i].Scale(1./xsec[signal])
+					if doAllSys:
+						for systematic in systematicList:
+							if systematic=='toppt': continue
+							hsig[systematic+'Up'+str(i)].Scale(1./xsec[signal])
+							hsig[systematic+'Down'+str(i)].Scale(1./xsec[signal])
+							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
+								hsig[systematic+'Up'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Up'+str(i)].Integral())
+								hsig[systematic+'Down'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Down'+str(i)].Integral())
+						for pdfInd in range(100): 
+							hsig['pdf'+str(pdfInd)+'_'+str(i)].Scale(1./xsec[signal])
+
 		#Theta templates:
 		print "WRITING THETA TEMPLATES: "
 		for signal in sigList:
@@ -360,23 +382,12 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			for cat in catList:
 				tagStr = 'nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 				catStr = 'is'+cat[0]+'_'+tagStr
-				histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
-				i=BRconfStr+catStr
-				#scale signal cross section to 1pb
-				#write combine histograms in root file
 				i=BRconfStr+catStr+signal
 				if hsig[i].Integral() > 0:
-					if scaleSignalXsecTo1pb: hsig[i].Scale(1./xsec[signal])
 					hsig[i].Write()
 					if doAllSys:
 						for systematic in systematicList:
 							if systematic=='toppt': continue
-							if scaleSignalXsecTo1pb: 
-								hsig[systematic+'Up'+str(i)].Scale(1./xsec[signal])
-								hsig[systematic+'Down'+str(i)].Scale(1./xsec[signal])
-							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-								hsig[systematic+'Up'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Up'+str(i)].Integral())
-								hsig[systematic+'Down'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Down'+str(i)].Integral())
 							hsig[systematic+'Up'+str(i)].Write()
 							hsig[systematic+'Down'+str(i)].Write()
 						for pdfInd in range(100): hsig['pdf'+str(pdfInd)+'_'+str(i)].Write()
@@ -385,9 +396,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					htop[i].Write()
 					if doAllSys:
 						for systematic in systematicList:
-							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-								htop[systematic+'Up'+str(i)].Scale(htop[i].Integral()/htop[systematic+'Up'+str(i)].Integral())
-								htop[systematic+'Down'+str(i)].Scale(htop[i].Integral()/htop[systematic+'Down'+str(i)].Integral())  
 							htop[systematic+'Up'+str(i)].Write()
 							htop[systematic+'Down'+str(i)].Write()
 						for pdfInd in range(100): htop['pdf'+str(pdfInd)+'_'+str(i)].Write()
@@ -399,9 +407,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					if doAllSys:
 						for systematic in systematicList:
 							if systematic=='toppt': continue
-							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-								hewk[systematic+'Up'+str(i)].Scale(hewk[i].Integral()/hewk[systematic+'Up'+str(i)].Integral())
-								hewk[systematic+'Down'+str(i)].Scale(hewk[i].Integral()/hewk[systematic+'Down'+str(i)].Integral()) 
 							hewk[systematic+'Up'+str(i)].Write()
 							hewk[systematic+'Down'+str(i)].Write()
 						for pdfInd in range(100): hewk['pdf'+str(pdfInd)+'_'+str(i)].Write()
@@ -410,9 +415,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					if doAllSys:
 						for systematic in systematicList:
 							if systematic=='toppt': continue
-							if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-								hqcd[systematic+'Up'+str(i)].Scale(hqcd[i].Integral()/hqcd[systematic+'Up'+str(i)].Integral())
-								hqcd[systematic+'Down'+str(i)].Scale(hqcd[i].Integral()/hqcd[systematic+'Down'+str(i)].Integral()) 
 							hqcd[systematic+'Up'+str(i)].Write()
 							hqcd[systematic+'Down'+str(i)].Write()
 						for pdfInd in range(100): hqcd['pdf'+str(pdfInd)+'_'+str(i)].Write()
@@ -427,25 +429,15 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			tagStr = 'nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 			catStr = 'is'+cat[0]+'_'+tagStr
 			print "              ...writing: "+catStr
-			histoPrefix=discriminant+'_'+lumiStr+'fb_'+catStr
 			i=BRconfStr+catStr
-			#scale signal cross section to 1pb
-			#write combine histograms in root file
 			for signal in sigList:
 				mass = [str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100) if str(mass) in signal][0]
 				i=BRconfStr+catStr+signal
-				if scaleSignalXsecTo1pb: hsig[i].Scale(1./xsec[signal])
 				hsig[i].SetName(hsig[i].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass))
 				hsig[i].Write()
 				if doAllSys:
 					for systematic in systematicList:
 						if systematic=='toppt': continue
-						if scaleSignalXsecTo1pb: 
-							hsig[systematic+'Up'+str(i)].Scale(1./xsec[signal])
-							hsig[systematic+'Down'+str(i)].Scale(1./xsec[signal])
-						if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-							hsig[systematic+'Up'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Up'+str(i)].Integral())
-							hsig[systematic+'Down'+str(i)].Scale(hsig[i].Integral()/hsig[systematic+'Down'+str(i)].Integral())
 						hsig[systematic+'Up'+str(i)].SetName(hsig[systematic+'Up'+str(i)].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__plus','Up'))
 						hsig[systematic+'Down'+str(i)].SetName(hsig[systematic+'Down'+str(i)].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__minus','Down'))
 						hsig[systematic+'Up'+str(i)].Write()
@@ -458,9 +450,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			htop[i].Write()
 			if doAllSys:
 				for systematic in systematicList:
-					if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-						htop[systematic+'Up'+str(i)].Scale(htop[i].Integral()/htop[systematic+'Up'+str(i)].Integral())
-						htop[systematic+'Down'+str(i)].Scale(htop[i].Integral()/htop[systematic+'Down'+str(i)].Integral())  
 					htop[systematic+'Up'+str(i)].SetName(htop[systematic+'Up'+str(i)].GetName().replace('fb_','fb_'+postTag).replace('__plus','Up'))
 					htop[systematic+'Down'+str(i)].SetName(htop[systematic+'Down'+str(i)].GetName().replace('fb_','fb_'+postTag).replace('__minus','Down'))
 					htop[systematic+'Up'+str(i)].Write()
@@ -478,9 +467,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			if doAllSys:
 				for systematic in systematicList:
 					if systematic=='toppt': continue
-					if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-						hewk[systematic+'Up'+str(i)].Scale(hewk[i].Integral()/hewk[systematic+'Up'+str(i)].Integral())
-						hewk[systematic+'Down'+str(i)].Scale(hewk[i].Integral()/hewk[systematic+'Down'+str(i)].Integral()) 
 					hewk[systematic+'Up'+str(i)].SetName(hewk[systematic+'Up'+str(i)].GetName().replace('fb_','fb_'+postTag).replace('__plus','Up'))
 					hewk[systematic+'Down'+str(i)].SetName(hewk[systematic+'Down'+str(i)].GetName().replace('fb_','fb_'+postTag).replace('__minus','Down'))
 					hewk[systematic+'Up'+str(i)].Write()
@@ -493,9 +479,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			if doAllSys:
 				for systematic in systematicList:
 					if systematic=='toppt': continue
-					if normalizeRENORM_PDF and (systematic.startswith('mu') or systematic=='pdf'):
-						hqcd[systematic+'Up'+str(i)].Scale(hqcd[i].Integral()/hqcd[systematic+'Up'+str(i)].Integral())
-						hqcd[systematic+'Down'+str(i)].Scale(hqcd[i].Integral()/hqcd[systematic+'Down'+str(i)].Integral()) 
 					hqcd[systematic+'Up'+str(i)].SetName(hqcd[systematic+'Up'+str(i)].GetName().replace('fb_','fb_'+postTag).replace('__plus','Up'))
 					hqcd[systematic+'Down'+str(i)].SetName(hqcd[systematic+'Down'+str(i)].GetName().replace('fb_','fb_'+postTag).replace('__minus','Down'))
 					hqcd[systematic+'Up'+str(i)].Write()
@@ -600,9 +583,9 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		print
 		print "FOR AN (errors are statistical+normalization systematics): "
 		print
-		print 'YIELDS ELECTRON+JETS'.ljust(20*ljust_i),
+		print 'YIELDS ELECTRON+JETS'.ljust(20*ljust_i)
 		for nttag in nttaglist:
-			print ('# Top Tag ='+nttag).ljust(20*ljust_i),
+			print ('#topTag='+nttag).ljust(20*ljust_i),
 			for cat in catList:
 				tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 				catStr='is'+cat[0]+'_'+tagStr
@@ -646,9 +629,9 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				print '\\\\',
 				print
 		print
-		print 'YIELDS MUON+JETS'.ljust(20*ljust_i),
+		print 'YIELDS MUON+JETS'.ljust(20*ljust_i)
 		for nttag in nttaglist: 
-			print ('# Top Tag ='+nttag).ljust(20*ljust_i),
+			print ('#topTag='+nttag).ljust(20*ljust_i),
 			for cat in catList:
 				tagStr='nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
 				catStr='is'+cat[0]+'_'+tagStr
