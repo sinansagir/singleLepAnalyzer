@@ -148,11 +148,14 @@ for rfile in rfiles:
 			for bkg in bkgProcList:
 				if bkg!=bkgProcList[0]:rebinnedHists['chnTotBkgHist'].Add(rebinnedHists[chnHistName.replace(dataName,bkg)])
 			for ibin in range(1, rebinnedHists['chnTotBkgHist'].GetNbinsX()+1):
+				sigNameNoMass = sigName
+				if 'left' in sigProcList[0]: sigNameNoMass = sigName+'left'
+				if 'right' in sigProcList[0]: sigNameNoMass = sigName+'right'
 				val = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetBinContent(ibin)
 				#if val==0: continue #SHOULD WE HAVE THIS???
 				error  = rebinnedHists['chnTotBkgHist'].GetBinError(ibin)
-				err_up_name = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetName()+'__CMS_'+chn+'_'+era+'_'+bkgProcList[0]+"_bin_%iUp" % ibin
-				err_dn_name = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetName()+'__CMS_'+chn+'_'+era+'_'+bkgProcList[0]+"_bin_%iDown" % ibin
+				err_up_name = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetName()+'__CMS_'+sigNameNoMass+'_'+chn+'_'+era+'_'+bkgProcList[0]+"_bin_%iUp" % ibin
+				err_dn_name = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetName()+'__CMS_'+sigNameNoMass+'_'+chn+'_'+era+'_'+bkgProcList[0]+"_bin_%iDown" % ibin
 				rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].Clone(err_up_name)
 				rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].Clone(err_dn_name)
 				rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
@@ -160,14 +163,11 @@ for rfile in rfiles:
 				rebinnedHists[err_up_name].Write()
 				rebinnedHists[err_dn_name].Write()
 				for sig in sigProcList:
-					sigNameNoMass = sigName
-					if 'left' in sig: sigNameNoMass = sigName+'left'
-					if 'right' in sig: sigNameNoMass = sigName+'right'
 					val = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinContent(ibin)
 					#if val==0: continue #SHOULD WE HAVE THIS???
 					error  = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinError(ibin)
-					err_up_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iUp" % ibin
-					err_dn_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iDown" % ibin
+					err_up_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigNameNoMass+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iUp" % ibin
+					err_dn_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigNameNoMass+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iDown" % ibin
 					rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,sig)].Clone(err_up_name)
 					rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,sig)].Clone(err_dn_name)
 					rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
