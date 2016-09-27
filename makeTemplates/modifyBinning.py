@@ -22,11 +22,17 @@ start_time = time.time()
 cutString = 'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 templateDir = os.getcwd()+'/templates_minMlb_2016_9_14/'+cutString
 combinefile = templateDir+'/templates_minMlb_12p892fb.root'
-rebinCombine = True #else rebins theta tempaltes
+rebinCombine = True #else rebins theta templates
+doStatShapes = True
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
 #X53X53, TT, BB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 sigName = 'X53X53' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
+signalMassRange = [700,1600]
+sigProcList = [sigName+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
+if sigName=='X53X53': sigProcList = [sigName+chiral+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
+bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
+era = "13TeV"
 
 stat = 0.2 # 30% statistical uncertainty requirement
 if len(sys.argv)>1: stat=float(sys.argv[1])
@@ -134,7 +140,48 @@ for rfile in rfiles:
 			if '__pdf' in hist:
 				if 'Up' not in hist or 'Down' not in hist: continue
 			rebinnedHists[hist].Write()
-			
+
+		#add statistical uncertainty shapes:
+		if rebinCombine and doStatShapes:
+			chnHistName = [hist for hist in datahists if chn in hist][0]
+			rebinnedHists['chnTotBkgHist'] = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].Clone()
+			for bkg in bkgProcList:
+				if bkg!=bkgProcList[0]:rebinnedHists['chnTotBkgHist'].Add(rebinnedHists[chnHistName.replace(dataName,bkg)])
+			for ibin in range(1, rebinnedHists['chnTotBkgHist'].GetNbinsX()+1):
+				sigNameNoMass = sigName
+				if 'left' in sigProcList[0]: sigNameNoMass = sigName+'left'
+				if 'right' in sigProcList[0]: sigNameNoMass = sigName+'right'
+				dominantBkgProc = bkgProcList[0]
+				val = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetBinContent(ibin)
+				for bkg in bkgProcList:
+					if rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)>val: 
+						val = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)
+						dominantBkgProc = bkg
+				#if val==0: continue #SHOULD WE HAVE THIS???
+				error  = rebinnedHists['chnTotBkgHist'].GetBinError(ibin)
+				err_up_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigNameNoMass+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iUp" % ibin
+				err_dn_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigNameNoMass+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iDown" % ibin
+				rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].Clone(err_up_name)
+				rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].Clone(err_dn_name)
+				rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
+				rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
+				if val-error<0: rebinnedHists[err_dn_name].SetBinContent(ibin, 0.) #IS THIS CORRECT???
+				rebinnedHists[err_up_name].Write()
+				rebinnedHists[err_dn_name].Write()
+				for sig in sigProcList:
+					val = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinContent(ibin)
+					#if val==0: continue #SHOULD WE HAVE THIS???
+					error  = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinError(ibin)
+					err_up_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigNameNoMass+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iUp" % ibin
+					err_dn_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigNameNoMass+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iDown" % ibin
+					rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,sig)].Clone(err_up_name)
+					rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,sig)].Clone(err_dn_name)
+					rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
+					rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
+					if val-error<0: rebinnedHists[err_dn_name].SetBinContent(ibin, 0.)
+					rebinnedHists[err_up_name].Write()
+					rebinnedHists[err_dn_name].Write()
+								
 		#Constructing muRF shapes
 		muRUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'muR'+upTag in k.GetName() and chn in k.GetName()]
 		newMuRFName = 'muRFcorrdNew'
