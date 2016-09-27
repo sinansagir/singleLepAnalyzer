@@ -148,13 +148,13 @@ for rfile in rfiles:
 			for bkg in bkgProcList:
 				if bkg!=bkgProcList[0]:rebinnedHists['chnTotBkgHist'].Add(rebinnedHists[chnHistName.replace(dataName,bkg)])
 			for ibin in range(1, rebinnedHists['chnTotBkgHist'].GetNbinsX()+1):
-				val = rebinnedHists['chnTotBkgHist'].GetBinContent(ibin)
-				if val==0: print "WARNING!! The bin content is zero in the total background!!!!!!!!"
+				val = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetBinContent(ibin)
+				#if val==0: continue #SHOULD WE HAVE THIS???
 				error  = rebinnedHists['chnTotBkgHist'].GetBinError(ibin)
-				err_up_name = rebinnedHists['chnTotBkgHist'].GetName()+'__CMS_'+chn+'_'+era+'_'+bkgProcList[0]+"_bin_%iUp" % ibin
-				err_dn_name = rebinnedHists['chnTotBkgHist'].GetName()+'__CMS_'+chn+'_'+era+'_'+bkgProcList[0]+"_bin_%iDown" % ibin
-				rebinnedHists[err_up_name] = rebinnedHists['chnTotBkgHist'].Clone(err_up_name)
-				rebinnedHists[err_dn_name] = rebinnedHists['chnTotBkgHist'].Clone(err_dn_name)
+				err_up_name = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetName()+'__CMS_'+chn+'_'+era+'_'+bkgProcList[0]+"_bin_%iUp" % ibin
+				err_dn_name = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetName()+'__CMS_'+chn+'_'+era+'_'+bkgProcList[0]+"_bin_%iDown" % ibin
+				rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].Clone(err_up_name)
+				rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].Clone(err_dn_name)
 				rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
 				rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
 				rebinnedHists[err_up_name].Write()
