@@ -8,6 +8,7 @@ from numpy import linspace
 from weights import *
 from analyze import *
 from samples import *
+from utils import *
 
 gROOT.SetBatch(1)
 start_time = time.time()
@@ -140,21 +141,6 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='templates_minMlb_test'
 pfix+='_'+datestr#+'_'+timestr
-
-def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
-	norm0=hist.Integral()
-	for iBin in range(0,hist.GetNbinsX()+2):
-		if hist.GetBinContent(iBin)<0: hist.SetBinContent(iBin,0)
-	if hist.Integral()!=0 and norm0>0: hist.Scale(norm0/hist.Integral())
-
-def overflow(hist):
-	nBinsX=hist.GetXaxis().GetNbins()
-	content=hist.GetBinContent(nBinsX)+hist.GetBinContent(nBinsX+1)
-	error=math.sqrt(hist.GetBinError(nBinsX)**2+hist.GetBinError(nBinsX+1)**2)
-	hist.SetBinContent(nBinsX,content)
-	hist.SetBinError(nBinsX,error)
-	hist.SetBinContent(nBinsX+1,0)
-	hist.SetBinError(nBinsX+1,0)
 
 def readTree(file):
 	if not os.path.exists(file): 

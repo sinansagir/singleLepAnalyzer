@@ -5,6 +5,7 @@ parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from ROOT import *
 from weights import *
+from utils import *
 
 gROOT.SetBatch(1)
 start_time = time.time()
@@ -144,26 +145,6 @@ def formatLowerHist(histogram):
 	if doRealPull: histogram.GetYaxis().SetRangeUser(min(-2.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(2.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
 	else: histogram.GetYaxis().SetRangeUser(0,2.99)
 	histogram.GetYaxis().CenterTitle()
-
-def negBinCorrection(hist):
-	norm0=hist.Integral()
-	for iBin in range(0,hist.GetNbinsX()+2):
-		if hist.GetBinContent(iBin)<0: hist.SetBinContent(iBin,0)
-	if hist.Integral()!=0: hist.Scale(norm0/hist.Integral())
-
-def normByBinWidth(result):
-	result.SetBinContent(0,0)
-	result.SetBinContent(result.GetNbinsX()+1,0)
-	result.SetBinError(0,0)
-	result.SetBinError(result.GetNbinsX()+1,0)
-	
-	for bin in range(1,result.GetNbinsX()+1):
-		width=result.GetBinWidth(bin)
-		content=result.GetBinContent(bin)
-		error=result.GetBinError(bin)
-		
-		result.SetBinContent(bin, content/width)
-		result.SetBinError(bin, error/width)
 
 RFile1 = TFile(templateDir+tempsig.replace(sig1,sig1))
 RFile2 = TFile(templateDir+tempsig.replace(sig1,sig2))
