@@ -102,9 +102,10 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	# For N-1 tagging cuts
 	pruned_massvar = 'theJetAK8PrunedMassWtagUncerts_JetSubCalc_PtOrdered'
 	soft_massvar='theJetAK8SoftDropMass_JetSubCalc_PtOrdered'
-	wtagvar = 'NJetsWtagged_0p6'
-	if 'PrunedNm1' in iPlot: cut += ' && (theJetAK8NjettinessTau2_JetSubCalc_PtOrdered/theJetAK8NjettinessTau1_JetSubCalc_PtOrdered < 0.6)'
-	if 'SoftDropMassNm1' in iPlot: cut+=  ' && (theJetAK8NjettinessTau3_JetSubCalc_PtOrdered/theJetAK8NjettinessTau2_JetSubCalc_PtOrdered < 0.81)'
+	tau21var = 'theJetAK8NjettinessTau2_JetSubCalc_PtOrdered/theJetAK8NjettinessTau1_JetSubCalc_PtOrdered'
+	tau32var = 'theJetAK8NjettinessTau3_JetSubCalc_PtOrdered/theJetAK8NjettinessTau2_JetSubCalc_PtOrdered'
+	if 'PrunedNm1' in iPlot: cut += ' && ('+tau21var+' < 0.6)'
+	if 'SoftDropMassNm1' in iPlot: cut+=  ' && ('+tau32var+' < 0.69)'
 	if 'Tau21Nm1' in iPlot:  cut += ' && ('+pruned_massvar+' > 65 && '+pruned_massvar+' < 105)'
 	if 'Tau32Nm1' in iPlot:  cut += ' && ('+soft_massvar+' > 105 && '+ soft_massvar+' < 220)'
 
@@ -133,32 +134,25 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		if nttag=='0p': nttagCut=''
 	
 		nWtagCut=''
-		if '0p' in nWtag: nWtagCut += ' && (('+nWtagLJMETname+' > 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut'])+') || ('+nWtagLJMETname+' == 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut']+1)+'))'
-		elif 'p' in nWtag: nWtagCut+=' && '+nWtagLJMETname+'>='+nWtag[:-1]
-		else: nWtagCut+=' && '+nWtagLJMETname+'=='+nWtag +' && NJets_JetSubCalc >=' +str(cutList['njetsCut']+1)
-		
+		if 'p' in nWtag: nWtagCut+=' && '+nWtagLJMETname+'>='+nWtag[:-1]
+		else: nWtagCut+=' && '+nWtagLJMETname+'=='+nWtag
+		if nWtag=='0p': nWtagCut=''
+				
 		nbtagCut=''
-		if 'p' in nbtag: nbtagCut+=' && NJetsCSVwithSF_JetSubCalc>='+nbtag[:-1]
-		else: nbtagCut+=' && NJetsCSVwithSF_JetSubCalc=='+nbtag
+		if 'p' in nbtag: nbtagCut+=' && '+nbtagLJMETname+'>='+nbtag[:-1]
+		else: nbtagCut+=' && '+nbtagLJMETname+'=='+nbtag
 		
 		if nbtag=='0' and iPlot=='minMlb': 
 			originalLJMETName=plotTreeName
 			plotTreeName='minMleppJet'
-# 	else:
-# 		if 'SR' in region: cut += ' && (('+nWtagLJMETname+' > 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut'])+') || ('+nWtagLJMETname+' == 0 && NJets_JetSubCalc >= '+str(cutList['njetsCut']+1)+'))'
 
 	fullcut = cut+isEMCut+nttagCut+nWtagCut+nbtagCut
 
 	# replace cuts for shifts
-	cut_btagUp = fullcut.replace('NJetsHtagged','NJetsHtagged_shifts[0]')
-	cut_btagDn = fullcut.replace('NJetsHtagged','NJetsHtagged_shifts[1]')
-	cut_mistagUp = fullcut.replace('NJetsHtagged','NJetsHtagged_shifts[2]')
-	cut_mistagDn = fullcut.replace('NJetsHtagged','NJetsHtagged_shifts[3]')
-	
-	cut_btagUp = cut_btagUp.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[0]')
-	cut_btagDn = cut_btagDn.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[1]')
-	cut_mistagUp = cut_mistagUp.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[2]')
-	cut_mistagDn = cut_mistagDn.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[3]')
+	cut_btagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[0]')
+	cut_btagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[1]')
+	cut_mistagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[2]')
+	cut_mistagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[3]')
 	
 	cut_tauUp = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[0]')
 	cut_tauDn = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[1]')
@@ -225,45 +219,44 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'jsfDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightjsfDownStr+'*('+fullcut+')', 'GOFF')
 
 		# Change the plot name itself for shifts if needed
-		BTAGName = plotTreeName
-		if 'CSVwithSF' in BTAGName or 'Htag' in BTAGName or 'MleppB' in BTAGName or 'BJetLead' in BTAGName or 'MinMlb' in BTAGName: BTAGName = BTAGName+'_shifts[0]'
-		if '_lepBJets' in BTAGName: BTAGName = BTAGName.replace('_lepBJets','_bSFup_lepBJets')
-		print 'BTAGup LJMET NAME',BTAGName
-		tTree[process].Draw(BTAGName+    ' >> '+iPlot+'btagUp_'       +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_btagUp+')', 'GOFF')
-		BTAGName = BTAGName.replace('_shifts[0]','_shifts[1]')
-		BTAGName = BTAGName.replace('_bSFup','_bSFdn')
-		print 'BTAGdown LJMET NAME',BTAGName
-		tTree[process].Draw(BTAGName+    ' >> '+iPlot+'btagDown_'     +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+cut_btagDn+')', 'GOFF')
-		BTAGName = BTAGName.replace('_shifts[1]','_shifts[2]')
-		BTAGName = BTAGName.replace('_bSFdn','_lSFup')
-		print 'MISTAGup LJMET NAME',BTAGName
-		tTree[process].Draw(BTAGName+    ' >> '+iPlot+'mistagUp_'     +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+cut_mistagUp+')', 'GOFF')
-		BTAGName = BTAGName.replace('_shifts[2]','_shifts[3]')
-		BTAGName = BTAGName.replace('_lSFup','_lSFdn')
-		print 'MISTAGdown LJMET NAME',BTAGName
-		tTree[process].Draw(BTAGName+    ' >> '+iPlot+'mistagDown_'   +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+cut_mistagDn+')', 'GOFF')
+		TTAGupName= plotTreeName
+		TTAGdnName= plotTreeName
+		if 'Ttagged' in plotTreeName or 'Tjet' in plotTreeName or 'TJet' in plotTreeName: 
+			TTAGupName = TTAGupName+'_shifts[0]'
+			TTAGdnName = TTAGdnName+'_shifts[1]'
+		print 'TTAG SHIFT LJMET NAMES',TTAGupName,TTAGdnName
+		tTree[process].Draw(TTAGupName+' >> '+iPlot+'topsfUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_topsfUp+')', 'GOFF')
+		tTree[process].Draw(TTAGdnName+' >> '+iPlot+'topsfDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_topsfDn+')', 'GOFF')
 
-		TTAGName= plotTreeName
-		if 'Ttagged' in TTAGName or 'Tjet' in TTAGName or 'TJet' in TTAGName: TTAGName = TTAGName+'_shifts[0]'
-		tTree[process].Draw(TTAGName+    ' >> '+iPlot+'topsfUp_'      +lumiStr+'fb_'+catStr+'_'+process, weightStr  +'*('+cut_topsfUp+')', 'GOFF')
-		print 'TTAGup LJMET NAME',TTAGName
-		TTAGName = TTAGName.replace('shifts[0]','shifts[1]')
-		tTree[process].Draw(TTAGName+    ' >> '+iPlot+'topsfDown_'    +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_topsfDn+')', 'GOFF')
-		print 'TTAGdown LJMET NAME',TTAGName
+		TAUupName = plotTreeName
+		TAUdnName = plotTreeName
+		if 'Wtagged' in plotTreeName or 'Wjet' in plotTreeName or 'WJet' in plotTreeName: 
+			TAUupName = TAUupName+'_shifts[0]'
+			TAUdnName = TAUdnName+'_shifts[1]'
+		print 'WTAG SHIFT LJMET NAMES',TAUupName,TAUdnName
+		tTree[process].Draw(TAUupName+' >> '+iPlot+'tau21Up_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_tauUp+')', 'GOFF')
+		tTree[process].Draw(TAUdnName+' >> '+iPlot+'tau21Down_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_tauDn+')', 'GOFF')		
 
-		TAUName = plotTreeName
-		if 'Wtagged' in TAUName or 'Wjet' in TAUName or 'WJet' in TAUName: TAUName = TAUName+'_shifts[0]'
-		print 'TAUup LJMET NAME',TAUName
-		tTree[process].Draw(TAUName+     ' >> '+iPlot+'tau21Up_'      +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+cut_tauUp+')', 'GOFF')
-		TAUName = TAUName.replace('shifts[0]','shifts[1]')
-		print 'TAUdn LJMET NAME',TAUName
-		tTree[process].Draw(TAUName+     ' >> '+iPlot+'tau21Down_'    +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+cut_tauDn+')', 'GOFF')		
+		BTAGupName = plotTreeName.replace('_lepBJets','_bSFup_lepBJets')
+		BTAGdnName = plotTreeName.replace('_lepBJets','_bSFdn_lepBJets')
+		MISTAGupName = plotTreeName.replace('_lepBJets','_lSFup_lepBJets')
+		MISTAGdnName = plotTreeName.replace('_lepBJets','_lSFdn_lepBJets')
+		if 'CSVwithSF' in plotTreeName or 'Htag' in plotTreeName or 'MleppB' in plotTreeName or 'BJetLead' in plotTreeName or 'minMlb' in plotTreeName: 
+			BTAGupName = BTAGupName+'_shifts[0]'
+			BTAGdnName = BTAGdnName+'_shifts[1]'
+			MISTAGupName = MISTAGupName+'_shifts[2]'
+			MISTAGdnName = MISTAGdnName+'_shifts[3]'
+		print 'BTAG SHIFT LJMET NAMES',BTAGupName,BTAGdnName,MISTAGupName,MISTAGdnName
+		tTree[process].Draw(BTAGupName+' >> '+iPlot+'btagUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_btagUp+')', 'GOFF')
+		tTree[process].Draw(BTAGdnName+' >> '+iPlot+'btagDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_btagDn+')', 'GOFF')
+		tTree[process].Draw(MISTAGupName+' >> '+iPlot+'mistagUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_mistagUp+')', 'GOFF')
+		tTree[process].Draw(MISTAGdnName+' >> '+iPlot+'mistagDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_mistagDn+')', 'GOFF')
 
 		if tTree[process+'jecUp']:
-			tTree[process+'jecUp'].Draw(plotTreeName   +' >> '+iPlot+'jecUp_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+			tTree[process+'jecUp'].Draw(plotTreeName   +' >> '+iPlot+'jecUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
 			tTree[process+'jecDown'].Draw(plotTreeName +' >> '+iPlot+'jecDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
 		if tTree[process+'jerUp']:
-			tTree[process+'jerUp'].Draw(plotTreeName   +' >> '+iPlot+'jerUp_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+			tTree[process+'jerUp'].Draw(plotTreeName   +' >> '+iPlot+'jerUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
 			tTree[process+'jerDown'].Draw(plotTreeName +' >> '+iPlot+'jerDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
 		for i in range(100): tTree[process].Draw(plotTreeName+' >> '+iPlot+'pdf'+str(i)+'_'+lumiStr+'fb_'+catStr+'_'+process, 'pdfWeights['+str(i)+'] * '+weightStr+'*('+fullcut+')', 'GOFF')
 	

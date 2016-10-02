@@ -44,7 +44,7 @@ tList     = ['Tt','Tbt','Ts','TtW','TbtW']
 
 bkgGrupList = ['top','ewk','qcd']
 topList = ttjetList+ttwList+ttzList+tList
-ewkList = wjetList+vvList
+ewkList = wjetList+zjetList+vvList
 qcdList = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']#'QCDht100','QCDht200',
 dataList = ['DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
 
@@ -78,21 +78,6 @@ else:
 	nbtaglist = ['0']
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist))]
 tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist))]
-
-def negBinCorrection(hist): #set negative bin contents to zero and adjust the normalization
-	norm0=hist.Integral()
-	for iBin in range(0,hist.GetNbinsX()+2):
-		if hist.GetBinContent(iBin)<0: hist.SetBinContent(iBin,0)
-	if hist.Integral()!=0 and norm0>0: hist.Scale(norm0/hist.Integral())
-
-def overflow(hist):
-	nBinsX=hist.GetXaxis().GetNbins()
-	content=hist.GetBinContent(nBinsX)+hist.GetBinContent(nBinsX+1)
-	error=math.sqrt(hist.GetBinError(nBinsX)**2+hist.GetBinError(nBinsX+1)**2)
-	hist.SetBinContent(nBinsX,content)
-	hist.SetBinError(nBinsX,error)
-	hist.SetBinContent(nBinsX+1,0)
-	hist.SetBinError(nBinsX+1,0)
 
 lumiSys = 0.062 #2.7% lumi uncertainty
 eltrigSys = 0.03 #5% trigger uncertainty
@@ -512,6 +497,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					row = [proc]
 					for cat in catList:
 						if not ('is'+isEM in cat and 'nT'+nttag in cat): continue
+						modTag = cat[cat.find('nW'):]
 						histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
 						yieldtemp = 0.
 						yielderrtemp = 0.
@@ -520,7 +506,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 								try:
 									yieldtemp += yieldTable[histoPrefix][bkg]
 									yielderrtemp += yieldStatErrTable[histoPrefix][bkg]**2
-									yielderrtemp += (modelingSys[bkg+'_'+cat[4:]]*yieldTable[histoPrefix][bkg])**2
+									yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldTable[histoPrefix][bkg])**2
 								except:
 									print "Missing",bkg,"for channel:",cat
 									pass
@@ -537,10 +523,10 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							except:
 								print "Missing",proc,"for channel:",cat
 								pass
-							if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+cat[4:]]*yieldtemp)**2
+							if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2
 							yielderrtemp += (corrdSys*yieldtemp)**2
 						yielderrtemp = math.sqrt(yielderrtemp)
-						if proc=='data': row.append(' & '+str(round_sig(yieldTable[histoPrefix][proc],2)))
+						if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefix][proc])))
 						else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 					row.append('\\\\')
 					table.append(row)
@@ -555,6 +541,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				row = [proc]
 				for cat in catList:
 					if not ('isE' in cat and 'nT'+nttag in cat): continue
+					modTag = cat[cat.find('nW'):]
 					histoPrefixE = discriminant+'_'+lumiStr+'fb_'+cat
 					histoPrefixM = histoPrefixE.replace('isE','isM')
 					yieldtemp = 0.
@@ -568,7 +555,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 								yieldtempM += yieldTable[histoPrefixM][bkg]
 								yieldtemp += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
 								yielderrtemp += yieldStatErrTable[histoPrefixE][bkg]**2+yieldStatErrTable[histoPrefixM][bkg]**2
-								yielderrtemp += (modelingSys[bkg+'_'+cat[4:]]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+								yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 							except:
 								print "Missing",bkg,"for channel:",cat
 								pass
@@ -587,10 +574,10 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						except:
 							print "Missing",proc,"for channel:",cat
 							pass
-						if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+cat[4:]]*yieldtemp)**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+						if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
 					yielderrtemp = math.sqrt(yielderrtemp)
-					if proc=='data': row.append(' & '+str(round_sig(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc],2)))
+					if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc])))
 					else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 				row.append('\\\\')
 				table.append(row)
@@ -616,7 +603,8 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					row.append('\\\\')
 					table.append(row)
 			table.append(['break'])
-		out=open(outDir+'/yieldsTest_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+			
+		out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
 		printTable(table,out)
 
 datahists = {}
