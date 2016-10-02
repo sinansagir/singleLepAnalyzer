@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet_1lep_080116_step2preSel/nominal'
+step1Dir = '/user_data/ssagir/LJMet76In74_1lepTT_061316_step2/nominal/'
 
 """
 Note: 
@@ -27,29 +27,30 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 bkgList = [
-	'DY',
-	'WJetsMG',
-	'WJetsMG100',
-	'WJetsMG200',
-	'WJetsMG400',
-	'WJetsMG600',
-	'WJetsMG800',
-	'WJetsMG1200',
-	'WJetsMG2500',
-	'WW','WZ','ZZ',
-	'TTJetsPH0to1000inc',
-	#'TTJetsPH0to1000inc1','TTJetsPH0to1000inc2','TTJetsPH0to1000inc3','TTJetsPH0to1000inc4','TTJetsPH0to1000inc5','TTJetsPH0to1000inc6','TTJetsPH0to1000inc7','TTJetsPH0to1000inc8',
-	'TTJetsPH1000toINFinc',
-	'TTJetsPH1000mtt',
-	'TTWl','TTWq',
-	'TTZl','TTZq',
-	'Tt','Tbt','Ts',
-	'TtW','TbtW',
-	#'QCDht100','QCDht200',
-	'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
-	]
+		   'DY50',
+		   'WJetsMG',
+		   'WJetsMG100',
+		   'WJetsMG200',
+		   'WJetsMG400',
+		   'WJetsMG600',
+		   'WJetsMG800',
+		   'WJetsMG1200',
+		   'WJetsMG2500',
+		   'WW','WZ','ZZ',
+#  		   'TTJetsPH',
+ 		   'TTJetsPH0to700inc',
+ 		   'TTJetsPH700to1000inc',
+ 		   'TTJetsPH1000toINFinc',
+ 		   'TTJetsPH700mtt',
+ 		   'TTJetsPH1000mtt',
+		   'TTWl','TTWq',
+		   'TTZl','TTZq',
+		   'Tt','Ts',
+		   'TtW','TbtW',
+ 		   'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+ 		   ]
 
-dataList = ['DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
+dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
 whichSignal = 'X53X53' #TT, BB, or X53X53
 signalMassRange = [700,1600]
@@ -65,18 +66,18 @@ doJetRwt = 0
 doAllSys= True
 doQ2sys = True
 q2List  = [#energy scale sample to be processed
-	       'TTJetsPHQ2U','TTJetsPHQ2D',
-	       #'TtWQ2U','TbtWQ2U',
-	       #'TtWQ2D','TbtWQ2D',
-	       ]
+	      'TTJetsPHQ2U','TTJetsPHQ2D',
+	      'TtWQ2U','TbtWQ2U',
+	      'TtWQ2D','TbtWQ2D',
+	      ]
 
-lepPtCut  = 50
-metCut    = 150
+lepPtCut  = 80
+metCut    = 100
 njetsCut  = 4
 nbjetsCut = 0
 drCut     = 1
-jet1PtCut = 450
-jet2PtCut = 150
+jet1PtCut = 200
+jet2PtCut = 90
 jet3PtCut = 0
 
 isEMlist =['E','M']
@@ -139,7 +140,7 @@ cutString += '_2jet'+str(int(cutList['jet2PtCut']))+'_3jet'+str(int(cutList['jet
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_minMlb_test'
+pfix='templates_minMlb'
 pfix+='_'+datestr#+'_'+timestr
 
 def readTree(file):
@@ -189,12 +190,14 @@ for bkg in bkgList+q2List:
 print "FINISHED READING"
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
-	'HT':('AK4HT',linspace(0, 5000, 51).tolist(),';H_{T} (GeV);'),
-	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 51).tolist(),';S_{T} (GeV);'),
-	'minMlb':('minMleppBjet',linspace(0, 800, 51).tolist(),';min[M(l,b)] (GeV);'),
-	}
+			'HT':('AK4HT',linspace(0, 5000, 51).tolist(),';H_{T} (GeV);'),
+			'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 51).tolist(),';S_{T} (GeV);'),
+			'minMlb':('minMleppBjet',linspace(0, 800, 51).tolist(),';min[M(l,b)] (GeV);'),
+			'MallJetsPlusWleptonic':('M_AllJets_PlusWleptonic',linspace(0, 5000, 101).tolist(),';M (all jets + Wleptonic) (GeV);'),
+			'x53Mass':('xftMass',linspace(0, 5000, 51).tolist(),';M (X_{5/3}) (GeV);'),
+			}
 
-iPlot='ST' #choose a discriminant from plotList!
+iPlot='minMlb' #choose a discriminant from plotList!
 print "PLOTTING:",iPlot
 print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]

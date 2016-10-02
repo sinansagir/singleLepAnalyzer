@@ -6,7 +6,7 @@ outputDir = thisDir+'/'
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_ST'
+pfix='templates_minMlb_noJSF'
 pfix+='_'+date#+'_'+time
 
 outDir = outputDir+pfix
@@ -19,17 +19,15 @@ nttaglist=['0','1p']
 nWtaglist=['0','1p']
 nbtaglist=['1','2p']
 
-#Optimized selections:
-lepPtCutList  = [30]
+#selected X53X53 optimum cuts -- from AN/2015/171:
+lepPtCutList  = [80]
 metCutList    = [100]
 njetsCutList  = [4]
 nbjetsCutList = [0]
 drCutList     = [1]
-jet1PtCutList = [250]
-jet2PtCutList = [50]
+jet1PtCutList = [200]
+jet2PtCutList = [90]
 jet3PtCutList = [0]
-#'lep30_MET150_NJets4_NBJets0_DR0.75_1jet450_2jet150_3jet0', #minMlb
-#'lep30_MET100_NJets3_NBJets0_DR0.75_1jet250_2jet50_3jet0', #ST
 
 cutConfigs = list(itertools.product(lepPtCutList,jet1PtCutList,jet2PtCutList,metCutList,njetsCutList,nbjetsCutList,jet3PtCutList,drCutList))
 

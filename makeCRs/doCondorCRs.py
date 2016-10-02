@@ -20,7 +20,7 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar_'
 else: pfix='wjets_'
-pfix+='ST_'
+pfix+='noJSF_'
 pfix+=datestr#+'_'+timestr
 
 outDir = outputDir+pfix

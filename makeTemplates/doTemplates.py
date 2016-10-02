@@ -13,13 +13,10 @@ start_time = time.time()
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
 iPlot='minMlb'
-cutString='lep30_MET150_NJets4_DR1_1jet450_2jet150'
-pfix='templates_minMlb_2016_9_14_test'
+cutString='lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
+pfix='templates_minMlb_noJSF_2016_9_8'
 outDir = os.getcwd()+'/'
-outDir+=pfix
-if not os.path.exists(outDir): os.system('mkdir '+outDir)
-if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
-outDir+='/'+cutString
+outDir+=pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
@@ -27,28 +24,27 @@ lumiScaleCoeff = 3990./2318.
 doAllSys = True
 doQ2sys = True
 if not doAllSys: doQ2sys = False
-systematicList = ['pileup','jec','jer','btag','mistag','tau21','topsf','toppt','muR','muF','muRFcorrd','jsf','trigeff']
-normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
+systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec']
+normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgProcList = ['TTJets','T','TTW','TTZ','WJets','ZJets','VV','QCD']
-wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500'] 
-zjetList  = ['DY']
+wjetList  = ['WJetsMG']
+zjetList  = ['DY50']
 vvList    = ['WW','WZ','ZZ']
 ttwList   = ['TTWl','TTWq']
 ttzList   = ['TTZl','TTZq']
-ttjetList = ['TTJetsPH1000toINFinc','TTJetsPH1000mtt']
-ttjetList+= ['TTJetsPH0to1000inc']
-#ttjetList+= ['TTJetsPH0to1000inc1','TTJetsPH0to1000inc2','TTJetsPH0to1000inc3','TTJetsPH0to1000inc4','TTJetsPH0to1000inc5','TTJetsPH0to1000inc6','TTJetsPH0to1000inc7','TTJetsPH0to1000inc8']
-tList     = ['Tt','Tbt','Ts','TtW','TbtW']
+#ttjetList = ['TTJetsPH']
+ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
+tList     = ['Tt','Ts','TtW','TbtW']
 
 bkgGrupList = ['top','ewk','qcd']
 topList = ttjetList+ttwList+ttzList+tList
-ewkList = wjetList+vvList
-qcdList = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']#'QCDht100','QCDht200',
-dataList = ['DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
+ewkList = wjetList+zjetList+vvList
+qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
 
-q2UpList   = ttwList+ttzList+tList+['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
-q2DownList = ttwList+ttzList+tList+['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
+q2UpList   = ['TTJetsPHQ2U','Tt','Ts','TtWQ2U','TbtWQ2U']+ttwList+ttzList
+q2DownList = ['TTJetsPHQ2D','Tt','Ts','TtWQ2D','TbtWQ2D']+ttwList+ttzList
 
 whichSignal = 'X53X53' #TT, BB, or X53X53
 signalMassRange = [700,1600]
@@ -73,40 +69,38 @@ nbtaglist=['1','2p']
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist))]
 tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist))]
 
-lumiSys = 0.062 #lumi uncertainty
-eltrigSys = 0.03 #electron trigger uncertainty
-mutrigSys = 0.011 #muon trigger uncertainty
+lumiSys = 0.027 #lumi uncertainty
+eltrigSys = 0.05 #electron trigger uncertainty
+mutrigSys = 0.05 #muon trigger uncertainty
 elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.011 #muon id uncertainty
+muIdSys = 0.01 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.03 #muon isolation uncertainty
+muIsoSys = 0.01 #muon isolation uncertainty
+
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
-modelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-	'top_nT0_nW0_nB1'   :0.,
-	'top_nT0_nW0_nB2p'  :0.,
-	'top_nT0_nW1p_nB1'  :0.,
-	'top_nT0_nW1p_nB2p' :0.,
-	'top_nT1p_nW0_nB1'  :0.,
-	'top_nT1p_nW0_nB2p' :0.,
-	'top_nT1p_nW1p_nB1' :0.,
-	'top_nT1p_nW1p_nB2p':0.,
-		
-	'ewk_nT0_nW0_nB1'   :0.,
-	'ewk_nT0_nW0_nB2p'  :0.,
-	'ewk_nT0_nW1p_nB1'  :0.,
-	'ewk_nT0_nW1p_nB2p' :0.,
-	'ewk_nT1p_nW0_nB1'  :0.,
-	'ewk_nT1p_nW0_nB2p' :0.,
-	'ewk_nT1p_nW1p_nB1' :0.,
-	'ewk_nT1p_nW1p_nB2p':0.,
-	}
+modelingSys = { #Inclusive WJets sample, NOT REWEIGHTED, 23JUNE16--SS (correlated across e/m)
+               'top_nW0_nB0'  :0.08,
+               'top_nW0_nB1'  :0.11,
+               'top_nW0_nB2p' :0.15,
+               'top_nW1p_nB0' :0.08,
+               'top_nW1p_nB1' :0.11,
+               'top_nW1p_nB2p':0.15,
+               
+               'ewk_nW0_nB0'  :0.12,
+               'ewk_nW0_nB1'  :0.12,
+               'ewk_nW0_nB2p' :0.12,
+               'ewk_nW1p_nB0' :0.12,
+               'ewk_nW1p_nB1' :0.12,
+               'ewk_nW1p_nB2p':0.12,
+               }
 for tag in tagList:
-	modelingSys['data_'+tag] = 0.
-	modelingSys['qcd_'+tag] = 0.
-	#modelingSys['ewk_'+tag] = 0.
-	#modelingSys['top_'+tag] = 0.
+	modTag = tag[tag.find('nW'):]
+	modelingSys['data_'+modTag] = 0.
+	modelingSys['qcd_'+modTag] = 0.
+	#modelingSys['ewk_'+modTag] = 0.
+	#modelingSys['top_'+modTag] = 0.
 
 postTag = 'isSR_'
 ###########################################################
@@ -509,6 +503,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					row = [proc]
 					for cat in catList:
 						if not ('is'+isEM in cat and 'nT'+nttag in cat): continue
+						modTag = cat[cat.find('nW'):]
 						histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
 						yieldtemp = 0.
 						yielderrtemp = 0.
@@ -517,7 +512,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 								try:
 									yieldtemp += yieldTable[histoPrefix][bkg]
 									yielderrtemp += yieldStatErrTable[histoPrefix][bkg]**2
-									yielderrtemp += (modelingSys[bkg+'_'+cat[4:]]*yieldTable[histoPrefix][bkg])**2
+									yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldTable[histoPrefix][bkg])**2
 								except:
 									print "Missing",bkg,"for channel:",cat
 									pass
@@ -534,10 +529,10 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							except:
 								print "Missing",proc,"for channel:",cat
 								pass
-							if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+cat[4:]]*yieldtemp)**2
+							if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2
 							yielderrtemp += (corrdSys*yieldtemp)**2
 						yielderrtemp = math.sqrt(yielderrtemp)
-						if proc=='data': row.append(' & '+str(round_sig(yieldTable[histoPrefix][proc],2)))
+						if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefix][proc])))
 						else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 					row.append('\\\\')
 					table.append(row)
@@ -552,6 +547,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				row = [proc]
 				for cat in catList:
 					if not ('isE' in cat and 'nT'+nttag in cat): continue
+					modTag = cat[cat.find('nW'):]
 					histoPrefixE = discriminant+'_'+lumiStr+'fb_'+cat
 					histoPrefixM = histoPrefixE.replace('isE','isM')
 					yieldtemp = 0.
@@ -565,7 +561,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 								yieldtempM += yieldTable[histoPrefixM][bkg]
 								yieldtemp += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
 								yielderrtemp += yieldStatErrTable[histoPrefixE][bkg]**2+yieldStatErrTable[histoPrefixM][bkg]**2
-								yielderrtemp += (modelingSys[bkg+'_'+cat[4:]]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+								yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 							except:
 								print "Missing",bkg,"for channel:",cat
 								pass
@@ -584,10 +580,10 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						except:
 							print "Missing",proc,"for channel:",cat
 							pass
-						if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+cat[4:]]*yieldtemp)**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+						if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
 					yielderrtemp = math.sqrt(yielderrtemp)
-					if proc=='data': row.append(' & '+str(round_sig(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc],2)))
+					if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc])))
 					else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 				row.append('\\\\')
 				table.append(row)
@@ -613,7 +609,8 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					row.append('\\\\')
 					table.append(row)
 			table.append(['break'])
-		out=open(outDir+'/yieldsTest_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+			
+		out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
 		printTable(table,out)
 
 datahists = {}
