@@ -62,7 +62,7 @@ if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
 region = 'SR' #no need to change
 isotrig = 1
-doJetRwt = 0
+doJetRwt= 0
 doAllSys= True
 doQ2sys = True
 q2List  = [#energy scale sample to be processed

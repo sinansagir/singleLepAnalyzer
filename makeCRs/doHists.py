@@ -63,9 +63,10 @@ if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' d
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
-region = 'CR' #no need to change
+if isTTbarCR: region = 'TTCR' #no need to change
+else: region = 'WJCR'
 isotrig = 1
-doJetRwt = 0
+doJetRwt= 0
 doAllSys= True
 doQ2sys = True
 q2List  = [#energy scale sample to be processed

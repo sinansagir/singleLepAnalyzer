@@ -17,7 +17,7 @@ os.chdir(outDir)
 isEMlist =['E','M']
 nttaglist=['0','1p']
 nWtaglist=['0','1p']
-nbtaglist=['1','2p']
+nbtaglist=['0','1','2p']
 
 #selected X53X53 optimum cuts -- from AN/2015/171:
 lepPtCutList  = [80]

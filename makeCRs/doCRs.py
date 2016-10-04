@@ -12,16 +12,12 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = 0 # else it is Wjets
+isTTbarCR = 1 # else it is Wjets
 cutString=''
 iPlot='minMlb'
-if isTTbarCR: pfix='/ttbar_noJSF_notTag_2016_9_9/'
-else: pfix='/wjets_noJSF_notTag_2016_9_9/'
-outDir = os.getcwd()+'/'
-outDir+=pfix
-if not os.path.exists(outDir): os.system('mkdir '+outDir)
-if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
-outDir+='/'+cutString
+if isTTbarCR: pfix='/ttbar_noJSF_notTag_2016_10_4/'
+else: pfix='/wjets_noJSF_notTag_2016_10_4/'
+outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
@@ -167,6 +163,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			htop[i] = bkghists[histoPrefix+'_'+topList[0]].Clone(histoPrefix+'__top')
 			for bkg in topList:
 				if bkg!=topList[0]: htop[i].Add(bkghists[histoPrefix+'_'+bkg])
+			print htop[i].Integral()
 	
 			#get signal
 			for signal in sigList:

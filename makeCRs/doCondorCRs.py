@@ -3,13 +3,13 @@ import os,sys,datetime,itertools
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-isTTbarCR = 0 # 1:TTBar, 0:Wjets
+isTTbarCR = 1 # 1:TTBar, 0:Wjets
 
 isEMlist =['E','M']
 if isTTbarCR:
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['1','2p']
+	nbtaglist = ['0','1','2p']
 else:
 	nttaglist = ['0p']
 	nWtaglist = ['0','1p']
@@ -20,7 +20,7 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar_'
 else: pfix='wjets_'
-pfix+='noJSF_'
+pfix+='noJSF_notTag_'
 pfix+=datestr#+'_'+timestr
 
 outDir = outputDir+pfix

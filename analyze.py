@@ -29,19 +29,14 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	print "/////"*5
 
 	# Define categories
-	isCategorized = not (category['nttag']=='0p' and category['nttag']=='0p' and category['nttag']=='0p')
+	isCategorized = not (category['nttag']=='0p' and category['nWtag']=='0p' and category['nbtag']=='0p')
 	isEM  = category['isEM']
 	nttag = category['nttag']
 	nWtag = category['nWtag']
 	nbtag = category['nbtag']
 	catStr = 'is'+isEM+'_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag
 
-	# Define general cuts
-	cut += ' && (deltaR_lepJets[1] > '+str(cutList['drCut'])+')'
-	cut += ' && (DataPastTrigger == 1 && MCPastTrigger == 1)' #standard triggers, check trigger weight branch name!
-
-	cut = ''
-	cut += '(leptonPt_singleLepCalc > '+str(cutList['lepPtCut'])+')'
+	cut  = '(leptonPt_singleLepCalc > '+str(cutList['lepPtCut'])+')'
 	cut += ' && (corr_met_singleLepCalc > '+str(cutList['metCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[0] > '+str(cutList['jet1PtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[1] > '+str(cutList['jet2PtCut'])+')'
@@ -50,12 +45,13 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	cut += ' && (NJets_JetSubCalc >= '+str(cutList['njetsCut'])+')'
 	cut += ' && (DataPastTrigger == 1 && MCPastTrigger == 1)' #standard triggers, check trigger weight branch name!
 	if 'CR' in region:
-		cut += ' && (deltaR_lepJets[1] >= 0.4 && deltaR_lepJets[1] < '+str(cutList['drCut'])+')'
+		#cut += ' && (deltaR_lepJets[1] >= 0.4 && deltaR_lepJets[1] <= '+str(cutList['drCut'])+')'
+		cut += ' && (deltaR_lepJets[1] <= '+str(cutList['drCut'])+')'
 		if 'TT' in region: cut += ' && (NJetsCSVwithSF_JetSubCalc >= '+str(cutList['nbjetsCut'])+')'
 		elif 'WJ' in region: cut += ' && (NJetsCSVwithSF_JetSubCalc == '+str(cutList['nbjetsCut'])+')'
 	else: # 'PS' or 'SR'
-		cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
-		cut += ' && (NJetsCSVwithSF_JetSubCalc >= '+str(cutList['nbjetsCut'])+')'
+		cut += ' && (deltaR_lepJets[1] > '+str(cutList['drCut'])+')'
+		cut += ' && (NJetsCSVwithSF_JetSubCalc > '+str(cutList['nbjetsCut'])+')'
 
 	# Define weights
 	jetSFstr   = '1'

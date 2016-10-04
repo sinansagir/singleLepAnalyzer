@@ -15,8 +15,7 @@ lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 iPlot='minMlb'
 cutString='lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 pfix='templates_minMlb_noJSF_2016_9_8'
-outDir = os.getcwd()+'/'
-outDir+=pfix+'/'+cutString
+outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
