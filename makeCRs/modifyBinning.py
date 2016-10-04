@@ -275,8 +275,8 @@ for chn in channels:
 	modTag = chn[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
 	modelingSys['qcd_'+modTag]=0.
-	#modelingSys['ewk_'+modTag]=0.
-	#modelingSys['top_'+modTag]=0.
+	modelingSys['ewk_'+modTag]=0.
+	modelingSys['top_'+modTag]=0.
 	
 isEMlist =[]
 nttaglist=[]

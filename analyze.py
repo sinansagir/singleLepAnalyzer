@@ -29,7 +29,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	print "/////"*5
 
 	# Define categories
-	isCategorized = not (category['nttag']=='0p' and category['nttag']=='0p' and category['nttag']=='0p')
+	isCategorized = not (category['nttag']=='0p' and category['nWtag']=='0p' and category['nbtag']=='0p')
 	isEM  = category['isEM']
 	nttag = category['nttag']
 	nWtag = category['nWtag']

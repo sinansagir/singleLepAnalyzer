@@ -1,4 +1,6 @@
-from sys import stdout
+#!/usr/bin/python
+
+import sys,math
 from ROOT import *
 
 def isEqual(a, b):
@@ -33,7 +35,7 @@ def negBinCorrection(h): #set negative bin contents to zero and adjust the norma
 	norm0=h.Integral()
 	for iBin in range(0,h.GetNbinsX()+2):
 		if h.GetBinContent(iBin)<0: h.SetBinContent(iBin,0)
-	if h.Integral()!=0 and norm0>0: h.Scale(norm0/hist.Integral())
+	if h.Integral()!=0 and norm0>0: h.Scale(norm0/h.Integral())
 
 def overflow(h):
 	nBinsX=h.GetXaxis().GetNbins()
@@ -69,7 +71,7 @@ def getMaxWidth(table, index):
         except: pass
     return max
 
-def printTable(table,out=stdout):
+def printTable(table,out=sys.stdout):
     """Prints out a table of data, padded for alignment
     @param out: Output stream (file-like object)
     @param table: The table to print. A list of lists.
