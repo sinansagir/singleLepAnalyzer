@@ -23,8 +23,8 @@ start_time = time.time()
 #    threshold larger than 100% (>1.) in the argument
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-cutString = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateDir = os.getcwd()+'/templates_minMlb_noJSF_2016_9_8/'+cutString
+cutString = 'lep80_MET100_NJets4_DR1_1jet200_2jet90'
+templateDir = os.getcwd()+'/templates_minMlb_noJSF_tau21Fix1_2016_10_8/'+cutString
 combinefile = 'templates_minMlb_2p318fb.root'
 
 rebinCombine = False #else rebins theta templates
@@ -41,7 +41,7 @@ if sigName=='X53X53':
 bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
-stat = 0.3 #statistical uncertainty requirement
+stat = 0.15 #statistical uncertainty requirement
 if len(sys.argv)>1: stat=float(sys.argv[1])
 
 if rebinCombine:
@@ -429,7 +429,7 @@ for proc in bkgProcList+sigProcList:
 				shpHist = histoPrefix+proc+'__'+syst+ud
 				try: row.append(' & '+str(round_sig(yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20),2)))
 				except:
-					if (syst=='toppt' or syst=='q2') and proc not in sigProcList:
+					if not ((syst=='toppt' or syst=='q2') and proc!='top'):
 						print "Missing",proc,"for channel:",chn,"and systematic:",syst
 					pass
 			row.append('\\\\')

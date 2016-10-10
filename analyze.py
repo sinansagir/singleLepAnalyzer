@@ -34,7 +34,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	nttag = category['nttag']
 	nWtag = category['nWtag']
 	nbtag = category['nbtag']
-	catStr = 'is'+isEM+'_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag
+	catStr = 'is'+isEM
+	if isCategorized: catStr += '_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag
 
 	cut  = '(leptonPt_singleLepCalc > '+str(cutList['lepPtCut'])+')'
 	cut += ' && (corr_met_singleLepCalc > '+str(cutList['metCut'])+')'
@@ -51,7 +52,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		elif 'WJ' in region: cut += ' && (NJetsCSVwithSF_JetSubCalc == '+str(cutList['nbjetsCut'])+')'
 	else: # 'PS' or 'SR'
 		cut += ' && (deltaR_lepJets[1] > '+str(cutList['drCut'])+')'
-		cut += ' && (NJetsCSVwithSF_JetSubCalc > '+str(cutList['nbjetsCut'])+')'
+		cut += ' && (NJetsCSVwithSF_JetSubCalc >= '+str(cutList['nbjetsCut'])+')'
 
 	# Define weights
 	jetSFstr   = '1'
@@ -105,11 +106,13 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 
 	#plot with a specific number of b tags
 	if not isCategorized:
-		if 'Bjet1' in iPlot or 'Mlb' in iPlot or 'b1' in iPlot:
-			cut += ' && (NJetsCSVwithSF_JetSubCalc > 0)'
+		if 'Bjet1' in iPlot or 'Mlb' in iPlot or 'b1' in iPlot: cut += ' && (NJetsCSVwithSF_JetSubCalc > 0)'
 		if 'b2' in iPlot: cut += ' && (NJetsCSVwithSF_JetSubCalc > 1)'
 		if 'Mlj' in iPlot: cut += ' && (NJetsCSVwithSF_JetSubCalc == 0)'
-
+		origname = plotTreeName
+		if 'Data' in process and iPlot=='PrunedSmeared': plotTreeName = 'theJetAK8PrunedMass_JetSubCalc_PtOrdered'
+		if origname != plotTreeName: print 'NEW LJMET NAME:',plotTreeName
+		
 	# Design the tagging cuts for categories
 	isEMCut=''
 	if isEM=='E': isEMCut+=' && isElectron==1'
@@ -137,8 +140,9 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		else: nbtagCut+=' && '+nbtagLJMETname+'=='+nbtag
 		
 		if nbtag=='0' and iPlot=='minMlb': 
-			originalLJMETName=plotTreeName
+			origname = plotTreeName
 			plotTreeName='minMleppJet'
+			if origname != plotTreeName: print 'NEW LJMET NAME:',plotTreeName
 	
 	fullcut = cut+isEMCut+nttagCut+nWtagCut+nbtagCut
 

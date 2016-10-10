@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet76In74_1lepTT_061316_step2/nominal/'
+step1Dir = '/user_data/ssagir/LJMet76In74_1lepTT_061316_step3_6Oct16_tau21Fix/nominal/'
 
 """
 Note: 
@@ -29,13 +29,7 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 bkgList = [
 		   'DY50',
 		   'WJetsMG',
-		   'WJetsMG100',
-		   'WJetsMG200',
-		   'WJetsMG400',
-		   'WJetsMG600',
-		   'WJetsMG800',
-		   'WJetsMG1200',
-		   'WJetsMG2500',
+# 		   'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
 		   'WW','WZ','ZZ',
 #  		   'TTJetsPH',
  		   'TTJetsPH0to700inc',

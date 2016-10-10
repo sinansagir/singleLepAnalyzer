@@ -4,10 +4,20 @@ import os,sys,time,math
 
 includeNB0 = False
 discrim = 'minMlb'
-templateYields = 'templates_'+discrim+'_noJSF_2016_9_8/lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0/yields_'+discrim+'_2p318fb.txt' 
-ttbarYields = '../makeCRs/ttbar_noJSF_notTag_2016_9_9/yields_'+discrim+'_2p318fb.txt'
-wjetsYields = '../makeCRs/wjets_noJSF_notTag_2016_9_9/yields_'+discrim+'_2p318fb.txt'
+templateYields = 'templates_'+discrim+'_noJSF_tau21Fix1_2016_10_8/lep80_MET100_NJets4_DR1_1jet200_2jet90/yields_'+discrim+'_2p318fb.txt' 
+ttbarYields = '../makeCRs/ttbar_noJSF_notTag_tau21Fix1_2016_10_8/yields_'+discrim+'_2p318fb.txt'
+wjetsYields = '../makeCRs/wjets_noJSF_notTag_tau21Fix1_2016_10_8/yields_'+discrim+'_2p318fb.txt'
 
+lumiSys = 0.027 #lumi uncertainty
+eltrigSys = 0.05 #electron trigger uncertainty
+mutrigSys = 0.05 #muon trigger uncertainty
+elIdSys = 0.01 #electron id uncertainty
+muIdSys = 0.01 #muon id uncertainty
+elIsoSys = 0.01 #electron isolation uncertainty
+muIsoSys = 0.01 #muon isolation uncertainty
+
+elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
+mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
 ftemplate = open(templateYields, 'rU')
 templatelines = ftemplate.readlines()
@@ -76,9 +86,16 @@ dataOverBkg['ewk_M_nW0'] = abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isM
 dataOverBkg['ewk_E_nW1p']= abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isE' in cat and 'nW1p_' in cat][0])
 dataOverBkg['ewk_M_nW1p']= abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isM' in cat and 'nW1p_' in cat][0])
 
+print "FULL CR:"
 for key in sorted(yields.keys()):
 	if '_M_' in key: continue
 	print key.replace('E_',''),':',(yields[key]*dataOverBkg[key]+yields[key.replace('_E_','_M_')]*dataOverBkg[key.replace('_E_','_M_')])/(yields[key]+yields[key.replace('_E_','_M_')])
+print
+
+print "NORM SUBSTRACTED CR:"
+for key in sorted(yields.keys()):
+	if '_M_' in key: continue
+	print key.replace('E_',''),':',math.sqrt(((yields[key]*dataOverBkg[key]+yields[key.replace('_E_','_M_')]*dataOverBkg[key.replace('_E_','_M_')])/(yields[key]+yields[key.replace('_E_','_M_')]))**2-((elcorrdSys*yields[key]+mucorrdSys*yields[key.replace('_E_','_M_')])/(yields[key]+yields[key.replace('_E_','_M_')]))**2)
 print
 
 ewk_isE=(yields['ewk_E_nW0']*dataOverBkg['ewk_E_nW0']+yields['ewk_E_nW1p']*dataOverBkg['ewk_E_nW1p'])/(yields['ewk_E_nW0']+yields['ewk_E_nW1p'])
@@ -86,7 +103,7 @@ ewk_isM=(yields['ewk_M_nW0']*dataOverBkg['ewk_M_nW0']+yields['ewk_M_nW1p']*dataO
 ewk_all=((yields['ewk_E_nW0']+yields['ewk_E_nW1p'])*ewk_isE+(yields['ewk_M_nW0']+yields['ewk_M_nW1p'])*ewk_isM)/(yields['ewk_E_nW0']+yields['ewk_E_nW1p']+yields['ewk_M_nW0']+yields['ewk_M_nW1p'])
 print 'ewk_isE :',ewk_isE
 print 'ewk_isM :',ewk_isM 
-print 'ewk_all :',ewk_all
+print 'ewk_isL :',ewk_all
 print
 
 if includeNB0: 
@@ -99,5 +116,5 @@ else:
 	top_all=((yields['top_E_nB1']+yields['top_E_nB2p'])*top_isE+(yields['top_M_nB1']+yields['top_M_nB2p'])*top_isM)/(yields['top_E_nB1']+yields['top_E_nB2p']+yields['top_M_nB1']+yields['top_M_nB2p'])
 print 'top_isE :',top_isE
 print 'top_isM :',top_isM 
-print 'top_all :',top_all
+print 'top_isL :',top_all
 

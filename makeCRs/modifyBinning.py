@@ -25,9 +25,9 @@ start_time = time.time()
 
 cutString = ''
 disc = 'minMlb'
-templateDir = os.getcwd()+'/ttbar_noJSF_notTag_2016_9_9/'+cutString
+templateDir = os.getcwd()+'/wjets_noJSF_notTag_tau21Fix1_2016_10_8/'+cutString
 combinefile = 'templates_'+disc+'_2p318fb.root'
-rebinCombine = True #else rebins theta templates
+rebinCombine = False #else rebins theta templates
 doStatShapes = True
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
@@ -41,7 +41,7 @@ if sigName=='X53X53':
 bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
-stat = 0.0 #statistical uncertainty requirement
+stat = 0.3 #statistical uncertainty requirement
 if len(sys.argv)>1: stat=float(sys.argv[1])
 
 if rebinCombine:

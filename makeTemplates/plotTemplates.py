@@ -14,9 +14,9 @@ lumi=2.3 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
 discriminant = 'minMlb'
-cutString='lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateDir=os.getcwd()+'/templates_minMlb_noJSF_2016_9_8/'+cutString+'/'
-isRebinned='_rebinned_stat0p15' #post for ROOT file names
+cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
+templateDir=os.getcwd()+'/templates_minMlb_noJSF_tau21Fix1_2016_10_8/'+cutString+'/'
+isRebinned='_rebinned_stat0p25' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 m1 = '800'
@@ -33,7 +33,7 @@ doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
 doNormByBinWidth=True
-doOneBand = True
+doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
 yLog  = True
@@ -51,20 +51,16 @@ lepIdSys = 0.01 # lepton id uncertainty
 lepIsoSys = 0.01 # lepton isolation uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 
-modelingSys = { #Inclusive WJets sample, NOT REWEIGHTED, 23JUNE16--SS (correlated across e/m)
-               'top_nW0_nB0'  :0.08,
+modelingSys = { #Inclusive WJets sample, NOT REWEIGHTED, 8OCT16--SS (correlated across e/m)
                'top_nW0_nB1'  :0.11,
                'top_nW0_nB2p' :0.15,
-               'top_nW1p_nB0' :0.08,
                'top_nW1p_nB1' :0.11,
                'top_nW1p_nB2p':0.15,
                
-               'ewk_nW0_nB0'  :0.12,
-               'ewk_nW0_nB1'  :0.12,
-               'ewk_nW0_nB2p' :0.12,
-               'ewk_nW1p_nB0' :0.12,
-               'ewk_nW1p_nB1' :0.12,
-               'ewk_nW1p_nB2p':0.12,
+               'ewk_nW0_nB1'  :0.10,
+               'ewk_nW0_nB2p' :0.10,
+               'ewk_nW1p_nB1' :0.13,
+               'ewk_nW1p_nB2p':0.13,
                }
                					 
 def getNormUnc(hist,ibin,modelingUnc):

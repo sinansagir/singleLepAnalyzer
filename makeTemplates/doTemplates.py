@@ -13,8 +13,8 @@ start_time = time.time()
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
 iPlot='minMlb'
-cutString='lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet0_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-pfix='templates_minMlb_noJSF_2016_9_8'
+cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
+pfix='templates_minMlb_noJSF_tau21Fix1_2016_10_8'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -32,7 +32,6 @@ zjetList  = ['DY50']
 vvList    = ['WW','WZ','ZZ']
 ttwList   = ['TTWl','TTWq']
 ttzList   = ['TTZl','TTZq']
-#ttjetList = ['TTJetsPH']
 ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 tList     = ['Tt','Ts','TtW','TbtW']
 
@@ -79,20 +78,16 @@ muIsoSys = 0.01 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
-modelingSys = { #Inclusive WJets sample, NOT REWEIGHTED, 23JUNE16--SS (correlated across e/m)
-               'top_nW0_nB0'  :0.08,
+modelingSys = { #Inclusive WJets sample, NOT REWEIGHTED, 8OCT16--SS (correlated across e/m)
                'top_nW0_nB1'  :0.11,
                'top_nW0_nB2p' :0.15,
-               'top_nW1p_nB0' :0.08,
                'top_nW1p_nB1' :0.11,
                'top_nW1p_nB2p':0.15,
                
-               'ewk_nW0_nB0'  :0.12,
-               'ewk_nW0_nB1'  :0.12,
-               'ewk_nW0_nB2p' :0.12,
-               'ewk_nW1p_nB0' :0.12,
-               'ewk_nW1p_nB1' :0.12,
-               'ewk_nW1p_nB2p':0.12,
+               'ewk_nW0_nB1'  :0.10,
+               'ewk_nW0_nB2p' :0.10,
+               'ewk_nW1p_nB1' :0.13,
+               'ewk_nW1p_nB2p':0.13,
                }
 for tag in tagList:
 	modTag = tag[tag.find('nW'):]
@@ -343,7 +338,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		#Theta templates:
 		print "WRITING THETA TEMPLATES: "
 		for signal in sigList:
-			print "              ...writing: "+signal
+			print "              ... "+signal
 			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
 			thetaRfile = TFile(thetaRfileName,'RECREATE')
 			for cat in catList:
@@ -391,7 +386,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		combineRfileName = outDir+'/templates_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.root'
 		combineRfile = TFile(combineRfileName,'RECREATE')
 		for cat in catList:
-			print "              ...writing: "+cat
+			print "              ... "+cat
 			i=BRconfStr+cat
 			for signal in sigList:
 				mass = [str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100) if str(mass) in signal][0]
@@ -602,7 +597,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						shpHist = histoPrefix+syst+ud
 						try: row.append(' & '+str(round_sig(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
 						except:
-							if (syst=='toppt' or syst=='q2') and proc not in sigList:
+							if not ((syst=='toppt' or syst=='q2') and proc!='top'):
 								print "Missing",proc,"for channel:",cat,"and systematic:",syst
 							pass
 					row.append('\\\\')

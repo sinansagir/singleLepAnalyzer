@@ -13,12 +13,12 @@ start_time = time.time()
 lumi=2.3 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = 0 # else it is Wjets
+isTTbarCR = 1 # else it is Wjets
 discriminant = 'minMlb'
 cutString=''
 templateDir=os.getcwd()
-if isTTbarCR: templateDir+='/ttbar_noJSF_notTag_2016_9_9/'+cutString+'/'
-else: templateDir+='/wjets_noJSF_notTag_2016_9_9/'+cutString+'/'
+if isTTbarCR: templateDir+='/ttbar_noJSF_notTag_tau21Fix1_2016_10_8/'+cutString+'/'
+else: templateDir+='/wjets_noJSF_notTag_tau21Fix1_2016_10_8/'+cutString+'/'
 isRebinned='_rebinned_stat0p3' #post fix to match ROOT file names if needed
 saveKey = '' #tag for plot names
 

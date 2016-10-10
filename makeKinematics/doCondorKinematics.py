@@ -3,89 +3,54 @@ import os,sys,datetime
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
+cutConf = 'finalSel' #'preSel', 'finalSel', or 'finalSelnoDR'
+
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='kinematics_Presel'
+pfix='kinematics_'+cutConf+'_noJSF'
 pfix+='_'+date#+'_'+time
+
+plotList = [#distribution name as defined in "doHists.py"
+			'NPV',
+			'lepPt',
+			'lepEta',
+			'JetEta',
+			'JetPt' ,
+			'Jet1Pt',
+			'Jet2Pt',
+			'Jet3Pt',
+			'Jet4Pt',
+			'Jet5Pt',
+			'Jet6Pt',
+			'HT',
+			'ST',
+			'MET',
+			'NJets' ,
+			'NBJets',
+			'NWJets',
+			'NJetsAK8',
+			'JetPtAK8',
+			'JetEtaAK8',
+			'Tau21',
+			'Tau32',
+			'mindeltaR',
+			'deltaRjet1',
+			'deltaRjet2',
+			'deltaRjet3',
+			'PtRel',
+			'PrunedSmeared',
+			'SDMass',
+			'NTJetsSF',
+			'minMlb',
+			]
+
+catList = ['E','M','L']
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
+os.system('cp ../analyze.py doHists.py ../weights.py ../samples.py ../utils.py doCondorKinematics.py doCondorKinematics.sh '+outDir+'/')
 os.chdir(outDir)
-
-catList = ['E','M','All']
-
-plotList = [#distribution name as defined in "doHists.py"
-	'MTlmet',
-	'lepPt' ,
-	'lepEta',
-	'mindeltaR',
-	'PtRel',
-	'deltaRjet1',
-	'deltaRjet2',
-	'deltaRjet3',
-	'minMlb' ,
-	'minMlj',
-	'lepIso',
-	'deltaRAK8',
-	'NPV'   ,
-	'JetEta',
-	'JetPt' ,
-	'Jet1Pt',
-	'Jet2Pt',
-	'Jet3Pt',
-	'Jet4Pt',
-	'Jet5Pt',
-	'Jet6Pt',
-	'HT'    ,
-	'ST'    ,
-	'MET'   ,
-	'NJets' ,
-	'NBJets',
-	'NWJets',
-	'NTJets',
-	'NJetsAK8',
-	'JetPtAK8',
-	'JetEtaAK8',
-	'Tau21'  ,
-	'Tau21Nm1'  ,
-	'Tau32'  ,
-	'Tau32Nm1'  ,
-	'Pruned' ,
-	'PrunedNm1' ,
-	'SoftDropMass', 
-	'SoftDropMassNm1', 
-	'Bjet1Pt',
-	'Wjet1Pt',
-	'Tjet1Pt',
-	
-	#'topPt',
-	#'JetPtBins' ,
-	#'Jet1PtBins',
-	#'Jet2PtBins',
-	#'Jet3PtBins',
-	#'Jet4PtBins',
-	#'Jet5PtBins',
-	#'Jet6PtBins',
-	#'JetPtBinsAK8',
-	#'minMljDR',
-	#'minMljDPhi',
-	#'minMlbDR',
-	#'minMlbDPhi',
-	#'topMass',
-	#'topPt',
-	#'nLepGen',
-	#'METphi',
-	#'lepPhi',
-	#'lepDxy',
-	#'lepDz',
-	#'lepCharge',
-	#'Tau1',
-	#'Tau2',
-	#'Tau3',
-	#'JetPhi',
-	#'JetPhiAK8',
-	]
 
 count = 0
 for distribution in plotList:
@@ -94,13 +59,14 @@ for distribution in plotList:
 		if not os.path.exists(outDir+'/'+cat): os.system('mkdir '+cat)
 		os.chdir(cat)
 		
-		dict={'dir':outputDir,'dist':distribution,'cat':cat}
+		dict={'dir':outputDir,'dist':distribution,'cat':cat,'cut':cutConf}
 
 		jdf=open('condor_'+distribution+'.job','w')
 		jdf.write(
 """universe = vanilla
 Executable = %(dir)s/doCondorKinematics.sh
 Should_Transfer_Files = YES
+transfer_input_files = %(dir)s/doHists.py,%(dir)s/../samples.py,%(dir)s/../weights.py,%(dir)s/../analyze.py,%(dir)s/../utils.py
 WhenToTransferOutput = ON_EXIT
 request_memory = 3072
 arguments = ""
@@ -108,7 +74,7 @@ Output = condor_%(dist)s.out
 Error = condor_%(dist)s.err
 Log = condor_%(dist)s.log
 Notification = Error
-Arguments = %(dir)s %(dist)s %(cat)s
+Arguments = %(dir)s %(dist)s %(cat)s %(cut)s
 
 Queue 1"""%dict)
 		jdf.close()
@@ -117,8 +83,4 @@ Queue 1"""%dict)
 		os.chdir('..')
 		count+=1
 									
-print "Total jobs submitted:", count
-
-
-
-                  
+print "Total jobs submitted:", count             

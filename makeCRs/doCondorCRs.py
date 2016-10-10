@@ -3,7 +3,7 @@ import os,sys,datetime,itertools
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-isTTbarCR = 1 # 1:TTBar, 0:Wjets
+isTTbarCR = 0 # 1:TTBar, 0:Wjets
 
 isEMlist =['E','M']
 if isTTbarCR:
@@ -20,7 +20,7 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if isTTbarCR: pfix='ttbar_'
 else: pfix='wjets_'
-pfix+='noJSF_notTag_'
+pfix+='noJSF_notTag_tau21Fix1_'
 pfix+=datestr#+'_'+timestr
 
 outDir = outputDir+pfix

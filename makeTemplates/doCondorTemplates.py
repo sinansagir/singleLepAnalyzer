@@ -6,7 +6,7 @@ outputDir = thisDir+'/'
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_minMlb_noJSF'
+pfix='templates_minMlb_noJSF_tau21Fix1'
 pfix+='_'+date#+'_'+time
 
 outDir = outputDir+pfix

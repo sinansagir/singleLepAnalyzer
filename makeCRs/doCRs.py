@@ -12,11 +12,11 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = 1 # else it is Wjets
+isTTbarCR = 0 # else it is Wjets
 cutString=''
 iPlot='minMlb'
-if isTTbarCR: pfix='/ttbar_noJSF_notTag_2016_10_4/'
-else: pfix='/wjets_noJSF_notTag_2016_10_4/'
+if isTTbarCR: pfix='/ttbar_noJSF_notTag_tau21Fix1_2016_10_8/'
+else: pfix='/wjets_noJSF_notTag_tau21Fix1_2016_10_8/'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -163,7 +163,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			htop[i] = bkghists[histoPrefix+'_'+topList[0]].Clone(histoPrefix+'__top')
 			for bkg in topList:
 				if bkg!=topList[0]: htop[i].Add(bkghists[histoPrefix+'_'+bkg])
-			print htop[i].Integral()
 	
 			#get signal
 			for signal in sigList:
@@ -336,7 +335,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		#Theta templates:
 		print "WRITING THETA TEMPLATES: "
 		for signal in sigList:
-			print "              ...writing: "+signal
+			print "              ... "+signal
 			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
 			thetaRfile = TFile(thetaRfileName,'RECREATE')
 			for cat in catList:
@@ -384,7 +383,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		combineRfileName = outDir+'/templates_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.root'
 		combineRfile = TFile(combineRfileName,'RECREATE')
 		for cat in catList:
-			print "              ...writing: "+cat
+			print "              ... "+cat
 			i=BRconfStr+cat
 			for signal in sigList:
 				mass = [str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100) if str(mass) in signal][0]
