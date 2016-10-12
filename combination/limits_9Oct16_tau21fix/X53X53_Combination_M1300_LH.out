@@ -1,9 +1,0 @@
-/var/lib/condor/execute/dir_31022
-Total number of likelihood evaluations: 1100000101
-Total number of likelihood evaluations: 11000101
-[INFO]  executing script /home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/combination/limits_9Oct16_tau21fix/X53X53_Combination_M1300_LH.py
-[INFO]  Running '/home/ssagir/CMSSW_7_3_0/src/theta/bin/theta /home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/combination/limits_9Oct16_tau21fix/X53X53_Combination_M1300_LH/quant-toys:0-sig-ef819e5896.cfg --nowarn'
-[WARN]  cannot extract x-value for signal process id 'sig', using 0
-[INFO]  Running '/home/ssagir/CMSSW_7_3_0/src/theta/bin/theta /home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/combination/limits_9Oct16_tau21fix/X53X53_Combination_M1300_LH/quant-data-sig-9e03701054.cfg --nowarn'
-[WARN]  cannot extract x-value for signal process id 'sig', using 0
-[INFO]  workdir is /home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/combination/limits_9Oct16_tau21fix/X53X53_Combination_M1300_LH

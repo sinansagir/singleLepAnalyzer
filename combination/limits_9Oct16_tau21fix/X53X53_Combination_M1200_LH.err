@@ -1,5 +1,0 @@
-/var/lib/condor/execute/dir_1927/condor_exec.exe: line 6: cd: limits_9Oct16_tau21fix/: No such file or directory
-/cvmfs/cms.cern.ch/slc6_amd64_gcc491/external/py2-matplotlib/1.2.1-cms2/lib/python2.7/site-packages/matplotlib/axes.py:2542: UserWarning: Attempting to set identical left==right results
-in singular transformations; automatically expanding.
-left=0.0, right=0
-  + 'left=%s, right=%s') % (left, right))
