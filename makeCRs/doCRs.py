@@ -12,7 +12,7 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = 0 # else it is Wjets
+isTTbarCR = 1 # else it is Wjets
 cutString=''
 iPlot='minMlb'
 if isTTbarCR: pfix='/ttbar_noJSF_notTag_tau21Fix1_2016_10_8/'
@@ -556,7 +556,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							except:
 								print "Missing",bkg,"for channel:",cat
 								pass
-						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
+						yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 						if proc=='dataOverBkg':
 							dataTemp = yieldTable[histoPrefixE]['data']+yieldTable[histoPrefixM]['data']+1e-20
 							dataTempErr = yieldStatErrTable[histoPrefixE]['data']**2+yieldStatErrTable[histoPrefixM]['data']**2
@@ -572,7 +572,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							print "Missing",proc,"for channel:",cat
 							pass
 						if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
+						yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 					yielderrtemp = math.sqrt(yielderrtemp)
 					if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc])))
 					else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
@@ -592,7 +592,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
 						nomHist = histoPrefix
 						shpHist = histoPrefix+syst+ud
-						try: row.append(' & '+str(round_sig(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
+						try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
 						except:
 							if (syst=='toppt' or syst=='q2') and proc not in sigList:
 								print "Missing",proc,"for channel:",cat,"and systematic:",syst

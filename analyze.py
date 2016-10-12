@@ -91,6 +91,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		weighttopptDownStr  = 'topPtWeight * '+weightStr 
 		weightjsfUpStr      = weightStr.replace(jetSFstr,jetSFupstr)
 		weightjsfDownStr    = weightStr.replace(jetSFstr,jetSFdnstr)
+	weightStr = '1'
 
 	print "Applying Weights:",weightStr
 
