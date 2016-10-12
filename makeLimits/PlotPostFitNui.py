@@ -12,15 +12,15 @@ blind=False
 saveKey=''
 lumiPlot = '2.3'
 lumiStr = '2p318'
-spin=''#'right'
+spin='left'#'right'
 discriminant='minMlb'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+spin
-stat=''#0.75
-isRebinned='_rebinned'+str(stat).replace('.','p')
+stat='0p15'#0.75
+isRebinned='_rebinned_stat'+str(stat).replace('.','p')
 tempKey='all_forPostFitNuis'
-limitDir='/user_data/ssagir/limits/templates_minMlb_tptp_2016_3_18/'+tempKey+'/'
-cutString='lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-LH700file='/templates_'+discriminant+'_TTM800'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
+limitDir='/user_data/ssagir/x53x53_limits_2015/templates_minMlb_noJSF_tau21Fix1_2016_10_8_noCRuncerts/'+tempKey+'/'
+cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
+LH700file='/templates_'+discriminant+'_X53X53M800'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
 
 parVals=pickle.load(open(limitDir+cutString+LH700file,'rb'))
 
@@ -42,27 +42,29 @@ nuisNam = [
 			'tau21',
 			'jms',
 			'jmr',
-			'jsf',
+			#'jsf',
+			'topsf',
 			'btag',
+			'mistag',
 			'jer',
 			'jec',
 			'pileup',
-			'top1pW3pBSys',
-			'top1pW2BSys',
-			'top1pW1BSys',
-			'top1pW0BSys',
-			'top0W3pBSys',
-			'top0W2BSys',
-			'top0W1BSys',
-			'top0W0BSys',
-			'ewk1pW3pBSys',
-			'ewk1pW2BSys',
-			'ewk1pW1BSys',
-			'ewk1pW0BSys',
-			'ewk0W3pBSys',
-			'ewk0W2BSys',
-			'ewk0W1BSys',
-			'ewk0W0BSys',
+# 			'top0T0W1BSys',
+# 			'top0T0W2pBSys',
+# 			'top0T1pW1BSys',
+# 			'top0T1pW2pBSys',
+# 			'top1pT0W1BSys',
+# 			'top1pT0W2pBSys',
+# 			'top1pT1pW1BSys',
+# 			'top1pT1pW2pBSys',
+# 			'ewk0T0W1BSys',
+# 			'ewk0T0W2pBSys',
+# 			'ewk0T1pW1BSys',
+# 			'ewk0T1pW2pBSys',
+# 			'ewk1pT0W1BSys',
+# 			'ewk1pT0W2pBSys',
+# 			'ewk1pT1pW1BSys',
+# 			'ewk1pT1pW2pBSys',
 			'muTrigSys',
 			'elTrigSys',
 			'muIsoSys',
@@ -80,27 +82,29 @@ nuisNamPlot = [
 			'Tau21',
 			'JMS',
 			'JMR',
-			'JSF',
-			'Btag',
+			#'JSF',
+			't-tag',
+			'b-tag',
+			'mis-tag',
 			'JER',
 			'JEC',
 			'pileup',
-			'top_1+W_3+b',
-			'top_1+W_2b',
-			'top_1+W_1b',
-			'top_1+W_0b',
-			'top_0W_3+b',
-			'top_0W_2b',
-			'top_0W_1b',
-			'top_0W_0b',
-			'ewk_1+W_3+b',
-			'ewk_1+W_2b',
-			'ewk_1+W_1b',
-			'ewk_1+W_0b',
-			'ewk_0W_3+b',
-			'ewk_0W_2b',
-			'ewk_0W_1b',
-			'ewk_0W_0b',
+# 			'top_0t_0W_1b',
+# 			'top_0t_0W_2+b',
+# 			'top_0t_1+W_1b',
+# 			'top_0t_1+W_2+b',
+# 			'top_1+t_0W_1b',
+# 			'top_1+t_0W_2+b',
+# 			'top_1+t_1+W_1b',
+# 			'top_1+t_1+W_2+b',
+# 			'ewk_0t_0W_1b',
+# 			'ewk_0t_0W_2+b',
+# 			'ewk_0t_1+W_1b',
+# 			'ewk_0t_1+W_2+b',
+# 			'ewk_1+t_0W_1b',
+# 			'ewk_1+t_0W_2+b',
+# 			'ewk_1+t_1+W_1b',
+# 			'ewk_1+t_1+W_2+b',
 			'muTrig',
 			'elTrig',
 			'muIso',
@@ -143,7 +147,7 @@ c = TCanvas('PostFit', 'PostFit', 1000, 1200)
 c.SetTopMargin(0.06)
 c.SetRightMargin(0.06)
 c.SetBottomMargin(0.12)
-c.SetLeftMargin(0.25)
+c.SetLeftMargin(0.3)
 c.SetTickx()
 c.SetTicky()
 	

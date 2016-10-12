@@ -13,7 +13,7 @@ start_time = time.time()
 lumi=2.3 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = 1 # else it is Wjets
+isTTbarCR = 0 # else it is Wjets
 discriminant = 'minMlb'
 cutString=''
 templateDir=os.getcwd()

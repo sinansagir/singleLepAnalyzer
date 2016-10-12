@@ -1,0 +1,10 @@
+universe = vanilla
+Executable = X53X53_Combination_M700_LH.sh
+Should_Transfer_Files = YES
+WhenToTransferOutput = ON_EXIT
+Notification = Error
+request_memory = 3072
+Output = X53X53_Combination_M700_LH.out
+Error = X53X53_Combination_M700_LH.err
+Log = X53X53_Combination_M700_LH.log
+Queue 1

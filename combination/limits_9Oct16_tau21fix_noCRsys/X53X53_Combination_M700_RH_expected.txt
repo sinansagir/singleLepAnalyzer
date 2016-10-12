@@ -1,0 +1,2 @@
+# x; y; band 0 low; band 0 high; band 1 low; band 1 high
+         0    0.10527   0.053201    0.22106  0.073215    0.15742
