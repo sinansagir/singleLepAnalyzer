@@ -1,49 +1,33 @@
 import os,sys,fnmatch
 
-templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2016/optimization/'
-#templateDir+='templates_minMlb_2016_9_3' #Total number of jobs submitted: 54432
-templateDir+='templates_ST_2016_9_6' #Total number of jobs submitted: 14040
-thetaConfigTemp = os.getcwd()+'/theta_config_template_optimization.py'
+templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/makeTemplates/'
+templateDir+='templates_minMlb_noJSF_tau21Fix1_2016_10_8'
+thetaConfigTemp = os.getcwd()+'/theta_config_template_noCRsys.py'
 
 systematicsInFile = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
-cats = ['isE_nT0_nW0_nB0', 'isE_nT0_nW0_nB1', 'isE_nT0_nW0_nB2p', 'isE_nT0_nW1p_nB0', 'isE_nT0_nW1p_nB1', 'isE_nT0_nW1p_nB2p',
-        'isE_nT1p_nW0_nB0','isE_nT1p_nW0_nB1','isE_nT1p_nW0_nB2p','isE_nT1p_nW1p_nB0','isE_nT1p_nW1p_nB1','isE_nT1p_nW1p_nB2p',
-        'isM_nT0_nW0_nB0', 'isM_nT0_nW0_nB1', 'isM_nT0_nW0_nB2p', 'isM_nT0_nW1p_nB0', 'isM_nT0_nW1p_nB1', 'isM_nT0_nW1p_nB2p',
-        'isM_nT1p_nW0_nB0','isM_nT1p_nW0_nB1','isM_nT1p_nW0_nB2p','isM_nT1p_nW1p_nB0','isM_nT1p_nW1p_nB1','isM_nT1p_nW1p_nB2p',
-        ]
+
 toFilter0 = ['pdf','muRFdecorrdNew','muRFenv','muR','muF','muRFcorrd'] #always remove in case they are in templates
-#toFilter0+= ['topsf','jsf']
 toFilter0+= ['jsf']
-#toFilter0+= ['topsf']
 #toFilter0 = systematicsInFile
 toFilter0 = ['__'+item+'__' for item in toFilter0]
 
 limitConfs = {#'<limit type>':[filter list]
 			  'all':[],
-# 			  'isE':['isM'], #only electron channel
-# 			  'isM':['isE'], #only muon channel
-# 			  'nT0':['nT1p'], #only 0 t tag category
-# 			  'nT1p':['nT0'], #only 1p t tag category
-# 			  'nW0':['nW1p'], #only 0 W tag category
-# 			  'nW1p':['nW0'], #only 1p W tag category
-# 			  'nB0':['nB1','nB2p'], #only 0 b tag category
-# 			  'nB1':['nB0','nB2p'], #only 1 b tag category
-# 			  'nB2p':['nB0','nB1'], #only 2p b tag category
-# 			  'noB0':['nB0'], #No 0 b tag category
-			  #'no_nT0_nW0_nB0':['nT0_nW0_nB0'],
+			  'isE':['isM'], #only electron channel
+			  'isM':['isE'], #only muon channel
+			  'nT0':['nT1p'], #only 0 t tag category
+			  'nT1p':['nT0'], #only 1p t tag category
+			  'nW0':['nW1p'], #only 0 W tag category
+			  'nW1p':['nW0'], #only 1p W tag category
+			  'nB1':['nB2p'], #only 1 b tag category
+			  'nB2p':['nB1'], #only 2p b tag category
 			  }
-# limitConfs = {}
-# for cat in cats: 
-# 	limitConfs[cat] = []
-# 	for cat2 in cats:
-# 		if cat2!=cat: limitConfs[cat].append(cat2)
 
-#os._exit(1)
-limitType = ''#'noSysts'
-outputDir = '/user_data/ssagir/x53x53_limits_2016/'+templateDir.split('/')[-1]+'/' #prevent writing these (they are large) to brux6 common area
+limitType = 'noCRuncerts'
+outputDir = '/user_data/ssagir/x53x53_limits_2015/'+templateDir.split('/')[-1]+'_'+limitType+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
-outputDir+= '/'+limitType+'/'
-if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
+# outputDir+= '/'+limitType+'/'
+# if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 print outputDir
 
 def findfiles(path, filtre):
@@ -54,14 +38,8 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    #if 'lep50_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0' not in rootfile: continue
-    if 'rebinned_stat0p3' not in rootfile: continue
-    if 'right' in rootfile: continue
+    if 'rebinned_stat0p' not in rootfile: continue
     if 'plots' in rootfile: continue
-    if 'X53X53M1300' in rootfile: continue
-    if 'X53X53M1400' in rootfile: continue
-    if 'X53X53M1500' in rootfile: continue
-    if 'X53X53M1600' in rootfile: continue
     rootfilelist.append(rootfile)
     i+=1
 
@@ -69,7 +47,7 @@ f = open(thetaConfigTemp, 'rU')
 thetaConfigLines = f.readlines()
 f.close()
 
-def makeThetaConfig(rFile,outDir):
+def makeThetaConfig(rFile,outDir,toFilter):
 	rFileDir = rFile.split('/')[-2]
 	with open(outDir+'/'+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.py','w') as fout:
 		for line in thetaConfigLines:
@@ -94,12 +72,12 @@ def makeThetaConfig(rFile,outDir):
 
 count=0
 for limitConf in limitConfs:
-	toFilter = []#toFilter0 + limitConfs[limitConf]
+	toFilter = toFilter0 + limitConfs[limitConf]
 	print limitConf,'=',toFilter
 	for file in rootfilelist:
 		fileName = file.split('/')[-1]
 		signal = fileName.split('_')[2]
-		BRStr = fileName[fileName.find(signal)+len(signal):fileName.find('_12p892fb')]
+		BRStr = fileName[fileName.find(signal)+len(signal):fileName.find('_2p318fb')]
 		outDir = outputDir+limitConf+BRStr+'/'
 		print signal,BRStr
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
@@ -107,7 +85,7 @@ for limitConf in limitConfs:
 		fileDir = file.split('/')[-2]
 		if not os.path.exists(outDir+fileDir): os.system('mkdir '+fileDir)
 		os.chdir(fileDir)
-		makeThetaConfig(file,outDir)
+		makeThetaConfig(file,outDir,toFilter)
 
 		dict={'configdir':outDir+fileDir,'configfile':file.split('/')[-1][:-5]}
 
@@ -119,9 +97,6 @@ Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 Notification = Error
 request_memory = 3072
-
-arguments      = ""
-
 Output = %(configfile)s.out
 Error = %(configfile)s.err
 Log = %(configfile)s.log

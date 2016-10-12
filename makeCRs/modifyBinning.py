@@ -25,7 +25,7 @@ start_time = time.time()
 
 cutString = ''
 disc = 'minMlb'
-templateDir = os.getcwd()+'/wjets_noJSF_notTag_tau21Fix1_2016_10_8/'+cutString
+templateDir = os.getcwd()+'/ttbar_noJSF_notTag_tau21Fix1_2016_10_8/'+cutString
 combinefile = 'templates_'+disc+'_2p318fb.root'
 rebinCombine = False #else rebins theta templates
 doStatShapes = True
@@ -41,7 +41,7 @@ if sigName=='X53X53':
 bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
-stat = 0.3 #statistical uncertainty requirement
+stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if len(sys.argv)>1: stat=float(sys.argv[1])
 
 if rebinCombine:
@@ -80,6 +80,7 @@ xbinsListTemp = {}
 for chn in totBkgHists.keys():
 	if 'isE' not in chn: continue
 	xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
+	print xbinsListTemp[chn]
 	Nbins = tfile.Get(datahists[0]).GetNbinsX()
 	totTempBinContent_E = 0.
 	totTempBinContent_M = 0.
@@ -103,16 +104,19 @@ for chn in totBkgHists.keys():
 	elif totBkgHists[chn].GetBinError(1)/totBkgHists[chn].GetBinContent(1)>stat or totBkgHists[chn.replace('isE','isM')].GetBinError(1)/totBkgHists[chn.replace('isE','isM')].GetBinContent(1)>stat: 
 		if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
 	xbinsListTemp[chn.replace('isE','isM')]=xbinsListTemp[chn]
+	if stat>1.0:
+		xbinsListTemp[chn] = [tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
+		for iBin in range(1,Nbins+1): 
+			xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
+		xbinsListTemp[chn.replace('isE','isM')] = xbinsListTemp[chn]
 
 print "==> Here is the binning I found with",stat*100,"% uncertainty threshold: "
 print "//"*40
-if stat<=1.:
-	xbinsList = {}
-	for chn in xbinsListTemp.keys():
-		xbinsList[chn] = []
-		for bin in range(len(xbinsListTemp[chn])): xbinsList[chn].append(xbinsListTemp[chn][len(xbinsListTemp[chn])-1-bin])
-		print chn,"=",xbinsList[chn]
-else: stat = 'Custom'
+xbinsList = {}
+for chn in xbinsListTemp.keys():
+	xbinsList[chn] = []
+	for bin in range(len(xbinsListTemp[chn])): xbinsList[chn].append(xbinsListTemp[chn][len(xbinsListTemp[chn])-1-bin])
+	print chn,"=",xbinsList[chn]
 print "//"*40
 
 xbins = {}
@@ -270,14 +274,15 @@ elIsoSys = 0.01 #electron isolation uncertainty
 muIsoSys = 0.01 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
-modelingSys= {}
+
+modelingSys={}
 for chn in channels:
 	modTag = chn[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
 	modelingSys['qcd_'+modTag]=0.
 	modelingSys['ewk_'+modTag]=0.
 	modelingSys['top_'+modTag]=0.
-	
+
 isEMlist =[]
 nttaglist=[]
 nWtaglist=[]
@@ -368,7 +373,7 @@ for nttag in nttaglist:
 					except:
 						print "Missing",bkg,"for channel:",chn
 						pass
-				yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
+				yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 				if proc=='dataOverBkg':
 					dataTemp = yieldsAll[histoPrefixE+dataName]+yieldsAll[histoPrefixM+dataName]+1e-20
 					dataTempErr = yieldsErrsAll[histoPrefixE+dataName]**2+yieldsErrsAll[histoPrefixM+dataName]**2
@@ -392,7 +397,7 @@ for nttag in nttaglist:
 					yieldtemp*=xsec[signal]
 					yielderrtemp*=xsec[signal]**2
 				else: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-				yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
+				yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 			yielderrtemp = math.sqrt(yielderrtemp)
 			if proc==dataName: row.append(' & '+str(int(yieldsAll[histoPrefixE+proc]+yieldsAll[histoPrefixM+proc])))
 			else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
@@ -413,7 +418,7 @@ for proc in bkgProcList+sigProcList:
 				histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
 				nomHist = histoPrefix+proc
 				shpHist = histoPrefix+proc+'__'+syst+ud
-				try: row.append(' & '+str(round_sig(yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20),2)))
+				try: row.append(' & '+str(round(yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20),2)))
 				except:
 					if (syst=='toppt' or syst=='q2') and proc not in sigProcList:
 						print "Missing",proc,"for channel:",chn,"and systematic:",syst

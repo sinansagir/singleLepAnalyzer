@@ -5,6 +5,7 @@ parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 import ROOT as R
 from weights import *
+from modSyst import *
 from utils import *
 
 R.gROOT.SetBatch(1)
@@ -13,7 +14,7 @@ start_time = time.time()
 
 lumi=2.3 #for plots
 
-pfix='kinematics_preSel_noJSF_2016_10_9'
+pfix='kinematics_finalSelnoDR_noJSF_2016_10_9'
 templateDir=os.getcwd()+'/'+pfix
 lumiInTemplates='2p318'
 
@@ -29,6 +30,7 @@ if 'withJSF' in pfix:
 doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False # I assume you don't want Q^2 as well if you are not doing the other shape systematics! (this is just to change one bool)
+addCRsys= False
 
 isRebinned=''#post fix for file names if the name changed b/c of rebinning or some other process
 doNormByBinWidth=False # not tested, may not work out of the box
@@ -39,6 +41,18 @@ yLog  = False
 
 doRealPull = True
 if doRealPull: doOneBand=False
+
+lumiSys = 0.027 # lumi uncertainty
+trigSys = 0.05 # trigger uncertainty
+lepIdSys = 0.01 # lepton id uncertainty
+lepIsoSys = 0.01 # lepton isolation uncertainty
+corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
+
+def getNormUnc(hist,ibin,modelingUnc):
+	contentsquared = hist.GetBinContent(ibin)**2
+	error = corrdSys*corrdSys*contentsquared  #correlated uncertainties
+	if addCRsys: error += modelingUnc*modelingUnc*contentsquared #background modeling uncertainty from CRs
+	return error
 
 def formatUpperHist(histogram):
 	histogram.GetXaxis().SetLabelSize(0)
@@ -93,28 +107,7 @@ def formatLowerHist(histogram):
 	if doRealPull: histogram.GetYaxis().SetRangeUser(min(-2.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(2.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
 #	else: histogram.GetYaxis().SetRangeUser(0,1.99)
 	else: histogram.GetYaxis().SetRangeUser(0,2.99)
-	histogram.GetYaxis().CenterTitle()
-
-lumiSys = 0.027 # lumi uncertainty
-trigSys = 0.05 # trigger uncertainty
-lepIdSys = 0.01 # lepton id uncertainty
-lepIsoSys = 0.01 # lepton isolation uncertainty
-corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
-
-modelingSys={#Inclusive WJets sample, NOT REWEIGHTED, 8OCT16--SS
-			'topE':0.12,
-			'topM':0.13,
-			'topL':0.13,
-			'ewkE':0.14,
-			'ewkM':0.09,
-			'ewkL':0.11,
-			}
-
-def getNormUnc(hist,ibin,modelingUnc):
-	contentsquared = hist.GetBinContent(ibin)**2
-	error = corrdSys*corrdSys*contentsquared  #correlated uncertainties
-	error += modelingUnc*modelingUnc*contentsquared #background modeling uncertainty from CRs
-	return error	
+	histogram.GetYaxis().CenterTitle()	
 
 plotList = [#distribution name as defined in "doHists.py"
 		'NPV',
@@ -614,6 +607,7 @@ for discriminant in plotList:
 			pull.Draw("HIST")
 
 		savePrefix = templateDir.split('/')[-1]+'/plots/'
+		if not addCRsys: savePrefix = templateDir.split('/')[-1]+'/plots_noCRunc/'
 		if not os.path.exists(os.getcwd()+'/'+savePrefix): os.system('mkdir '+savePrefix)
 		savePrefix+=histPrefix+isRebinned
 		if doRealPull: savePrefix+='_pull'

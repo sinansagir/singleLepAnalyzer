@@ -5,6 +5,7 @@ from ROOT import gROOT,TFile
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from weights import *
+from modSyst import *
 from utils import *
 
 gROOT.SetBatch(1)
@@ -17,9 +18,10 @@ lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
 doAllSys= True
 doQ2sys = True
+addCRsys= True
 if not doAllSys: doQ2sys = False
 
-pfix='kinematics_finalSel_noJSF_2016_10_9'
+pfix='kinematics_finalSelnoDR_noJSF_2016_10_9'
 outDir = os.getcwd()+'/'+pfix
 
 isEMlist = ['E','M','L']
@@ -72,18 +74,11 @@ muIsoSys = 0.01 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
-CRuncert = {#Inclusive WJets sample, NOT REWEIGHTED, 8OCT16--SS
-			'topE':0.12,
-			'topM':0.13,
-			'topL':0.13,
-			'ewkE':0.14,
-			'ewkM':0.09,
-			'ewkL':0.11,
-			}
 for isEM in isEMlist: 
-	CRuncert['TTJets'+isEM],CRuncert['T'+isEM],CRuncert['TTV'+isEM]  =CRuncert['top'+isEM],CRuncert['top'+isEM],CRuncert['top'+isEM]
-	CRuncert['WJets'+isEM],CRuncert['ZJets'+isEM],CRuncert['VV'+isEM]=CRuncert['ewk'+isEM],CRuncert['ewk'+isEM],CRuncert['ewk'+isEM]
-	CRuncert['qcd'+isEM],CRuncert['QCD'+isEM]=0.,0.
+	modelingSys['TTJets'+isEM],modelingSys['T'+isEM],modelingSys['TTV'+isEM]  =modelingSys['top'+isEM],modelingSys['top'+isEM],modelingSys['top'+isEM]
+	modelingSys['WJets'+isEM],modelingSys['ZJets'+isEM],modelingSys['VV'+isEM]=modelingSys['ewk'+isEM],modelingSys['ewk'+isEM],modelingSys['ewk'+isEM]
+	modelingSys['qcd'+isEM],modelingSys['QCD'+isEM]=0.,0.
+	if not addCRsys: modelingSys['ewk'+isEM],modelingSys['top'+isEM]=0.,0.
 
 ###########################################################
 ######### GROUP SAMPLES AND PRINT YIELDS/UNCERTS ##########
@@ -480,17 +475,17 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 			yielderrtemp = yieldErrTable[histoPrefix][proc]**2
 			if isEM=='All' and len(isEMlist)>1:
 				yielderrtemp += (elcorrdSys*yieldTable[histoPrefix.replace('All','E')][proc]+mucorrdSys*yieldTable[histoPrefix.replace('All','M')][proc])**2
-				if proc in bkgProcList+bkgGrupList: yielderrtemp += (CRuncert[proc+isEM]*yieldtemp)**2
+				if proc in bkgProcList+bkgGrupList: yielderrtemp += (modelingSys[proc+isEM]*yieldtemp)**2
 				elif proc=='totBkg' or proc=='dataOverBkg': 
-					for bkg in bkgGrupList: yielderrtemp += (CRuncert[bkg+isEM]*yieldTable[histoPrefix][bkg])**2
+					for bkg in bkgGrupList: yielderrtemp += (modelingSys[bkg+isEM]*yieldTable[histoPrefix][bkg])**2
 			else:
 				if isEM=='E': corrdSys = elcorrdSys
 				elif isEM=='M': corrdSys = mucorrdSys
 				elif isEM=='All' and len(isEMlist)==1: corrdSys = (elcorrdSys+mucorrdSys)/2; #approximate with an average if E and M weren't run
 				yielderrtemp += (corrdSys*yieldtemp)**2
-				if proc in bkgProcList+bkgGrupList: yielderrtemp += (CRuncert[proc+isEM]*yieldtemp)**2
+				if proc in bkgProcList+bkgGrupList: yielderrtemp += (modelingSys[proc+isEM]*yieldtemp)**2
 				elif proc=='totBkg' or proc=='dataOverBkg': 
-					for bkg in bkgGrupList: yielderrtemp += (CRuncert[bkg+isEM]*yieldTable[histoPrefix][bkg])**2
+					for bkg in bkgGrupList: yielderrtemp += (modelingSys[bkg+isEM]*yieldTable[histoPrefix][bkg])**2
 			if proc_orig=='dataOverBkg': 
 				dataTemp = yieldTable[histoPrefix]['data']
 				dataTempErr = yieldErrTable[histoPrefix]['data']**2
@@ -501,7 +496,8 @@ def makeCats(datahists,sighists,bkghists,discriminant):
 			else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 		table.append(row)
 		
-	out=open(outDir+'/yields_'+discriminant+'_'+lumiStr+'fb.txt','w')
+	if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+'_'+lumiStr+'fb.txt','w')
+	else: out=open(outDir+'/yields_'+discriminant+'_'+lumiStr+'fb.txt','w')
 	printTable(table,out)
 
 ###########################################################
@@ -523,7 +519,7 @@ for dist in distList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	#if dist!='minMlb' and dist!='ST':continue
+	if dist!='minMlb':continue
 	for isEM in isEMlist:
 		print "LOADING: ",isEM
 		datahists.update(pickle.load(open(outDir+'/'+isEM+'/datahists_'+dist+'.p','rb')))

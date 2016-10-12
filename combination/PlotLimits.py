@@ -9,12 +9,8 @@ from tdrStyle import *
 setTDRStyle()
 
 blind=False
-saveKey=''#'_test'
 signal = 'X53'
 lumiPlot = '2.3'
-lumiStr = '2p318'
-discriminant='minMlb'
-cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
 
 mass_str = ['700','800','900','1000','1100','1200','1300','1400','1500']#,'1600']
 theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391][:len(mass_str)]#pb
@@ -60,8 +56,7 @@ def getSensitivity(index, exp):
 	t = (a1*c2-a2*c1)/(a1*b2-a2*b1)
 	return mass[index-1]+s*(mass[index]-mass[index-1]), exp[index-1]+s*(exp[index]-exp[index-1])
 
-def PlotLimits(limitDir,limitFile,chiral,tempKey):
-    histPrefix=discriminant+'_'+str(lumiStr)+'fb'+chiral
+def PlotLimits(limitDir,limitFile,chiral):
     ljust_i = 10
     print
     print 'mass'.ljust(ljust_i), 'observed'.ljust(ljust_i), 'expected'.ljust(ljust_i), '-2 Sigma'.ljust(ljust_i), '-1 Sigma'.ljust(ljust_i), '+1 Sigma'.ljust(ljust_i), '+2 Sigma'.ljust(ljust_i)
@@ -72,16 +67,16 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
         lims = {}
         
         try:
-        	if blind:fobs = open(limitDir+cutString+limitFile.replace(signal+signal+'M700',signal+signal+'M'+mass_str[i]), 'rU')
-        	if not blind: fobs = open(limitDir+cutString+limitFile.replace(signal+signal+'M700',signal+signal+'M'+mass_str[i]).replace('expected','observed'), 'rU')
+        	if blind:fobs = open(limitDir+limitFile.replace('M700','M'+mass_str[i]), 'rU')
+        	if not blind: fobs = open(limitDir+limitFile.replace('M700','M'+mass_str[i]).replace('expected','observed'), 'rU')
         	linesObs = fobs.readlines()
         	fobs.close()
         	
-        	fexp = open(limitDir+cutString+limitFile.replace(signal+signal+'M700',signal+signal+'M'+mass_str[i]), 'rU')
+        	fexp = open(limitDir+limitFile.replace('M700','M'+mass_str[i]), 'rU')
         	linesExp = fexp.readlines()
         	fexp.close()
         except: 
-        	print "SKIPPING SIGNAL: "+mass_str[i]
+        	print "SKIPPING SIGNAL"+mass_str[i]
         	continue
         
         lims[-1] = float(linesObs[1].strip().split()[1])
@@ -154,13 +149,11 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     c4.SetLogy()
 
     expected95.Draw("a3")
-    expected95.GetYaxis().SetRangeUser(.008+.00001,10.45)
-    #expected95.GetYaxis().SetRangeUser(.008+.00001,200.45)
+    expected95.GetYaxis().SetRangeUser(.005+.00001,4.45)
     expected95.GetXaxis().SetRangeUser(700,1500)
-    if tempKey=='nB0': expected95.GetYaxis().SetRangeUser(.008+.00001,25.45)   
     if signal=='X53':
     	expected95.GetXaxis().SetTitle("X_{5/3} mass [GeV]")
-    	expected95.GetYaxis().SetTitle("#sigma(X_{5/3}#bar{X}_{5/3})[pb] - "+chiral.replace('left','LH').replace('right','RH'))
+    	expected95.GetYaxis().SetTitle("#sigma(X_{5/3}#bar{X}_{5/3})[pb] - "+chiral)
     else:
 		expected95.GetXaxis().SetTitle(signal+" mass [GeV]")
 		expected95.GetYaxis().SetTitle("#sigma ("+signal+"#bar{"+signal+"})[pb]")
@@ -193,8 +186,6 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
 
     #legend = TLegend(.62,.62,.92,.92) # top right
     legend = TLegend(.32,.72,.92,.92) # top right
-    #if tempKey=='nB0': legend = TLegend(.62,.32,.92,.62)
-    if tempKey=='nB0': legend = TLegend(.32,.42,.92,.62)
     if not blind: legend.AddEntry(observed , '95% CL observed', "lp")
     legend.AddEntry(expected68, '#pm 1#sigma expected', "f")
     legend.AddEntry(expected, '95% CL expected', "l")
@@ -211,107 +202,19 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     
     c4.RedrawAxis()
 
-    folder = '.'
-    outDir=folder+'/'+limitDir.split('/')[-3]+'plots'
-    if not os.path.exists(outDir): os.system('mkdir '+outDir)
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.eps')
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.pdf')
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.png')
+    c4.SaveAs('LimitPlot_'+chiral+'_combo.eps')
+    c4.SaveAs('LimitPlot_'+chiral+'_combo.pdf')
+    c4.SaveAs('LimitPlot_'+chiral+'_combo.png')
     return int(round(limExpected)), int(round(limObserved))
 
-doBRScan = False
-BRs={}
-BRs['BW']=[0.50,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]
-BRs['TH']=[0.25,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]
-BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]
-nBRconf=len(BRs['BW'])
-if not doBRScan: nBRconf=1
+expLims = {}
+obsLims = {}
+expLims['LH'],obsLims['LH'] = PlotLimits('./','X53X53_Combination_M700_LH_expected.txt','LH')
+expLims['RH'],obsLims['RH'] = PlotLimits('./','X53X53_Combination_M700_RH_expected.txt','RH')
 
-tempKeys = ['all','isE','isM','nW0','nW1p','nB1','nB2p','nT0','nT1p']
-#tempKeys = [item+'_moreToys' for item in tempKeys]
-#tempKeys = ['all_moreToys','noJMS','noJMR','noTAU21','noTOPSF','noWTAGsys','noWtTAGsys','noTtbarCRsys','noCRsys','noCRWtTAGsys']
-#tempKeys+= ['no_nT0_nW0_nB0']
-# tempKeys = ['isE_nT0_nW0_nB0', 'isE_nT0_nW0_nB1', 'isE_nT0_nW0_nB2p', 'isE_nT0_nW1p_nB0', 'isE_nT0_nW1p_nB1', 'isE_nT0_nW1p_nB2p',
-#         'isE_nT1p_nW0_nB0','isE_nT1p_nW0_nB1','isE_nT1p_nW0_nB2p','isE_nT1p_nW1p_nB0','isE_nT1p_nW1p_nB1','isE_nT1p_nW1p_nB2p',
-#         'isM_nT0_nW0_nB0', 'isM_nT0_nW0_nB1', 'isM_nT0_nW0_nB2p', 'isM_nT0_nW1p_nB0', 'isM_nT0_nW1p_nB1', 'isM_nT0_nW1p_nB2p',
-#         'isM_nT1p_nW0_nB0','isM_nT1p_nW0_nB1','isM_nT1p_nW0_nB2p','isM_nT1p_nW1p_nB0','isM_nT1p_nW1p_nB1','isM_nT1p_nW1p_nB2p',
-#         ]
-# dirs = {'ttag_Inclusive':'templates_minMlb_noJSF_tau21Fix2_2016_10_6',#_lessToys',
-# 		'ttag_HTbins':'templates_minMlb_noJSF_2016_6_22_WJetsHTbins',
-# 		'ttag_HTbinsJSF':'templates_minMlb_withJSF_2016_6_22',
-# 		'no_ttag_Inclusive':'templates_minMlb_noJSF_notTag_2016_6_22',
-# 		'no_ttag_HTbins':'templates_minMlb_noJSF_notTag_2016_6_22_WJetsHTbins',
-# 		'no_ttag_HTbinsJSF':'templates_minMlb_withJSF_notTag_2016_6_22',
-# 		}
-dirs = {
-		'ttag':'templates_minMlb_noJSF_tau21Fix1_2016_10_8',
-		'ttag_noCRunc':'templates_minMlb_noJSF_tau21Fix1_2016_10_8_noCRuncerts',
-		}
-dirKeyList = ['ttag','ttag_noCRunc']
-binnings = ['0p15','0p25']
-
-expLimsL = {}
-obsLimsL = {}
-expLimsR = {}
-obsLimsR = {}
-for dirKey in dirKeyList:
-	dir = dirs[dirKey]
-	expLimsL[dirKey] = {}
-	obsLimsL[dirKey] = {}
-	expLimsR[dirKey] = {}
-	obsLimsR[dirKey] = {}
-	for binning in binnings:
-		expLimsL[dirKey][binning] = []
-		obsLimsL[dirKey][binning] = []
-		expLimsR[dirKey][binning] = []
-		obsLimsR[dirKey][binning] = []
-		for tempKey in tempKeys:
-			for BRind in range(nBRconf):
-				BRconfStr=''
-				if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
-				limitDir='/user_data/ssagir/x53x53_limits_2015/'+dir+'/'+tempKey+BRconfStr+'/'
-				limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M700left'+BRconfStr+'_'+str(lumiStr)+'fb_rebinned_stat'+str(binning).replace('.','p')+'_expected.txt'	
-				print limitDir+cutString+limitFile
-				expTemp,obsTemp = PlotLimits(limitDir,limitFile,'left',tempKey+BRconfStr)
-				expLimsL[dirKey][binning].append(expTemp)
-				obsLimsL[dirKey][binning].append(obsTemp)
-				limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M700right'+BRconfStr+'_'+str(lumiStr)+'fb_rebinned_stat'+str(binning).replace('.','p')+'_expected.txt'	
-				expTemp,obsTemp = PlotLimits(limitDir,limitFile,'right',tempKey+BRconfStr)
-				expLimsR[dirKey][binning].append(expTemp)
-				obsLimsR[dirKey][binning].append(obsTemp)
-if doBRScan:
-	print "BRs_bW:",BRs['BW']
-	print "BRs_tH:",BRs['TH']
-	print "BRs_tZ:",BRs['TZ']
-# print "Configs :",tempKeys
-# for dir in dirs:
-# 	print dir
-# 	for binning in binnings:
-# 		print binning
-# 		print "Expected:",expLims[dir][binning]
-# 		print "Observed:",obsLims[dir][binning]
-for dirKey in dirKeyList: print dirKey,
-print
-for ind in range(len(tempKeys)):
-	print "////////////////////////////////"
-	print "Channel Configuration: "+tempKeys[ind]
-	print "////////////////////////////////"
-	for binning in binnings:
-		for dirKey in dirKeyList:
-			print 'LH_'+dirKey+'_'+binning,
-			print 'RH_'+dirKey+'_'+binning,
-	print
-	print "Expected:"
-	for binning in binnings:
-		for dirKey in dirKeyList: 
-			print expLimsL[dirKey][binning][ind],
-			print expLimsR[dirKey][binning][ind],
-	print
-	print "Observed:"
-	for binning in binnings:
-		for dirKey in dirKeyList: 
-			print obsLimsL[dirKey][binning][ind],
-			print obsLimsR[dirKey][binning][ind],
-	print
+print 'Expected (LH):',expLims['LH']
+print 'Observed (LH):',obsLims['LH']
+print 'Expected (RH):',expLims['RH']
+print 'Observed (RH):',obsLims['RH']
 
 

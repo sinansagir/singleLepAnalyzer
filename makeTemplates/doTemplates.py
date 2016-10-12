@@ -5,6 +5,7 @@ from ROOT import gROOT,TFile
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from weights import *
+from modSyst import *
 from utils import *
 
 gROOT.SetBatch(1)
@@ -23,6 +24,7 @@ lumiScaleCoeff = 3990./2318.
 doAllSys = True
 doQ2sys = True
 if not doAllSys: doQ2sys = False
+addCRsys = False
 systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
@@ -34,8 +36,14 @@ ttwList   = ['TTWl','TTWq']
 ttzList   = ['TTZl','TTZq']
 ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 tList     = ['Tt','Ts','TtW','TbtW']
+qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 
 bkgGrupList = ['top','ewk','qcd']
+bkgGrups={
+		  'top':ttjetList+ttwList+ttzList+tList,
+		  'ewk':wjetList+zjetList+vvList,
+		  'qcd':qcdList,
+		  }
 topList = ttjetList+ttwList+ttzList+tList
 ewkList = wjetList+zjetList+vvList
 qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
@@ -78,23 +86,11 @@ muIsoSys = 0.01 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
-modelingSys = { #Inclusive WJets sample, NOT REWEIGHTED, 8OCT16--SS (correlated across e/m)
-               'top_nW0_nB1'  :0.11,
-               'top_nW0_nB2p' :0.15,
-               'top_nW1p_nB1' :0.11,
-               'top_nW1p_nB2p':0.15,
-               
-               'ewk_nW0_nB1'  :0.10,
-               'ewk_nW0_nB2p' :0.10,
-               'ewk_nW1p_nB1' :0.13,
-               'ewk_nW1p_nB2p':0.13,
-               }
 for tag in tagList:
 	modTag = tag[tag.find('nW'):]
 	modelingSys['data_'+modTag] = 0.
 	modelingSys['qcd_'+modTag] = 0.
-	#modelingSys['ewk_'+modTag] = 0.
-	#modelingSys['top_'+modTag] = 0.
+	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
 
 postTag = 'isSR_'
 ###########################################################
@@ -121,51 +117,20 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
 		print "       BR Configuration:"+BRconfStr
 		#Initialize dictionaries for histograms
-		hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
+		hsig,htop,hewk,hqcd,hdata,hbkg={},{},{},{},{},{}
 		hwjets,hzjets,httjets,ht,httw,httz,hvv={},{},{},{},{},{},{}
 		for cat in catList:
 			print "              processing cat: "+cat
 			histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
 			i=BRconfStr+cat
 			
-			#Group processes
-			hwjets[i] = bkghists[histoPrefix+'_'+wjetList[0]].Clone(histoPrefix+'_WJets')
-			hzjets[i] = bkghists[histoPrefix+'_'+zjetList[0]].Clone(histoPrefix+'_ZJets')
-			httjets[i] = bkghists[histoPrefix+'_'+ttjetList[0]].Clone(histoPrefix+'_TTJets')
-			ht[i] = bkghists[histoPrefix+'_'+tList[0]].Clone(histoPrefix+'_T')
-			httw[i] = bkghists[histoPrefix+'_'+ttwList[0]].Clone(histoPrefix+'_TTW')
-			httz[i] = bkghists[histoPrefix+'_'+ttzList[0]].Clone(histoPrefix+'_TTZ')
-			hvv[i] = bkghists[histoPrefix+'_'+vvList[0]].Clone(histoPrefix+'_VV')
-			for bkg in ttjetList:
-				if bkg!=ttjetList[0]: httjets[i].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in wjetList:
-				if bkg!=wjetList[0]: hwjets[i].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in ttwList:
-				if bkg!=ttwList[0]: httw[i].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in ttzList:
-				if bkg!=ttzList[0]: httz[i].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in tList:
-				if bkg!=tList[0]: ht[i].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in zjetList:
-				if bkg!=zjetList[0]: hzjets[i].Add(bkghists[histoPrefix+'_'+bkg])
-			for bkg in vvList:
-				if bkg!=vvList[0]: hvv[i].Add(bkghists[histoPrefix+'_'+bkg])
-	
-			#Group QCD processes
-			hqcd[i] = bkghists[histoPrefix+'_'+qcdList[0]].Clone(histoPrefix+'__qcd')
-			for bkg in qcdList: 
-				if bkg!=qcdList[0]: 
-					hqcd[i].Add(bkghists[histoPrefix+'_'+bkg])
-	
-			#Group EWK processes
-			hewk[i] = bkghists[histoPrefix+'_'+ewkList[0]].Clone(histoPrefix+'__ewk')
-			for bkg in ewkList:
-				if bkg!=ewkList[0]: hewk[i].Add(bkghists[histoPrefix+'_'+bkg])
-	
-			#Group TOP processes
-			htop[i] = bkghists[histoPrefix+'_'+topList[0]].Clone(histoPrefix+'__top')
-			for bkg in topList:
-				if bkg!=topList[0]: htop[i].Add(bkghists[histoPrefix+'_'+bkg])
+			#Group background processes
+			for bkggr in bkgGrups.keys():
+				i=BRconfStr+cat+bkggr
+				hbkg[i] = bkghists[histoPrefix+'_'+bkgGrups[bkggr][0]].Clone(histoPrefix+'_'+bkggr)
+				for bkg in bkgGrups[bkggr]:
+					if bkg!=bkgGrups[bkggr][0]: hbkg[i].Add(bkghists[histoPrefix+'_'+bkg])
+			i=BRconfStr+cat
 	
 			#get signal
 			for signal in sigList:
@@ -553,13 +518,13 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							try:
 								yieldtempE += yieldTable[histoPrefixE][bkg]
 								yieldtempM += yieldTable[histoPrefixM][bkg]
-								yieldtemp += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
+								yieldtemp  += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
 								yielderrtemp += yieldStatErrTable[histoPrefixE][bkg]**2+yieldStatErrTable[histoPrefixM][bkg]**2
 								yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 							except:
 								print "Missing",bkg,"for channel:",cat
 								pass
-						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
+						yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 						if proc=='dataOverBkg':
 							dataTemp = yieldTable[histoPrefixE]['data']+yieldTable[histoPrefixM]['data']+1e-20
 							dataTempErr = yieldStatErrTable[histoPrefixE]['data']**2+yieldStatErrTable[histoPrefixM]['data']**2
@@ -569,13 +534,13 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						try:
 							yieldtempE += yieldTable[histoPrefixE][proc]
 							yieldtempM += yieldTable[histoPrefixM][proc]
-							yieldtemp += yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc]
+							yieldtemp  += yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc]
 							yielderrtemp += yieldStatErrTable[histoPrefixE][proc]**2+yieldStatErrTable[histoPrefixM][proc]**2
 						except:
 							print "Missing",proc,"for channel:",cat
 							pass
 						if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
+						yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 					yielderrtemp = math.sqrt(yielderrtemp)
 					if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc])))
 					else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
@@ -583,30 +548,32 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				table.append(row)
 
 		#systematics
-		table.append(['break'])
-		table.append(['','Systematics'])
-		table.append(['break'])
-		for proc in bkgGrupList+sigList:
-			table.append([proc]+[cat for cat in catList]+['\\\\'])
-			for syst in sorted(systematicList+['q2']):
-				for ud in ['Up','Down']:
-					row = [syst+ud]
-					for cat in catList:
-						histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
-						nomHist = histoPrefix
-						shpHist = histoPrefix+syst+ud
-						try: row.append(' & '+str(round_sig(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
-						except:
-							if not ((syst=='toppt' or syst=='q2') and proc!='top'):
-								print "Missing",proc,"for channel:",cat,"and systematic:",syst
-							pass
-					row.append('\\\\')
-					table.append(row)
+		if doAllSys:
 			table.append(['break'])
+			table.append(['','Systematics'])
+			table.append(['break'])
+			for proc in bkgGrupList+sigList:
+				table.append([proc]+[cat for cat in catList]+['\\\\'])
+				for syst in sorted(systematicList+['q2']):
+					for ud in ['Up','Down']:
+						row = [syst+ud]
+						for cat in catList:
+							histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
+							nomHist = histoPrefix
+							shpHist = histoPrefix+syst+ud
+							try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
+							except:
+								if not ((syst=='toppt' or syst=='q2') and proc!='top'):
+									print "Missing",proc,"for channel:",cat,"and systematic:",syst
+								pass
+						row.append('\\\\')
+						table.append(row)
+				table.append(['break'])
 			
-		out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+		if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
 		printTable(table,out)
-
+		
 datahists = {}
 bkghists  = {}
 sighists  = {}
