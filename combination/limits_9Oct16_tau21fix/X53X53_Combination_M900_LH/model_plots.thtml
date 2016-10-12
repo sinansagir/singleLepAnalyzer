@@ -1,0 +1,38 @@
+<h2>Stackplots</h2>
+<p>Everything normalized to expectation, i.e., to the normalization in the template input file, possibly scaled via the python script file.</p>
+<p>Color Code:</p><ul>
+<li><span style="background: #edd400;">&nbsp;&nbsp;&nbsp;</span> ChargeMisID</li>
+<li><span style="background: #f57900;">&nbsp;&nbsp;&nbsp;</span> FakeRate</li>
+<li><span style="background: #c17d11;">&nbsp;&nbsp;&nbsp;</span> TTH</li>
+<li><span style="background: #73d216;">&nbsp;&nbsp;&nbsp;</span> TTTT</li>
+<li><span style="background: #3465a4;">&nbsp;&nbsp;&nbsp;</span> TTW</li>
+<li><span style="background: #75507b;">&nbsp;&nbsp;&nbsp;</span> TTZ</li>
+<li><span style="background: #d3d7cf;">&nbsp;&nbsp;&nbsp;</span> WWZ</li>
+<li><span style="background: #555753;">&nbsp;&nbsp;&nbsp;</span> WZ</li>
+<li><span style="background: #edd400;">&nbsp;&nbsp;&nbsp;</span> WZZ</li>
+<li><span style="background: #f57900;">&nbsp;&nbsp;&nbsp;</span> WpWp</li>
+<li><span style="background: #c17d11;">&nbsp;&nbsp;&nbsp;</span> ZZ</li>
+<li><span style="background: #73d216;">&nbsp;&nbsp;&nbsp;</span> ewk</li>
+<li><span style="background: #3465a4;">&nbsp;&nbsp;&nbsp;</span> qcd</li>
+<li><span style="background: #ef2929;">&nbsp;&nbsp;&nbsp;</span> sig</li>
+<li><span style="background: #75507b;">&nbsp;&nbsp;&nbsp;</span> top</li>
+</ul>
+<p>Observable 'elel':<br /><img src="plots/elel_stack.png" /></p>
+<p>Observable 'elmu':<br /><img src="plots/elmu_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isE_nT0_nW0_nB1':<br /><img src="plots/minMlb_2p318fb_isE_nT0_nW0_nB1_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isE_nT0_nW0_nB2p':<br /><img src="plots/minMlb_2p318fb_isE_nT0_nW0_nB2p_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isE_nT0_nW1p_nB1':<br /><img src="plots/minMlb_2p318fb_isE_nT0_nW1p_nB1_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isE_nT0_nW1p_nB2p':<br /><img src="plots/minMlb_2p318fb_isE_nT0_nW1p_nB2p_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isE_nT1p_nW0_nB1':<br /><img src="plots/minMlb_2p318fb_isE_nT1p_nW0_nB1_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isE_nT1p_nW0_nB2p':<br /><img src="plots/minMlb_2p318fb_isE_nT1p_nW0_nB2p_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isE_nT1p_nW1p_nB1':<br /><img src="plots/minMlb_2p318fb_isE_nT1p_nW1p_nB1_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isE_nT1p_nW1p_nB2p':<br /><img src="plots/minMlb_2p318fb_isE_nT1p_nW1p_nB2p_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isM_nT0_nW0_nB1':<br /><img src="plots/minMlb_2p318fb_isM_nT0_nW0_nB1_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isM_nT0_nW0_nB2p':<br /><img src="plots/minMlb_2p318fb_isM_nT0_nW0_nB2p_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isM_nT0_nW1p_nB1':<br /><img src="plots/minMlb_2p318fb_isM_nT0_nW1p_nB1_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isM_nT0_nW1p_nB2p':<br /><img src="plots/minMlb_2p318fb_isM_nT0_nW1p_nB2p_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isM_nT1p_nW0_nB1':<br /><img src="plots/minMlb_2p318fb_isM_nT1p_nW0_nB1_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isM_nT1p_nW0_nB2p':<br /><img src="plots/minMlb_2p318fb_isM_nT1p_nW0_nB2p_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isM_nT1p_nW1p_nB1':<br /><img src="plots/minMlb_2p318fb_isM_nT1p_nW1p_nB1_stack.png" /></p>
+<p>Observable 'minMlb_2p318fb_isM_nT1p_nW1p_nB2p':<br /><img src="plots/minMlb_2p318fb_isM_nT1p_nW1p_nB2p_stack.png" /></p>
+<p>Observable 'mumu':<br /><img src="plots/mumu_stack.png" /></p>
