@@ -5,6 +5,7 @@ parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from ROOT import *
 from weights import *
+from modSyst import *
 from utils import *
 
 gROOT.SetBatch(1)
@@ -16,7 +17,7 @@ lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 discriminant = 'minMlb'
 cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
 templateDir=os.getcwd()+'/templates_minMlb_noJSF_tau21Fix1_2016_10_8/'+cutString+'/'
-isRebinned='_rebinned_stat0p25' #post for ROOT file names
+isRebinned='_rebinned_stat0p15' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 m1 = '800'
@@ -32,6 +33,7 @@ systematicList = ['pileup','toppt','jmr','jms','tau21','btag','mistag','jer','je
 doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
+addCRsys= False
 doNormByBinWidth=True
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
@@ -50,23 +52,11 @@ trigSys = 0.05 # trigger uncertainty
 lepIdSys = 0.01 # lepton id uncertainty
 lepIsoSys = 0.01 # lepton isolation uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
-
-modelingSys = { #Inclusive WJets sample, NOT REWEIGHTED, 8OCT16--SS (correlated across e/m)
-               'top_nW0_nB1'  :0.11,
-               'top_nW0_nB2p' :0.15,
-               'top_nW1p_nB1' :0.11,
-               'top_nW1p_nB2p':0.15,
-               
-               'ewk_nW0_nB1'  :0.10,
-               'ewk_nW0_nB2p' :0.10,
-               'ewk_nW1p_nB1' :0.13,
-               'ewk_nW1p_nB2p':0.13,
-               }
                					 
 def getNormUnc(hist,ibin,modelingUnc):
 	contentsquared = hist.GetBinContent(ibin)**2
 	error = corrdSys*corrdSys*contentsquared  #correlated uncertainties
-	error += modelingUnc*modelingUnc*contentsquared #background modeling uncertainty from CRs
+	if addCRsys: error += modelingUnc*modelingUnc*contentsquared #background modeling uncertainty from CRs
 	return error
 
 def formatUpperHist(histogram):
@@ -565,6 +555,7 @@ for tag in tagList:
 			pull.Draw("HIST")
 
 		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
+		if not addCRsys: savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots_noCRunc/'
 		if not os.path.exists(savePrefix): os.system('mkdir '+savePrefix)
 		savePrefix+=histPrefix+isRebinned+saveKey
 		if doRealPull: savePrefix+='_pull'
@@ -992,6 +983,7 @@ for tag in tagList:
 		pullmerged.Draw("HIST")
 
 	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
+	if not addCRsys: savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots_noCRunc/'
 	if not os.path.exists(savePrefixmerged): os.system('mkdir '+savePrefixmerged)
 	savePrefixmerged+=histPrefixE.replace('isE','lep')+isRebinned+saveKey
 	if doRealPull: savePrefixmerged+='_pull'
