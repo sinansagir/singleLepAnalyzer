@@ -28,7 +28,8 @@ sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
 m2 = '1100'
 sig2='X53X53M'+m2+'right' #  choose the 2nd signal to plot
 sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
-scaleSignals = False
+scaleSignals = True
+fixedSigScale = 20 #works when histograms are scaled by bin width
 
 systematicList = ['pileup','toppt','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew','topsf']#,'jsf']
 doAllSys = True
@@ -39,7 +40,7 @@ doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
 yLog  = True
-doRealPull = True
+doRealPull = False
 if doRealPull: doOneBand=False
 
 isEMlist =['E','M']
@@ -249,6 +250,9 @@ for tag in tagList:
 		if not scaleSignals:
 			scaleFact1=1
 			scaleFact2=1
+		if doNormByBinWidth:
+			scaleFact1=fixedSigScale
+			scaleFact2=fixedSigScale
 		hsig1.Scale(scaleFact1)
 		hsig2.Scale(scaleFact2)
 
@@ -395,6 +399,9 @@ for tag in tagList:
 		if not scaleSignals:
 			scaleFact1Str = ''
 			scaleFact2Str = ''
+		if doNormByBinWidth:
+			scaleFact1Str = ' x'+str(fixedSigScale)
+			scaleFact2Str = ' x'+str(fixedSigScale)
 		if drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
 			leg.AddEntry(hQCD,"QCD","f")
@@ -723,6 +730,9 @@ for tag in tagList:
 	if not scaleSignals:
 		scaleFact1merged=1
 		scaleFact2merged=1
+	if doNormByBinWidth:
+		scaleFact1merged=fixedSigScale
+		scaleFact2merged=fixedSigScale
 	hsig1merged.Scale(scaleFact1merged)
 	hsig2merged.Scale(scaleFact2merged)
 	
@@ -851,6 +861,9 @@ for tag in tagList:
 	if not scaleSignals:
 		scaleFact1Str = ''
 		scaleFact2Str = ''
+	if doNormByBinWidth:
+		scaleFact1Str = ' x'+str(fixedSigScale)
+		scaleFact2Str = ' x'+str(fixedSigScale)
 	if drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
 		legmerged.AddEntry(hQCDmerged,"QCD","f")
