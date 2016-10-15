@@ -26,15 +26,12 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 --Check the set of cuts in "analyze.py"
 """
 
-if len(sys.argv)>2: isTTbarCR=int(sys.argv[2])
-else: isTTbarCR = False # else it is Wjets
-
 bkgList = [
 		   'DY50',
 		   'WJetsMG',
 # 		   'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
 		   'WW','WZ','ZZ',
- 		   #'TTJetsPH',
+#  		   'TTJetsPH',
  		   'TTJetsPH0to700inc',
  		   'TTJetsPH700to1000inc',
  		   'TTJetsPH1000toINFinc',
@@ -57,8 +54,7 @@ if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' d
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 
-if isTTbarCR: region = 'TTCR' #no need to change
-else: region = 'WJCR'
+region = 'SR' #no need to change
 isotrig = 1
 doJetRwt= 0
 doAllSys= True
@@ -69,21 +65,68 @@ q2List  = [#energy scale sample to be processed
 	      'TtWQ2D','TbtWQ2D',
 	      ]
 
-cutList = {'lepPtCut' :80,
-           'metCut'   :100,
-           'njetsCut' :4,
-           'nbjetsCut':0,
-           'drCut'    :1,
-           'jet1PtCut':200,
-           'jet2PtCut':90,
-           'jet3PtCut':0,
+lepPtCut  = 80
+metCut    = 100
+njetsCut  = 4
+nbjetsCut = 0
+drCut     = 1
+jet1PtCut = 200
+jet2PtCut = 90
+jet3PtCut = 0
+
+isEMlist =['E','M']
+nttaglist=['0','1p']
+nWtaglist=['0','1p']
+nbtaglist=['1','2p']
+
+try: 
+	opts, args = getopt.getopt(sys.argv[2:], "", ["lepPtCut=",
+	                                              "jet1PtCut=",
+	                                              "jet2PtCut=",
+	                                              "jet3PtCut=",
+	                                              "metCut=",
+	                                              "njetsCut=",
+	                                              "nbjetsCut=",
+	                                              "drCut=",
+	                                              "isEM=",
+	                                              "nttag=",
+	                                              "nWtag=",
+	                                              "nbtag=",
+	                                              ])
+	print opts,args
+except getopt.GetoptError as err:
+	print str(err)
+	sys.exit(1)
+
+for o, a in opts:
+	print o, a
+	if o == '--lepPtCut': lepPtCut = float(a)
+	if o == '--jet1PtCut': jet1PtCut = float(a)
+	if o == '--jet2PtCut': jet2PtCut = float(a)
+	if o == '--jet3PtCut': jet3PtCut = float(a)
+	if o == '--metCut': metCut = float(a)
+	if o == '--njetsCut': njetsCut = float(a)
+	if o == '--nbjetsCut': nbjetsCut = float(a)
+	if o == '--drCut': drCut = float(a)
+	if o == '--isEM': isEMlist = [str(a)]
+	if o == '--nttag': nttaglist = [str(a)]
+	if o == '--nWtag': nWtaglist = [str(a)]
+	if o == '--nbtag': nbtaglist = [str(a)]
+
+cutList = {'lepPtCut':lepPtCut,
+           'jet1PtCut':jet1PtCut,
+           'jet2PtCut':jet2PtCut,
+           'jet3PtCut':jet3PtCut,
+           'metCut':metCut,
+           'njetsCut':njetsCut,
+           'nbjetsCut':nbjetsCut,
+           'drCut':drCut,
            }
 
 cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
-cutString += '_NJets'+str(int(cutList['njetsCut']))
-#cutString += '_NBJets'+str(int(cutList['nbjetsCut']))
+cutString += '_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))
 cutString += '_DR'+str(cutList['drCut'])+'_1jet'+str(int(cutList['jet1PtCut']))
-cutString += '_2jet'+str(int(cutList['jet2PtCut']))#+'_3jet'+str(int(cutList['jet3PtCut']))
+cutString += '_2jet'+str(int(cutList['jet2PtCut']))+'_3jet'+str(int(cutList['jet3PtCut']))
 # cutString += '_4jet'+str(int(cutList['jet4PtCut']))+'_5jet'+str(int(cutList['jet5PtCut']))
 # cutString += '_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])
 # cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
@@ -91,25 +134,8 @@ cutString += '_2jet'+str(int(cutList['jet2PtCut']))#+'_3jet'+str(int(cutList['je
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-if isTTbarCR: pfix='ttbar_'
-else: pfix='wjets_'
-pfix+='minMlb_'
-pfix+=datestr#+'_'+timestr
-		
-if len(sys.argv)>3: isEMlist=[str(sys.argv[3])]
-else: isEMlist=['E','M']
-if len(sys.argv)>4: nttaglist=[str(sys.argv[4])]
-else: 
-	if isTTbarCR: nttaglist=['0p']
-	else: nttaglist=['0p']
-if len(sys.argv)>5: nWtaglist=[str(sys.argv[5])]
-else: 
-	if isTTbarCR: nWtaglist=['0','1p']
-	else: nWtaglist=['0','1p']
-if len(sys.argv)>6: nbtaglist=[str(sys.argv[6])]
-else: 
-	if isTTbarCR: nbtaglist=['0','1','2p']
-	else: nbtaglist=['0']
+pfix='templates_minMlb'
+pfix+='_'+datestr#+'_'+timestr
 
 def readTree(file):
 	if not os.path.exists(file): 
