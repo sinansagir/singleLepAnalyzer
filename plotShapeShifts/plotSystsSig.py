@@ -9,10 +9,10 @@ outDir = os.getcwd()+'/'
 
 lumi = 2.3
 discriminant = 'minMlb'
-rfilePostFix = ''#'_rebinned2'
-tempVersion = 'templates_minMlb_x53x53_2016_4_28'
-cutString = 'lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet30_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateFile = '../makeThetaTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
+rfilePostFix = ''
+tempVersion = 'templates_minMlb_noJSF_tau21Fix1_2016_10_8'
+cutString = '/lep80_MET100_NJets4_DR1_1jet200_2jet90'
+templateFile = '/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signals'): os.system('mkdir '+outDir+tempVersion+'/signals')
 
@@ -20,30 +20,30 @@ bkgList = ['top','ewk','qcd']
 channels = ['isE','isM']
 ttags = ['nT0','nT1p']
 wtags = ['nW0','nW1p']
-btags = ['nB0','nB1','nB2p']
-systematics = ['topsf','pileup','jec','jer','jmr','jms','btag','tau21','jsf','muR','muF','muRFcorrd','muRFenv','pdf']#,'muRFcorrdNew','muRFdecorrdNew','pdfNew']
+btags = ['nB1','nB2p']
+systematics = ['pileup','muRFcorrd','muR','muF','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec']
 
 signameList = [
-		   'X53X53M700left',
+# 		   'X53X53M700left',
 		   'X53X53M800left',
-		   'X53X53M900left',
-		   'X53X53M1000left',
-		   'X53X53M1100left',
-		   'X53X53M1200left',
-		   'X53X53M1300left',
-		   'X53X53M1400left',
-		   'X53X53M1500left',
-		   'X53X53M1600left',
-		   'X53X53M700right',
-		   'X53X53M800right',
-		   'X53X53M900right',
-		   'X53X53M1000right',
-		   'X53X53M1100right',
-		   'X53X53M1200right',
-		   'X53X53M1300right',
-		   'X53X53M1400right',
-		   'X53X53M1500right',
-		   'X53X53M1600right',
+# 		   'X53X53M900left',
+# 		   'X53X53M1000left',
+# 		   'X53X53M1100left',
+# 		   'X53X53M1200left',
+# 		   'X53X53M1300left',
+# 		   'X53X53M1400left',
+# 		   'X53X53M1500left',
+# 		   'X53X53M1600left',
+# 		   'X53X53M700right',
+# 		   'X53X53M800right',
+# 		   'X53X53M900right',
+# 		   'X53X53M1000right',
+# 		   'X53X53M1100right',
+# 		   'X53X53M1200right',
+# 		   'X53X53M1300right',
+# 		   'X53X53M1400right',
+# 		   'X53X53M1500right',
+# 		   'X53X53M1600right',
 		   ]
 
 for signal in signameList:
@@ -254,6 +254,6 @@ for signal in signameList:
 
 		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.pdf')
 		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.png')
-		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.root')
+		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.eps')
 	RFile.Close()
 
