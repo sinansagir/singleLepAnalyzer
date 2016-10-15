@@ -5,6 +5,7 @@ from ROOT import gROOT,TFile
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from weights import *
+from modSyst import *
 from utils import *
 
 gROOT.SetBatch(1)
@@ -12,11 +13,9 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-isTTbarCR = 1 # else it is Wjets
-cutString=''
 iPlot='minMlb'
-if isTTbarCR: pfix='/ttbar_noJSF_notTag_tau21Fix1_2016_10_8/'
-else: pfix='/wjets_noJSF_notTag_tau21Fix1_2016_10_8/'
+cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
+pfix='templates_minMlb_noJSF_tau21Fix1_2016_10_8'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -25,8 +24,9 @@ lumiScaleCoeff = 3990./2318.
 doAllSys = True
 doQ2sys = True
 if not doAllSys: doQ2sys = False
+addCRsys = False
 systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec']
-normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
+normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgProcList = ['TTJets','T','TTW','TTZ','WJets','ZJets','VV','QCD']
 wjetList  = ['WJetsMG']
@@ -63,14 +63,9 @@ nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
 isEMlist =['E','M']
-if isTTbarCR: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
-	nWtaglist = ['0p']
-	nbtaglist = ['1','2p']
-else: 
-	nttaglist = ['0p'] #if '0p', the cut will not be applied
-	nWtaglist = ['0','1p']
-	nbtaglist = ['0']
+nttaglist=['0','1p']
+nWtaglist=['0','1p']
+nbtaglist=['1','2p']
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist))]
 tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist))]
 
@@ -85,15 +80,13 @@ muIsoSys = 0.01 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
-modelingSys = {}
 for tag in tagList:
 	modTag = tag[tag.find('nW'):]
 	modelingSys['data_'+modTag] = 0.
 	modelingSys['qcd_'+modTag] = 0.
-	modelingSys['ewk_'+modTag] = 0.
-	modelingSys['top_'+modTag] = 0.
+	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
 
-postTag = 'isCR_'
+postTag = 'isSR_'
 ###########################################################
 #################### CATEGORIZATION #######################
 ###########################################################
@@ -550,7 +543,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							try:
 								yieldtempE += yieldTable[histoPrefixE][bkg]
 								yieldtempM += yieldTable[histoPrefixM][bkg]
-								yieldtemp += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
+								yieldtemp  += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
 								yielderrtemp += yieldStatErrTable[histoPrefixE][bkg]**2+yieldStatErrTable[histoPrefixM][bkg]**2
 								yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 							except:
@@ -566,7 +559,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						try:
 							yieldtempE += yieldTable[histoPrefixE][proc]
 							yieldtempM += yieldTable[histoPrefixM][proc]
-							yieldtemp += yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc]
+							yieldtemp  += yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc]
 							yielderrtemp += yieldStatErrTable[histoPrefixE][proc]**2+yieldStatErrTable[histoPrefixM][proc]**2
 						except:
 							print "Missing",proc,"for channel:",cat
@@ -580,30 +573,32 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				table.append(row)
 
 		#systematics
-		table.append(['break'])
-		table.append(['','Systematics'])
-		table.append(['break'])
-		for proc in bkgGrupList+sigList:
-			table.append([proc]+[cat for cat in catList]+['\\\\'])
-			for syst in sorted(systematicList+['q2']):
-				for ud in ['Up','Down']:
-					row = [syst+ud]
-					for cat in catList:
-						histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
-						nomHist = histoPrefix
-						shpHist = histoPrefix+syst+ud
-						try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
-						except:
-							if (syst=='toppt' or syst=='q2') and proc not in sigList:
-								print "Missing",proc,"for channel:",cat,"and systematic:",syst
-							pass
-					row.append('\\\\')
-					table.append(row)
+		if doAllSys:
 			table.append(['break'])
+			table.append(['','Systematics'])
+			table.append(['break'])
+			for proc in bkgGrupList+sigList:
+				table.append([proc]+[cat for cat in catList]+['\\\\'])
+				for syst in sorted(systematicList+['q2']):
+					for ud in ['Up','Down']:
+						row = [syst+ud]
+						for cat in catList:
+							histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
+							nomHist = histoPrefix
+							shpHist = histoPrefix+syst+ud
+							try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
+							except:
+								if not ((syst=='toppt' or syst=='q2') and proc!='top'):
+									print "Missing",proc,"for channel:",cat,"and systematic:",syst
+								pass
+						row.append('\\\\')
+						table.append(row)
+				table.append(['break'])
 			
-		out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+		if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
 		printTable(table,out)
-
+		
 datahists = {}
 bkghists  = {}
 sighists  = {}

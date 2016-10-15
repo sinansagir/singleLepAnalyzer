@@ -12,6 +12,12 @@ start_time = time.time()
 lumi=12.9 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
+saveKey = '' # tag for plot names
+discriminant = 'minMlb'
+cutString='lep50_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0'
+templateDir=os.getcwd()+'/templates_minMlb_2016_9_3/'+cutString+'/'
+
 m1 = '800'
 sig1='X53X53M'+m1+'left' #  choose the 1st signal to plot
 sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
@@ -19,23 +25,15 @@ m2 = '1100'
 sig2='X53X53M'+m2+'right' #  choose the 2nd signal to plot
 sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
 scaleSignals = False
-fixedSigScale = 10#25 #works when histograms are scaled by bin width
 
-isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
-saveKey = '' # tag for plot names
-discriminant = 'minMlb'
-cutString='lep100_MET30_1jet50_2jet30_NJets3_NBJets0_3jet0_4jet0_5jet0_DR0.75_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateDir=os.getcwd()+'/templates_minMlb_2016_9_2/'+cutString+'/'
-tempsig='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
-
-systematicList = ['pileup','jec','jer','btag','tau21','mistag','trigeff','topsf']#,'muRFcorrdNew','pdfNew','jsf']
+systematicList = ['pileup','jec','jer','btag','tau21','mistag','muRFcorrdNew','pdfNew','jsf','trigeff']
 doAllSys = False
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
 doNormByBinWidth=True
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
-blind = False
+blind = True
 yLog  = True
 doRealPull = True
 if doRealPull: doOneBand=False
@@ -45,6 +43,7 @@ nttaglist=['0','1p']
 nWtaglist=['0','1p']
 nbtaglist=['1','2p']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
+tempsig='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 lumiSys = 0.062 # lumi uncertainty
 trigSys = 0.03 # trigger uncertainty
@@ -72,7 +71,6 @@ ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/
 	'ewk_nT1p_nW1p_nB1' :0.,
 	'ewk_nT1p_nW1p_nB2p':0.,
 	}
-
 
 def getNormUnc(hist,ibin,modelingUnc):
 	contentsquared = hist.GetBinContent(ibin)**2
@@ -149,7 +147,6 @@ totBkgTemp2 = {}
 totBkgTemp3 = {}
 for tag in tagList:
 	for isEM in isEMlist:
-
 		histPrefix=discriminant+'_'+lumiInTemplates+'fb_'
 		tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
 		catStr='is'+isEM+'_'+tagStr
