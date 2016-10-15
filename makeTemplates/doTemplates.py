@@ -36,14 +36,8 @@ ttwList   = ['TTWl','TTWq']
 ttzList   = ['TTZl','TTZq']
 ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 tList     = ['Tt','Ts','TtW','TbtW']
-qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 
 bkgGrupList = ['top','ewk','qcd']
-bkgGrups={
-		  'top':ttjetList+ttwList+ttzList+tList,
-		  'ewk':wjetList+zjetList+vvList,
-		  'qcd':qcdList,
-		  }
 topList = ttjetList+ttwList+ttzList+tList
 ewkList = wjetList+zjetList+vvList
 qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
@@ -117,20 +111,51 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
 		print "       BR Configuration:"+BRconfStr
 		#Initialize dictionaries for histograms
-		hsig,htop,hewk,hqcd,hdata,hbkg={},{},{},{},{},{}
+		hsig,htop,hewk,hqcd,hdata={},{},{},{},{}
 		hwjets,hzjets,httjets,ht,httw,httz,hvv={},{},{},{},{},{},{}
 		for cat in catList:
 			print "              processing cat: "+cat
 			histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
 			i=BRconfStr+cat
 			
-			#Group background processes
-			for bkggr in bkgGrups.keys():
-				i=BRconfStr+cat+bkggr
-				hbkg[i] = bkghists[histoPrefix+'_'+bkgGrups[bkggr][0]].Clone(histoPrefix+'_'+bkggr)
-				for bkg in bkgGrups[bkggr]:
-					if bkg!=bkgGrups[bkggr][0]: hbkg[i].Add(bkghists[histoPrefix+'_'+bkg])
-			i=BRconfStr+cat
+			#Group processes
+			hwjets[i] = bkghists[histoPrefix+'_'+wjetList[0]].Clone(histoPrefix+'_WJets')
+			hzjets[i] = bkghists[histoPrefix+'_'+zjetList[0]].Clone(histoPrefix+'_ZJets')
+			httjets[i] = bkghists[histoPrefix+'_'+ttjetList[0]].Clone(histoPrefix+'_TTJets')
+			ht[i] = bkghists[histoPrefix+'_'+tList[0]].Clone(histoPrefix+'_T')
+			httw[i] = bkghists[histoPrefix+'_'+ttwList[0]].Clone(histoPrefix+'_TTW')
+			httz[i] = bkghists[histoPrefix+'_'+ttzList[0]].Clone(histoPrefix+'_TTZ')
+			hvv[i] = bkghists[histoPrefix+'_'+vvList[0]].Clone(histoPrefix+'_VV')
+			for bkg in ttjetList:
+				if bkg!=ttjetList[0]: httjets[i].Add(bkghists[histoPrefix+'_'+bkg])
+			for bkg in wjetList:
+				if bkg!=wjetList[0]: hwjets[i].Add(bkghists[histoPrefix+'_'+bkg])
+			for bkg in ttwList:
+				if bkg!=ttwList[0]: httw[i].Add(bkghists[histoPrefix+'_'+bkg])
+			for bkg in ttzList:
+				if bkg!=ttzList[0]: httz[i].Add(bkghists[histoPrefix+'_'+bkg])
+			for bkg in tList:
+				if bkg!=tList[0]: ht[i].Add(bkghists[histoPrefix+'_'+bkg])
+			for bkg in zjetList:
+				if bkg!=zjetList[0]: hzjets[i].Add(bkghists[histoPrefix+'_'+bkg])
+			for bkg in vvList:
+				if bkg!=vvList[0]: hvv[i].Add(bkghists[histoPrefix+'_'+bkg])
+	
+			#Group QCD processes
+			hqcd[i] = bkghists[histoPrefix+'_'+qcdList[0]].Clone(histoPrefix+'__qcd')
+			for bkg in qcdList: 
+				if bkg!=qcdList[0]: 
+					hqcd[i].Add(bkghists[histoPrefix+'_'+bkg])
+	
+			#Group EWK processes
+			hewk[i] = bkghists[histoPrefix+'_'+ewkList[0]].Clone(histoPrefix+'__ewk')
+			for bkg in ewkList:
+				if bkg!=ewkList[0]: hewk[i].Add(bkghists[histoPrefix+'_'+bkg])
+	
+			#Group TOP processes
+			htop[i] = bkghists[histoPrefix+'_'+topList[0]].Clone(histoPrefix+'__top')
+			for bkg in topList:
+				if bkg!=topList[0]: htop[i].Add(bkghists[histoPrefix+'_'+bkg])
 	
 			#get signal
 			for signal in sigList:
