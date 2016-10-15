@@ -43,12 +43,18 @@ fttbar = open(ttbarYields, 'rU')
 ttbarlines = fttbar.readlines()
 fttbar.close()
 dob_top = {}
+data_top = {}
 ind = 0
 for line in ttbarlines:
 	if 'Systematics' in line: break
 	if line.startswith('dataOverBkg'):
 		for yld,cat in zip(line.split('&')[1:],ttbarlines[ind-6].split()[1:-1]):
-			dob_top[cat] = float(yld.split()[0])
+			newcat = 'top_'+cat.replace('_nT0p','').replace('_nW0p','').replace('isE','E').replace('isM','M')
+			dob_top[newcat] = float(yld.split()[0])
+	elif line.startswith('data') or line.startswith('DATA'):
+		for yld,cat in zip(line.split('&')[1:],ttbarlines[ind-5].split()[1:-1]):
+			newcat = 'top_'+cat.replace('_nT0p','').replace('_nW0p','').replace('isE','E').replace('isM','M')
+			data_top[newcat] = float(yld.split()[0])
 	ind+=1
 
 """Read the data/MC ratio from wjets CR for all of its categories"""		
@@ -56,12 +62,18 @@ fwjets = open(wjetsYields, 'rU')
 wjetslines = fwjets.readlines()
 fwjets.close()
 dob_ewk = {}
+data_ewk = {}
 ind = 0
 for line in wjetslines:
 	if 'Systematics' in line: break
 	if line.startswith('dataOverBkg'): 
 		for yld,cat in zip(line.split('&')[1:],wjetslines[ind-6].split()[1:-1]):
-			dob_ewk[cat] = float(yld.split()[0])
+			newcat = 'ewk_'+cat.replace('_nT0p','').replace('_nB0','').replace('isE','E').replace('isM','M')
+			dob_ewk[newcat] = float(yld.split()[0])
+	elif line.startswith('data') or line.startswith('DATA'): 
+		for yld,cat in zip(line.split('&')[1:],wjetslines[ind-5].split()[1:-1]):
+			newcat = 'ewk_'+cat.replace('_nT0p','').replace('_nB0','').replace('isE','E').replace('isM','M')
+			data_ewk[newcat] = float(yld.split()[0])
 	ind+=1
 
 """Sum yields of SR categories to match the CR categories"""			
@@ -80,18 +92,20 @@ yields['ewk_M_nW1p'] = sum([yields_ewk[cat] for cat in yields_ewk.keys() if 'isM
 
 """Get the deviation (from 1) of data/MC in CRs"""
 dataOverBkg = {}
-if includeNB0: 
-	dataOverBkg['top_E_nB0'] = abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isE' in cat and cat.endswith('nB0')][0])
-	dataOverBkg['top_M_nB0'] = abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isM' in cat and cat.endswith('nB0')][0])
-dataOverBkg['top_E_nB1'] = abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isE' in cat and cat.endswith('nB1')][0])
-dataOverBkg['top_M_nB1'] = abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isM' in cat and cat.endswith('nB1')][0])
-dataOverBkg['top_E_nB2p']= abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isE' in cat and cat.endswith('nB2p')][0])
-dataOverBkg['top_M_nB2p']= abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isM' in cat and cat.endswith('nB2p')][0])
-
-dataOverBkg['ewk_E_nW0'] = abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isE' in cat and 'nW0_' in cat][0])
-dataOverBkg['ewk_M_nW0'] = abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isM' in cat and 'nW0_' in cat][0])
-dataOverBkg['ewk_E_nW1p']= abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isE' in cat and 'nW1p_' in cat][0])
-dataOverBkg['ewk_M_nW1p']= abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isM' in cat and 'nW1p_' in cat][0])
+for cat in dob_top.keys(): dataOverBkg[cat] = abs(1-dob_top[cat])
+for cat in dob_ewk.keys(): dataOverBkg[cat] = abs(1-dob_ewk[cat])
+# if includeNB0: 
+# 	dataOverBkg['top_E_nB0'] = abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isE' in cat and cat.endswith('nB0')][0])
+# 	dataOverBkg['top_M_nB0'] = abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isM' in cat and cat.endswith('nB0')][0])
+# dataOverBkg['top_E_nB1'] = abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isE' in cat and cat.endswith('nB1')][0])
+# dataOverBkg['top_M_nB1'] = abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isM' in cat and cat.endswith('nB1')][0])
+# dataOverBkg['top_E_nB2p']= abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isE' in cat and cat.endswith('nB2p')][0])
+# dataOverBkg['top_M_nB2p']= abs(1-[dob_top[cat] for cat in dob_top.keys() if 'isM' in cat and cat.endswith('nB2p')][0])
+# 
+# dataOverBkg['ewk_E_nW0'] = abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isE' in cat and 'nW0_' in cat][0])
+# dataOverBkg['ewk_M_nW0'] = abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isM' in cat and 'nW0_' in cat][0])
+# dataOverBkg['ewk_E_nW1p']= abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isE' in cat and 'nW1p_' in cat][0])
+# dataOverBkg['ewk_M_nW1p']= abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isM' in cat and 'nW1p_' in cat][0])
 
 """Correlate the e/m channels and print the derived full CR uncertainties"""
 print "FULL CR:"
@@ -172,15 +186,19 @@ for cat in shapes_ewk_wj[systematicList[0]+'__minus'].keys():
 	total_ewk_Up[newcat] = math.sqrt(total_ewk_Up[newcat])
 	total_ewk_Dn[newcat] = math.sqrt(total_ewk_Dn[newcat])
 
-"""Print the smaller of the up/down shifts:"""
-print 'TOTAL SHAPES:'
+"""Take the smaller of the up/down shifts:"""
 total_shape = {}
 for cat in sorted(total_top_Up.keys()): 
 	total_shape[cat] = min([total_top_Up[cat],total_top_Dn[cat]])
-	print cat,':',round(total_shape[cat],2)
 for cat in sorted(total_ewk_Up.keys()): 
 	total_shape[cat] = min([total_ewk_Up[cat],total_ewk_Dn[cat]])
-	print cat,':',round(total_shape[cat],2)
+
+"""Print the shape uncertainty on the Data/MC:"""
+print 'TOTAL SHAPES ON THE DATA/MC:'
+for cat in sorted(total_shape.keys()): 
+	if 'top' in cat: unc_shape = dob_top[cat]*math.sqrt((1./data_top[cat]+total_shape[cat]**2))
+	if 'ewk' in cat: unc_shape = dob_ewk[cat]*math.sqrt((1./data_ewk[cat]+total_shape[cat]**2))
+	print cat,':',round(unc_shape,2)
 print
 
 print "NORM+SHAPE SUBSTRACTED CR:"

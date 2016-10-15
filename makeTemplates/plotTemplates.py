@@ -39,7 +39,7 @@ doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
 yLog  = True
-doRealPull = False
+doRealPull = True
 if doRealPull: doOneBand=False
 
 isEMlist =['E','M']
@@ -397,11 +397,11 @@ for tag in tagList:
 			try: leg.AddEntry(hEWK,"EWK","f")
 			except: pass
 			if not blind: 
-				leg.AddEntry(hData,"DATA")
+				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 				try: leg.AddEntry(hTOP,"TOP","f")
 				except: pass
 				leg.AddEntry(0, "", "")
-				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+				leg.AddEntry(hData,"DATA")
 			else:
 				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 				try: leg.AddEntry(hTOP,"TOP","f")
@@ -414,8 +414,8 @@ for tag in tagList:
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
 			try: leg.AddEntry(hTOP,"TOP","f")
 			except: pass
-			if not blind: leg.AddEntry(hData,"DATA")
 			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+			if not blind: leg.AddEntry(hData,"DATA")
 		leg.Draw("same")
 
 		prelimTex=TLatex()
@@ -844,11 +844,11 @@ for tag in tagList:
 		try: legmerged.AddEntry(hEWKmerged,"EWK","f")
 		except: pass
 		if not blind: 
-			legmerged.AddEntry(hDatamerged,"DATA")
+			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
 			except: pass
 			legmerged.AddEntry(0, "", "")
-			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+			legmerged.AddEntry(hDatamerged,"DATA")
 		else:
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
@@ -860,8 +860,8 @@ for tag in tagList:
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
 		try: legmerged.AddEntry(hTOPmerged,"TOP","f")
 		except: pass
-		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 	legmerged.Draw("same")
 
 	prelimTex=TLatex()
