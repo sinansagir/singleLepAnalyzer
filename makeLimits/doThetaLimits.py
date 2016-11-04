@@ -1,7 +1,7 @@
 import os,sys,fnmatch
 
 templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/makeTemplates/'
-templateDir+='templates_minMlb_noJSF_tau21Fix1_2016_10_8'
+templateDir+='templates_minMlb_2016_10_28'
 thetaConfigTemp = os.getcwd()+'/theta_config_template_noCRsys.py'
 
 systematicsInFile = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
@@ -13,18 +13,18 @@ toFilter0 = ['__'+item+'__' for item in toFilter0]
 
 limitConfs = {#'<limit type>':[filter list]
 			  'all':[],
-			  'isE':['isM'], #only electron channel
-			  'isM':['isE'], #only muon channel
-			  'nT0':['nT1p'], #only 0 t tag category
-			  'nT1p':['nT0'], #only 1p t tag category
-			  'nW0':['nW1p'], #only 0 W tag category
-			  'nW1p':['nW0'], #only 1p W tag category
-			  'nB1':['nB2p'], #only 1 b tag category
-			  'nB2p':['nB1'], #only 2p b tag category
+# 			  'isE':['isM'], #only electron channel
+# 			  'isM':['isE'], #only muon channel
+# 			  'nT0':['nT1p'], #only 0 t tag category
+# 			  'nT1p':['nT0'], #only 1p t tag category
+# 			  'nW0':['nW1p'], #only 0 W tag category
+# 			  'nW1p':['nW0'], #only 1p W tag category
+# 			  'nB1':['nB2p'], #only 1 b tag category
+# 			  'nB2p':['nB1'], #only 2p b tag category
 			  }
 
-limitType = 'noCRuncerts'
-outputDir = '/user_data/ssagir/x53x53_limits_2015/'+templateDir.split('/')[-1]+'_'+limitType+'/' #prevent writing these (they are large) to brux6 common area
+limitType = '_noCRuncerts'
+outputDir = '/user_data/ssagir/x53x53_limits_2015/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 # outputDir+= '/'+limitType+'/'
 # if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
