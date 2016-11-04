@@ -5,6 +5,7 @@ parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from array import array
 from weights import *
+from modSyst import *
 from utils import *
 from ROOT import *
 start_time = time.time()
@@ -25,8 +26,9 @@ start_time = time.time()
 
 cutString = ''
 disc = 'minMlb'
-templateDir = os.getcwd()+'/ttbar_noJSF_notTag_tau21Fix1_2016_10_8/'+cutString
+templateDir = os.getcwd()+'/ttbar_noJSF_notTag_tau21Fix1_2016_10_8_test/'+cutString
 combinefile = 'templates_'+disc+'_2p318fb.root'
+
 rebinCombine = False #else rebins theta templates
 doStatShapes = True
 normalizeRENORM = True #only for signals
@@ -52,6 +54,18 @@ else: #theta
 	dataName = 'DATA'
 	upTag = '__plus'
 	downTag = '__minus'
+
+addCRsys = False
+addShapes = True
+lumiSys = 0.027 #lumi uncertainty
+eltrigSys = 0.05 #electron trigger uncertainty
+mutrigSys = 0.05 #muon trigger uncertainty
+elIdSys = 0.01 #electron id uncertainty
+muIdSys = 0.01 #muon id uncertainty
+elIsoSys = 0.01 #electron isolation uncertainty
+muIsoSys = 0.01 #muon isolation uncertainty
+elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
+mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -80,7 +94,6 @@ xbinsListTemp = {}
 for chn in totBkgHists.keys():
 	if 'isE' not in chn: continue
 	xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
-	print xbinsListTemp[chn]
 	Nbins = tfile.Get(datahists[0]).GetNbinsX()
 	totTempBinContent_E = 0.
 	totTempBinContent_M = 0.
@@ -127,6 +140,7 @@ for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 iRfile=0
 yieldsAll = {}
 yieldsErrsAll = {}
+yieldsSystErrsAll = {}
 for rfile in rfiles: 
 	print "REBINNING FILE:",rfile
 	tfiles = {}
@@ -168,9 +182,6 @@ for rfile in rfiles:
 			for bkg in bkgProcList:
 				if bkg!=bkgProcList[0]:rebinnedHists['chnTotBkgHist'].Add(rebinnedHists[chnHistName.replace(dataName,bkg)])
 			for ibin in range(1, rebinnedHists['chnTotBkgHist'].GetNbinsX()+1):
-				sigNameNoMass = sigName
-				if 'left' in sigProcList[0]: sigNameNoMass = sigName+'left'
-				if 'right' in sigProcList[0]: sigNameNoMass = sigName+'right'
 				dominantBkgProc = bkgProcList[0]
 				val = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetBinContent(ibin)
 				for bkg in bkgProcList:
@@ -189,6 +200,9 @@ for rfile in rfiles:
 				rebinnedHists[err_up_name].Write()
 				rebinnedHists[err_dn_name].Write()
 				for sig in sigProcList:
+					sigNameNoMass = sigName
+					if 'left' in sig: sigNameNoMass = sigName+'left'
+					if 'right' in sig: sigNameNoMass = sigName+'right'
 					val = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinContent(ibin)
 					#if val==0: continue #SHOULD WE HAVE THIS???
 					error  = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinError(ibin)
@@ -258,31 +272,19 @@ for rfile in rfiles:
 			pdfNewDnHist.Write()
 			yieldsAll[pdfNewUpHist.GetName()] = pdfNewUpHist.Integral()
 			yieldsAll[pdfNewDnHist.GetName()] = pdfNewDnHist.Integral()
-
+			
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()
 	iRfile+=1
 tfile.Close()
 print ">> Rebinning Done!"
 
-lumiSys = 0.027 #lumi uncertainty
-eltrigSys = 0.05 #electron trigger uncertainty
-mutrigSys = 0.05 #muon trigger uncertainty
-elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.01 #muon id uncertainty
-elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.01 #muon isolation uncertainty
-elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
-mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
-
-modelingSys={}
 for chn in channels:
 	modTag = chn[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
 	modelingSys['qcd_'+modTag]=0.
-	modelingSys['ewk_'+modTag]=0.
-	modelingSys['top_'+modTag]=0.
-
+	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
+	
 isEMlist =[]
 nttaglist=[]
 nWtaglist=[]
@@ -292,6 +294,22 @@ for chn in channels:
 	if chn.split('_')[1+rebinCombine] not in nttaglist: nttaglist.append(chn.split('_')[1+rebinCombine])
 	if chn.split('_')[2+rebinCombine] not in nWtaglist: nWtaglist.append(chn.split('_')[2+rebinCombine])
 	if chn.split('_')[3+rebinCombine] not in nbtaglist: nbtaglist.append(chn.split('_')[3+rebinCombine])
+
+def getShapeSystUnc(proc,chn):
+	if not addShapes: return 0
+	systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if chn in hist and '__'+proc+'__' in hist and upTag in hist])
+	totUpShiftPrctg=0
+	totDnShiftPrctg=0
+	for syst in systematicList:
+		for ud in [upTag,downTag]:
+			histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
+			nomHist = histoPrefix+proc
+			shpHist = histoPrefix+proc+'__'+syst+ud
+			shift = yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20)-1
+			if shift>0.: totUpShiftPrctg+=shift**2
+			if shift<0.: totDnShiftPrctg+=shift**2
+	shpSystUncPrctg = (totUpShift+totDnShift)/2 #symmetrize the total shape uncertainty up/down shifts
+	return shpSystUncPrctg	
 
 table = []
 for isEM in isEMlist:
@@ -316,6 +334,7 @@ for isEM in isEMlist:
 							yieldtemp += yieldsAll[histoPrefix+bkg]
 							yielderrtemp += yieldsErrsAll[histoPrefix+bkg]**2
 							yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldsAll[histoPrefix+bkg])**2
+							yielderrtemp += (getShapeSystUnc(bkg,chn)*yieldsAll[histoPrefix+bkg])**2
 						except:
 							print "Missing",bkg,"for channel:",chn
 							pass
@@ -329,6 +348,7 @@ for isEM in isEMlist:
 					try:
 						yieldtemp += yieldsAll[histoPrefix+proc]
 						yielderrtemp += yieldsErrsAll[histoPrefix+proc]**2
+						yielderrtemp += (getShapeSystUnc(proc,chn)*yieldsAll[histoPrefix+proc])**2
 					except:
 						print "Missing",proc,"for channel:",chn
 						pass
@@ -370,6 +390,7 @@ for nttag in nttaglist:
 						yieldtemp += yieldsAll[histoPrefixE+bkg]+yieldsAll[histoPrefixM+bkg]
 						yielderrtemp += yieldsErrsAll[histoPrefixE+bkg]**2+yieldsErrsAll[histoPrefixM+bkg]**2
 						yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldsAll[histoPrefixE+bkg]+yieldsAll[histoPrefixM+bkg]))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+						yielderrtemp += (getShapeSystUnc(bkg,chn)*yieldsAll[histoPrefixE+bkg])**2+(getShapeSystUnc(bkg,chn.replace('isE','isM'))*yieldsAll[histoPrefixM+bkg])**2
 					except:
 						print "Missing",bkg,"for channel:",chn
 						pass
@@ -385,6 +406,7 @@ for nttag in nttaglist:
 					yieldtempM += yieldsAll[histoPrefixM+proc]
 					yieldtemp += yieldsAll[histoPrefixE+proc]+yieldsAll[histoPrefixM+proc]
 					yielderrtemp += yieldsErrsAll[histoPrefixE+proc]**2+yieldsErrsAll[histoPrefixM+proc]**2
+					yielderrtemp += (getShapeSystUnc(proc,chn)*yieldsAll[histoPrefixE+proc])**2+(getShapeSystUnc(proc,chn.replace('isE','isM'))*yieldsAll[histoPrefixM+proc])**2
 				except:
 					print "Missing",proc,"for channel:",chn
 					pass
@@ -420,14 +442,17 @@ for proc in bkgProcList+sigProcList:
 				shpHist = histoPrefix+proc+'__'+syst+ud
 				try: row.append(' & '+str(round(yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20),2)))
 				except:
-					if (syst=='toppt' or syst=='q2') and proc not in sigProcList:
+					if not ((syst=='toppt' or syst=='q2') and proc!='top'):
 						print "Missing",proc,"for channel:",chn,"and systematic:",syst
 					pass
 			row.append('\\\\')
 			table.append(row)
 	table.append(['break'])
 
-out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+'.txt','w')
+postFix = ''
+if addShapes: postFix+='_addShps'
+if not addCRsys: postFix+='_noCRunc'
+out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
 printTable(table,out)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
