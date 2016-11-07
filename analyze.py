@@ -37,6 +37,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	catStr = 'is'+isEM
 	if isCategorized: catStr += '_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag
 
+	# Define general cuts
 	cut  = '(leptonPt_singleLepCalc > '+str(cutList['lepPtCut'])+')'
 	cut += ' && (corr_met_singleLepCalc > '+str(cutList['metCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[0] > '+str(cutList['jet1PtCut'])+')'
@@ -91,7 +92,6 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		weighttopptDownStr  = 'topPtWeight * '+weightStr 
 		weightjsfUpStr      = weightStr.replace(jetSFstr,jetSFupstr)
 		weightjsfDownStr    = weightStr.replace(jetSFstr,jetSFdnstr)
-	weightStr = '1'
 
 	print "Applying Weights:",weightStr
 
