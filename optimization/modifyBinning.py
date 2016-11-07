@@ -20,8 +20,8 @@ start_time = time.time()
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #cutString = 'lep50_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0'
-templateDir = os.getcwd()+'/templates_ST_2016_9_6/'#+cutString
-combFile = 'templates_minMlb_12p892fb.root'
+templateDir = os.getcwd()+'/templates_minMlb_2016_10_27/'#+cutString
+combFile = 'templates_minMlb_2p318fb.root'
 rebinCombine = False #else rebins theta tempaltes
 normalizeRENORM = True #does it only for signals
 normalizePDF    = True #does it only for signals
@@ -51,7 +51,7 @@ for cutString in cutStrings:
 	if (ind % 500)==0: print "Finished",ind,"out of",len(cutStrings) 
 	ind+=1
 	#Setup the selection of the files to be rebinned:          
-	rfiles = [file for file in findfiles(templateDir+cutString, '*.root') if 'rebinned' not in file and 'plots' not in file and 'right' not in file and 'X53X53M1600' not in file and 'X53X53M1500' not in file and 'X53X53M1400' not in file and 'X53X53M1300' not in file]
+	rfiles = [file for file in findfiles(templateDir+cutString, '*.root') if 'rebinned' not in file and 'plots' not in file and ('_X53X53M700left_' in file or '_X53X53M800left_' in file or '_X53X53M900left_' in file or '_X53X53M1000left_' in file or '_X53X53M1100left_' in file or '_X53X53M1200left_' in file)]
 	if rebinCombine: 
 		rfiles = [templateDir+cutString+'/'+combFile]
 		if ind>0: break

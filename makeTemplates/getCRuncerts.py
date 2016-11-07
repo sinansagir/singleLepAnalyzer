@@ -7,9 +7,9 @@ systematicList = ['pileup','toppt','jmr','jms','tau21','btag','mistag','jer','je
 includeNB0 = False
 discrim = 'minMlb'
 templateYields = 'templates_'+discrim+'_noJSF_tau21Fix1_2016_10_8/lep80_MET100_NJets4_DR1_1jet200_2jet90/yields_'+discrim+'_2p318fb.txt' 
-ttbarYields = '../makeCRs/ttbar_noJSF_notTag_tau21Fix1_2016_10_8/yields_'+discrim+'_2p318fb_rebinned_stat0p3.txt'
-wjetsYields = '../makeCRs/wjets_noJSF_notTag_tau21Fix1_2016_10_8/yields_'+discrim+'_2p318fb_rebinned_stat0p3.txt'
-
+ttbarYields = '../makeCRs/ttbar_noJSF_notTag_tau21Fix1_2016_10_8_test/yields_noCRunc_'+discrim+'_2p318fb_rebinned_stat0p3.txt'
+wjetsYields = '../makeCRs/wjets_noJSF_notTag_tau21Fix1_2016_10_8_test/yields_noCRunc_'+discrim+'_2p318fb_rebinned_stat0p3.txt'
+"""NOTE: Need to have the yield files above from theta templates, not combine!!!!!!!!"""
 lumiSys = 0.027 #lumi uncertainty
 eltrigSys = 0.05 #electron trigger uncertainty
 mutrigSys = 0.05 #muon trigger uncertainty
@@ -106,7 +106,7 @@ for cat in dob_ewk.keys(): dataOverBkg[cat] = abs(1-dob_ewk[cat])
 # dataOverBkg['ewk_M_nW0'] = abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isM' in cat and 'nW0_' in cat][0])
 # dataOverBkg['ewk_E_nW1p']= abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isE' in cat and 'nW1p_' in cat][0])
 # dataOverBkg['ewk_M_nW1p']= abs(1-[dob_ewk[cat] for cat in dob_ewk.keys() if 'isM' in cat and 'nW1p_' in cat][0])
-
+print dataOverBkg
 """Correlate the e/m channels and print the derived full CR uncertainties"""
 print "FULL CR:"
 for key in sorted(yields.keys()):
@@ -195,21 +195,22 @@ for cat in sorted(total_ewk_Up.keys()):
 
 """Print the shape uncertainty on the Data/MC:"""
 print 'TOTAL SHAPES ON THE DATA/MC:'
+unc_shape = {}
 for cat in sorted(total_shape.keys()): 
-	if 'top' in cat: unc_shape = dob_top[cat]*math.sqrt((1./data_top[cat]+total_shape[cat]**2))
-	if 'ewk' in cat: unc_shape = dob_ewk[cat]*math.sqrt((1./data_ewk[cat]+total_shape[cat]**2))
-	print cat,':',round(unc_shape,2)
+	if 'top' in cat: unc_shape[cat] = dob_top[cat]*math.sqrt((1./data_top[cat]+total_shape[cat]**2))
+	if 'ewk' in cat: unc_shape[cat] = dob_ewk[cat]*math.sqrt((1./data_ewk[cat]+total_shape[cat]**2))
+	print cat,':',round(unc_shape[cat],2)
 print
 
 print "NORM+SHAPE SUBSTRACTED CR:"
 for key in sorted(yields.keys()):
 	if '_M_' in key: continue
 	normsquared  = ((elcorrdSys*yields[key]+mucorrdSys*yields[key.replace('_E_','_M_')])/(yields[key]+yields[key.replace('_E_','_M_')]))**2
-	shapesquared = ((total_shape[key]*yields[key]+total_shape[key.replace('_E_','_M_')]*yields[key.replace('_E_','_M_')])/(yields[key]+yields[key.replace('_E_','_M_')]))**2
+	shapesquared = ((unc_shape[key]*yields[key]+unc_shape[key.replace('_E_','_M_')]*yields[key.replace('_E_','_M_')])/(yields[key]+yields[key.replace('_E_','_M_')]))**2
 	shapePlusNorm = math.sqrt(normsquared+shapesquared)
 	CRfull = (yields[key]*dataOverBkg[key]+yields[key.replace('_E_','_M_')]*dataOverBkg[key.replace('_E_','_M_')])/(yields[key]+yields[key.replace('_E_','_M_')])
-	if CRfull<=shapePlusNorm: print key.replace('E_',''),':',0.0
-	else: print key.replace('E_',''),':',math.sqrt(CRfull**2-normsquared-shapesquared)
+	if CRfull<=shapePlusNorm: print key.replace('E_',''),':',0.0,'(totCR=%.2f,shape+norm=%.2f)' % (CRfull,shapePlusNorm)
+	else: print key.replace('E_',''),':',math.sqrt(CRfull**2-normsquared-shapesquared),'(totCR=%.2f,shape+norm=%.2f)' % (CRfull,shapePlusNorm)
 print
 
 """For kinematic plots, average these uncertainties across tagging categories for ewk process:"""
