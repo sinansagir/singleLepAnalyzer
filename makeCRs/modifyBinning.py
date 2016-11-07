@@ -26,7 +26,7 @@ start_time = time.time()
 
 cutString = ''
 disc = 'minMlb'
-templateDir = os.getcwd()+'/ttbar_noJSF_notTag_tau21Fix1_2016_10_8_test/'+cutString
+templateDir = os.getcwd()+'/ttbar_noJSF_notTag_tau21Fix1_2016_10_8/'+cutString
 combinefile = 'templates_'+disc+'_2p318fb.root'
 
 rebinCombine = False #else rebins theta templates
@@ -308,7 +308,7 @@ def getShapeSystUnc(proc,chn):
 			shift = yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20)-1
 			if shift>0.: totUpShiftPrctg+=shift**2
 			if shift<0.: totDnShiftPrctg+=shift**2
-	shpSystUncPrctg = (totUpShift+totDnShift)/2 #symmetrize the total shape uncertainty up/down shifts
+	shpSystUncPrctg = (math.sqrt(totUpShiftPrctg)+math.sqrt(totDnShiftPrctg))/2 #symmetrize the total shape uncertainty up/down shifts
 	return shpSystUncPrctg	
 
 table = []
@@ -384,16 +384,26 @@ for nttag in nttaglist:
 			yielderrtemp = 0. 
 			if proc=='totBkg' or proc=='dataOverBkg':
 				for bkg in bkgProcList:
+					yieldEplusMtemp = 0
 					try:
 						yieldtempE += yieldsAll[histoPrefixE+bkg]
-						yieldtempM += yieldsAll[histoPrefixM+bkg]
-						yieldtemp += yieldsAll[histoPrefixE+bkg]+yieldsAll[histoPrefixM+bkg]
-						yielderrtemp += yieldsErrsAll[histoPrefixE+bkg]**2+yieldsErrsAll[histoPrefixM+bkg]**2
-						yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldsAll[histoPrefixE+bkg]+yieldsAll[histoPrefixM+bkg]))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-						yielderrtemp += (getShapeSystUnc(bkg,chn)*yieldsAll[histoPrefixE+bkg])**2+(getShapeSystUnc(bkg,chn.replace('isE','isM'))*yieldsAll[histoPrefixM+bkg])**2
+						yieldtemp += yieldsAll[histoPrefixE+bkg]
+						yieldEplusMtemp += yieldsAll[histoPrefixE+bkg]
+						yielderrtemp += yieldsErrsAll[histoPrefixE+bkg]**2
+						yielderrtemp += (getShapeSystUnc(bkg,chn)*yieldsAll[histoPrefixE+bkg])**2
 					except:
 						print "Missing",bkg,"for channel:",chn
 						pass
+					try:
+						yieldtempM += yieldsAll[histoPrefixM+bkg]
+						yieldtemp += yieldsAll[histoPrefixM+bkg]
+						yieldEplusMtemp += yieldsAll[histoPrefixM+bkg]
+						yielderrtemp += yieldsErrsAll[histoPrefixM+bkg]**2
+						yielderrtemp += (getShapeSystUnc(bkg,chn.replace('isE','isM'))*yieldsAll[histoPrefixM+bkg])**2
+					except:
+						print "Missing",bkg,"for channel:",chn.replace('isE','isM')
+						pass
+					yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldEplusMtemp)**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 				yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 				if proc=='dataOverBkg':
 					dataTemp = yieldsAll[histoPrefixE+dataName]+yieldsAll[histoPrefixM+dataName]+1e-20
@@ -403,12 +413,19 @@ for nttag in nttaglist:
 			else:
 				try:
 					yieldtempE += yieldsAll[histoPrefixE+proc]
-					yieldtempM += yieldsAll[histoPrefixM+proc]
-					yieldtemp += yieldsAll[histoPrefixE+proc]+yieldsAll[histoPrefixM+proc]
-					yielderrtemp += yieldsErrsAll[histoPrefixE+proc]**2+yieldsErrsAll[histoPrefixM+proc]**2
-					yielderrtemp += (getShapeSystUnc(proc,chn)*yieldsAll[histoPrefixE+proc])**2+(getShapeSystUnc(proc,chn.replace('isE','isM'))*yieldsAll[histoPrefixM+proc])**2
+					yieldtemp  += yieldsAll[histoPrefixE+proc]
+					yielderrtemp += yieldsErrsAll[histoPrefixE+proc]**2
+					yielderrtemp += (getShapeSystUnc(proc,chn)*yieldsAll[histoPrefixE+proc])**2
 				except:
 					print "Missing",proc,"for channel:",chn
+					pass
+				try:
+					yieldtempM += yieldsAll[histoPrefixM+proc]
+					yieldtemp  += yieldsAll[histoPrefixM+proc]
+					yielderrtemp += yieldsErrsAll[histoPrefixM+proc]**2
+					yielderrtemp += (getShapeSystUnc(proc,chn.replace('isE','isM'))*yieldsAll[histoPrefixM+proc])**2
+				except:
+					print "Missing",proc,"for channel:",chn.replace('isE','isM')
 					pass
 				if proc in sigProcList:
 					signal=proc
