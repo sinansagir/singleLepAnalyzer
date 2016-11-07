@@ -42,7 +42,7 @@ if sigName=='X53X53':
 bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
-stat = 0.25 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+stat = 0.15 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if len(sys.argv)>1: stat=float(sys.argv[1])
 
 if rebinCombine:
@@ -53,6 +53,18 @@ else: #theta
 	dataName = 'DATA'
 	upTag = '__plus'
 	downTag = '__minus'
+
+addCRsys = False
+addShapes = True
+lumiSys = 0.027 #lumi uncertainty
+eltrigSys = 0.05 #electron trigger uncertainty
+mutrigSys = 0.05 #muon trigger uncertainty
+elIdSys = 0.01 #electron id uncertainty
+muIdSys = 0.01 #muon id uncertainty
+elIsoSys = 0.01 #electron isolation uncertainty
+muIsoSys = 0.01 #muon isolation uncertainty
+elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
+mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -127,6 +139,7 @@ for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 iRfile=0
 yieldsAll = {}
 yieldsErrsAll = {}
+yieldsSystErrsAll = {}
 for rfile in rfiles: 
 	print "REBINNING FILE:",rfile
 	tfiles = {}
@@ -168,9 +181,6 @@ for rfile in rfiles:
 			for bkg in bkgProcList:
 				if bkg!=bkgProcList[0]:rebinnedHists['chnTotBkgHist'].Add(rebinnedHists[chnHistName.replace(dataName,bkg)])
 			for ibin in range(1, rebinnedHists['chnTotBkgHist'].GetNbinsX()+1):
-				sigNameNoMass = sigName
-				if 'left' in sigProcList[0]: sigNameNoMass = sigName+'left'
-				if 'right' in sigProcList[0]: sigNameNoMass = sigName+'right'
 				dominantBkgProc = bkgProcList[0]
 				val = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetBinContent(ibin)
 				for bkg in bkgProcList:
@@ -189,6 +199,9 @@ for rfile in rfiles:
 				rebinnedHists[err_up_name].Write()
 				rebinnedHists[err_dn_name].Write()
 				for sig in sigProcList:
+					sigNameNoMass = sigName
+					if 'left' in sig: sigNameNoMass = sigName+'left'
+					if 'right' in sig: sigNameNoMass = sigName+'right'
 					val = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinContent(ibin)
 					#if val==0: continue #SHOULD WE HAVE THIS???
 					error  = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinError(ibin)
@@ -265,22 +278,11 @@ for rfile in rfiles:
 tfile.Close()
 print ">> Rebinning Done!"
 
-lumiSys = 0.027 #lumi uncertainty
-eltrigSys = 0.05 #electron trigger uncertainty
-mutrigSys = 0.05 #muon trigger uncertainty
-elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.01 #muon id uncertainty
-elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.01 #muon isolation uncertainty
-elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
-mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
-
 for chn in channels:
 	modTag = chn[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
 	modelingSys['qcd_'+modTag]=0.
-	#modelingSys['ewk_'+modTag]=0.
-	#modelingSys['top_'+modTag]=0.
+	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
 	
 isEMlist =[]
 nttaglist=[]
@@ -291,6 +293,22 @@ for chn in channels:
 	if chn.split('_')[1+rebinCombine] not in nttaglist: nttaglist.append(chn.split('_')[1+rebinCombine])
 	if chn.split('_')[2+rebinCombine] not in nWtaglist: nWtaglist.append(chn.split('_')[2+rebinCombine])
 	if chn.split('_')[3+rebinCombine] not in nbtaglist: nbtaglist.append(chn.split('_')[3+rebinCombine])
+
+def getShapeSystUnc(proc,chn):
+	if not addShapes: return 0
+	systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if chn in hist and '__'+proc+'__' in hist and upTag in hist])
+	totUpShiftPrctg=0
+	totDnShiftPrctg=0
+	for syst in systematicList:
+		for ud in [upTag,downTag]:
+			histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
+			nomHist = histoPrefix+proc
+			shpHist = histoPrefix+proc+'__'+syst+ud
+			shift = yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20)-1
+			if shift>0.: totUpShiftPrctg+=shift**2
+			if shift<0.: totDnShiftPrctg+=shift**2
+	shpSystUncPrctg = (math.sqrt(totUpShiftPrctg)+math.sqrt(totDnShiftPrctg))/2 #symmetrize the total shape uncertainty up/down shifts
+	return shpSystUncPrctg	
 
 table = []
 for isEM in isEMlist:
@@ -315,6 +333,7 @@ for isEM in isEMlist:
 							yieldtemp += yieldsAll[histoPrefix+bkg]
 							yielderrtemp += yieldsErrsAll[histoPrefix+bkg]**2
 							yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldsAll[histoPrefix+bkg])**2
+							yielderrtemp += (getShapeSystUnc(bkg,chn)*yieldsAll[histoPrefix+bkg])**2
 						except:
 							print "Missing",bkg,"for channel:",chn
 							pass
@@ -328,6 +347,7 @@ for isEM in isEMlist:
 					try:
 						yieldtemp += yieldsAll[histoPrefix+proc]
 						yielderrtemp += yieldsErrsAll[histoPrefix+proc]**2
+						yielderrtemp += (getShapeSystUnc(proc,chn)*yieldsAll[histoPrefix+proc])**2
 					except:
 						print "Missing",proc,"for channel:",chn
 						pass
@@ -363,15 +383,26 @@ for nttag in nttaglist:
 			yielderrtemp = 0. 
 			if proc=='totBkg' or proc=='dataOverBkg':
 				for bkg in bkgProcList:
+					yieldEplusMtemp = 0
 					try:
 						yieldtempE += yieldsAll[histoPrefixE+bkg]
-						yieldtempM += yieldsAll[histoPrefixM+bkg]
-						yieldtemp += yieldsAll[histoPrefixE+bkg]+yieldsAll[histoPrefixM+bkg]
-						yielderrtemp += yieldsErrsAll[histoPrefixE+bkg]**2+yieldsErrsAll[histoPrefixM+bkg]**2
-						yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldsAll[histoPrefixE+bkg]+yieldsAll[histoPrefixM+bkg]))**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
+						yieldtemp += yieldsAll[histoPrefixE+bkg]
+						yieldEplusMtemp += yieldsAll[histoPrefixE+bkg]
+						yielderrtemp += yieldsErrsAll[histoPrefixE+bkg]**2
+						yielderrtemp += (getShapeSystUnc(bkg,chn)*yieldsAll[histoPrefixE+bkg])**2
 					except:
 						print "Missing",bkg,"for channel:",chn
 						pass
+					try:
+						yieldtempM += yieldsAll[histoPrefixM+bkg]
+						yieldtemp += yieldsAll[histoPrefixM+bkg]
+						yieldEplusMtemp += yieldsAll[histoPrefixM+bkg]
+						yielderrtemp += yieldsErrsAll[histoPrefixM+bkg]**2
+						yielderrtemp += (getShapeSystUnc(bkg,chn.replace('isE','isM'))*yieldsAll[histoPrefixM+bkg])**2
+					except:
+						print "Missing",bkg,"for channel:",chn.replace('isE','isM')
+						pass
+					yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldEplusMtemp)**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 				yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 				if proc=='dataOverBkg':
 					dataTemp = yieldsAll[histoPrefixE+dataName]+yieldsAll[histoPrefixM+dataName]+1e-20
@@ -381,11 +412,19 @@ for nttag in nttaglist:
 			else:
 				try:
 					yieldtempE += yieldsAll[histoPrefixE+proc]
-					yieldtempM += yieldsAll[histoPrefixM+proc]
-					yieldtemp += yieldsAll[histoPrefixE+proc]+yieldsAll[histoPrefixM+proc]
-					yielderrtemp += yieldsErrsAll[histoPrefixE+proc]**2+yieldsErrsAll[histoPrefixM+proc]**2
+					yieldtemp  += yieldsAll[histoPrefixE+proc]
+					yielderrtemp += yieldsErrsAll[histoPrefixE+proc]**2
+					yielderrtemp += (getShapeSystUnc(proc,chn)*yieldsAll[histoPrefixE+proc])**2
 				except:
 					print "Missing",proc,"for channel:",chn
+					pass
+				try:
+					yieldtempM += yieldsAll[histoPrefixM+proc]
+					yieldtemp  += yieldsAll[histoPrefixM+proc]
+					yielderrtemp += yieldsErrsAll[histoPrefixM+proc]**2
+					yielderrtemp += (getShapeSystUnc(proc,chn.replace('isE','isM'))*yieldsAll[histoPrefixM+proc])**2
+				except:
+					print "Missing",proc,"for channel:",chn.replace('isE','isM')
 					pass
 				if proc in sigProcList:
 					signal=proc
@@ -426,7 +465,10 @@ for proc in bkgProcList+sigProcList:
 			table.append(row)
 	table.append(['break'])
 
-out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+'.txt','w')
+postFix = ''
+if addShapes: postFix+='_addShps'
+if not addCRsys: postFix+='_noCRunc'
+out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
 printTable(table,out)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
