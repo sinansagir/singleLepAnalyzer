@@ -10,13 +10,13 @@ gROOT.SetBatch(1)
 from tdrStyle import *
 setTDRStyle()
 
-lumiPlot = '12.9'
-lumiStr = '12p892'
+lumiPlot = '2.3'
+lumiStr = '2p318'
 distribution = 'minMlb'
 signal = 'X53X53'
 chiral = 'left'
 spin = 'left'
-limitDir='/user_data/ssagir/x53x53_limits_2016/templates_minMlb_2016_9_3/all/'#_beforeRebinning/'
+limitDir='/user_data/ssagir/x53x53_limits_2015/templates_minMlb_2016_10_27/all/'#_beforeRebinning/'
 postfix = '' # for plot names in order to save them as different files
 isRebinned='_rebinned_stat0p3'
 xrange_min=700.
@@ -50,7 +50,8 @@ def getSensitivity(index, exp):
 
 cutStrings = [x for x in os.walk(limitDir).next()[1]]
 
-bestSelection = 'lep30_MET100_NJets3_NBJets0_DR0.75_1jet250_2jet50_3jet0'
+bestSelection = 'lep80_MET100_NJets4_NBJets0_DR1_1jet200_2jet90_3jet0'#'lep50_MET100_NJets4_NBJets0_DR0.75_1jet300_2jet150_3jet0'
+additionalSelToCompare = []
 
 observed = {}
 expected = {}
@@ -59,6 +60,7 @@ expected95 = {}
 crossingList = {}
 ind=0
 for cutString in cutStrings:
+	if '_NJets4_' not in cutString: continue
 	plotLimits = True
 	for kutle in mass_str:
 		if not os.path.exists(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+kutle+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt'): 
@@ -159,8 +161,6 @@ legends['3jet'] = TLegend(.15,.70,.93,.93) # for varying jet3Pts
 legends['NJets']= TLegend(.15,.82,.93,.93) # for varying Njets
 legends['DR']   = TLegend(.15,.76,.93,.93) # for varying DRs
 
-bestSelection = 'lep30_MET150_NJets4_NBJets0_DR0.75_1jet450_2jet150_3jet0' #minMlb
-#bestSelection = 'lep30_MET100_NJets3_NBJets0_DR0.75_1jet250_2jet50_3jet0' #ST
 canvs = {}
 for sel in bestSelection.split('_'):
 	if 'NBJets' in sel or '3jet' in sel: continue
@@ -168,30 +168,31 @@ for sel in bestSelection.split('_'):
 	for key in legends.keys():
 		if key in sel: variedCut = key
 	postfix = 'vary'+variedCut
-	
+
+	cutStrs = sorted([item for item in expected.keys() if (bestSelection.split(sel)[0] in item and bestSelection.split(sel)[1] in item)], key=lambda cut: float(cut[cut.find(variedCut)+len(variedCut):cut.find(variedCut)+cut[cut.find(variedCut):].find('_')]))
+	cutStrs = cutStrs+additionalSelToCompare
+		
 	canvs[variedCut] = TCanvas(variedCut,"Limits", 1000, 800)
 	canvs[variedCut].SetBottomMargin(0.15)
 	canvs[variedCut].SetRightMargin(0.06)
 	canvs[variedCut].SetLogy()
 	
-	expected[cutString0].Draw('AL')
-	expected[cutString0].SetLineColor(1)
-	expected[cutString0].SetLineWidth(2)
-	expected[cutString0].SetLineStyle(1)
-	expected[cutString0].GetYaxis().SetRangeUser(yrange_min,yrange_max)
-	expected[cutString0].GetXaxis().SetRangeUser(xrange_min,xrange_max)
+	expected[cutStrs[0]].Draw('AL')
+	expected[cutStrs[0]].SetLineColor(1)
+	expected[cutStrs[0]].SetLineWidth(2)
+	expected[cutStrs[0]].SetLineStyle(1)
+	expected[cutStrs[0]].GetYaxis().SetRangeUser(yrange_min,yrange_max)
+	expected[cutStrs[0]].GetXaxis().SetRangeUser(xrange_min,xrange_max)
 	if 'X53' in signal:
 		expected[cutString0].GetXaxis().SetTitle('X_{5/3} mass [GeV]')
 		expected[cutString0].GetYaxis().SetTitle('#sigma(X_{5/3}#bar{X}_{5/3})[pb] - '+chiral.replace('left','LH').replace('right','RH'))
 	else:
 		expected[cutString0].GetXaxis().SetTitle('T mass [GeV]')
 		expected[cutString0].GetYaxis().SetTitle('#sigma(T#bar{T})[pb]')
-
-	cutStrs = sorted([item for item in expected.keys() if (bestSelection.split(sel)[0] in item and bestSelection.split(sel)[1] in item)], key=lambda cut: float(cut[cut.find(variedCut)+len(variedCut):cut.find(variedCut)+cut[cut.find(variedCut):].find('_')]))
 		
 	ind=2
 	for cutString in cutStrs:
-		if cutString == cutString0: continue
+		if cutString == cutStrs[0]: continue
 		#if not (bestSelection.split(sel)[0] in cutString and bestSelection.split(sel)[1] in cutString): continue						
 		expected[cutString].SetLineColor(ind)
 		expected[cutString].SetLineWidth(2)
@@ -232,9 +233,8 @@ for sel in bestSelection.split('_'):
 	canvs[variedCut].RedrawAxis()
 
 	folder='.'
-	if not os.path.exists(folder+'/'+limitDir.split('/')[-2]+'plots'): os.system('mkdir '+folder+'/'+limitDir.split('/')[-2]+'plots')
-	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.root')
-	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.pdf')
-	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.png')
-	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-2]+'plots/PlotCombined'+spin+distribution+postfix+'_logy.eps')
+	if not os.path.exists(folder+'/'+limitDir.split('/')[-3]+'plots'): os.system('mkdir '+folder+'/'+limitDir.split('/')[-3]+'plots')
+	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-3]+'plots/PlotCombined'+spin+distribution+postfix+limitDir.split('/')[-2]+'_logy.pdf')
+	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-3]+'plots/PlotCombined'+spin+distribution+postfix+limitDir.split('/')[-2]+'_logy.png')
+	canvs[variedCut].SaveAs(folder+'/'+limitDir.split('/')[-3]+'plots/PlotCombined'+spin+distribution+postfix+limitDir.split('/')[-2]+'_logy.eps')
 

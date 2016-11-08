@@ -14,7 +14,6 @@ signal = 'X53'
 lumiPlot = '2.3'
 lumiStr = '2p318'
 discriminant='minMlb'
-cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
 
 mass_str = ['700','800','900','1000','1100','1200','1300','1400','1500']#,'1600']
 theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391][:len(mass_str)]#pb
@@ -243,9 +242,11 @@ tempKeys = ['all','isE','isM','nW0','nW1p','nB1','nB2p','nT0','nT1p']
 # 		'no_ttag_HTbins':'templates_minMlb_noJSF_notTag_2016_6_22_WJetsHTbins',
 # 		'no_ttag_HTbinsJSF':'templates_minMlb_withJSF_notTag_2016_6_22',
 # 		}
+cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
 dirs = {
 		'ttag':'templates_minMlb_noJSF_tau21Fix1_2016_10_8',
 		'ttag_noCRunc':'templates_minMlb_noJSF_tau21Fix1_2016_10_8_noCRuncerts',
+		#'ttag':'templates_minMlb_2016_10_28_noCRuncerts',
 		}
 dirKeyList = ['ttag','ttag_noCRunc']
 binnings = ['0p15','0p25']
