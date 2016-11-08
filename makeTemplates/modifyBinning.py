@@ -39,7 +39,7 @@ sigProcList = [sigName+'M'+str(mass) for mass in range(signalMassRange[0],signal
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
-bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
+bkgProcList = ['tt','W','top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
 stat = 0.15 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
@@ -83,7 +83,11 @@ allhists = {chn:[hist.GetName() for hist in tfile.GetListOfKeys() if chn in hist
 totBkgHists = {}
 for hist in datahists:
 	channel = hist[hist.find('fb_')+3:hist.find('__')]
-	totBkgHists[channel]=tfile.Get(hist.replace('__'+dataName,'__top')).Clone()
+	totBkgHists[channel]=tfile.Get(hist.replace('__'+dataName,'__tt')).Clone()
+	try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__top')))
+	except: pass
+	try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__W')))
+	except: pass
 	try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__ewk')))
 	except: pass
 	try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__qcd')))
@@ -282,17 +286,19 @@ for chn in channels:
 	modTag = chn[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
 	modelingSys['qcd_'+modTag]=0.
-	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
+	if not addCRsys: modelingSys['tt_'+modTag],modelingSys['W_'+modTag],modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.,0.,0.
 	
 isEMlist =[]
 nttaglist=[]
 nWtaglist=[]
 nbtaglist=[]
+njetslist=[]
 for chn in channels:
 	if chn.split('_')[0+rebinCombine] not in isEMlist: isEMlist.append(chn.split('_')[0+rebinCombine])
 	if chn.split('_')[1+rebinCombine] not in nttaglist: nttaglist.append(chn.split('_')[1+rebinCombine])
 	if chn.split('_')[2+rebinCombine] not in nWtaglist: nWtaglist.append(chn.split('_')[2+rebinCombine])
 	if chn.split('_')[3+rebinCombine] not in nbtaglist: nbtaglist.append(chn.split('_')[3+rebinCombine])
+	if chn.split('_')[4+rebinCombine] not in njetslist: njetslist.append(chn.split('_')[4+rebinCombine])
 
 def getShapeSystUnc(proc,chn):
 	if not addShapes: return 0
@@ -458,7 +464,7 @@ for proc in bkgProcList+sigProcList:
 				shpHist = histoPrefix+proc+'__'+syst+ud
 				try: row.append(' & '+str(round(yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20),2)))
 				except:
-					if not ((syst=='toppt' or syst=='q2') and proc!='top'):
+					if not ((syst=='toppt' or syst=='q2') and proc!='tt'):
 						print "Missing",proc,"for channel:",chn,"and systematic:",syst
 					pass
 			row.append('\\\\')

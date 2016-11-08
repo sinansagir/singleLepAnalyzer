@@ -8,6 +8,15 @@ samples = {
 'DataMRRD':'SingleMuon_RRD',
 'DataMPRD':'SingleMuon_PRD_xrd',
 
+'HTBM180':'ChargedHiggs_HplusTB_HplusToTB_M-180_13TeV_amcatnlo_pythia8',
+'HTBM200':'ChargedHiggs_HplusTB_HplusToTB_M-200_13TeV_amcatnlo_pythia8',
+'HTBM250':'ChargedHiggs_HplusTB_HplusToTB_M-250_13TeV_amcatnlo_pythia8',
+'HTBM300':'ChargedHiggs_HplusTB_HplusToTB_M-300_13TeV_amcatnlo_pythia8',
+'HTBM350':'ChargedHiggs_HplusTB_HplusToTB_M-350_13TeV_amcatnlo_pythia8',
+'HTBM400':'ChargedHiggs_HplusTB_HplusToTB_M-400_13TeV_amcatnlo_pythia8',
+'HTBM450':'ChargedHiggs_HplusTB_HplusToTB_M-450_13TeV_amcatnlo_pythia8',
+'HTBM500':'ChargedHiggs_HplusTB_HplusToTB_M-500_13TeV_amcatnlo_pythia8',
+
 'TTM700BWBW':'TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8_25ns_BWBW',
 'TTM800BWBW':'TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8_25ns_BWBW',
 'TTM900BWBW':'TprimeTprime_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8_25ns_BWBW',

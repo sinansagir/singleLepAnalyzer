@@ -220,6 +220,15 @@ nRun['X53X53M1500right'] = 300000.
 nRun['X53X53M1600left']  = 300000.
 nRun['X53X53M1600right'] = 300000.
 
+nRun['HTBM180'] = 415000. #6199394500. #1493830.* 4150.
+nRun['HTBM200'] = 410000. #6124047000. #1493670.* 4100.
+nRun['HTBM250'] = 400000. #5896336000. #1474084.* 4000.
+nRun['HTBM300'] = 395000. #5855329900. #1482362.* 3950.
+nRun['HTBM350'] = 365000. #5437496250. #1489725.* 3650.
+nRun['HTBM400'] = 410000. #6103887300. #1488753.* 4100.
+nRun['HTBM450'] = 405000. #5994032400. #1480008.* 4050.
+nRun['HTBM500'] = 415000. #5654752650. #1362591.* 4150.
+
 nRun['QCDht100'] = 81637494.
 nRun['QCDht200'] = 18718905.
 nRun['QCDht300'] = 19826197.
@@ -314,6 +323,15 @@ xsec['X53X53M1500left']  = 0.00200 # from https://twiki.cern.ch/twiki/bin/viewau
 xsec['X53X53M1500right'] = 0.00200 # from https://twiki.cern.ch/twiki/bin/viewauth/CMS/B2GVHF#Full_NNLO_cross_sections_for_top
 xsec['X53X53M1600left']  = 0.001148 # from https://twiki.cern.ch/twiki/bin/viewauth/CMS/B2GVHF#Full_NNLO_cross_sections_for_top
 xsec['X53X53M1600right'] = 0.001148 # from https://twiki.cern.ch/twiki/bin/viewauth/CMS/B2GVHF#Full_NNLO_cross_sections_for_top
+
+xsec['HTBM180'] = 0.919
+xsec['HTBM200'] = 0.783951
+xsec['HTBM250'] = 0.4982015
+xsec['HTBM300'] = 0.324766
+xsec['HTBM350'] = 0.2184385
+xsec['HTBM400'] = 0.148574
+xsec['HTBM450'] = 0.104141
+xsec['HTBM500'] = 0.0735225
 
 xsec['QCDht100'] = 27990000. # from https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns#QCD
 xsec['QCDht200'] = 1712000. # from https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns#QCD 
