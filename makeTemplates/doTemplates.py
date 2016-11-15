@@ -13,14 +13,14 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='PS' #SR,TTCR,WJCR
-isCategorized=False
+region='WJCR' #SR,TTCR,WJCR
+isCategorized=True
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
-if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='2016_11_14_wJSF'
+if not isCategorized: pfix='kinematicsST_'+region+'_'
+pfix+='ST_2016_11_13_wJSF'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -51,13 +51,15 @@ dataList= ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
 q2UpList   = ttwList+ttzList+tList+['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
 q2DownList = ttwList+ttzList+tList+['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
 
-whichSignal = 'X53X53' #TT, BB, or X53X53
+whichSignal = 'X53X53' #HTB, TT, BB, or X53X53
 signalMassRange = [700,1600]
 sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
+if whichSignal=='HTB': sigList = [whichSignal+'M'+str(mass) for mass in [180]+range(signalMassRange[0],signalMassRange[1]+50,50)]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
+if whichSignal=='HTB': decays = ['']
 
 doBRScan = False
 BRs={}
@@ -78,6 +80,7 @@ if not isCategorized:
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['1p']
+	if region=='WJCR': nbtaglist = ['0']
 njetslist=['4p']
 if region=='PS': njetslist=['3p']
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
