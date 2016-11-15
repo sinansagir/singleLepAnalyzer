@@ -11,13 +11,13 @@ from tdrStyle import *
 setTDRStyle()
 
 lumiPlot = '2.3'
-lumiStr = '2p318'
-distribution = 'minMlb'
+lumiStr = '12p892'
+distribution = 'ST'
 signal = 'X53X53'
 chiral = 'left'
-limitDir='/user_data/ssagir/x53x53_limits_2015/templates_minMlb_2016_10_27/all/'#_beforeRebinning/'
+limitDir='/user_data/ssagir/x53x53_limits_2016/templates_'+distribution+'_2016_10_29/all/'
 postfix = '' # for plot names in order to save them as different files
-isRebinned='_rebinned_stat0p3'
+isRebinned='_rebinned_stat0p25'
 xrange_min=700.
 xrange_max=1200.
 yrange_min=.0003+.01
@@ -48,25 +48,42 @@ def getSensitivity(index, exp):
 	return mass[index-1]+s*(mass[index]-mass[index-1]), exp[index-1]+s*(exp[index]-exp[index-1])
 
 cutStrings = [x for x in os.walk(limitDir).next()[1]]
-# cutStrings = ['lep50_MET100_NJets5_NBJets0_DR0.75_1jet300_2jet150_3jet0',
+cutStrings = ['lep50_MET100_NJets5_NBJets0_DR0.75_1jet300_2jet150_3jet0',
 # 			  'lep50_MET100_NJets5_NBJets0_DR1_1jet300_2jet150_3jet0',
 # 			  'lep80_MET100_NJets5_NBJets0_DR0.75_1jet300_2jet150_3jet0',
 # 			  'lep80_MET100_NJets5_NBJets0_DR1_1jet300_2jet150_3jet0',
 # 			  'lep50_MET100_NJets4_NBJets0_DR0.75_1jet300_2jet150_3jet0',
 # 			  'lep80_MET100_NJets4_NBJets0_DR1_1jet300_2jet150_3jet0',
 # 			  'lep80_MET100_NJets4_NBJets0_DR1_1jet200_2jet90_3jet0',
+			  'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet90_3jet0',
+			  'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet50_3jet0',
+			  'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet150_3jet0',
+			  'lep30_MET100_NJets4_NBJets0_DR1_1jet300_2jet150_3jet0',
+			  ]
+
+# cutStrings = ['lep30_MET100_NJets5_NBJets0_DR0.75_1jet450_2jet100_3jet0',
+# 			  'lep30_MET100_NJets5_NBJets0_DR1_1jet450_2jet100_3jet0',
+# 			  'lep30_MET100_NJets4_NBJets0_DR0.75_1jet450_2jet100_3jet0',
+# 			  'lep30_MET100_NJets4_NBJets0_DR1_1jet450_2jet100_3jet0',
+# 			  'lep50_MET100_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0',
+# 			  'lep30_MET100_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0',
+# # 			  'lep80_MET100_NJets4_NBJets0_DR1_1jet200_2jet90_3jet0',
 # 			  ]
 observed = {}
 expected = {}
 crossingList = {}
 ind=0
+skipped=[]
 for cutString in cutStrings:
-	#if '_NJets4_' not in cutString: continue
+	if '_NJets4_' not in cutString: continue
+	if '_DR1_' not in cutString: continue
 	plotLimits = True
 	for kutle in mass_str:
 		if not os.path.exists(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+kutle+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt'): 
 			plotLimits = False
-	if not plotLimits: continue
+	if not plotLimits: 
+		skipped.append(cutString)
+		continue
 	if (ind % 500)==0: 
 		print "Finished",ind,"out of",len(cutStrings) 
 		print cutString
@@ -136,6 +153,8 @@ for key in crossingList.keys():
 		insensitivityStr = key
 print "********************************************************************************"
 print "Run over", ind, "sets of cuts"
+print "Skipped", len(skipped), "sets of cuts:"
+print skipped
 print "********************************************************************************"
 print "The best set of cuts are ", sensitivityStr
 print "with sensitivity up to ", sensitivity, "GeV"

@@ -9,47 +9,37 @@ outDir = os.getcwd()+'/'
 
 lumi = 2.3
 discriminant = 'minMlb'
-rfilePostFix = ''
-tempVersion = 'templates_minMlb_noJSF_tau21Fix1_2016_10_8'
-cutString = '/lep80_MET100_NJets4_DR1_1jet200_2jet90'
-templateFile = '/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
+rfilePostFix = '_modified'
+tempVersion = 'templates_minMlb_69mbNoTops'
+cutString = 'SelectionFile'
+templateFile = '../makeThetaTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_TTM900_12p892fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signals'): os.system('mkdir '+outDir+tempVersion+'/signals')
 
 bkgList = ['top','ewk','qcd']
 channels = ['isE','isM']
-ttags = ['nT0','nT1p']
+ttags = ['nT0p']
 wtags = ['nW0','nW1p']
-btags = ['nB1','nB2p']
-systematics = ['pileup','muRFcorrd','muR','muF','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec']
+btags = ['nB0','nB1','nB2','nB3p']
+systematics = ['pileup','jec','jer','btag','mistag','tau21','jsf','muRFcorrdNew','pdfNew','trigeff']
 
-signameList = [
-# 		   'X53X53M700left',
-		   'X53X53M800left',
-# 		   'X53X53M900left',
-# 		   'X53X53M1000left',
-# 		   'X53X53M1100left',
-# 		   'X53X53M1200left',
-# 		   'X53X53M1300left',
-# 		   'X53X53M1400left',
-# 		   'X53X53M1500left',
-# 		   'X53X53M1600left',
-# 		   'X53X53M700right',
-# 		   'X53X53M800right',
-# 		   'X53X53M900right',
-# 		   'X53X53M1000right',
-# 		   'X53X53M1100right',
-# 		   'X53X53M1200right',
-# 		   'X53X53M1300right',
-# 		   'X53X53M1400right',
-# 		   'X53X53M1500right',
-# 		   'X53X53M1600right',
-		   ]
+signameList = ['TTM800',
+	       'TTM900',
+	       'TTM1000',
+	       'TTM1100',
+	       'TTM1200',
+	       'TTM1300',
+	       'TTM1400',
+	       'TTM1500',
+	       'TTM1600',
+	       'TTM1700',
+	       'TTM1800',
+	       ]
 
 for signal in signameList:
-	RFile = R.TFile(templateFile.replace('X53X53M900left',signal))
+	RFile = R.TFile(templateFile.replace('TTM900',signal))
 	for syst in systematics:
-		Prefix = discriminant+'_2p318fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'__sig'
+		Prefix = discriminant+'_12p892fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'__sig'
 		print Prefix
 		hNm = RFile.Get(Prefix).Clone()
 		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
@@ -91,7 +81,6 @@ for signal in signameList:
 		uPad.SetBottomMargin(0)
 		uPad.SetRightMargin(.05)
 		uPad.SetLeftMargin(.18)
-		#uPad.SetLogy()
 		uPad.Draw()
 
 		lPad=R.TPad("lPad","",0,0,1,yDiv) #for sigma runner
@@ -106,7 +95,6 @@ for signal in signameList:
 
 		R.gStyle.SetOptTitle(0)
 
-		#canv.SetLogy()
 		hNm.SetFillColor(R.kWhite)
 		hUp.SetFillColor(R.kWhite)
 		hDn.SetFillColor(R.kWhite)
@@ -131,13 +119,11 @@ for signal in signameList:
 		hUp.GetYaxis().SetTitleSize(0.1)
 		hUp.GetYaxis().SetTitleOffset(.6)
 		
-		#hUp.SetMaximum(1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 		hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 
 		hUp.Draw()
 		hNm.Draw('same')
 		hDn.Draw('same')
-		#uPad.RedrawAxis()
 
 		lPad.cd()
 		R.gStyle.SetOptTitle(0)
@@ -150,7 +136,6 @@ for signal in signameList:
 		pullUp.SetFillColor(2)
 		pullUp.SetLineColor(2)
 
-		#pullUp.GetXaxis().SetTitle(histName)
 		pullUp.GetXaxis().SetLabelSize(.15)
 		pullUp.GetXaxis().SetTitleSize(0.18)
 		pullUp.GetXaxis().SetTitleOffset(0.95)
@@ -161,8 +146,6 @@ for signal in signameList:
 		pullUp.GetYaxis().SetTitleSize(0.1)
 		pullUp.GetYaxis().SetTitleOffset(.55)
 		pullUp.GetYaxis().SetNdivisions(506)
-		#pullUp.SetMinimum(pullDown.GetMinimum())
-		#pullUp.SetMaximum(pullUp.GetMaximum())
 
 		pullDown = hDn.Clone()
 		for iBin in range(0,pullDown.GetXaxis().GetNbins()+2):
@@ -173,7 +156,6 @@ for signal in signameList:
 		pullDown.SetFillColor(4)
 		pullDown.SetLineColor(4)
 
-		#pullDown.GetXaxis().SetTitle(histName)
 		pullDown.GetXaxis().SetLabelSize(.15)
 		pullDown.GetXaxis().SetTitleSize(0.18)
 		pullDown.GetXaxis().SetTitleOffset(0.95)
@@ -186,8 +168,6 @@ for signal in signameList:
 		pullDown.GetYaxis().SetNdivisions(506)
 		pullUp.SetMinimum(-0.5)#-1.4)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
 		pullUp.SetMaximum(0.5)#1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
-		#pullDown.SetMinimum(pullDown.GetMinimum())
-		#pullDown.SetMaximum(pullDown.GetMaximum())
 		pullUp.Draw()
 		pullDown.Draw('same')
 		lPad.RedrawAxis()
@@ -210,9 +190,7 @@ for signal in signameList:
 		prelimTex.SetTextFont(42)
 		prelimTex.SetTextSize(0.05)
 		prelimTex.SetLineWidth(2)
-		#lumi=round(lumi,2)
 		prelimTex.DrawLatex(0.90,0.943,str(lumi)+" fb^{-1} (13 TeV)")
-		#prelimTex.DrawLatex(0.88, 0.95, "CMS Preliminary, "+str(lumi)+" fb^{-1} at #sqrt{s} = 8 TeV");
 
 		prelimTex2=R.TLatex()
 		prelimTex2.SetNDC()
@@ -228,32 +206,20 @@ for signal in signameList:
 		prelimTex3.SetTextSize(0.040)
 		prelimTex3.SetLineWidth(2)
 		prelimTex3.DrawLatex(0.25175,0.9664,"Preliminary")
-		#if blind: prelimTex3.DrawLatex(0.29175,0.9664,"Preliminary")
 
 		Tex1=R.TLatex()
 		Tex1.SetNDC()
 		Tex1.SetTextSize(0.05)
 		Tex1.SetTextAlign(31) # align right
-		#if i == 0: textx = 0.89
-		#else: textx = 0.85
 		textx = 0.4
-		#Tex1.DrawLatex(textx, 0.86, 'test')
 	
 		Tex2 = R.TLatex()
 		Tex2.SetNDC()
 		Tex2.SetTextSize(0.05)
 		Tex2.SetTextAlign(31)
-	# 		if '0' in Prefix: channel = 'Z #rightarrow #mu#mu'
-	# 		if '1' in Prefix: channel = 'Z #rightarrow ee'
-	# 		if '2' in Prefix: channel = 'W #rightarrow #mu#nu'
-	# 		if '3' in Prefix: channel = 'W #rightarrow e#nu'
-	# 		if 'med' in Prefix: boost = 'Medium Boost Bin'
-	# 		if 'high' in Prefix: boost = 'High Boost Bin'
-		#Tex2.DrawLatex(textx, 0.81, channel)
-		#Tex2.DrawLatex(textx, 0.76, boost)
 
 		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.pdf')
 		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.png')
-		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.eps')
+		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.root')
 	RFile.Close()
 

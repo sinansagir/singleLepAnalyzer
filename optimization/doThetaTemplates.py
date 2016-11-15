@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os,sys,time,math,datetime,pickle,itertools,getopt
-from ROOT import gROOT,TH1D,TFile,TTree
+from ROOT import TH1D,gROOT,TFile,TTree
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from numpy import linspace
@@ -13,68 +13,77 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
+"""
+Note: 
+--Each process in step1 (or step2) directories should have the root files hadded! 
+--The code will look for <step1Dir>/<process>_hadd.root for nominal trees.
+The uncertainty shape shifted files will be taken from <step1Dir>/../<shape>/<process>_hadd.root,
+where <shape> is for example "JECUp". hadder.py can be used to prepare input files this way! 
+--Each process given in the lists below must have a definition in "samples.py"
+--Check the set of cuts in "analyze.py"
+"""
+
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet76In74_1lepTT_061316_step3_6Oct16_tau21Fix/nominal/'
-
-bkgList = [
-		   'DY50',
-		   'WJetsMG',
-# 		   'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
-		   'WW','WZ','ZZ',
-#  		   'TTJetsPH',
- 		   'TTJetsPH0to700inc',
- 		   'TTJetsPH700to1000inc',
- 		   'TTJetsPH1000toINFinc',
- 		   'TTJetsPH700mtt',
- 		   'TTJetsPH1000mtt',
-		   'TTWl','TTWq',
-		   'TTZl','TTZq',
-		   'Tt','Ts',
-		   'TtW','TbtW',
- 		   'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
- 		   ]
-
-dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
+step1Dir = '/user_data/ssagir/LJMet_1lep_101916_step2preSel/nominal'
 
 region = 'SR' #no need to change
-iPlot='minMlb'
 isotrig = 1
-doJetRwt= 0
-doAllSys= True
-doQ2sys = True
-q2List  = [#energy scale sample to be processed
-	      'TTJetsPHQ2U','TTJetsPHQ2D',
-	      'TtWQ2U','TbtWQ2U',
-	      'TtWQ2D','TbtWQ2D',
-	      ]
-
+doJetRwt = 0
+iPlot='ST'
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 3990./2318.
 doAllSys = False
 doQ2sys = True
 if not doAllSys: doQ2sys = False
-addCRsys = False
-systematicList = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec']
-normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
-		       
+systematicList = ['pileup','jec','jer','btag','tau21','mistag','muR','muF','muRFcorrd','toppt','jsf','topsf','trigeff']
+normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
+
+bkgList = [
+	'DY',
+	'WJetsMG100',
+	'WJetsMG200',
+	'WJetsMG400',
+	'WJetsMG600',
+	'WJetsMG800',
+	'WJetsMG1200',
+	'WJetsMG2500',
+	'WW','WZ','ZZ',
+	'TTJetsPH0to1000inc',
+	'TTJetsPH1000toINFinc',
+	'TTJetsPH1000mtt',
+	'TTWl','TTWq',
+	'TTZl','TTZq',
+	'Tt','Tbt','Ts',
+	'TtW','TbtW',
+	#'QCDht100','QCDht200',
+	'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+	]
+q2List  = [#energy scale sample to be processed
+	       'TTJetsPHQ2U','TTJetsPHQ2D',
+	       #'TtWQ2U','TbtWQ2U',
+	       #'TtWQ2D','TbtWQ2D',
+	       ]
+			       
 bkgProcList = ['TTJets','T','TTW','TTZ','WJets','ZJets','VV','QCD']
-wjetList  = ['WJetsMG']
-zjetList  = ['DY50']
+wjetList  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500'] 
+zjetList  = ['DY']
 vvList    = ['WW','WZ','ZZ']
 ttwList   = ['TTWl','TTWq']
 ttzList   = ['TTZl','TTZq']
-ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
-tList     = ['Tt','Ts','TtW','TbtW']
+ttjetList = ['TTJetsPH1000toINFinc','TTJetsPH1000mtt']
+ttjetList+= ['TTJetsPH0to1000inc']
+#ttjetList+= ['TTJetsPH0to1000inc1','TTJetsPH0to1000inc2','TTJetsPH0to1000inc3','TTJetsPH0to1000inc4','TTJetsPH0to1000inc5','TTJetsPH0to1000inc6','TTJetsPH0to1000inc7','TTJetsPH0to1000inc8']
+tList     = ['Tt','Tbt','Ts','TtW','TbtW']
 
 bkgGrupList = ['top','ewk','qcd']
 topList = ttjetList+ttwList+ttzList+tList
 ewkList = wjetList+zjetList+vvList
-qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
-dataList = ['DataERRC','DataERRD','DataEPRD','DataMRRC','DataMRRD','DataMPRD']
+qcdList = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']#'QCDht100','QCDht200',
+dataList = ['DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
 
-q2UpList   = ['TTJetsPHQ2U','Tt','Ts','TtWQ2U','TbtWQ2U']+ttwList+ttzList
-q2DownList = ['TTJetsPHQ2D','Tt','Ts','TtWQ2D','TbtWQ2D']+ttwList+ttzList
+q2UpList   = ttwList+ttzList+tList+['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
+q2DownList = ttwList+ttzList+tList+['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
 
 whichSignal = 'X53X53' #TT, BB, or X53X53
 signalMassRange = [700,1600]
@@ -173,9 +182,9 @@ cutList = {'lepPtCut':lepPtCut,
 		   }
 
 cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
-cutString += '_NJets'+str(int(cutList['njetsCut']))+'_NBJets'+str(int(cutList['nbjetsCut']))
+cutString += '_NJets'+str(int(cutList['njetsCut']))#+'_NBJets'+str(int(cutList['nbjetsCut']))
 cutString += '_DR'+str(cutList['drCut'])+'_1jet'+str(int(cutList['jet1PtCut']))
-cutString += '_2jet'+str(int(cutList['jet2PtCut']))+'_3jet'+str(int(cutList['jet3PtCut']))
+cutString += '_2jet'+str(int(cutList['jet2PtCut']))#+'_3jet'+str(int(cutList['jet3PtCut']))
 # cutString += '_4jet'+str(int(cutList['jet4PtCut']))+'_5jet'+str(int(cutList['jet5PtCut']))
 # cutString += '_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])
 # cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
@@ -194,24 +203,42 @@ else:
 	if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
 	outDir+='/'+cutString
 
-lumiSys = 0.027 #lumi uncertainty
-eltrigSys = 0.05 #electron trigger uncertainty
-mutrigSys = 0.05 #muon trigger uncertainty
+lumiSys = 0.062 #lumi uncertainty
+eltrigSys = 0.03 #electron trigger uncertainty
+mutrigSys = 0.011 #muon trigger uncertainty
 elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.01 #muon id uncertainty
+muIdSys = 0.011 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.01 #muon isolation uncertainty
-
+muIsoSys = 0.03 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
-modelingSys={}
+modelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
+			   'top_nT0_nW0_nB1'   :0.,
+			   'top_nT0_nW0_nB2p'  :0.,
+			   'top_nT0_nW1p_nB1'  :0.,
+			   'top_nT0_nW1p_nB2p' :0.,
+			   'top_nT1p_nW0_nB1'  :0.,
+			   'top_nT1p_nW0_nB2p' :0.,
+			   'top_nT1p_nW1p_nB1' :0.,
+			   'top_nT1p_nW1p_nB2p':0.,
+			   
+			   'ewk_nT0_nW0_nB1'   :0.,
+			   'ewk_nT0_nW0_nB2p'  :0.,
+			   'ewk_nT0_nW1p_nB1'  :0.,
+			   'ewk_nT0_nW1p_nB2p' :0.,
+			   'ewk_nT1p_nW0_nB1'  :0.,
+			   'ewk_nT1p_nW0_nB2p' :0.,
+			   'ewk_nT1p_nW1p_nB1' :0.,
+			   'ewk_nT1p_nW1p_nB2p':0.,
+			   }
 for tag in tagList:
-	modTag = tag[tag.find('nW'):]
+	modTag = tag[tag.find('nT'):]
 	modelingSys['data_'+modTag] = 0.
 	modelingSys['qcd_'+modTag] = 0.
-	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
-
+	#modelingSys['ewk_'+modTag] = 0.
+	#modelingSys['top_'+modTag] = 0.
+		 
 postTag = 'isSR_'
 ###########################################################
 #################### CATEGORIZATION #######################
@@ -454,7 +481,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		#Theta templates:
 		print "WRITING THETA TEMPLATES: "
 		for signal in sigList:
-			print "              ... "+signal
+			print "              ...writing: "+signal
 			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
 			thetaRfile = TFile(thetaRfileName,'RECREATE')
 			for cat in catList:
@@ -502,7 +529,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		combineRfileName = outDir+'/templates_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.root'
 		combineRfile = TFile(combineRfileName,'RECREATE')
 		for cat in catList:
-			print "              ... "+cat
+			print "              ...writing: "+cat
 			i=BRconfStr+cat
 			for signal in sigList:
 				mass = [str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100) if str(mass) in signal][0]
@@ -613,7 +640,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					row = [proc]
 					for cat in catList:
 						if not ('is'+isEM in cat and 'nT'+nttag in cat): continue
-						modTag = cat[cat.find('nW'):]
+						modTag = cat[cat.find('nT'):]
 						histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
 						yieldtemp = 0.
 						yielderrtemp = 0.
@@ -642,7 +669,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2
 							yielderrtemp += (corrdSys*yieldtemp)**2
 						yielderrtemp = math.sqrt(yielderrtemp)
-						if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefix][proc])))
+						if proc=='data': row.append(' & '+str(round_sig(yieldTable[histoPrefix][proc],2)))
 						else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 					row.append('\\\\')
 					table.append(row)
@@ -657,7 +684,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				row = [proc]
 				for cat in catList:
 					if not ('isE' in cat and 'nT'+nttag in cat): continue
-					modTag = cat[cat.find('nW'):]
+					modTag = cat[cat.find('nT'):]
 					histoPrefixE = discriminant+'_'+lumiStr+'fb_'+cat
 					histoPrefixM = histoPrefixE.replace('isE','isM')
 					yieldtemp = 0.
@@ -669,13 +696,13 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							try:
 								yieldtempE += yieldTable[histoPrefixE][bkg]
 								yieldtempM += yieldTable[histoPrefixM][bkg]
-								yieldtemp  += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
+								yieldtemp += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
 								yielderrtemp += yieldStatErrTable[histoPrefixE][bkg]**2+yieldStatErrTable[histoPrefixM][bkg]**2
 								yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 							except:
 								print "Missing",bkg,"for channel:",cat
 								pass
-						yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
+						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
 						if proc=='dataOverBkg':
 							dataTemp = yieldTable[histoPrefixE]['data']+yieldTable[histoPrefixM]['data']+1e-20
 							dataTempErr = yieldStatErrTable[histoPrefixE]['data']**2+yieldStatErrTable[histoPrefixM]['data']**2
@@ -685,44 +712,42 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						try:
 							yieldtempE += yieldTable[histoPrefixE][proc]
 							yieldtempM += yieldTable[histoPrefixM][proc]
-							yieldtemp  += yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc]
+							yieldtemp += yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc]
 							yielderrtemp += yieldStatErrTable[histoPrefixE][proc]**2+yieldStatErrTable[histoPrefixM][proc]**2
 						except:
 							print "Missing",proc,"for channel:",cat
 							pass
 						if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-						yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
+						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
 					yielderrtemp = math.sqrt(yielderrtemp)
-					if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc])))
+					if proc=='data': row.append(' & '+str(round_sig(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc],2)))
 					else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 				row.append('\\\\')
 				table.append(row)
 
 		#systematics
-		if doAllSys:
+		table.append(['break'])
+		table.append(['','Systematics'])
+		table.append(['break'])
+		for proc in bkgGrupList+sigList:
+			table.append([proc]+[cat for cat in catList]+['\\\\'])
+			for syst in sorted(systematicList+['q2']):
+				for ud in ['Up','Down']:
+					row = [syst+ud]
+					for cat in catList:
+						histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
+						nomHist = histoPrefix
+						shpHist = histoPrefix+syst+ud
+						try: row.append(' & '+str(round_sig(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
+						except:
+							if (syst=='toppt' or syst=='q2') and proc not in sigList:
+								print "Missing",proc,"for channel:",cat,"and systematic:",syst
+							pass
+					row.append('\\\\')
+					table.append(row)
 			table.append(['break'])
-			table.append(['','Systematics'])
-			table.append(['break'])
-			for proc in bkgGrupList+sigList:
-				table.append([proc]+[cat for cat in catList]+['\\\\'])
-				for syst in sorted(systematicList+['q2']):
-					for ud in ['Up','Down']:
-						row = [syst+ud]
-						for cat in catList:
-							histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
-							nomHist = histoPrefix
-							shpHist = histoPrefix+syst+ud
-							try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
-							except:
-								if not ((syst=='toppt' or syst=='q2') and proc!='top'):
-									print "Missing",proc,"for channel:",cat,"and systematic:",syst
-								pass
-						row.append('\\\\')
-						table.append(row)
-				table.append(['break'])
 			
-		if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
-		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+		out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
 		printTable(table,out)
 
 def readTree(file):
@@ -772,28 +797,27 @@ for bkg in bkgList+q2List:
 print "FINISHED READING"
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
-			'HT':('AK4HT',linspace(0, 5000, 51).tolist(),';H_{T} (GeV);'),
-			'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 51).tolist(),';S_{T} (GeV);'),
-			'minMlb':('minMleppBjet',linspace(0, 800, 51).tolist(),';min[M(l,b)] (GeV);'),
-			'MallJetsPlusWleptonic':('M_AllJets_PlusWleptonic',linspace(0, 5000, 101).tolist(),';M (all jets + Wleptonic) (GeV);'),
-			'x53Mass':('xftMass',linspace(0, 5000, 51).tolist(),';M (X_{5/3}) (GeV);'),
-			}
+	'HT':('AK4HT',linspace(0, 5000, 51).tolist(),';H_{T} (GeV);'),
+	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 51).tolist(),';S_{T} (GeV);'),
+	'minMlb':('minMleppBjet',linspace(0, 800, 51).tolist(),';min[M(l,b)] (GeV);'),
+	}
 
-iPlot='minMlb' #choose a discriminant from plotList!
 print "PLOTTING:",iPlot
 print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
-catTList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist))
-nCats  = len(catTList)
+nCats  = len(catList)
 catInd = 1
 datahists = {}
 bkghists  = {}
 sighists  = {}
-for cat in catTList:
-	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]
-	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3]}
+for cat in catList:
+	isEM  = cat.split('_')[0].replace('is','')
+	nttag = cat.split('_')[1].replace('nT','')
+	nwtag = cat.split('_')[2].replace('nW','')
+	nbtag = cat.split('_')[3].replace('nB','')
+	category = {'isEM':isEM,'nttag':nttag,'nWtag':nwtag,'nbtag':nbtag}
 	for data in dataList: 
 		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region))
 		if catInd==nCats: del tFileData[data]

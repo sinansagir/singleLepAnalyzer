@@ -10,15 +10,15 @@ gROOT.SetBatch(1)
 from tdrStyle import *
 setTDRStyle()
 
-lumiPlot = '2.3'
-lumiStr = '2p318'
+lumiPlot = '12.9'
+lumiStr = '12p892'
 distribution = 'minMlb'
 signal = 'X53X53'
 chiral = 'left'
 spin = 'left'
-limitDir='/user_data/ssagir/x53x53_limits_2015/templates_minMlb_2016_10_27/all/'#_beforeRebinning/'
+limitDir='/user_data/ssagir/x53x53_limits_2016/templates_minMlb_2016_10_29/all/'#_beforeRebinning/'
 postfix = '' # for plot names in order to save them as different files
-isRebinned='_rebinned_stat0p3'
+isRebinned='_rebinned_stat0p25'
 xrange_min=700.
 xrange_max=1200.
 yrange_min=.0003+.01
@@ -50,7 +50,8 @@ def getSensitivity(index, exp):
 
 cutStrings = [x for x in os.walk(limitDir).next()[1]]
 
-bestSelection = 'lep80_MET100_NJets4_NBJets0_DR1_1jet200_2jet90_3jet0'#'lep50_MET100_NJets4_NBJets0_DR0.75_1jet300_2jet150_3jet0'
+#bestSelection = 'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet50_3jet0'#ST
+bestSelection = 'lep30_MET100_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0'#minMlb
 additionalSelToCompare = []
 
 observed = {}
@@ -60,7 +61,7 @@ expected95 = {}
 crossingList = {}
 ind=0
 for cutString in cutStrings:
-	if '_NJets4_' not in cutString: continue
+	#if '_NJets4_' not in cutString: continue
 	plotLimits = True
 	for kutle in mass_str:
 		if not os.path.exists(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+kutle+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt'): 

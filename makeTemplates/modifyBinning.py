@@ -20,13 +20,17 @@ start_time = time.time()
 # Notes:
 # -- Finds certain root files in a given directory and rebins all histograms in each file
 # -- A selection of subset of files in the input directory can be done below under "#Setup the selection ..."
-# -- A custom binning choice can also be given below and this choice can be activated by giving a stat unc 
-#    threshold larger than 100% (>1.) in the argument
+# -- A custom binning choice can also be given by manually filling "xbinsList[chn]" for each channel
+#    with the preferred choice of binning
+# -- If no rebinning is wanted, but want to add PDF and R/F uncertainties, use a stat unc threshold 
+#    that is larger than 100% (i.e, >1.)
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-cutString = 'lep80_MET100_NJets4_DR1_1jet200_2jet90'
-templateDir = os.getcwd()+'/templates_minMlb_noJSF_tau21Fix1_2016_10_8/'+cutString
-combinefile = 'templates_minMlb_2p318fb.root'
+iPlot='ST'
+if len(sys.argv)>1: iPlot=str(sys.argv[1])
+cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
+templateDir = os.getcwd()+'/wjets_'+iPlot+'_2016_11_13/'+cutString
+combinefile = 'templates_'+iPlot+'_36p0fb.root'
 
 rebinCombine = False #else rebins theta templates
 doStatShapes = True
@@ -39,11 +43,11 @@ sigProcList = [sigName+'M'+str(mass) for mass in range(signalMassRange[0],signal
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
 	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
-bkgProcList = ['tt','W','top','ewk','qcd'] #put the most dominant process first
+bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
-stat = 0.15 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
-if len(sys.argv)>1: stat=float(sys.argv[1])
+stat = 0.25 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+#if len(sys.argv)>1: stat=float(sys.argv[1])
 
 if rebinCombine:
 	dataName = 'data_obs'
@@ -56,13 +60,13 @@ else: #theta
 
 addCRsys = False
 addShapes = True
-lumiSys = 0.027 #lumi uncertainty
-eltrigSys = 0.05 #electron trigger uncertainty
-mutrigSys = 0.05 #muon trigger uncertainty
+lumiSys = 0.062 #lumi uncertainty
+eltrigSys = 0.03 #electron trigger uncertainty
+mutrigSys = 0.011 #muon trigger uncertainty
 elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.01 #muon id uncertainty
+muIdSys = 0.011 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.01 #muon isolation uncertainty
+muIsoSys = 0.03 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
@@ -72,26 +76,24 @@ def findfiles(path, filtre):
             yield os.path.join(root, f)
 
 #Setup the selection of the files to be rebinned:          
-rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and combinefile not in file]
+rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
 if rebinCombine: rfiles = [templateDir+'/'+combinefile]
 
 tfile = TFile(rfiles[0])
 datahists = [k.GetName() for k in tfile.GetListOfKeys() if '__'+dataName in k.GetName()]
-channels = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists]
+channels = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isL_' not in hist]
 allhists = {chn:[hist.GetName() for hist in tfile.GetListOfKeys() if chn in hist.GetName()] for chn in channels}
 
 totBkgHists = {}
 for hist in datahists:
 	channel = hist[hist.find('fb_')+3:hist.find('__')]
-	totBkgHists[channel]=tfile.Get(hist.replace('__'+dataName,'__tt')).Clone()
-	try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__top')))
-	except: pass
-	try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__W')))
-	except: pass
-	try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__ewk')))
-	except: pass
-	try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__qcd')))
-	except: pass
+	totBkgHists[channel]=tfile.Get(hist.replace('__'+dataName,'__'+bkgProcList[0])).Clone()
+	for proc in bkgProcList:
+		try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__'+proc)))
+		except: 
+			print "Missing",proc,"for category:",hist
+			print "WARNING! Skipping this process!!!!"
+			pass
 
 xbinsListTemp = {}
 for chn in totBkgHists.keys():
@@ -286,7 +288,7 @@ for chn in channels:
 	modTag = chn[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
 	modelingSys['qcd_'+modTag]=0.
-	if not addCRsys: modelingSys['tt_'+modTag],modelingSys['W_'+modTag],modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.,0.,0.
+	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
 	
 isEMlist =[]
 nttaglist=[]
@@ -305,10 +307,10 @@ def getShapeSystUnc(proc,chn):
 	systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if chn in hist and '__'+proc+'__' in hist and upTag in hist])
 	totUpShiftPrctg=0
 	totDnShiftPrctg=0
+	histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
+	nomHist = histoPrefix+proc
 	for syst in systematicList:
 		for ud in [upTag,downTag]:
-			histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
-			nomHist = histoPrefix+proc
 			shpHist = histoPrefix+proc+'__'+syst+ud
 			shift = yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20)-1
 			if shift>0.: totUpShiftPrctg+=shift**2
@@ -464,7 +466,7 @@ for proc in bkgProcList+sigProcList:
 				shpHist = histoPrefix+proc+'__'+syst+ud
 				try: row.append(' & '+str(round(yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20),2)))
 				except:
-					if not ((syst=='toppt' or syst=='q2') and proc!='tt'):
+					if not ((syst=='toppt' or syst=='q2') and proc!='top'):
 						print "Missing",proc,"for channel:",chn,"and systematic:",syst
 					pass
 			row.append('\\\\')
@@ -476,6 +478,70 @@ if addShapes: postFix+='_addShps'
 if not addCRsys: postFix+='_noCRunc'
 out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
 printTable(table,out)
+
+print "       WRITING SUMMARY TEMPLATES: "
+lumiStr = combinefile.split('_')[-1][:-7]
+for signal in sigProcList:
+	print "              ... "+signal
+	yldRfileName = templateDir+'/templates_YLD_'+signal+'_'+lumiStr+'fb_rebinned_stat'+str(stat).replace('.','p')+'.root'
+	yldRfile = TFile(yldRfileName,'RECREATE')
+	for isEM in isEMlist:		
+		for proc in bkgProcList+[dataName,signal]:
+			yldHists = {}
+			yldHists[isEM+proc]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA'),'',len(channels)/2,0,len(channels)/2)
+			systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
+			for syst in systematicList:
+				for ud in [upTag,downTag]:
+					if (syst=='toppt' or syst=='q2') and proc!='top': continue
+					yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
+			ibin = 1
+			for chn in channels:
+				if isEM not in chn: continue
+				nttag = chn.split('_')[-4][2:]
+				nWtag = chn.split('_')[-3][2:]
+				nbtag = chn.split('_')[-2][2:]
+				njets = chn.split('_')[-1][2:]
+				binStr = ''
+				if nttag!='0p':
+					if 'p' in nttag: binStr+='#geq'+nttag[:-1]+'t/'
+					else: binStr+=nttag+'t/'
+				if nWtag!='0p':
+					if 'p' in nWtag: binStr+='#geq'+nWtag[:-1]+'W/'
+					else: binStr+=nWtag+'W/'
+				if nbtag!='0p':
+					if 'p' in nbtag: binStr+='#geq'+nbtag[:-1]+'b/'
+					else: binStr+=nbtag+'b/'
+				if njets!='0p' and len(njetslist)>1:
+					if 'p' in njets: binStr+='#geq'+njets[:-1]+'j'
+					else: binStr+=njets+'j'
+				if binStr.endswith('/'): binStr=binStr[:-1]
+				histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
+				try: 
+					yldTemp = yieldsAll[histoPrefix+proc]
+					yldErrTemp = yieldsErrsAll[histoPrefix+proc]
+				except: 
+					print "Missing "+proc+" for channel: "+chn+" (setting yield to zero!!!)"
+					yldTemp = 0
+					yldErrTemp = 0
+				yldHists[isEM+proc].SetBinContent(ibin,yldTemp)
+				yldHists[isEM+proc].SetBinError(ibin,yldErrTemp)
+				yldHists[isEM+proc].GetXaxis().SetBinLabel(ibin,binStr)
+				for syst in systematicList:
+					for ud in [upTag,downTag]:
+						if (syst=='toppt' or syst=='q2') and proc!='top': continue
+						if proc=='data': continue
+						try: yldTemp = yieldsAll[histoPrefix+proc+'__'+syst+ud]
+						except: yldTemp = 0
+						yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yldTemp)
+						yldHists[isEM+proc+syst+ud].GetXaxis().SetBinLabel(ibin,binStr)
+				ibin+=1
+			yldHists[isEM+proc].Write()
+			for syst in systematicList:
+				for ud in [upTag,downTag]:
+					if (syst=='toppt' or syst=='q2') and proc!='top': continue
+					if proc=='data': continue
+					yldHists[isEM+proc+syst+ud].Write()
+	yldRfile.Close()
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 

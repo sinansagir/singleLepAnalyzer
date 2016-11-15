@@ -9,10 +9,10 @@ outDir = os.getcwd()+'/'
 
 lumi = 2.3
 discriminant = 'minMlb'
-rfilePostFix = '_rebinned_stat0p15'
-tempVersion = 'templates_minMlb_noJSF_tau21Fix1_2016_10_8'
-cutString = '/lep80_MET100_NJets4_DR1_1jet200_2jet90'
-templateFile = '/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
+rfilePostFix = ''#'_rebinned'
+tempVersion = 'templates_minMlb_x53x53_2016_4_28'
+cutString = '/lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet30_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
+templateFile = '../makeThetaTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/bkgIndChannels'): os.system('mkdir '+outDir+tempVersion+'/bkgIndChannels')
 
@@ -20,26 +20,12 @@ bkgList = ['top','ewk','qcd']
 channels = ['isE','isM']
 ttags = ['nT0','nT1p']
 wtags = ['nW0','nW1p']
-btags = ['nB1','nB2p']
-systematics = ['pileup','toppt','topsf','jmr','jms','tau21','btag','mistag','jer','jec','q2','muRFcorrdNew','pdfNew']
-
-def normByBinWidth(result):
-	result.SetBinContent(0,0)
-	result.SetBinContent(result.GetNbinsX()+1,0)
-	result.SetBinError(0,0)
-	result.SetBinError(result.GetNbinsX()+1,0)
-	
-	for bin in range(1,result.GetNbinsX()+1):
-		width=result.GetBinWidth(bin)
-		content=result.GetBinContent(bin)
-		error=result.GetBinError(bin)
+btags = ['nB0','nB1','nB2p']
+systematics = ['pileup','jec','jer','jmr','jms','btag','tau21','q2','toppt','jsf','muR','muF','muRFcorrd','muRFenv','pdf','topsf']#,'muRFcorrdNew','muRFdecorrdNew','pdfNew']
 		
-		result.SetBinContent(bin, content/width)
-		result.SetBinError(bin, error/width)
-
 RFile = R.TFile(templateFile)
+
 for syst in systematics:
-	print syst
 	for ch in channels:
 		for ttag in ttags:
 			for wtag in wtags:
@@ -72,9 +58,6 @@ for syst in systematics:
 								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
 								hDn.Add(htempDown)
 						except:pass
-					normByBinWidth(hNm)
-					normByBinWidth(hUp)
-					normByBinWidth(hDn)
 					hNm.Draw()
 					hUp.Draw()
 					hDn.Draw()
@@ -121,10 +104,10 @@ for syst in systematics:
 					hUp.SetMarkerSize(.05)
 					hDn.SetMarkerSize(.05)
 
-					hUp.GetYaxis().SetTitle('Events / 1 GeV')
+					hUp.GetYaxis().SetTitle('Events')
 					hUp.GetYaxis().SetLabelSize(0.10)
 					hUp.GetYaxis().SetTitleSize(0.1)
-					hUp.GetYaxis().SetTitleOffset(.8)
+					hUp.GetYaxis().SetTitleOffset(.6)
 
 					#hUp.SetMaximum(1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 					hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
@@ -235,23 +218,24 @@ for syst in systematics:
 	
 					Tex2 = R.TLatex()
 					Tex2.SetNDC()
-					Tex2.SetTextSize(0.06)
+					Tex2.SetTextSize(0.05)
 					Tex2.SetTextAlign(21)
 					if ch=='isE': channelTxt = 'e+jets'
 					if ch=='isM': channelTxt = '#mu+jets'
-					tagTxt = ''
-					if 'p' in ttag: tagTxt+='#geq'+ttag[2:-1]+' t, '
-					else: tagTxt+=ttag[2:]+' t, '
-					if 'p' in wtag: tagTxt+='#geq'+wtag[2:-1]+' W, '
-					else: tagTxt+=wtag[2:]+' W, '
-					if 'p' in btag: tagTxt+='#geq'+btag[2:-1]+' b'
-					else: tagTxt+=btag[2:]+' b'
+					btagTxt = '#b tags = '+btag[2:]
+					if btag.endswith('p'): btagTxt = '#b tags #geq '+btag[2:-1]
+					wtagTxt = '#W tags = '+wtag[2:]
+					if wtag.endswith('p'): wtagTxt = '#W tags #geq '+wtag[2:-1]
+					ttagTxt = '#t tags = '+ttag[2:]
+					if ttag.endswith('p'): ttagTxt = '#t tags #geq '+ttag[2:-1]
 					Tex2.DrawLatex(textx, 0.85, channelTxt)
-					Tex2.DrawLatex(textx, 0.77, tagTxt)
+					Tex2.DrawLatex(textx, 0.80, btagTxt)
+					Tex2.DrawLatex(textx, 0.75, wtagTxt)
+					Tex2.DrawLatex(textx, 0.70, ttagTxt)
 
 					canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+ch+'_'+ttag+'_'+wtag+'_'+btag+'.pdf')
 					canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+ch+'_'+ttag+'_'+wtag+'_'+btag+'.png')
-					canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+ch+'_'+ttag+'_'+wtag+'_'+btag+'.eps')
+					canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+ch+'_'+ttag+'_'+wtag+'_'+btag+'.root')
 
 RFile.Close()
 

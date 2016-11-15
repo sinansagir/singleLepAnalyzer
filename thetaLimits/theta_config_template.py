@@ -14,14 +14,14 @@ def get_model():
 
     for obs in obsvs:
 		if 'isE' in obs:
-			model.add_lognormal_uncertainty('elTrigSys', math.log(1.05), '*', obs)
+			model.add_lognormal_uncertainty('elTrigSys', math.log(1.01), '*', obs)
 			model.add_lognormal_uncertainty('elIdSys', math.log(1.01), '*', obs)
 			model.add_lognormal_uncertainty('elIsoSys', math.log(1.01), '*', obs)
 		elif 'isM' in obs:
-			model.add_lognormal_uncertainty('muTrigSys', math.log(1.05), '*', obs)
-			model.add_lognormal_uncertainty('muIdSys', math.log(1.01), '*', obs)
-			model.add_lognormal_uncertainty('muIsoSys', math.log(1.01), '*', obs)
-    model.add_lognormal_uncertainty('lumiSys', math.log(1.027), '*', '*')
+			model.add_lognormal_uncertainty('muTrigSys', math.log(1.0112), '*', obs)
+			model.add_lognormal_uncertainty('muIdSys', math.log(1.0112), '*', obs)
+			model.add_lognormal_uncertainty('muIsoSys', math.log(1.03), '*', obs)
+    model.add_lognormal_uncertainty('lumiSys', math.log(1.062), '*', '*')
 
     #modeling uncertainties: Inclusive WJets sample, NOT REWEIGHTED, 8SEP16--SS
     for obs in obsvs:

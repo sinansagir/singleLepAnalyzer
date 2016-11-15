@@ -1,8 +1,10 @@
 import os,sys,fnmatch
 
-templateDir='/home/ssagir/CMSSW_7_3_0/src/singleLepAnalyzer/x53x53_2015/makeTemplates/'
-templateDir+='templates_minMlb_2016_10_28'
-thetaConfigTemp = os.getcwd()+'/theta_config_template_noCRsys.py'
+templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/x53x53_2016/optimization/'
+templateDir+='templates_minMlb_2016_10_29' #Total number of jobs submitted: 3402
+#templateDir+='templates_ST_2016_10_29' #Total number of jobs submitted: 4374
+thetaConfigTemp = os.getcwd()+'/theta_config_template_optimization.py'
+lumiInFile = '12p892fb'
 
 systematicsInFile = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
 
@@ -23,8 +25,8 @@ limitConfs = {#'<limit type>':[filter list]
 # 			  'nB2p':['nB1'], #only 2p b tag category
 			  }
 
-limitType = '_noCRuncerts'
-outputDir = '/user_data/ssagir/x53x53_limits_2015/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
+limitType = ''#'_noCRuncerts'
+outputDir = '/user_data/ssagir/x53x53_limits_2016/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 # outputDir+= '/'+limitType+'/'
 # if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
@@ -38,8 +40,13 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if 'rebinned_stat0p' not in rootfile: continue
+    if 'rebinned_stat0p25' not in rootfile: continue
+    if 'right' in rootfile: continue
     if 'plots' in rootfile: continue
+    if 'X53X53M1300' in rootfile: continue
+    if 'X53X53M1400' in rootfile: continue
+    if 'X53X53M1500' in rootfile: continue
+    if 'X53X53M1600' in rootfile: continue
     rootfilelist.append(rootfile)
     i+=1
 
@@ -77,7 +84,7 @@ for limitConf in limitConfs:
 	for file in rootfilelist:
 		fileName = file.split('/')[-1]
 		signal = fileName.split('_')[2]
-		BRStr = fileName[fileName.find(signal)+len(signal):fileName.find('_2p318fb')]
+		BRStr = fileName[fileName.find(signal)+len(signal):fileName.find('_'+lumiInFile)]
 		outDir = outputDir+limitConf+BRStr+'/'
 		print signal,BRStr
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
