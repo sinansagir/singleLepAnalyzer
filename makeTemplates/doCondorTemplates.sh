@@ -2,22 +2,18 @@
 
 condorDir=$PWD
 theDir=$1
+iPlot=$2
+region=$3
+isCategorized=$4
+isEM=$5
+nttag=$6
+nWtag=$7
+nbtag=$8
+njets=$9
 
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 
 cd $theDir
 eval `scramv1 runtime -sh`
 
-python doHists.py $condorDir \
-                  --lepPtCut=${2} \
-                  --jet1PtCut=${3} \
-                  --jet2PtCut=${4} \
-                  --metCut=${5} \
-                  --njetsCut=${6} \
-                  --nbjetsCut=${7} \
-                  --jet3PtCut=${8} \
-                  --drCut=${9} \
-                  --isEM=${10} \
-                  --nttag=${11} \
-                  --nWtag=${12} \
-                  --nbtag=${13}
+python doHists.py $condorDir $iPlot $region $isCategorized $isEM $nttag $nWtag $nbtag $njets

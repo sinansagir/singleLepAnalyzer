@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
-import os,sys,time,math,datetime,pickle,itertools
-from ROOT import gROOT,TFile
+import os,sys,time,math,datetime,pickle,itertools,fnmatch
+from ROOT import gROOT,TFile,TH1F
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from weights import *
+from modSyst import *
 from utils import *
 
 gROOT.SetBatch(1)
@@ -12,18 +13,23 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-iPlot='minMlb'
-cutString='lep30_MET150_NJets4_DR1_1jet450_2jet150'
-pfix='templates_minMlb_2016_9_14_test'
-outDir = os.getcwd()+'/'
-outDir+=pfix+'/'+cutString
+region='PS' #SR,TTCR,WJCR
+isCategorized=False
+cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
+if region=='SR': pfix='templates_'
+if region=='TTCR': pfix='ttbar_'
+if region=='WJCR': pfix='wjets_'
+if not isCategorized: pfix='kinematics_'+region+'_'
+pfix+='2016_11_14_wJSF'
+outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
-scaleLumi = False
-lumiScaleCoeff = 3990./2318.
+scaleLumi = True
+lumiScaleCoeff = 33590./36000.
 doAllSys = True
 doQ2sys = True
 if not doAllSys: doQ2sys = False
+addCRsys = False
 systematicList = ['pileup','jec','jer','btag','mistag','tau21','topsf','toppt','muR','muF','muRFcorrd','jsf','trigeff']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
@@ -33,16 +39,14 @@ zjetList  = ['DY']
 vvList    = ['WW','WZ','ZZ']
 ttwList   = ['TTWl','TTWq']
 ttzList   = ['TTZl','TTZq']
-ttjetList = ['TTJetsPH1000toINFinc','TTJetsPH1000mtt']
-ttjetList+= ['TTJetsPH0to1000inc']
-#ttjetList+= ['TTJetsPH0to1000inc1','TTJetsPH0to1000inc2','TTJetsPH0to1000inc3','TTJetsPH0to1000inc4','TTJetsPH0to1000inc5','TTJetsPH0to1000inc6','TTJetsPH0to1000inc7','TTJetsPH0to1000inc8']
+ttjetList = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 tList     = ['Tt','Tbt','Ts','TtW','TbtW']
 
 bkgGrupList = ['top','ewk','qcd']
 topList = ttjetList+ttwList+ttzList+tList
 ewkList = wjetList+zjetList+vvList
-qcdList = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']#'QCDht100','QCDht200',
-dataList = ['DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
+qcdList = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+dataList= ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
 
 q2UpList   = ttwList+ttzList+tList+['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
 q2DownList = ttwList+ttzList+tList+['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
@@ -64,11 +68,20 @@ nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
 isEMlist =['E','M']
-nttaglist=['0','1p']
-nWtaglist=['0','1p']
-nbtaglist=['1','2p']
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist))]
-tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist))]
+if region=='SR': nttaglist=['0','1p']
+else: nttaglist = ['0p']
+if region=='TTCR': nWtaglist = ['0p']
+else: nWtaglist=['0','1p']
+if region=='WJCR': nbtaglist = ['0']
+else: nbtaglist=['1','2p']
+if not isCategorized: 	
+	nttaglist = ['0p']
+	nWtaglist = ['0p']
+	nbtaglist = ['1p']
+njetslist=['4p']
+if region=='PS': njetslist=['3p']
+catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
+tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))]
 
 lumiSys = 0.062 #lumi uncertainty
 eltrigSys = 0.03 #electron trigger uncertainty
@@ -77,36 +90,18 @@ elIdSys = 0.01 #electron id uncertainty
 muIdSys = 0.011 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
 muIsoSys = 0.03 #muon isolation uncertainty
+
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
-modelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-			   'top_nT0_nW0_nB1'   :0.,
-			   'top_nT0_nW0_nB2p'  :0.,
-			   'top_nT0_nW1p_nB1'  :0.,
-			   'top_nT0_nW1p_nB2p' :0.,
-			   'top_nT1p_nW0_nB1'  :0.,
-			   'top_nT1p_nW0_nB2p' :0.,
-			   'top_nT1p_nW1p_nB1' :0.,
-			   'top_nT1p_nW1p_nB2p':0.,
-			   
-			   'ewk_nT0_nW0_nB1'   :0.,
-			   'ewk_nT0_nW0_nB2p'  :0.,
-			   'ewk_nT0_nW1p_nB1'  :0.,
-			   'ewk_nT0_nW1p_nB2p' :0.,
-			   'ewk_nT1p_nW0_nB1'  :0.,
-			   'ewk_nT1p_nW0_nB2p' :0.,
-			   'ewk_nT1p_nW1p_nB1' :0.,
-			   'ewk_nT1p_nW1p_nB2p':0.,
-			   }
 for tag in tagList:
-	modTag = tag[tag.find('nW'):]
+	modTag = tag[tag.find('nT'):tag.find('nJ')-3]
 	modelingSys['data_'+modTag] = 0.
 	modelingSys['qcd_'+modTag] = 0.
-	#modelingSys['ewk_'+modTag] = 0.
-	#modelingSys['top_'+modTag] = 0.
-
-postTag = 'isSR_'
+	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
+	
+if 'CR' in region: postTag = 'isCR_'
+else: postTag = 'isSR_'
 ###########################################################
 #################### CATEGORIZATION #######################
 ###########################################################
@@ -326,11 +321,9 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			for key in yieldStatErrTable[histoPrefix].keys(): yieldStatErrTable[histoPrefix][key] = math.sqrt(yieldStatErrTable[histoPrefix][key])
 
 		#scale signal cross section to 1pb
-		print "SCALING SIGNAL TEMPLATES TO 1pb ..."
+		print "       SCALING SIGNAL TEMPLATES TO 1pb ..."
 		if scaleSignalXsecTo1pb:
 			for signal in sigList:
-				thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
-				thetaRfile = TFile(thetaRfileName,'RECREATE')
 				for cat in catList:
 					i=BRconfStr+cat+signal
 					hsig[i].Scale(1./xsec[signal])
@@ -346,9 +339,9 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							hsig['pdf'+str(pdfInd)+'_'+str(i)].Scale(1./xsec[signal])
 
 		#Theta templates:
-		print "WRITING THETA TEMPLATES: "
+		print "       WRITING THETA TEMPLATES: "
 		for signal in sigList:
-			print "              ...writing: "+signal
+			print "              ... "+signal
 			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
 			thetaRfile = TFile(thetaRfileName,'RECREATE')
 			for cat in catList:
@@ -392,11 +385,11 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			thetaRfile.Close()
 
 		#Combine templates:
-		print "WRITING COMBINE TEMPLATES: "
+		print "       WRITING COMBINE TEMPLATES: "
 		combineRfileName = outDir+'/templates_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.root'
 		combineRfile = TFile(combineRfileName,'RECREATE')
 		for cat in catList:
-			print "              ...writing: "+cat
+			print "              ... "+cat
 			i=BRconfStr+cat
 			for signal in sigList:
 				mass = [str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100) if str(mass) in signal][0]
@@ -458,6 +451,71 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			hdata[i].Write()
 		combineRfile.Close()
 
+		print "       WRITING SUMMARY TEMPLATES: "
+		for signal in sigList:
+			print "              ... "+signal
+			yldRfileName = outDir+'/templates_YLD_'+signal+BRconfStr+'_'+lumiStr+'fb.root'
+			yldRfile = TFile(yldRfileName,'RECREATE')
+			for isEM in isEMlist:	
+				for proc in bkgGrupList+['totBkg','data',signal]:
+					yldHists = {}
+					yldHists[isEM+proc]=TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA'),'',len(tagList),0,len(tagList))
+					if doAllSys and proc!='data':
+						for syst in systematicList:
+							for ud in ['Up','Down']:
+								if proc!='top' and syst=='toppt': continue
+								yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+'__'+ud.replace('Up','plus').replace('Down','minus'),'',len(tagList),0,len(tagList))
+					if doQ2sys and proc=='top': 
+						yldHists[isEM+proc+'q2Up']  =TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__q2__plus','',len(tagList),0,len(tagList))
+						yldHists[isEM+proc+'q2Down']=TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__q2__minus','',len(tagList),0,len(tagList))
+					ibin = 1
+					for cat in catList:
+						if 'is'+isEM not in cat: continue
+						nttag = cat.split('_')[-4][2:]
+						nWtag = cat.split('_')[-3][2:]
+						nbtag = cat.split('_')[-2][2:]
+						njets = cat.split('_')[-1][2:]
+						binStr = ''
+						if nttag!='0p':
+							if 'p' in nttag: binStr+='#geq'+nttag[:-1]+'t/'
+							else: binStr+=nttag+'t/'
+						if nWtag!='0p':
+							if 'p' in nWtag: binStr+='#geq'+nWtag[:-1]+'W/'
+							else: binStr+=nWtag+'W/'
+						if nbtag!='0p':
+							if 'p' in nbtag: binStr+='#geq'+nbtag[:-1]+'b/'
+							else: binStr+=nbtag+'b/'
+						if njets!='0p' and len(njetslist)>1:
+							if 'p' in njets: binStr+='#geq'+njets[:-1]+'j'
+							else: binStr+=njets+'j'
+						if binStr.endswith('/'): binStr=binStr[:-1]
+						histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
+						yldHists[isEM+proc].SetBinContent(ibin,yieldTable[histoPrefix][proc])
+						yldHists[isEM+proc].SetBinError(ibin,yieldStatErrTable[histoPrefix][proc])
+						yldHists[isEM+proc].GetXaxis().SetBinLabel(ibin,binStr)
+						if doAllSys and proc!='data':
+							for syst in systematicList:
+								for ud in ['Up','Down']:
+									if proc!='top' and syst=='toppt': continue
+									yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yieldTable[histoPrefix+syst+ud][proc])
+									yldHists[isEM+proc+syst+ud].GetXaxis().SetBinLabel(ibin,binStr)
+						if doQ2sys and proc=='top': 
+							yldHists[isEM+proc+'q2Up'].SetBinContent(ibin,yieldTable[histoPrefix+'q2Up'][proc])
+							yldHists[isEM+proc+'q2Up'].GetXaxis().SetBinLabel(ibin,binStr)
+							yldHists[isEM+proc+'q2Down'].SetBinContent(ibin,yieldTable[histoPrefix+'q2Down'][proc])
+							yldHists[isEM+proc+'q2Down'].GetXaxis().SetBinLabel(ibin,binStr)
+						ibin+=1
+					yldHists[isEM+proc].Write()
+					if doAllSys and proc!='data':
+						for syst in systematicList:
+							for ud in ['Up','Down']:
+								if proc!='top' and syst=='toppt': continue
+								yldHists[isEM+proc+syst+ud].Write()
+					if doQ2sys and proc=='top': 
+						yldHists[isEM+proc+'q2Up'].Write()
+						yldHists[isEM+proc+'q2Down'].Write()
+			yldRfile.Close()
+				
 		table = []
 		table.append(['CUTS:',cutString])
 		table.append(['break'])
@@ -507,7 +565,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					row = [proc]
 					for cat in catList:
 						if not ('is'+isEM in cat and 'nT'+nttag in cat): continue
-						modTag = cat[cat.find('nT'):]
+						modTag = cat[cat.find('nT'):cat.find('nJ')-3]
 						histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
 						yieldtemp = 0.
 						yielderrtemp = 0.
@@ -536,7 +594,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2
 							yielderrtemp += (corrdSys*yieldtemp)**2
 						yielderrtemp = math.sqrt(yielderrtemp)
-						if proc=='data': row.append(' & '+str(round_sig(yieldTable[histoPrefix][proc],2)))
+						if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefix][proc])))
 						else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 					row.append('\\\\')
 					table.append(row)
@@ -551,7 +609,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				row = [proc]
 				for cat in catList:
 					if not ('isE' in cat and 'nT'+nttag in cat): continue
-					modTag = cat[cat.find('nT'):]
+					modTag = cat[cat.find('nT'):cat.find('nJ')-3]
 					histoPrefixE = discriminant+'_'+lumiStr+'fb_'+cat
 					histoPrefixM = histoPrefixE.replace('isE','isM')
 					yieldtemp = 0.
@@ -563,13 +621,13 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							try:
 								yieldtempE += yieldTable[histoPrefixE][bkg]
 								yieldtempM += yieldTable[histoPrefixM][bkg]
-								yieldtemp += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
+								yieldtemp  += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
 								yielderrtemp += yieldStatErrTable[histoPrefixE][bkg]**2+yieldStatErrTable[histoPrefixM][bkg]**2
 								yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 							except:
 								print "Missing",bkg,"for channel:",cat
 								pass
-						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
+						yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 						if proc=='dataOverBkg':
 							dataTemp = yieldTable[histoPrefixE]['data']+yieldTable[histoPrefixM]['data']+1e-20
 							dataTempErr = yieldStatErrTable[histoPrefixE]['data']**2+yieldStatErrTable[histoPrefixM]['data']**2
@@ -579,60 +637,74 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						try:
 							yieldtempE += yieldTable[histoPrefixE][proc]
 							yieldtempM += yieldTable[histoPrefixM][proc]
-							yieldtemp += yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc]
+							yieldtemp  += yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc]
 							yielderrtemp += yieldStatErrTable[histoPrefixE][proc]**2+yieldStatErrTable[histoPrefixM][proc]**2
 						except:
 							print "Missing",proc,"for channel:",cat
 							pass
 						if proc not in sigList: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
-						yielderrtemp += (elcorrdSys*yieldtempE+mucorrdSys*yieldtempM)**2
+						yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 					yielderrtemp = math.sqrt(yielderrtemp)
-					if proc=='data': row.append(' & '+str(round_sig(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc],2)))
+					if proc=='data': row.append(' & '+str(int(yieldTable[histoPrefixE][proc]+yieldTable[histoPrefixM][proc])))
 					else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 				row.append('\\\\')
 				table.append(row)
 
 		#systematics
-		table.append(['break'])
-		table.append(['','Systematics'])
-		table.append(['break'])
-		for proc in bkgGrupList+sigList:
-			table.append([proc]+[cat for cat in catList]+['\\\\'])
-			for syst in sorted(systematicList+['q2']):
-				for ud in ['Up','Down']:
-					row = [syst+ud]
-					for cat in catList:
-						histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
-						nomHist = histoPrefix
-						shpHist = histoPrefix+syst+ud
-						try: row.append(' & '+str(round_sig(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
-						except:
-							if (syst=='toppt' or syst=='q2') and proc not in sigList:
-								print "Missing",proc,"for channel:",cat,"and systematic:",syst
-							pass
-					row.append('\\\\')
-					table.append(row)
+		if doAllSys:
 			table.append(['break'])
+			table.append(['','Systematics'])
+			table.append(['break'])
+			for proc in bkgGrupList+sigList:
+				table.append([proc]+[cat for cat in catList]+['\\\\'])
+				for syst in sorted(systematicList+['q2']):
+					for ud in ['Up','Down']:
+						row = [syst+ud]
+						for cat in catList:
+							histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
+							nomHist = histoPrefix
+							shpHist = histoPrefix+syst+ud
+							try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
+							except:
+								if (syst=='toppt' or syst=='q2') and (proc not in sigList and proc!='ewk' and proc!='qcd'):
+									print "Missing",proc,"for channel:",cat,"and systematic:",syst
+								pass
+						row.append('\\\\')
+						table.append(row)
+				table.append(['break'])
 			
-		out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+		if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
 		printTable(table,out)
 
-datahists = {}
-bkghists  = {}
-sighists  = {}
-print "WORKING DIR:",outDir
-print "LOADING:\n"
-for cat in catList:
-	print "         ",cat[2:]
-	datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists.p','rb')))
-	bkghists.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists.p','rb')))
-	sighists.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists.p','rb')))
-if scaleLumi:
-	for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
-	for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
+def findfiles(path, filtre):
+    for root, dirs, files in os.walk(path):
+        for f in fnmatch.filter(files, filtre):
+            yield os.path.join(root, f)
 
-print "MAKING CATEGORIES FOR TOTAL SIGNALS ..."
-makeThetaCats(datahists,sighists,bkghists,iPlot)
+iPlotList = []
+for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
+    if 'bkghists' not in file: continue
+    iPlotList.append(file.split('_')[-1][:-2])
+
+print "WORKING DIR:",outDir
+for iPlot in iPlotList:
+	datahists = {}
+	bkghists  = {}
+	sighists  = {}
+	if iPlot=='minMlj': continue
+	print "LOADING DISTRIBUTION: "+iPlot
+	for cat in catList:
+		print "         ",cat[2:]
+		datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
+		bkghists.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists_'+iPlot+'.p','rb')))
+		sighists.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))
+	if scaleLumi:
+		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
+		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
+
+	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
+	makeThetaCats(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 

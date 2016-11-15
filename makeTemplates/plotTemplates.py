@@ -5,21 +5,28 @@ parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from ROOT import *
 from weights import *
+from modSyst import *
 from utils import *
 
 gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=12.9 #for plots
+lumi=33.6 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-templateDir=os.getcwd()+'/templates_minMlb_ObjRev/'+cutString+'/'
+region='SR' #SR,TTCR,WJCR
+isCategorized=True
+iPlot='YLD'
+if len(sys.argv)>1: iPlot=str(sys.argv[1])
+cutString=''
+if region=='SR': pfix='templates'
+elif region=='WJCR': pfix='wjets'
+elif region=='TTCR': pfix='ttbar'
+if not isCategorized: pfix='kinematics_'+region
+templateDir=os.getcwd()+'/'+pfix+'_ST_2016_11_13_wJSF/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_rebinned_stat0p25' #post for ROOT file names
 saveKey = '' # tag for plot names
-discriminant = 'minMlb'
-cutString='SelectionFile'
-tempsig='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 m1 = '800'
 sig1='X53X53M'+m1+'left' #  choose the 1st signal to plot
@@ -27,25 +34,41 @@ sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
 m2 = '1100'
 sig2='X53X53M'+m2+'right' #  choose the 2nd signal to plot
 sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
-scaleSignals = False
+scaleSignals = True
+tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-systematicList = ['pileup','jec','jer','btag','tau21','mistag','trigeff']#,'muRFcorrdNew','pdfNew','jsf']
+systematicList = ['pileup','jec','jer','btag','tau21','mistag','trigeff','jsf','muRFcorrdNew','pdfNew']
 doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
-doNormByBinWidth=True
+addCRsys = False
+doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
-blind = True
-yLog  = True
-doRealPull = True
+blind = False
+yLog  = False
+doRealPull = False
 if doRealPull: doOneBand=False
 
 isEMlist =['E','M']
-nttaglist=['0','1p']
-nWtaglist=['0','1p']
-nbtaglist=['1','2p']
-tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
+if region=='SR': nttaglist=['0','1p']
+else: nttaglist = ['0p']
+if region=='TTCR': nWtaglist = ['0p']
+else: nWtaglist=['0','1p']
+if region=='WJCR': nbtaglist = ['0']
+else: nbtaglist=['1','2p']
+if not isCategorized: 	
+	isEMlist  = ['E','M']#,'L']
+	nttaglist = ['0p']
+	nWtaglist = ['0p']
+	nbtaglist = ['1p']
+njetslist = ['4p']
+if iPlot=='YLD':
+	nttaglist = ['0p']
+	nWtaglist = ['0p']
+	nbtaglist = ['0p']
+	njetslist = ['0p']
+tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
 
 lumiSys = 0.062 # lumi uncertainty
 trigSys = 0.03 # trigger uncertainty
@@ -53,52 +76,12 @@ lepIdSys = 0.011 # lepton id uncertainty
 lepIsoSys = 0.01 # lepton isolation uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total e/m values are close
 
-topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-	'top_nT0p_nW0_nB0' :0.157,
-	'top_nT0p_nW0_nB1' :0.153,
-	'top_nT0p_nW0_nB2' :0.163,
-	'top_nT0p_nW0_nB3p':0.163,
-	'top_nT0p_nW1p_nB0' :0.157,
-	'top_nT0p_nW1p_nB1' :0.153,
-	'top_nT0p_nW1p_nB2' :0.163,
-	'top_nT0p_nW1p_nB3p':0.163,
-	
-	'top_nT0_nW0_nB0'  :0.06,
-	'top_nT0_nW0_nB1'  :0.09,
-	'top_nT0_nW0_nB2'  :0.29,
-	'top_nT0_nW0_nB3p' :0.29,
-	'top_nT0_nW1p_nB0' :0.21,
-	'top_nT0_nW1p_nB1' :0.20,
-	'top_nT0_nW1p_nB2' :0.23,
-	'top_nT0_nW1p_nB3p':0.23,
-	
-	'top_nT1p_nW0p_nB0' :0.21,
-	'top_nT1p_nW0p_nB1' :0.28,
-	'top_nT1p_nW0p_nB2p' :0.16,
-	}
-ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
-	'ewk_nT0p_nW0_nB0' :0.136,
-	'ewk_nT0p_nW0_nB1' :0.136,
-	'ewk_nT0p_nW0_nB2' :0.136,
-	'ewk_nT0p_nW0_nB3p':0.136,
-	'ewk_nT0p_nW1p_nB0' :0.133,
-	'ewk_nT0p_nW1p_nB1' :0.133,
-	'ewk_nT0p_nW1p_nB2' :0.133,
-	'ewk_nT0p_nW1p_nB3p':0.133,
-		
-	'ewk_nT0_nW0_nB0'  :0.06,
-	'ewk_nT0_nW0_nB1'  :0.06,
-	'ewk_nT0_nW0_nB2'  :0.06,
-	'ewk_nT0_nW0_nB3p' :0.06,
-	'ewk_nT0_nW1p_nB0' :0.21,
-	'ewk_nT0_nW1p_nB1' :0.21,
-	'ewk_nT0_nW1p_nB2' :0.21,
-	'ewk_nT0_nW1p_nB3p':0.21,
-	
-	'ewk_nT1p_nW0p_nB0' :0.21,
-	'ewk_nT1p_nW0p_nB1' :0.21,
-	'ewk_nT1p_nW0p_nB2p' :0.21,
-	}
+for tag in tagList:
+	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]+'_nJ'+tag[3]
+	modTag = tagStr[tagStr.find('nT'):tagStr.find('nJ')-3]
+	modelingSys['data_'+modTag] = 0.
+	modelingSys['qcd_'+modTag] = 0.
+	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
 
 def getNormUnc(hist,ibin,modelingUnc):
 	contentsquared = hist.GetBinContent(ibin)**2
@@ -129,7 +112,7 @@ def formatUpperHist(histogram):
 	if yLog:
 		uPad.SetLogy()
 		if not doNormByBinWidth: histogram.SetMaximum(200*histogram.GetMaximum())
-		else: histogram.SetMaximum(25*histogram.GetMaximum())
+		else: histogram.SetMaximum(200*histogram.GetMaximum())
 		
 def formatLowerHist(histogram):
 	histogram.GetXaxis().SetLabelSize(.12)
@@ -154,17 +137,10 @@ totBkgTemp1 = {}
 totBkgTemp2 = {}
 totBkgTemp3 = {}
 for tag in tagList:
-	if tag[0]=='1p'and tag[1]=='0':continue
-	if tag[0]=='1p' and tag[1]=='1p':continue
-	if tag[1]=='0p'and tag[2]=='2':continue
-	if tag[1]== '0p' and tag[2]=='3p': continue
-	if tag[0]=='0' and tag[1]=='0p':continue
-	if tag[1]=='0' and tag[2]=='2p':continue
-	if tag[1]== '1p' and tag[2]== '2p':continue
+	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]+'_nJ'+tag[3]
+	modTag = tagStr[tagStr.find('nT'):tagStr.find('nJ')-3]
 	for isEM in isEMlist:
-
-		histPrefix=discriminant+'_'+lumiInTemplates+'fb_'
-		tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]
+		histPrefix=iPlot+'_'+lumiInTemplates+'fb_'
 		catStr='is'+isEM+'_'+tagStr
 		histPrefix+=catStr
 		print histPrefix
@@ -238,8 +214,8 @@ for tag in tagList:
 			errorUp = 0.
 			errorDn = 0.
 			errorStatOnly = bkgHT.GetBinError(ibin)**2
-			errorNorm = getNormUnc(hTOP,ibin,topModelingSys['top_'+tagStr])
-			try: errorNorm += getNormUnc(hEWK,ibin,ewkModelingSys['ewk_'+tagStr])
+			errorNorm = getNormUnc(hTOP,ibin,modelingSys['top_'+modTag])
+			try: errorNorm += getNormUnc(hEWK,ibin,modelingSys['ewk_'+modTag])
 			except: pass
 			try: errorNorm += getNormUnc(hQCD,ibin,0.0)
 			except: pass
@@ -404,18 +380,26 @@ for tag in tagList:
 		chLatex.SetNDC()
 		chLatex.SetTextSize(0.06)
 		if blind: chLatex.SetTextSize(0.04)
-		chLatex.SetTextAlign(11) # align right
-		chString = ''
-		if isEM=='E': chString+='e+jets'
-		if isEM=='M': chString+='#mu+jets'
+		chLatex.SetTextAlign(21) # align center
+		flvString = ''
+		tagString = ''
+		if isEM=='E': flvString+='e+jets'
+		if isEM=='M': flvString+='#mu+jets'
 		if tag[0]!='0p': 
-			if 'p' in tag[0]: chString+=', #geq'+tag[0][:-1]+' t'
-			else: chString+=', '+tag[0]+' t'
-		if 'p' in tag[1]: chString+=', #geq'+tag[1][:-1]+' W'
-		else: chString+=', '+tag[1]+' W'
-		if 'p' in tag[2]: chString+=', #geq'+tag[2][:-1]+' b'
-		else: chString+=', '+tag[2]+' b'
-		chLatex.DrawLatex(0.16, 0.84, chString)
+			if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
+			else: tagString+=tag[0]+' t, '
+		if tag[1]!='0p': 
+			if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
+			else: tagString+=tag[1]+' W, '
+		if tag[2]!='0p': 
+			if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b, '
+			else: tagString+=tag[2]+' b, '
+		if tag[3]!='0p': 
+			if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' j'
+			else: tagString+=tag[3]+' j'
+		if tagString.endswith(', '): tagString = tagString[:-2]
+		chLatex.DrawLatex(0.26, 0.84, flvString)
+		chLatex.DrawLatex(0.26, 0.78, tagString)
 
 		if drawQCD: leg = TLegend(0.45,0.52,0.95,0.87)
 		if not drawQCD or blind: leg = TLegend(0.45,0.64,0.95,0.89)
@@ -439,11 +423,11 @@ for tag in tagList:
 			try: leg.AddEntry(hEWK,"EWK","f")
 			except: pass
 			if not blind: 
-				leg.AddEntry(hData,"DATA")
+				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 				try: leg.AddEntry(hTOP,"TOP","f")
 				except: pass
 				leg.AddEntry(0, "", "")
-				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+				leg.AddEntry(hData,"DATA")
 			else:
 				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 				try: leg.AddEntry(hTOP,"TOP","f")
@@ -599,7 +583,11 @@ for tag in tagList:
 		#c1.Write()
 		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 		if not os.path.exists(savePrefix): os.system('mkdir '+savePrefix)
-		savePrefix+=histPrefix+isRebinned+saveKey
+		savePrefix+=histPrefix+isRebinned.replace('_rebinned_stat1p1','')+saveKey
+		if nttaglist[0]=='0p': savePrefix=savePrefix.replace('nT0p_','')
+		if nWtaglist[0]=='0p': savePrefix=savePrefix.replace('nW0p_','')
+		if nbtaglist[0]=='0p': savePrefix=savePrefix.replace('nB0p_','')
+		if njetslist[0]=='0p': savePrefix=savePrefix.replace('nJ0p_','')
 		if doRealPull: savePrefix+='_pull'
 		if doNormByBinWidth: savePrefix+='_NBBW'
 		if yLog: savePrefix+='_logy'
@@ -608,13 +596,15 @@ for tag in tagList:
 		if doOneBand:
 			c1.SaveAs(savePrefix+"totBand.pdf")
 			c1.SaveAs(savePrefix+"totBand.png")
-			c1.SaveAs(savePrefix+"totBand.root")
-			c1.SaveAs(savePrefix+"totBand.C")
+			c1.SaveAs(savePrefix+"totBand.eps")
+			#c1.SaveAs(savePrefix+"totBand.root")
+			#c1.SaveAs(savePrefix+"totBand.C")
 		else:
 			c1.SaveAs(savePrefix+".pdf")
 			c1.SaveAs(savePrefix+".png")
-			c1.SaveAs(savePrefix+".root")
-			c1.SaveAs(savePrefix+".C")
+			c1.SaveAs(savePrefix+".eps")
+			#c1.SaveAs(savePrefix+".root")
+			#c1.SaveAs(savePrefix+".C")
 		try: del hTOP
 		except: pass
 		try: del hEWK
@@ -623,8 +613,8 @@ for tag in tagList:
 		except: pass
 					
 	# Making plots for e+jets/mu+jets combined #
-	histPrefixE = discriminant+'_'+lumiInTemplates+'fb_isE_'+tagStr
-	histPrefixM = discriminant+'_'+lumiInTemplates+'fb_isM_'+tagStr
+	histPrefixE = iPlot+'_'+lumiInTemplates+'fb_isE_'+tagStr
+	histPrefixM = iPlot+'_'+lumiInTemplates+'fb_isM_'+tagStr
 	hTOPmerged = RFile1.Get(histPrefixE+'__top').Clone()
 	hTOPmerged.Add(RFile1.Get(histPrefixM+'__top'))
 	try: 
@@ -694,8 +684,8 @@ for tag in tagList:
 		errorUp = 0.
 		errorDn = 0.
 		errorStatOnly = bkgHTmerged.GetBinError(ibin)**2
-		errorNorm = getNormUnc(hTOPmerged,ibin,topModelingSys['top_'+tagStr])
-		try: errorNorm += getNormUnc(hEWKmerged,ibin,ewkModelingSys['ewk_'+tagStr])
+		errorNorm = getNormUnc(hTOPmerged,ibin,modelingSys['top_'+modTag])
+		try: errorNorm += getNormUnc(hEWKmerged,ibin,modelingSys['ewk_'+modTag])
 		except: pass
 		try: errorNorm += getNormUnc(hQCDmerged,ibin,0.0)
 		except: pass
@@ -844,16 +834,24 @@ for tag in tagList:
 	chLatexmerged.SetNDC()
 	chLatexmerged.SetTextSize(0.06)
 	if blind: chLatexmerged.SetTextSize(0.04)
-	chLatexmerged.SetTextAlign(11) # align right
-	chString = 'e/#mu+jets'
+	chLatexmerged.SetTextAlign(21) # align center
+	flvString = 'e/#mu+jets'
+	tagString = ''
 	if tag[0]!='0p':
-		if 'p' in tag[0]: chString+=', #geq'+tag[0][:-1]+' t'
-		else: chString+=', '+tag[0]+' t'
-	if 'p' in tag[1]: chString+=', #geq'+tag[1][:-1]+' W'
-	else: chString+=', '+tag[1]+' W'
-	if 'p' in tag[2]: chString+=', #geq'+tag[2][:-1]+' b'
-	else: chString+=', '+tag[2]+' b'
-	chLatexmerged.DrawLatex(0.16, 0.85, chString)
+		if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
+		else: tagString+=tag[0]+' t,  '
+	if tag[1]!='0p':
+		if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
+		else: tagString+=tag[1]+' W, '
+	if tag[2]!='0p':
+		if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b, '
+		else: tagString+=tag[2]+' b, '
+	if tag[3]!='0p':
+		if 'p' in tag[2]: tagString+='#geq'+tag[3][:-1]+' j'
+		else: tagString+=tag[3]+' j'
+	if tagString.endswith(', '): tagString = tagString[:-2]
+	chLatexmerged.DrawLatex(0.26, 0.85, flvString)
+	chLatexmerged.DrawLatex(0.26, 0.78, tagString)
 
 	if drawQCDmerged: legmerged = TLegend(0.45,0.52,0.95,0.87)
 	if not drawQCDmerged or blind: legmerged = TLegend(0.45,0.64,0.95,0.89)
@@ -877,11 +875,11 @@ for tag in tagList:
 		try: legmerged.AddEntry(hEWKmerged,"EWK","f")
 		except: pass
 		if not blind: 
-			legmerged.AddEntry(hDatamerged,"DATA")
+			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
 			except: pass
 			legmerged.AddEntry(0, "", "")
-			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+			legmerged.AddEntry(hDatamerged,"DATA")
 		else:
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
@@ -1018,7 +1016,11 @@ for tag in tagList:
 	#c1merged.Write()
 	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 	if not os.path.exists(savePrefixmerged): os.system('mkdir '+savePrefixmerged)
-	savePrefixmerged+=histPrefixE.replace('isE','lep')+isRebinned+saveKey
+	savePrefixmerged+=histPrefixE.replace('isE','isL')+isRebinned.replace('_rebinned_stat1p1','')+saveKey
+	if nttaglist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nT0p_','')
+	if nWtaglist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nW0p_','')
+	if nbtaglist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nB0p_','')
+	if njetslist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nJ0p_','')
 	if doRealPull: savePrefixmerged+='_pull'
 	if doNormByBinWidth: savePrefixmerged+='_NBBW'
 	if yLog: savePrefixmerged+='_logy'
@@ -1027,13 +1029,15 @@ for tag in tagList:
 	if doOneBand: 
 		c1merged.SaveAs(savePrefixmerged+"totBand.pdf")
 		c1merged.SaveAs(savePrefixmerged+"totBand.png")
-		c1merged.SaveAs(savePrefixmerged+"totBand.root")
-		c1merged.SaveAs(savePrefixmerged+"totBand.C")
+		c1merged.SaveAs(savePrefixmerged+"totBand.eps")
+		#c1merged.SaveAs(savePrefixmerged+"totBand.root")
+		#c1merged.SaveAs(savePrefixmerged+"totBand.C")
 	else: 
 		c1merged.SaveAs(savePrefixmerged+".pdf")
 		c1merged.SaveAs(savePrefixmerged+".png")
-		c1merged.SaveAs(savePrefixmerged+".root")
-		c1merged.SaveAs(savePrefixmerged+".C")
+		c1merged.SaveAs(savePrefixmerged+".eps")
+		#c1merged.SaveAs(savePrefixmerged+".root")
+		#c1merged.SaveAs(savePrefixmerged+".C")
 	try: del hTOPmerged
 	except: pass
 	try: del hEWKmerged
