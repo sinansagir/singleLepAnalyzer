@@ -4,7 +4,7 @@ Analyzer for plotting the output of "StepX" ROOT files, slimmed versions of "LJM
 	 
 -----------------------------------------------------------------------------------------------
 
-makeTemplates: plot templates for 
+makeTemplates: produce templates for 
 
 	-- Categories: lepton x N Top jets x N W jets x N b jets x N AK4 jets
 
@@ -48,7 +48,7 @@ Uncertainties: various special scripts to treat them
 
 -----------------------------------------------------------------------------------------------
 
-makeLimits: set limits
+thetaLimits: set limits
 
 	Prep:
 
