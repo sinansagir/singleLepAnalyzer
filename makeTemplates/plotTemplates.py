@@ -145,8 +145,8 @@ for tag in tagList:
 		for proc in bkgProcList: 
 			try: bkghists[proc+catStr] = RFile1.Get(histPrefix+'__'+proc).Clone()
 			except:
-				print "There is no QCD!!!!!!!!"
-				print "Skipping QCD....."
+				print "There is no "+proc+"!!!!!!!!"
+				print "Skipping "+proc+"....."
 				pass
 		hData = RFile1.Get(histPrefix+'__DATA').Clone()
 		hsig1 = RFile1.Get(histPrefix+'__sig').Clone(histPrefix+'__sig1')
@@ -358,25 +358,37 @@ for tag in tagList:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
 			leg.AddEntry(bkghists['qcd'+catStr],"QCD","f")
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
-			try: leg.AddEntry(bkghists['ewk'+catStr],"EWK","f")
+			try: leg.AddEntry(bkghists['ewk'+catStr],"Other EWK","f")
 			except: pass
 			if not blind: 
+				try: leg.AddEntry(bkghists['top'+catStr],"Other Top","f")
+				except: pass
+				try: leg.AddEntry(bkghists['wjets'+catStr],"W+jets","f")
+				except: pass
 				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
-				try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
+				try: leg.AddEntry(bkghists['ttbar'+catStr],"t#bar{t}","f")
 				except: pass
 				leg.AddEntry(0, "", "")
 				leg.AddEntry(hData,"DATA")
 			else:
+				try: leg.AddEntry(bkghists['top'+catStr],"Other Top","f")
+				except: pass
+				try: leg.AddEntry(bkghists['wjets'+catStr],"W+jets","f")
+				except: pass
 				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
-				try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
+				try: leg.AddEntry(bkghists['ttbar'+catStr],"t#bar{t}","f")
 				except: pass
 				
 		if not drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
-			try: leg.AddEntry(bkghists['ewk'+catStr],"EWK","f")
+			try: leg.AddEntry(bkghists['ewk'+catStr],"Other EWK","f")
 			except: pass
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
-			try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
+			try: leg.AddEntry(bkghists['top'+catStr],"Other Top","f")
+			except: pass
+			try: leg.AddEntry(bkghists['wjets'+catStr],"W+jets","f")
+			except: pass
+			try: leg.AddEntry(bkghists['ttbar'+catStr],"t#bar{t}","f")
 			except: pass
 			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 			if not blind: leg.AddEntry(hData,"DATA")
@@ -738,24 +750,37 @@ for tag in tagList:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
 		legmerged.AddEntry(bkghistsmerged['qcdisL'+tagStr],"QCD","f")
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
-		try: legmerged.AddEntry(bkghistsmerged['ewkisL'+tagStr],"EWK","f")
+		try: legmerged.AddEntry(bkghistsmerged['ewkisL'+tagStr],"Other EWK","f")
 		except: pass
 		if not blind: 
+			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"Other Top","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['wjetsisL'+tagStr],"W+jets","f")
+			except: pass
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
-			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
+			try: legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
 			except: pass
 			legmerged.AddEntry(0, "", "")
 			legmerged.AddEntry(hDatamerged,"DATA")
 		else:
+			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"Other Top","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['wjetsisL'+tagStr],"W+jets","f")
+			except: pass
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
-			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
+			try: legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
 			except: pass
 	if not drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
-		try: legmerged.AddEntry(bkghistsmerged['ewkisL'+tagStr],"EWK","f")
+		try: legmerged.AddEntry(bkghistsmerged['ewkisL'+tagStr],"Other EWK","f")
 		except: pass
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
-		try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
+		try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"Other Top","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['wjetsisL'+tagStr],"W+jets","f")
+		except: pass
+		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+		try: legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
 		except: pass
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
