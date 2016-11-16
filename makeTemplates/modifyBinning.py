@@ -29,20 +29,20 @@ start_time = time.time()
 iPlot='ST'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_ST_2016_11_13_wJSF/'+cutString
+templateDir = os.getcwd()+'/kinematics_PS_2016_11_15_wJSF/'+cutString
 combinefile = 'templates_'+iPlot+'_36p0fb.root'
 
 rebinCombine = False #else rebins theta templates
 doStatShapes = True
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
-#X53X53, TT, BB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
+#X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 sigName = 'X53X53' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
-signalMassRange = [700,1600]
-sigProcList = [sigName+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
+massList = range(700,1600+1,100)
+sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='X53X53': 
-	sigProcList = [sigName+chiral+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
-	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
+	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
+	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
@@ -288,7 +288,9 @@ for chn in channels:
 	modTag = chn[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
 	modelingSys['qcd_'+modTag]=0.
-	if not addCRsys: modelingSys['ewk_'+modTag],modelingSys['top_'+modTag] = 0.,0.
+	if not addCRsys: #else CR uncertainties are defined in modSyst.py module
+		for proc in bkgProcList:
+			modelingSys[proc+'_'+modTag] = 0.
 	
 isEMlist =[]
 nttaglist=[]
@@ -466,8 +468,7 @@ for proc in bkgProcList+sigProcList:
 				shpHist = histoPrefix+proc+'__'+syst+ud
 				try: row.append(' & '+str(round(yieldsAll[shpHist]/(yieldsAll[nomHist]+1e-20),2)))
 				except:
-					if not ((syst=='toppt' or syst=='q2') and proc!='top'):
-						print "Missing",proc,"for channel:",chn,"and systematic:",syst
+					print "Missing",proc,"for channel:",chn,"and systematic:",syst
 					pass
 			row.append('\\\\')
 			table.append(row)
@@ -491,9 +492,7 @@ for signal in sigProcList:
 			yldHists[isEM+proc]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA'),'',len(channels)/2,0,len(channels)/2)
 			systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
 			for syst in systematicList:
-				for ud in [upTag,downTag]:
-					if (syst=='toppt' or syst=='q2') and proc!='top': continue
-					yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
+				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
 			ibin = 1
 			for chn in channels:
 				if isEM not in chn: continue
@@ -516,22 +515,26 @@ for signal in sigProcList:
 					else: binStr+=njets+'j'
 				if binStr.endswith('/'): binStr=binStr[:-1]
 				histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
-				yldHists[isEM+proc].SetBinContent(ibin,yieldsAll[histoPrefix+proc])
-				yldHists[isEM+proc].SetBinError(ibin,yieldsErrsAll[histoPrefix+proc])
+				try: 
+					yldTemp = yieldsAll[histoPrefix+proc]
+					yldErrTemp = yieldsErrsAll[histoPrefix+proc]
+				except: 
+					print "Missing "+proc+" for channel: "+chn+" (setting yield to zero!!!)"
+					yldTemp = 0
+					yldErrTemp = 0
+				yldHists[isEM+proc].SetBinContent(ibin,yldTemp)
+				yldHists[isEM+proc].SetBinError(ibin,yldErrTemp)
 				yldHists[isEM+proc].GetXaxis().SetBinLabel(ibin,binStr)
 				for syst in systematicList:
 					for ud in [upTag,downTag]:
-						if (syst=='toppt' or syst=='q2') and proc!='top': continue
-						if proc=='data': continue
-						yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yieldsAll[histoPrefix+proc+'__'+syst+ud])
+						try: yldTemp = yieldsAll[histoPrefix+proc+'__'+syst+ud]
+						except: yldTemp = 0
+						yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yldTemp)
 						yldHists[isEM+proc+syst+ud].GetXaxis().SetBinLabel(ibin,binStr)
 				ibin+=1
 			yldHists[isEM+proc].Write()
 			for syst in systematicList:
-				for ud in [upTag,downTag]:
-					if (syst=='toppt' or syst=='q2') and proc!='top': continue
-					if proc=='data': continue
-					yldHists[isEM+proc+syst+ud].Write()
+				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud].Write()
 	yldRfile.Close()
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))

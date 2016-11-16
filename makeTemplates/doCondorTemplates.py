@@ -3,8 +3,7 @@ import os,sys,datetime,itertools
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-#iplot='minMlb' #ST,minMlb,etc
-region='WJCR' #PS,SR,TTCR,WJCR
+region='PS' #PS,SR,TTCR,WJCR
 categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
@@ -13,8 +12,7 @@ time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
-if not categorize: pfix='kinematicsST_'+region
-#pfix+=iplot+'_wJSF'
+if not categorize: pfix='kinematics_'+region
 pfix+='_'+date+'_wJSF'#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
@@ -91,7 +89,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 			]
 
 isEMlist = ['E','M']
-if region=='SR' and categorize: nttaglist = ['0','1p']
+if region=='SR': nttaglist = ['0','1p']
 else: nttaglist = ['0p']
 if region=='TTCR': nWtaglist = ['0p']
 else: nWtaglist=['0','1p']

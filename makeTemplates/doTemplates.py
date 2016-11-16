@@ -100,7 +100,7 @@ for tag in tagList:
 	modTag = tag[tag.find('nT'):tag.find('nJ')-3]
 	modelingSys['data_'+modTag] = 0.
 	modelingSys['qcd_'+modTag] = 0.
-	if not addCRsys: 
+	if not addCRsys: #else CR uncertainties are defined in modSyst.py module 
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
 	
@@ -207,8 +207,8 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			if doQ2sys:
 				for proc in bkgProcList+bkgGrupList:
 					if proc+'_q2up' not in bkgProcs.keys(): continue
-					yieldTable[histoPrefix+'q2Up']['top'] = hists[proc+i+'q2Up'].Integral()
-					yieldTable[histoPrefix+'q2Down']['top'] = hists[proc+i+'q2Down'].Integral()
+					yieldTable[histoPrefix+'q2Up'][q2up] = hists[proc+i+'q2Up'].Integral()
+					yieldTable[histoPrefix+'q2Down'][q2up] = hists[proc+i+'q2Down'].Integral()
 
 			#prepare yield table
 			for proc in bkgGrupList+bkgProcList+sigList+['data']: yieldTable[histoPrefix][proc] = hists[proc+i].Integral()
@@ -321,7 +321,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							for ud in ['Up','Down']:
 								if syst=='toppt' and proc not in topptProcs: continue
 								yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+'__'+ud.replace('Up','plus').replace('Down','minus'),'',len(tagList),0,len(tagList))
-					if doQ2sys and proc=='top': 
+					if doQ2sys and proc+'_q2up' in bkgProcs.keys(): 
 						yldHists[isEM+proc+'q2Up']  =TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__q2__plus','',len(tagList),0,len(tagList))
 						yldHists[isEM+proc+'q2Down']=TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__q2__minus','',len(tagList),0,len(tagList))
 					ibin = 1
@@ -355,7 +355,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 									if syst=='toppt' and proc not in topptProcs: continue
 									yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yieldTable[histoPrefix+syst+ud][proc])
 									yldHists[isEM+proc+syst+ud].GetXaxis().SetBinLabel(ibin,binStr)
-						if doQ2sys and proc=='top': 
+						if doQ2sys and proc+'_q2up' in bkgProcs.keys(): 
 							yldHists[isEM+proc+'q2Up'].SetBinContent(ibin,yieldTable[histoPrefix+'q2Up'][proc])
 							yldHists[isEM+proc+'q2Up'].GetXaxis().SetBinLabel(ibin,binStr)
 							yldHists[isEM+proc+'q2Down'].SetBinContent(ibin,yieldTable[histoPrefix+'q2Down'][proc])
@@ -367,7 +367,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							for ud in ['Up','Down']:
 								if syst=='toppt' and proc not in topptProcs: continue
 								yldHists[isEM+proc+syst+ud].Write()
-					if doQ2sys and proc=='top': 
+					if doQ2sys and proc+'_q2up' in bkgProcs.keys(): 
 						yldHists[isEM+proc+'q2Up'].Write()
 						yldHists[isEM+proc+'q2Down'].Write()
 			yldRfile.Close()
@@ -550,7 +550,7 @@ for iPlot in iPlotList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	if iPlot=='minMlj': continue
+	#if iPlot=='minMlj': continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]

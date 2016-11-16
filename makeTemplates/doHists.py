@@ -27,32 +27,23 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 bkgList = [
-	'DY',
-	'WJetsMG',
-	'WJetsMG100',
-	'WJetsMG200',
-	'WJetsMG400',
-	'WJetsMG600',
-	'WJetsMG800',
-	'WJetsMG1200',
-	'WJetsMG2500',
-	'WW','WZ','ZZ',
-	'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
-	'TTJetsPH700mtt','TTJetsPH1000mtt',
-	'TTWl','TTWq',
-	'TTZl','TTZq',
-	'Tt','Tbt','Ts',
-	'TtW','TbtW',
-	'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
-	]
+		  'DY',
+		  'WJetsMG',
+		  'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+		  'WW','WZ','ZZ',
+		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
+		  'TTJetsPH700mtt','TTJetsPH1000mtt',
+		  'TTWl','TTWq','TTZl','TTZq',
+		  'Tt','Tbt','Ts','TtW','TbtW',
+		  'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+		  ]
 
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']#'DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
 
 whichSignal = 'X53X53' #HTB, TT, BB, or X53X53
-signalMassRange = [700,1600]
-sigList = [whichSignal+'M'+str(mass) for mass in range(signalMassRange[0],signalMassRange[1]+100,100)]
-if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in range(signalMassRange[0],signalMassRange[1]+100,100) for chiral in ['left','right']]
-if whichSignal=='HTB': sigList = [whichSignal+'M'+str(mass) for mass in [180]+range(signalMassRange[0],signalMassRange[1]+50,50)]
+massList = range(700,1600+1,100)
+sigList = [whichSignal+'M'+str(mass) for mass in massList]
+if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
@@ -102,9 +93,7 @@ pfix+=iPlot
 pfix+='_'+datestr#+'_'+timestr
 		
 if len(sys.argv)>5: isEMlist=[str(sys.argv[5])]
-else: 
-	if not isCategorized: isEMlist=['E','M','L']
-	else: isEMlist = ['E','M']
+else: isEMlist = ['E','M']
 if len(sys.argv)>6: nttaglist=[str(sys.argv[6])]
 else: 
 	if not isCategorized: nttaglist = ['0p']
@@ -306,6 +295,7 @@ for cat in catList:
 
  	#Negative Bin Correction
  	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
+ 	for sig in sighists.keys(): negBinCorrection(sighists[sig])
 
  	#OverFlow Correction
  	for data in datahists.keys(): overflow(datahists[data])
