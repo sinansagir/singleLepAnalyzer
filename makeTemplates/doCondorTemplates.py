@@ -3,107 +3,47 @@ import os,sys,datetime,itertools
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-#iplot='minMlb' #ST,minMlb,etc
-region='PS' #PS,SR,TTCR,WJCR
+region='SR' #PS,SR
 categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-if region=='TTCR': pfix='ttbar'
-elif region=='WJCR': pfix='wjets'
-else: pfix='templates'
+pfix='templates'
 if not categorize: pfix='kinematics_'+region
-#pfix+=iplot+'_wJSF'
-pfix+='_'+date+'_wJSF'#+'_'+time
+pfix+='_'+date+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
-	        'MTlmet',
 			'lepPt',
 			'lepEta',
-			'mindeltaR',
-			'PtRel',
-			'deltaRjet1',
-			'deltaRjet2',
-			'deltaRjet3',
-			'minMlj',
-			'lepIso',
-			'deltaRAK8',
 			'NPV',
 			'JetEta',
 			'JetPt',
 			'Jet1Pt',
 			'Jet2Pt',
 			'Jet3Pt',
-			'Jet4Pt',
-			'Jet5Pt',
-			'Jet6Pt',
 			'MET',
 			'NJets',
 			'NBJets',
-			'NWJets',
-			'NTJets',
-			'NJetsAK8',
-			'JetPtAK8',
-			'JetEtaAK8',
-			'Tau21',
-			'Tau21Nm1',
-			'Tau32',
-			'Tau32Nm1',
-			'PrunedSmeared',
-			'PrunedSmearedNm1',
-			'SoftDropMass', 
-			'SoftDropMassNm1', 
-			'Bjet1Pt',
-			'Wjet1Pt',
-			'Tjet1Pt',
-
 			'HT',
 			'ST',
-			'minMlb',
-	
-# 			'topPt',
-# 			'JetPtBins',
-# 			'Jet1PtBins',
-# 			'Jet2PtBins',
-# 			'Jet3PtBins',
-# 			'Jet4PtBins',
-# 			'Jet5PtBins',
-# 			'Jet6PtBins',
-# 			'JetPtBinsAK8',
-# 			'minMljDR',
-# 			'minMljDPhi',
-# 			'minMlbDR',
-# 			'minMlbDPhi',
-# 			'topMass',
-# 			'topPt',
-# 			'nLepGen',
-# 			'METphi',
-# 			'lepPhi',
-# 			'lepDxy',
-# 			'lepDz',
-# 			'lepCharge',
-# 			'Tau1',
-# 			'Tau2',
-# 			'Tau3',
-# 			'JetPhi',
-# 			'JetPhiAK8',
+# 			'BDT',
+# 			'LeadJetPt',
+# 			'aveBBdr',
+# 			'mass_maxJJJpt',
+# 			'mass_maxBBmass',
+# 			'mass_maxBBpt',
+# 			'lepDR_minBBdr',
+# 			'mass_minLLdr', 
+# 			'mass_minBBdr',
 			]
 
 isEMlist = ['E','M']
-if region=='SR': nttaglist = ['0','1p']
-else: nttaglist = ['0p']
-if region=='TTCR': nWtaglist = ['0p']
-else: nWtaglist=['0','1p']
-if region=='WJCR': nbtaglist = ['0']
-else: nbtaglist = ['1','2p']
-if not categorize: 	
-	nttaglist = ['0p']
-	nWtaglist = ['0p']
-	nbtaglist = ['1p']
-	if region=='WJCR': nbtaglist = ['0']
+nttaglist = ['0p']
+nWtaglist = ['0p']
+nbtaglist = ['2','3p']
+if not categorize: nbtaglist = ['2p']
 njetslist = ['4p']
-if region=='PS': njetslist = ['3p']
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)

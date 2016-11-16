@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 #targetlumi = 12892. # 1/pb
-targetlumi = 36000. # 1/pb
+targetlumi = 36100. # 1/pb
 
 BR={}
 BR['BW'] = 0.5
