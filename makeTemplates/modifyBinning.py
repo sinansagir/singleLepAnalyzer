@@ -205,7 +205,7 @@ for rfile in rfiles:
 				rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].Clone(err_dn_name)
 				rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
 				rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
-				if val-error<0: rebinnedHists[err_dn_name].SetBinContent(ibin, 0.) #IS THIS CORRECT???
+				if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
 				rebinnedHists[err_up_name].Write()
 				rebinnedHists[err_dn_name].Write()
 				for sig in sigProcList:
@@ -221,7 +221,7 @@ for rfile in rfiles:
 					rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,sig)].Clone(err_dn_name)
 					rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
 					rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
-					if val-error<0: rebinnedHists[err_dn_name].SetBinContent(ibin, 0.)
+					if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
 					rebinnedHists[err_up_name].Write()
 					rebinnedHists[err_dn_name].Write()
 								
