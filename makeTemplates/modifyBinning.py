@@ -26,6 +26,7 @@ start_time = time.time()
 #    that is larger than 100% (i.e, >1.)
 # -- If CR and SR templates are in the same file and single bins are required for CR templates,
 #    this can be done with "singleBinCR" bool.
+# -- Use "removalKeys" to remove specific systematics from the output file.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 iPlot='HT'
@@ -72,6 +73,11 @@ elIsoSys = 0.01 #electron isolation uncertainty
 muIsoSys = 0.03 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
+
+removalKeys = {} # True == keep, False == remove
+removalKeys['btag__']    = False
+removalKeys['mistag__']  = False
+removalKeys['trigeff__'] = False
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -175,6 +181,8 @@ for rfile in rfiles:
 				rebinnedHists[hist].Scale(renormNomHist.Integral()/renormSysHist.Integral())
 			if '__pdf' in hist:
 				if 'Up' not in hist or 'Down' not in hist: continue
+			if '__mu' in hist: continue
+			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
 			rebinnedHists[hist].Write()
 			yieldHistName = hist
 			if not rebinCombine: yieldHistName = hist.replace('_sig','_'+rfile.split('_')[-2])
@@ -191,30 +199,52 @@ for rfile in rfiles:
 			for bkg in bkgProcList:
 				if bkg!=bkgProcList[0]:rebinnedHists['chnTotBkgHist'].Add(rebinnedHists[chnHistName.replace(dataName,bkg)])
 			for ibin in range(1, rebinnedHists['chnTotBkgHist'].GetNbinsX()+1):
-				dominantBkgProc = bkgProcList[0]
-				val = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetBinContent(ibin)
-				for bkg in bkgProcList:
-					if rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)>val: 
+				if rebinnedHists['chnTotBkgHist'].GetNbinsX()==1:
+					for bkg in bkgProcList:
 						val = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)
-						dominantBkgProc = bkg
-				#if val==0: continue #SHOULD WE HAVE THIS???
-				error  = rebinnedHists['chnTotBkgHist'].GetBinError(ibin)
-				err_up_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iUp" % ibin
-				err_dn_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iDown" % ibin
-				rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].Clone(err_up_name)
-				rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].Clone(err_dn_name)
-				rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
-				rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
-				if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
-				rebinnedHists[err_up_name].Write()
-				rebinnedHists[err_dn_name].Write()
+						if val==0:
+							print "WARNING: "+bkg+" has zero content in "+chn+" channel and bin#"+str(ibin)+", is this what you expect??? I will not assign stat shape shifts for this proc and chn!!!"
+							continue
+						error = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinError(ibin)
+						err_up_name = rebinnedHists[chnHistName.replace(dataName,bkg)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+bkg+"_bin_%iUp" % ibin
+						err_dn_name = rebinnedHists[chnHistName.replace(dataName,bkg)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+bkg+"_bin_%iDown" % ibin
+						rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,bkg)].Clone(err_up_name)
+						rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,bkg)].Clone(err_dn_name)
+						rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
+						rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
+						if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
+						elif val-error==0:
+							print "WARNING: "+bkg+" has zero down shift in "+chn+" channel and bin#"+str(ibin)+" (1 event). Setting down shift to (bin content)*0.001"
+							rebinnedHists[err_dn_name].SetBinContent(ibin, val*0.001)
+						rebinnedHists[err_up_name].Write()
+						rebinnedHists[err_dn_name].Write()
+				else:
+					dominantBkgProc = bkgProcList[0]
+					val = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetBinContent(ibin)
+					for bkg in bkgProcList:
+						if rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)>val: 
+							val = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)
+							dominantBkgProc = bkg
+					if val==0: print "WARNING: The most dominant bkg proc "+dominantBkgProc+" has zero content in "+chn+" channel and bin#"+str(ibin)+". Something is wrong!!!"
+					error = rebinnedHists['chnTotBkgHist'].GetBinError(ibin)
+					err_up_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iUp" % ibin
+					err_dn_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iDown" % ibin
+					rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].Clone(err_up_name)
+					rebinnedHists[err_dn_name] = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].Clone(err_dn_name)
+					rebinnedHists[err_up_name].SetBinContent(ibin, val + error)
+					rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
+					if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
+					rebinnedHists[err_up_name].Write()
+					rebinnedHists[err_dn_name].Write()
 				for sig in sigProcList:
 					sigNameNoMass = sigName
 					if 'left' in sig: sigNameNoMass = sigName+'left'
 					if 'right' in sig: sigNameNoMass = sigName+'right'
 					val = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinContent(ibin)
-					#if val==0: continue #SHOULD WE HAVE THIS???
-					error  = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinError(ibin)
+					if val==0: #This is not a sensitive bin, so no need for stat shape??
+						print "WARNING: "+sig+" has zero content in "+chn+" channel and bin#"+str(ibin)+". I won't assign shape shifts for this bin!!!"
+						continue
+					error = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinError(ibin)
 					err_up_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iUp" % ibin
 					err_dn_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iDown" % ibin
 					rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,sig)].Clone(err_up_name)
@@ -256,8 +286,8 @@ for rfile in rfiles:
 				muRFcorrdNewDnHist.Scale(renormNomHist.Integral()/muRFcorrdNewDnHist.Integral())
 			muRFcorrdNewUpHist.Write()
 			muRFcorrdNewDnHist.Write()
-			yieldsAll[muRFcorrdNewUpHist.GetName()] = muRFcorrdNewUpHist.Integral()
-			yieldsAll[muRFcorrdNewDnHist.GetName()] = muRFcorrdNewDnHist.Integral()
+			yieldsAll[muRFcorrdNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewUpHist.Integral()
+			yieldsAll[muRFcorrdNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewDnHist.Integral()
 
 		#Constructing PDF shapes
 		pdfUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'pdf0' in k.GetName() and chn in k.GetName()]
@@ -279,8 +309,8 @@ for rfile in rfiles:
 				pdfNewDnHist.Scale(renormNomHist.Integral()/pdfNewDnHist.Integral())
 			pdfNewUpHist.Write()
 			pdfNewDnHist.Write()
-			yieldsAll[pdfNewUpHist.GetName()] = pdfNewUpHist.Integral()
-			yieldsAll[pdfNewDnHist.GetName()] = pdfNewDnHist.Integral()
+			yieldsAll[pdfNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewUpHist.Integral()
+			yieldsAll[pdfNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewDnHist.Integral()
 			
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()
@@ -307,6 +337,9 @@ for chn in channels:
 	if chn.split('_')[2+rebinCombine] not in nWtaglist: nWtaglist.append(chn.split('_')[2+rebinCombine])
 	if chn.split('_')[3+rebinCombine] not in nbtaglist: nbtaglist.append(chn.split('_')[3+rebinCombine])
 	if chn.split('_')[4+rebinCombine] not in njetslist: njetslist.append(chn.split('_')[4+rebinCombine])
+
+print "List of systematics for "+bkgProcList[0]+" process and "+channels[0]+" channel:"
+print "        ",sorted([hist[hist.find(bkgProcList[0])+len(bkgProcList[0])+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+bkgProcList[0]+'__' in hist and upTag in hist])
 
 def getShapeSystUnc(proc,chn):
 	if not addShapes: return 0
