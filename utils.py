@@ -3,6 +3,13 @@
 import sys,math
 from ROOT import *
 
+def skip(njets,nbjets): # function to skip certain categories
+ 	if njets=='4':
+ 		if nbjets=='3' or nbjets=='4p': return True
+  	if njets=='5' or njets=='6p':
+ 		if nbjets=='3p': return True
+ 	return False
+
 def isEqual(a, b):
     try:
         return a.upper() == b.upper()

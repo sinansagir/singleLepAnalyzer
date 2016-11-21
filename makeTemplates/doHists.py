@@ -91,9 +91,9 @@ else: nWtaglist = ['0p']
 if len(sys.argv)>8: nbtaglist=[str(sys.argv[8])]
 else: 
 	if not isCategorized: nbtaglist = ['2p']
-	else: nbtaglist=['2','3p']
+	else: nbtaglist = ['2','3','3p','4p']
 if len(sys.argv)>9: njetslist=[str(sys.argv[9])]
-else: njetslist=['4p']
+else: njetslist = ['4','5','6p']
 
 def readTree(file):
 	if not os.path.exists(file): 
@@ -178,6 +178,7 @@ catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslis
 nCats  = len(catList)
 catInd = 1
 for cat in catList:
+ 	if skip(cat[4],cat[3]): continue #DO YOU WANT TO HAVE THIS??
  	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
  	datahists = {}
  	bkghists  = {}

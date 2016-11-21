@@ -41,9 +41,9 @@ iPlotList = [#distribution name as defined in "doHists.py"
 isEMlist = ['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['2','3p']
+nbtaglist = ['2','3','3p','4p']
 if not categorize: nbtaglist = ['2p']
-njetslist = ['4p']
+njetslist = ['4','5','6p']
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
@@ -53,6 +53,7 @@ os.chdir(outDir)
 count=0
 for iplot in iPlotList:
 	for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)):
+		if skip(cat[4],cat[3]): continue #DO YOU WANT TO HAVE THIS??
 		catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
 		print catDir
 		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+catDir)

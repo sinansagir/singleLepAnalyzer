@@ -51,10 +51,10 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	# Define weights
 	TrigEff = 'TrigEffWeight'
 	if isotrig == 1:
-		cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1' # no MC HLT except signal
+		cut += ' && DataPastTrigger == 1'# && MCPastTrigger == 1' # no MC HLT except signal
 	else:
 		TrigEff = 'TrigEffAltWeight'
-		cut += ' && DataPastTriggerAlt == 1 && MCPastTriggerAlt == 1'
+		cut += ' && DataPastTriggerAlt == 1'# && MCPastTriggerAlt == 1'
 
 	jetSFstr='1'
 	if doJetRwt and ('WJetsMG' in process or 'QCD' in process): jetSFstr= 'JetSF_80X'

@@ -55,9 +55,9 @@ if doRealPull: doOneBand=False
 isEMlist =['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['2','3p']
+nbtaglist = ['2','3','3p','4p']
 if not isCategorized: nbtaglist = ['3p']
-njetslist=['4p']
+njetslist = ['4','5','6p']
 if iPlot=='YLD':
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
@@ -136,6 +136,7 @@ totBkgTemp2 = {}
 totBkgTemp3 = {}
 for tag in tagList:
 	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]+'_nJ'+tag[3]
+	if skip(tag[3],tag[2]): continue #DO YOU WANT TO HAVE THIS??
 	modTag = tagStr[tagStr.find('nT'):tagStr.find('nJ')-3]
 	for isEM in isEMlist:
 		histPrefix=iPlot+'_'+lumiInTemplates+'fb_'
