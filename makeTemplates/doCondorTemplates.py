@@ -1,4 +1,7 @@
 import os,sys,datetime,itertools
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
+from utils import *
 
 thisDir = os.getcwd()
 outputDir = thisDir+'/'

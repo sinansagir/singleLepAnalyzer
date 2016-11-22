@@ -74,8 +74,8 @@ nWtaglist = ['0p']
 nbtaglist = ['2','3','3p','4p']
 if not isCategorized: nbtaglist = ['3p']
 njetslist = ['4','5','6p']
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
-tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))]
+catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[4] ,item[3])]
+tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[3] ,item[2])]
 
 lumiSys = 0.062 #lumi uncertainty
 eltrigSys = 0.03 #electron trigger uncertainty
@@ -124,9 +124,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		#Initialize dictionaries for histograms
 		hists={}
 		for cat in catList:
-			njets_ = cat.split('_')[-1][2:]
-			nbjets_ = cat.split('_')[-2][2:]
-			if skip(njets_,nbjets_): continue #DO YOU WANT TO HAVE THIS??
 			print "              processing cat: "+cat
 			histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
 			i=BRconfStr+cat
