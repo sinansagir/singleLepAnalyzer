@@ -18,7 +18,7 @@ isCategorized=True
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 pfix='templates_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='2016_11_15_wJSF'
+pfix+='CategoriesWithSys__2016_11_22_0_0_25'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -38,9 +38,9 @@ bkgProcs['WJets']  = ['WJetsMG']
 bkgProcs['ZJets']  = ['DY50']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
 bkgProcs['TTV']    = ['TTWl','TTWq','TTZl','TTZq']
-bkgProcs['TTJets'] = ['TTJetsPH0to1000inc','TTJetsPH1000toINFinc','TTJetsPH1000mtt']
+bkgProcs['TTJets'] = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 bkgProcs['T']      = ['Tt','Tbt','Ts','TtW','TbtW']
-bkgProcs['qcd'] = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+bkgProcs['qcd'] = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']#'QCDht100','QCDht200',
 bkgProcs['top'] = bkgProcs['TTV']+bkgProcs['T']
 bkgProcs['ewk'] = bkgProcs['ZJets']+bkgProcs['VV'] 
 bkgProcs['ttbar'] = bkgProcs['TTJets']
@@ -170,7 +170,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					for proc in bkgProcList+bkgGrupList:
 						hists[proc+i+'pdf'+str(pdfInd)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkgProcs[proc][0]].Clone(histoPrefix+'__'+proc+'__pdf'+str(pdfInd))
 						for bkg in bkgProcs[proc]:
-							if bkg!=bkgProcs[proc][0]: hists[proc+i+syst+ud].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+							if bkg!=bkgProcs[proc][0]: hists[proc+i+'pdf'+str(pdfInd)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
 					for signal in sigList:
 						hists[signal+i+'pdf'+str(pdfInd)] = sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__pdf'+str(pdfInd))
 						if doBRScan: hists[signal+i+'pdf'+str(pdfInd)].Scale(BRs[decays[0][:2]][BRind]*BRs[decays[0][2:]][BRind]/(BR[decays[0][:2]]*BR[decays[0][2:]]))
@@ -262,7 +262,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		for cat in catList:
 			print "              ... "+cat
 			i=BRconfStr+cat
-			if '_nB2_' in cat: postTag = 'isCR_'
+			if '_nB2_' in cat or '_nJ4' in cat: postTag = 'isCR_'
 			else: postTag = 'isSR_'
 			for signal in sigList:
 				mass = [str(mass) for mass in massList if str(mass) in signal][0]
@@ -537,14 +537,14 @@ for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
     if 'bkghists' not in file: continue
     if not os.path.exists(file.replace('bkghists','datahists')): continue
     if not os.path.exists(file.replace('bkghists','sighists')): continue
-    iPlotList.append(file.split('_')[-1][:-2])
+    iPlotList.append(file.split('/')[-1].replace('bkghists_','')[:-2])
 
 print "WORKING DIR:",outDir
 for iPlot in iPlotList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	if iPlot=='minMlj': continue
+	if iPlot!='HT': continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]
@@ -555,17 +555,8 @@ for iPlot in iPlotList:
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
 
-	#TEMPORARY FIX!!!!!!!!!!!!!!!!!!
-	datahiststemp = {}
-	bkghiststemp  = {}
-	sighiststemp  = {}
-	for key in datahists.keys(): datahiststemp[key.replace(key[key.find('_is'):key.find('_is')+7],key[key.find('_is'):key.find('_is')+5]+'nT0p_nW0p_'+key[key.find('_is')+5:key.find('_is')+7]).replace('_'+key.split('_')[-1],'_nJ4p_'+key.split('_')[-1])] = datahists[key]
-	for key in bkghists.keys(): bkghiststemp[key.replace(key[key.find('_is'):key.find('_is')+7],key[key.find('_is'):key.find('_is')+5]+'nT0p_nW0p_'+key[key.find('_is')+5:key.find('_is')+7]).replace('_'+key.split('_')[-1],'_nJ4p_'+key.split('_')[-1])] = bkghists[key]
-	for key in sighists.keys(): sighiststemp[key.replace(key[key.find('_is'):key.find('_is')+7],key[key.find('_is'):key.find('_is')+5]+'nT0p_nW0p_'+key[key.find('_is')+5:key.find('_is')+7]).replace('_'+key.split('_')[-1],'_nJ4p_'+key.split('_')[-1])] = sighists[key]
-
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
-	#makeThetaCats(datahists,sighists,bkghists,iPlot)
-	makeThetaCats(datahiststemp,sighiststemp,bkghiststemp,iPlot)
+	makeThetaCats(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 

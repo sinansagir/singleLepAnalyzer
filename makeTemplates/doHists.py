@@ -30,11 +30,11 @@ bkgList = [
 		  'DY50',
 		  'WJetsMG',
 		  'WW','WZ','ZZ',
-		  'TTJetsPH0to1000inc','TTJetsPH1000toINFinc','TTJetsPH1000mtt',
+		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
+		  'TTJetsPH700mtt','TTJetsPH1000mtt',
 		  'TTWl','TTWq','TTZl','TTZq',
 		  'Tt','Tbt','Ts','TtW','TbtW',
-		  #'QCDht100','QCDht200',
-		  'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+		  'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
 
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']#'DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']

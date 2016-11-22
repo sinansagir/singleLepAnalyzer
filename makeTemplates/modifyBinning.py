@@ -32,9 +32,10 @@ start_time = time.time()
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_2016_11_15_wJSF/'+cutString
-combinefile = 'templates_'+iPlot+'_36p1fb.root'
+templateDir = os.getcwd()+'/templates_CategoriesWithSys__2016_11_22_0_0_25/'+cutString
+combinefile = 'templates_'+iPlot+'_36p0fb.root'
 
+quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = True #else rebins theta templates
 doStatShapes = True
 normalizeRENORM = True #only for signals
@@ -50,7 +51,7 @@ bkgProcList = ['ttbar','wjets','top','ewk','qcd'] #put the most dominant process
 era = "13TeV"
 
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
-singleBinCR = True
+singleBinCR = False
 #if len(sys.argv)>1: stat=float(sys.argv[1])
 
 if rebinCombine:
@@ -75,9 +76,9 @@ elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
 removalKeys = {} # True == keep, False == remove
-removalKeys['btag__']    = False
-removalKeys['mistag__']  = False
-removalKeys['trigeff__'] = False
+removalKeys['__btag']    = False
+removalKeys['__mistag']  = False
+removalKeys['__TrigEff'] = False
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -203,7 +204,7 @@ for rfile in rfiles:
 					for bkg in bkgProcList:
 						val = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)
 						if val==0:
-							print "WARNING: "+bkg+" has zero content in "+chn+" channel and bin#"+str(ibin)+", is this what you expect??? I will not assign stat shape shifts for this proc and chn!!!"
+							if not quiet: print "WARNING: "+bkg+" has zero content in "+chn+" channel and bin#"+str(ibin)+", is this what you expect??? I will not assign stat shape shifts for this proc and chn!!!"
 							continue
 						error = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinError(ibin)
 						err_up_name = rebinnedHists[chnHistName.replace(dataName,bkg)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+bkg+"_bin_%iUp" % ibin
@@ -214,7 +215,7 @@ for rfile in rfiles:
 						rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
 						if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
 						elif val-error==0:
-							print "WARNING: "+bkg+" has zero down shift in "+chn+" channel and bin#"+str(ibin)+" (1 event). Setting down shift to (bin content)*0.001"
+							if not quiet: print "WARNING: "+bkg+" has zero down shift in "+chn+" channel and bin#"+str(ibin)+" (1 event). Setting down shift to (bin content)*0.001"
 							rebinnedHists[err_dn_name].SetBinContent(ibin, val*0.001)
 						rebinnedHists[err_up_name].Write()
 						rebinnedHists[err_dn_name].Write()
@@ -225,7 +226,7 @@ for rfile in rfiles:
 						if rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)>val: 
 							val = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)
 							dominantBkgProc = bkg
-					if val==0: print "WARNING: The most dominant bkg proc "+dominantBkgProc+" has zero content in "+chn+" channel and bin#"+str(ibin)+". Something is wrong!!!"
+					if val==0 and not quiet: print "WARNING: The most dominant bkg proc "+dominantBkgProc+" has zero content in "+chn+" channel and bin#"+str(ibin)+". Something is wrong!!!"
 					error = rebinnedHists['chnTotBkgHist'].GetBinError(ibin)
 					err_up_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iUp" % ibin
 					err_dn_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iDown" % ibin
@@ -242,7 +243,7 @@ for rfile in rfiles:
 					if 'right' in sig: sigNameNoMass = sigName+'right'
 					val = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinContent(ibin)
 					if val==0: #This is not a sensitive bin, so no need for stat shape??
-						print "WARNING: "+sig+" has zero content in "+chn+" channel and bin#"+str(ibin)+". I won't assign shape shifts for this bin!!!"
+						if not quiet: print "WARNING: "+sig+" has zero content in "+chn+" channel and bin#"+str(ibin)+". I won't assign shape shifts for this bin!!!"
 						continue
 					error = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinError(ibin)
 					err_up_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iUp" % ibin

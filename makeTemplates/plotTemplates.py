@@ -11,7 +11,7 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=33.6 #for plots
+lumi=36 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #SR,PS
@@ -21,7 +21,7 @@ if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
 pfix='templates'
 if not isCategorized: pfix='kinematics_'+region
-templateDir=os.getcwd()+'/'+pfix+'_2016_11_15_wJSF/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_CategoriesWithSys__2016_11_22_0_0_25/'+cutString+'/'
 
 isRebinned='_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
@@ -39,7 +39,7 @@ if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
-systematicList = ['pileup','jec','jer','btag','mistag','toppt','pdfNew','muRFcorrdNew','TrigEff']
+systematicList = ['pileup','jec','jer','toppt','pdfNew','muRFcorrdNew']#,'TrigEff','btag','mistag']
 doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
