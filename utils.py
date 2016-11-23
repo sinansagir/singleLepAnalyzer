@@ -41,7 +41,9 @@ def normByBinWidth(h):
 def negBinCorrection(h): #set negative bin contents to zero and adjust the normalization
 	norm0=h.Integral()
 	for iBin in range(0,h.GetNbinsX()+2):
-		if h.GetBinContent(iBin)<0: h.SetBinContent(iBin,0)
+		if h.GetBinContent(iBin)<0: 
+			h.SetBinContent(iBin,0)
+			h.SetBinError(iBin,0)
 	if h.Integral()!=0 and norm0>0: h.Scale(norm0/h.Integral())
 
 def overflow(h):

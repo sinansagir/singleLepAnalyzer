@@ -1,32 +1,32 @@
 import os,sys,fnmatch
 
-templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/x53x53_2016/optimization/'
-templateDir+='templates_minMlb_2016_10_29' #Total number of jobs submitted: 3402
-#templateDir+='templates_ST_2016_10_29' #Total number of jobs submitted: 4374
-thetaConfigTemp = os.getcwd()+'/theta_config_template_optimization.py'
-lumiInFile = '12p892fb'
-
-systematicsInFile = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
+templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/cHiggs_2016/makeTemplates/'
+templateDir+='templates_2016_11_23'
+thetaConfigTemp = os.getcwd()+'/theta_config_template_test.py'
+lumiInFile = '36p0fb'
 
 toFilter0 = ['pdf','muRFdecorrdNew','muRFenv','muR','muF','muRFcorrd'] #always remove in case they are in templates
-toFilter0+= ['jsf']
-#toFilter0 = systematicsInFile
+#toFilter0+= ['pileup','jec','jer','toppt','jsf','muRFcorrdNew','pdfNew','q2']#,'btag','mistag','trigeff'
 toFilter0 = ['__'+item+'__' for item in toFilter0]
 
 limitConfs = {#'<limit type>':[filter list]
 			  'all':[],
-# 			  'isE':['isM'], #only electron channel
-# 			  'isM':['isE'], #only muon channel
-# 			  'nT0':['nT1p'], #only 0 t tag category
-# 			  'nT1p':['nT0'], #only 1p t tag category
-# 			  'nW0':['nW1p'], #only 0 W tag category
-# 			  'nW1p':['nW0'], #only 1p W tag category
-# 			  'nB1':['nB2p'], #only 1 b tag category
-# 			  'nB2p':['nB1'], #only 2p b tag category
+			  'isE':['isM'], #only electron channel
+			  'isM':['isE'], #only muon channel
+			  'isCR':['isSR'], #only 0 t tag category
+			  'isSR':['isCR'], #only 1p t tag category
+			  'nB2_nJ4':['_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+			  'nB2_nJ5':['_nB2_nJ4_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+			  'nB2_nJ6p':['_nB2_nJ4_','_nB2_nJ5_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+			  'nB3_nJ5':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+			  'nB3_nJ6p':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+			  'nB3p_nJ4':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+			  'nB4p_nJ5':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ6p_'],
+			  'nB4p_nJ6p':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_'],
 			  }
 
 limitType = ''#'_noCRuncerts'
-outputDir = '/user_data/ssagir/x53x53_limits_2016/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
+outputDir = '/user_data/ssagir/HTB_limits_2016/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 # outputDir+= '/'+limitType+'/'
 # if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
@@ -40,13 +40,9 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if 'rebinned_stat0p25' not in rootfile: continue
-    if 'right' in rootfile: continue
+    if '0_36p0fb_rebinned_stat0p3' not in rootfile: continue
+    if 'YLD' in rootfile: continue
     if 'plots' in rootfile: continue
-    if 'X53X53M1300' in rootfile: continue
-    if 'X53X53M1400' in rootfile: continue
-    if 'X53X53M1500' in rootfile: continue
-    if 'X53X53M1600' in rootfile: continue
     rootfilelist.append(rootfile)
     i+=1
 
@@ -55,11 +51,9 @@ thetaConfigLines = f.readlines()
 f.close()
 
 def makeThetaConfig(rFile,outDir,toFilter):
-	rFileDir = rFile.split('/')[-2]
-	with open(outDir+'/'+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.py','w') as fout:
+	with open(outDir+'/'+rFile.split('/')[-1][:-5]+'.py','w') as fout:
 		for line in thetaConfigLines:
-			if line.startswith('outDir ='): fout.write('outDir = \''+outDir+'/'+rFileDir+'\'')
-			elif line.startswith('input ='): fout.write('input = \''+rFile+'\'')
+			if line.startswith('input ='): fout.write('input = \''+rFile+'\'')
 			elif line.startswith('    model = build_model_from_rootfile('): 
 				if len(toFilter)!=0:
 					model='    model = build_model_from_rootfile(input,include_mc_uncertainties=True,histogram_filter = (lambda s:  s.count(\''+toFilter[0]+'\')==0'
@@ -69,13 +63,13 @@ def makeThetaConfig(rFile,outDir,toFilter):
 					fout.write(model)
 				else: fout.write(line)
 			else: fout.write(line)
-	with open(outDir+'/'+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.sh','w') as fout:
+	with open(outDir+'/'+rFile.split('/')[-1][:-5]+'.sh','w') as fout:
 		fout.write('#!/bin/sh \n')
 		fout.write('cd /home/ssagir/CMSSW_7_3_0/src/\n')
 		fout.write('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
 		fout.write('cmsenv\n')
-		fout.write('cd '+outDir+'/'+rFileDir+'\n')
-		fout.write('/home/ssagir/CMSSW_7_3_0/src/theta/utils2/theta-auto.py ' + outDir+'/'+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.py')
+		fout.write('cd '+outDir+'\n')
+		fout.write('/home/ssagir/CMSSW_7_3_0/src/theta/utils2/theta-auto.py ' + outDir+'/'+rFile.split('/')[-1][:-5]+'.py')
 
 count=0
 for limitConf in limitConfs:
@@ -89,12 +83,15 @@ for limitConf in limitConfs:
 		print signal,BRStr
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		os.chdir(outDir)
-		fileDir = file.split('/')[-2]
-		if not os.path.exists(outDir+fileDir): os.system('mkdir '+fileDir)
-		os.chdir(fileDir)
+		fileDir = ''
+		if templateDir.split('/')[-1]!=file.split('/')[-2]:
+			fileDir = file.split('/')[-2]
+			if not os.path.exists(outDir+fileDir): os.system('mkdir '+fileDir)
+			os.chdir(fileDir)
+		outDir=outDir+fileDir
 		makeThetaConfig(file,outDir,toFilter)
 
-		dict={'configdir':outDir+fileDir,'configfile':file.split('/')[-1][:-5]}
+		dict={'configdir':outDir,'configfile':file.split('/')[-1][:-5]}
 
 		jdf=open(file.split('/')[-1][:-5]+'.job','w')
 		jdf.write(

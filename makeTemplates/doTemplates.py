@@ -15,27 +15,27 @@ lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #PS,SR
 isCategorized=True
-cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
+cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='CategoriesWithSys__2016_11_22_0_0_25'
+pfix+='2016_11_23'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
-scaleLumi = True
+scaleLumi = False
 lumiScaleCoeff = 33590./36000.
 doAllSys = True
 doQ2sys = True
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','btag','mistag','toppt','muR','muF','muRFcorrd','TrigEff']
+systematicList = ['pileup','jec','jer','toppt','muR','muF','muRFcorrd','btag','mistag','trigeff']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgGrupList = ['ttbar','wjets','top','ewk','qcd']
 bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets']  = ['WJetsMG'] 
-bkgProcs['ZJets']  = ['DY50']
+bkgProcs['ZJets']  = ['DY']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
 bkgProcs['TTV']    = ['TTWl','TTWq','TTZl','TTZq']
 bkgProcs['TTJets'] = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
@@ -52,7 +52,7 @@ bkgProcs['ttbar_q2up'] = ['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
 bkgProcs['ttbar_q2dn'] = ['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
 
 whichSignal = 'HTB' #HTB, TT, BB, or X53X53
-massList = [180]+range(200,500+1,50)
+massList = range(180,220+1,20)+range(250,500+1,50)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -72,8 +72,10 @@ isEMlist =['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','3p','4p']
-if not isCategorized: nbtaglist = ['3p']
 njetslist = ['4','5','6p']
+if not isCategorized: 
+	nbtaglist = ['2p']
+	njetslist = ['2p']
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[4] ,item[3])]
 tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[3] ,item[2])]
 
@@ -252,6 +254,10 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 								hists[proc+i+syst+'Up'].Write()
 								hists[proc+i+syst+'Down'].Write()
 							for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
+						if doQ2sys:
+							if proc+'_q2up' not in bkgProcs.keys(): continue
+							hists[proc+i+'q2Up'].Write()
+							hists[proc+i+'q2Down'].Write()
 				hists['data'+i].Write()
 			thetaRfile.Close()
 
@@ -544,7 +550,7 @@ for iPlot in iPlotList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	if iPlot!='HT': continue
+	#if iPlot!='HT': continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]
@@ -554,6 +560,15 @@ for iPlot in iPlotList:
 	if scaleLumi:
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
+
+ 	#Negative Bin Correction
+ 	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
+ 	for sig in sighists.keys(): negBinCorrection(sighists[sig])
+
+ 	#OverFlow Correction
+ 	for data in datahists.keys(): overflow(datahists[data])
+ 	for bkg in bkghists.keys():   overflow(bkghists[bkg])
+ 	for sig in sighists.keys():   overflow(sighists[sig])
 
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
 	makeThetaCats(datahists,sighists,bkghists,iPlot)

@@ -7,29 +7,30 @@ thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
 region='SR' #PS,SR
-categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
+categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_'+date+'_'+time
+pfix+='_'+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
-			'lepPt',
-			'lepEta',
-			'NPV',
-			'JetEta',
-			'JetPt',
-			'Jet1Pt',
-			'Jet2Pt',
-			'Jet3Pt',
-			'MET',
-			'NJets',
-			'NBJets',
+# 			'lepPt',
+# 			'lepEta',
+# 			'NPV',
+# 			'JetEta',
+# 			'JetPt',
+# 			'Jet1Pt',
+# 			'Jet2Pt',
+# 			'Jet3Pt',
+# 			'MET',
+# 			'NJets',
+# 			'NBJets',
 			'HT',
-			'ST',
+			'minMlb',
+# 			'ST',
 # 			'BDT',
 # 			'LeadJetPt',
 # 			'aveBBdr',
@@ -45,8 +46,10 @@ isEMlist = ['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','3p','4p']
-if not categorize: nbtaglist = ['2p']
 njetslist = ['4','5','6p']
+if not categorize: 
+	nbtaglist = ['2p']
+	njetslist = ['2p']
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)

@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/bhardwaj/LJMet_1lepCHiggs_110716_step2hadds_FullData2016/nominal'
+step1Dir = '/user_data/bhardwaj/LJMet_1lepCHiggs_110716_step2hadds_FullData2016_Fixed/nominal'
 
 """
 Note: 
@@ -27,8 +27,9 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 bkgList = [
-		  'DY50',
+		  'DY',
 		  'WJetsMG',
+		  'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
 		  'WW','WZ','ZZ',
 		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
 		  'TTJetsPH700mtt','TTJetsPH1000mtt',
@@ -40,7 +41,7 @@ bkgList = [
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']#'DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
 
 whichSignal = 'HTB' #HTB, TT, BB, or X53X53
-massList = [180]+range(200,500+1,50)
+massList = range(180,220+1,20)+range(250,500+1,50)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -48,16 +49,16 @@ if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' d
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 if whichSignal=='HTB': decays = ['']
 
-iPlot = 'HT' #choose a discriminant from plotList below!
+iPlot = 'NBJetsNoSF' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
 region = 'SR'
 if len(sys.argv)>3: region=sys.argv[3]
-isCategorized = 1
+isCategorized = 0
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 isotrig = 1
 doJetRwt= 0
-doAllSys= True
-doQ2sys = True
+doAllSys= False
+doQ2sys = False
 q2List  = [#energy scale sample to be processed
 	       'TTJetsPHQ2U','TTJetsPHQ2D',
 	       #'TtWQ2U','TbtWQ2U',
@@ -93,7 +94,9 @@ else:
 	if not isCategorized: nbtaglist = ['2p']
 	else: nbtaglist = ['2','3','3p','4p']
 if len(sys.argv)>9: njetslist=[str(sys.argv[9])]
-else: njetslist = ['4','5','6p']
+else:
+	if not isCategorized: njetslist = ['2p']
+	else: njetslist = ['4','5','6p']
 
 def readTree(file):
 	if not os.path.exists(file): 
@@ -145,28 +148,42 @@ bigbins = [0,50,100,150,200,250,300,350,400,450,500,600,700,800,1000,1200,1500]
 #bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,5000]
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
-	'NPV'   :('nPV_singleLepCalc',linspace(0, 40, 41).tolist(),';PV multiplicity;'),
-	'lepPt' :('leptonPt_singleLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV];'),
-	'lepEta':('leptonEta_singleLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta;'),
-	'JetEta':('theJetEta_JetSubCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK4 Jet #eta;'),
-	'JetPt' :('theJetPt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';jet p_{T} [GeV];'),
-	'Jet1Pt':('theJetPt_JetSubCalc_PtOrdered[0]',linspace(0, 1500, 51).tolist(),';1^{st} AK4 Jet p_{T} [GeV];'),
-	'Jet2Pt':('theJetPt_JetSubCalc_PtOrdered[1]',linspace(0, 1500, 51).tolist(),';2^{nd} AK4 Jet p_{T} [GeV];'),
-	'Jet3Pt':('theJetPt_JetSubCalc_PtOrdered[2]',linspace(0, 800, 51).tolist(),';3^{rd} AK4 Jet p_{T} [GeV];'),
-	'MET'   :('corr_met_singleLepCalc',linspace(0, 1500, 51).tolist(),';#slash{E}_{T} [GeV];'),
-	'NJets' :('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity;'),
-	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
-    'HT':('AK4HT',linspace(0, 5000, 51).tolist(),';H_{T} (GeV);'),
- 	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 51).tolist(),';S_{T} (GeV);'),
-# 	'BDT':('BDT',linspace(-1, 1, 37).tolist(),';BDT;'),
-# 	'LeadJetPt':('theJetLeadPt',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}) (GeV);'),
-# 	'aveBBdr':('aveBBdr',linspace(0, 6, 51).tolist(),';#topbar{#Delta(b,b)}'),
-# 	'mass_maxJJJpt':('mass_maxJJJpt',linspace(0, 3000, 51).tolist(),';M(jjj) with max[p_{T}(jjj)] (GeV);'),
-# 	'mass_maxBBmass':('mass_maxBBmass',linspace(0, 1500, 51).tolist(),';max[M(b,b)] (GeV);'),
-# 	'mass_maxBBpt':('mass_maxBBpt',linspace(0, 1500, 51).tolist(),';M(b,b) with max[p_{T}(bb)] (GeV);'),
-# 	'lepDR_minBBdr':('lepDR_minBBdr',linspace(0, 6, 51).tolist(),';#Delta(l,bb) with min#Delta(b,b)'),
-# 	'mass_minLLdr':('mass_minLLdr',linspace(0, 1000, 51).tolist(),';M(b,b) with min#[Delta(b,b)] (GeV);'),
-# 	'mass_minBBdr':('mass_minBBdr',linspace(0, 1000, 51).tolist(),';M(j,j) with min#[Delta(j,j)], j #neq b (GeV);'),
+	'NPV':('nPV_singleLepCalc',linspace(0, 40, 41).tolist(),';PV multiplicity'),
+	'MTlmet':('MT_lepMet',linspace(0,250,51).tolist(),';M_{T}(l,#slash{E}_{T}) [GeV]'),
+	'topPt':('topPt',linspace(0,1500,51).tolist(),';p_{T}^{rec}(t) [GeV]'),
+	'Bjet1Pt':('BJetLeadPt',linspace(0,1500,51).tolist(),';p_{T}(b_{1}) [GeV]'),
+	'lepPt':('leptonPt_singleLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV]'),
+	'lepEta':('leptonEta_singleLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta'),
+	'JetEta':('theJetEta_JetSubCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK4 Jet #eta'),
+	'JetPt' :('theJetPt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';jet p_{T} [GeV]'),
+	'Jet1Pt':('theJetPt_JetSubCalc_PtOrdered[0]',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}), AK4 [GeV]'),
+	'Jet2Pt':('theJetPt_JetSubCalc_PtOrdered[1]',linspace(0, 1500, 51).tolist(),';p_{T}(j_{2}), AK4 [GeV]'),
+	'Jet3Pt':('theJetPt_JetSubCalc_PtOrdered[2]',linspace(0, 800, 51).tolist(),';p_{T}(j_{3}), AK4 [GeV]'),
+	'deltaPhilepJets0':('deltaPhi_lepJets[0]',linspace(0,3.2,51).tolist(),';#Delta#Phi(l,j_{1})'),
+	'deltaPhilepJets1':('deltaPhi_lepJets[1]',linspace(0,3.2,51).tolist(),';#Delta#Phi(l,j_{2})'),
+	'masslepJets0':('mass_lepJets[0]',linspace(0,1000,51).tolist(),';M(l,j_{1}) [GeV]'),
+	'masslepJets1':('mass_lepJets[1]',linspace(0,1000,51).tolist(),';M(l,j_{2}) [GeV]'),
+	'mindeltaR':('minDR_lepJet',linspace(0, 5, 51).tolist(),';min#DeltaR(l,j)'),
+	'MET':('corr_met_singleLepCalc',linspace(0, 1500, 51).tolist(),';#slash{E}_{T} [GeV]'),
+	'NJets':('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity'),
+	'NBJetsNoSF':('NJetsCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity'),
+	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity'),
+	'BDT':('BDT',linspace(-1, 1, 37).tolist(),';BDT'),
+	'PtRel':('ptRel_lepJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
+	'LeadJetPt':('theJetLeadPt',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}) [GeV]'),
+	'aveBBdr':('aveBBdr',linspace(0, 6, 51).tolist(),';#topbar{#Delta(b,b)}'),
+	'mass_maxJJJpt':('mass_maxJJJpt',linspace(0, 3000, 51).tolist(),';M(jjj) with max[p_{T}(jjj)] [GeV]'),
+	'mass_maxBBmass':('mass_maxBBmass',linspace(0, 1500, 51).tolist(),';max[M(b,b)] [GeV]'),
+	'mass_maxBBpt':('mass_maxBBpt',linspace(0, 1500, 51).tolist(),';M(b,b) with max[p_{T}(bb)] [GeV]'),
+	'lepDR_minBBdr':('lepDR_minBBdr',linspace(0, 6, 51).tolist(),';#Delta(l,bb) with min#Delta(b,b)'),
+	'mass_minLLdr':('mass_minLLdr',linspace(0, 1000, 51).tolist(),';M(b,b) with min[#Delta(b,b)] [GeV]'),
+	'mass_minBBdr':('mass_minBBdr',linspace(0, 1000, 51).tolist(),';M(j,j) with min[#Delta(j,j)], j #neq b [GeV]'),
+
+    'HT':('AK4HT',linspace(0, 5000, 51).tolist(),';H_{T} [GeV]'),
+ 	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 51).tolist(),';S_{T} [GeV]'),
+	'minMlb':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]'),
+
+	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity',linspace(0, 10, 11).tolist(),';b tag multiplicity'),
 	}
 
 print "PLOTTING:",iPlot
@@ -213,15 +230,6 @@ for cat in catList:
  		for q2 in q2List: 
  			bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  			if catInd==nCats: del tFileBkg[q2]
-
- 	#Negative Bin Correction
- 	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
- 	for sig in sighists.keys(): negBinCorrection(sighists[sig])
-
- 	#OverFlow Correction
- 	for data in datahists.keys(): overflow(datahists[data])
- 	for bkg in bkghists.keys():   overflow(bkghists[bkg])
- 	for sig in sighists.keys():   overflow(sighists[sig])
 
  	pickle.dump(datahists,open(outDir+'/datahists_'+iPlot+'.p','wb'))
 	pickle.dump(bkghists,open(outDir+'/bkghists_'+iPlot+'.p','wb'))

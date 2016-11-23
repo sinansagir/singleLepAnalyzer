@@ -10,17 +10,17 @@ setTDRStyle()
 
 blind=False
 saveKey=''
-lumiPlot = '2.3'
-lumiStr = '2p318'
-spin='left'#'right'
-discriminant='minMlb'
+lumiPlot = '36'
+lumiStr = '36p0'
+spin=''#'right'
+discriminant='HT'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+spin
-stat='0p15'#0.75
+stat='0p3'#0.75
 isRebinned='_rebinned_stat'+str(stat).replace('.','p')
-tempKey='all_forPostFitNuis'
-limitDir='/user_data/ssagir/x53x53_limits_2015/templates_minMlb_noJSF_tau21Fix1_2016_10_8_noCRuncerts/'+tempKey+'/'
-cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
-LH700file='/templates_'+discriminant+'_X53X53M800'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
+tempKey='all_noBBB'
+limitDir='/user_data/ssagir/HTB_limits_2016/templates_CategoriesWithSys__2016_11_22_0_0_25/'+tempKey+'/'
+cutString=''
+LH700file='/templates_'+discriminant+'_HTBM180'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
 
 parVals=pickle.load(open(limitDir+cutString+LH700file,'rb'))
 
@@ -39,13 +39,9 @@ nuisNam = [
 			'muRFcorrdNew',
 			'q2',
 			'toppt',
-			'tau21',
-			'jms',
-			'jmr',
 			#'jsf',
-			'topsf',
-			'btag',
-			'mistag',
+			#'btag',
+			#'mistag',
 			'jer',
 			'jec',
 			'pileup',
@@ -79,13 +75,9 @@ nuisNamPlot = [
 			'muRF',
 			'Q^{2}',
 			'Top Pt',
-			'Tau21',
-			'JMS',
-			'JMR',
 			#'JSF',
-			't-tag',
-			'b-tag',
-			'mis-tag',
+			#'b-tag',
+			#'mis-tag',
 			'JER',
 			'JEC',
 			'pileup',
@@ -125,6 +117,7 @@ nNuis = len(nuisNam)
 g   = TGraphAsymmErrors(nNuis)
 g68 = TGraph(2*nNuis+7)
 g95 = TGraph(2*nNuis+7)
+gdmmy = TGraph(2*nNuis+7)
 for i in range(nNuis):
 	g.SetPoint(i, nuisVal[i], i+1.5)
 	g.SetPointEXlow(i, nuisErr[i])
@@ -132,8 +125,10 @@ for i in range(nNuis):
 for a in xrange(0, nNuis+3):
 	g68.SetPoint(a, -1, a)
 	g95.SetPoint(a, -1.99, a)
+	gdmmy.SetPoint(a, -3.99, a)
 	g68.SetPoint(a+1+nNuis+2, 1, nNuis+2-a)
 	g95.SetPoint(a+1+nNuis+2, 1.99, nNuis+2-a)
+	gdmmy.SetPoint(a+1+nNuis+2, 3.99, nNuis+2-a)
 
 g.SetLineStyle(1)
 g.SetLineWidth(1)
@@ -142,6 +137,7 @@ g.SetMarkerStyle(21)
 g.SetMarkerSize(1.25)
 g68.SetFillColor(ROOT.kGreen)
 g95.SetFillColor(ROOT.kYellow)
+gdmmy.SetFillColor(ROOT.kWhite)
 
 c = TCanvas('PostFit', 'PostFit', 1000, 1200)
 c.SetTopMargin(0.06)
@@ -150,13 +146,16 @@ c.SetBottomMargin(0.12)
 c.SetLeftMargin(0.3)
 c.SetTickx()
 c.SetTicky()
+
+g95.GetHistogram().GetXaxis().SetRangeUser(-4.2, 4.2)
 	
-g95.Draw('AF')
+gdmmy.Draw('AF')
+g95.Draw('F')
 g68.Draw('F')
 g.Draw('P')
 
 
-prim_hist = g95.GetHistogram() 
+prim_hist = gdmmy.GetHistogram() 
 ax_1 = prim_hist.GetYaxis()
 ax_2 = prim_hist.GetXaxis()
 
@@ -170,15 +169,15 @@ ax_2.SetTitleOffset(1.0)
 ax_1.SetLabelSize(0.05)
 #ax_2.SetLabelSize(0.05)
 ax_1.SetRangeUser(0, nNuis+2)
-ax_2.SetRangeUser(-2.2, 2.2)
+ax_2.SetRangeUser(-4.2, 4.2)
 
 ax_1.Set(nNuis+2, 0, nNuis+2)
-ax_1.SetNdivisions(-414)
+#ax_1.SetNdivisions(-414)
 #ax_2.SetNdivisions(-505)
 for i in range(nNuis):
 	ax_1.SetBinLabel(i+2, nuisNamPlot[i])
 
-g95.GetHistogram().Draw('axis,same')
+gdmmy.GetHistogram().Draw('axis,same')
 c.Modified()
 c.Update()
 
