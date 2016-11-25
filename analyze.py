@@ -116,21 +116,36 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	if 'p' in nWtag: nWtagCut+=' && '+nWtagLJMETname+'>='+nWtag[:-1]
 	else: nWtagCut+=' && '+nWtagLJMETname+'=='+nWtag
 	if nWtag=='0p': nWtagCut=''
-			
-	nbtagCut = ''
-	if 'p' in nbtag: nbtagCut+=' && '+nbtagLJMETname+'>='+nbtag[:-1]
-	else: nbtagCut+=' && '+nbtagLJMETname+'=='+nbtag
 	
-	if nbtag=='0' and iPlot=='minMlb': 
-		originalLJMETName=plotTreeName
-		plotTreeName='minMleppJet'
+	nbjCut = ''	
+	if isCategorized:
+		nbtagCut = ''
+		if 'p' in nbtag: nbtagCut+=' && '+nbtagLJMETname+'>='+nbtag[:-1]
+		else: nbtagCut+=' && '+nbtagLJMETname+'=='+nbtag
+	
+		if nbtag=='0' and iPlot=='minMlb': 
+			originalLJMETName=plotTreeName
+			plotTreeName='minMleppJet'
 
-	njetsCut = ''
-	if 'p' in njets: njetsCut+=' && '+njetsLJMETname+'>='+njets[:-1]
-	else: njetsCut+=' && '+njetsLJMETname+'=='+njets
-	if njets=='0p': njetsCut=''
-
-	fullcut = cut+isEMCut+nttagCut+nWtagCut+nbtagCut+njetsCut
+		njetsCut = ''
+		if 'p' in njets: njetsCut+=' && '+njetsLJMETname+'>='+njets[:-1]
+		else: njetsCut+=' && '+njetsLJMETname+'=='+njets
+		if njets=='0p': njetsCut=''
+		
+		nbjCut += nbtagCut+njetsCut
+		
+	else:
+		if 'CR' in region:
+			nbjCut+=' && ( ('+nbtagLJMETname+'==1 && '+njetsLJMETname+'>=3)'
+			nbjCut+=  ' || ('+nbtagLJMETname+'>=2 && '+njetsLJMETname+'==3)'
+			nbjCut+=  ' || ('+nbtagLJMETname+'==2 && '+njetsLJMETname+'==4))'
+		if 'SR' in region:
+			nbjCut+=' && ( ('+nbtagLJMETname+'==2 && '+njetsLJMETname+'>=5)'
+			nbjCut+=  ' || ('+nbtagLJMETname+'==3 && '+njetsLJMETname+'>=5)'
+			nbjCut+=  ' || ('+nbtagLJMETname+'>=4 && '+njetsLJMETname+'>=5)'
+			nbjCut+=  ' || ('+nbtagLJMETname+'>=3 && '+njetsLJMETname+'==4))'
+	
+	fullcut = cut+isEMCut+nttagCut+nWtagCut+nbjCut
 
 	# replace cuts for shifts
 	cut_btagUp = fullcut#.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[0]')

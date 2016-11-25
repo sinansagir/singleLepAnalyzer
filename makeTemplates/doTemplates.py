@@ -18,7 +18,7 @@ isCategorized=True
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='2016_11_23'
+pfix+='X53cuts_2016_11_24'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -28,21 +28,21 @@ doAllSys = True
 doQ2sys = True
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','toppt','muR','muF','muRFcorrd','btag','mistag','trigeff']
+systematicList = ['pileup','jec','jer','toppt','muR','muF','muRFcorrd','btag','mistag']#,'trigeff']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgGrupList = ['ttbar','wjets','top','ewk','qcd']
 bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
 bkgProcs = {}
-bkgProcs['WJets']  = ['WJetsMG'] 
-bkgProcs['ZJets']  = ['DY']
-bkgProcs['VV']     = ['WW','WZ','ZZ']
-bkgProcs['TTV']    = ['TTWl','TTWq','TTZl','TTZq']
-bkgProcs['TTJets'] = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
-bkgProcs['T']      = ['Tt','Tbt','Ts','TtW','TbtW']
-bkgProcs['qcd'] = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']#'QCDht100','QCDht200',
-bkgProcs['top'] = bkgProcs['TTV']+bkgProcs['T']
-bkgProcs['ewk'] = bkgProcs['ZJets']+bkgProcs['VV'] 
+bkgProcs['WJets'] = ['WJetsMG'] 
+bkgProcs['ZJets'] = ['DY']
+bkgProcs['VV']    = ['WW','WZ','ZZ']
+bkgProcs['TTV']   = ['TTWl','TTWq','TTZl','TTZq']
+bkgProcs['TTJets']= ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
+bkgProcs['T']     = ['Tt','Tbt','Ts','TtW','TbtW']
+bkgProcs['qcd']   = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+bkgProcs['top']   = bkgProcs['TTV']+bkgProcs['T']
+bkgProcs['ewk']   = bkgProcs['ZJets']+bkgProcs['VV'] 
 bkgProcs['ttbar'] = bkgProcs['TTJets']
 bkgProcs['wjets'] = bkgProcs['WJets']
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
@@ -52,7 +52,7 @@ bkgProcs['ttbar_q2up'] = ['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
 bkgProcs['ttbar_q2dn'] = ['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
 
 whichSignal = 'HTB' #HTB, TT, BB, or X53X53
-massList = range(180,220+1,20)+range(250,500+1,50)
+massList = range(180,200+1,20)+range(250,500+1,50)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays

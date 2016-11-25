@@ -41,7 +41,7 @@ bkgList = [
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']#'DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
 
 whichSignal = 'HTB' #HTB, TT, BB, or X53X53
-massList = range(180,220+1,20)+range(250,500+1,50)
+massList = range(180,200+1,20)+range(250,500+1,50)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -57,8 +57,8 @@ isCategorized = 0
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 isotrig = 1
 doJetRwt= 0
-doAllSys= False
-doQ2sys = False
+doAllSys= True
+doQ2sys = True
 q2List  = [#energy scale sample to be processed
 	       'TTJetsPHQ2U','TTJetsPHQ2D',
 	       #'TtWQ2U','TbtWQ2U',

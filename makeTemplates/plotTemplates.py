@@ -15,15 +15,15 @@ lumi=36 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #SR,PS
-isCategorized=False
-iPlot='NBJetsNoSF'
+isCategorized=True
+iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
-cutString='lep50_MET30_DR0_1jet50_2jet40'
+cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
 if not isCategorized: pfix='kinematics_'+region
-templateDir=os.getcwd()+'/'+pfix+'_2016_11_23/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_X53_2016_11_24/'+cutString+'/'
 
-isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig1='HTBM200' # choose the 1st signal to plot
@@ -40,7 +40,7 @@ elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzu
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
 systematicList = ['pileup','jec','jer','toppt','pdfNew','muRFcorrdNew']#,'TrigEff','btag','mistag']
-doAllSys = False
+doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
 addCRsys = False

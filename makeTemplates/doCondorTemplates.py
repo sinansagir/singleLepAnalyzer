@@ -6,7 +6,7 @@ from utils import *
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-region='SR' #PS,SR
+region='SR' #SR,CR --> matters only when plotting kinematics
 categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
@@ -30,7 +30,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'NBJets',
 			'HT',
 			'minMlb',
-# 			'ST',
+			'ST',
 # 			'BDT',
 # 			'LeadJetPt',
 # 			'aveBBdr',
@@ -45,8 +45,10 @@ iPlotList = [#distribution name as defined in "doHists.py"
 isEMlist = ['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['2','3','3p','4p']
-njetslist = ['4','5','6p']
+# nbtaglist = ['2','3','3p','4p']
+# njetslist = ['4','5','6p']
+nbtaglist = ['1','2','2p','3','3p','4p']
+njetslist = ['3','4','5','6p']
 if not categorize: 
 	nbtaglist = ['2p']
 	njetslist = ['2p']

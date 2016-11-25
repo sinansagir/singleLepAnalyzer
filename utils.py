@@ -3,11 +3,24 @@
 import sys,math
 from ROOT import *
 
-def skip(njets,nbjets): # function to skip certain categories
+def skip_atlas(njets,nbjets): # function to skip certain categories in atlas categorization
  	if njets=='4':
  		if nbjets=='3' or nbjets=='4p': return True
   	if njets=='5' or njets=='6p':
  		if nbjets=='3p': return True
+ 	return False
+
+def skip(njets,nbjets): # function to skip certain categories in final categorization
+ 	if nbjets=='2':
+ 		if njets=='3': return True
+ 	if nbjets=='2p':
+ 		if njets!='3': return True
+ 	if nbjets=='3':
+ 		if njets=='3' or njets=='4': return True
+ 	if nbjets=='3p':
+ 		if njets!='4': return True
+ 	if nbjets=='4p':
+ 		if njets=='3' or njets=='4': return True
  	return False
 
 def isEqual(a, b):
