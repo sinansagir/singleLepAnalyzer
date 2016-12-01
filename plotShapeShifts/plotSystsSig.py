@@ -24,17 +24,17 @@ btags = ['nB0','nB1','nB2','nB3p']
 systematics = ['pileup','jec','jer','btag','mistag','tau21','jsf','muRFcorrdNew','pdfNew','trigeff']
 
 signameList = ['TTM800',
-	       'TTM900',
-	       'TTM1000',
-	       'TTM1100',
-	       'TTM1200',
-	       'TTM1300',
-	       'TTM1400',
-	       'TTM1500',
-	       'TTM1600',
-	       'TTM1700',
-	       'TTM1800',
-	       ]
+			   'TTM900',
+			   'TTM1000',
+			   'TTM1100',
+			   'TTM1200',
+			   'TTM1300',
+			   'TTM1400',
+			   'TTM1500',
+			   'TTM1600',
+			   'TTM1700',
+			   'TTM1800',
+			   ]
 
 for signal in signameList:
 	RFile = R.TFile(templateFile.replace('TTM900',signal))

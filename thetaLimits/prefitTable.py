@@ -2,7 +2,7 @@
 
 import os,sys,time,math
 
-prefitFile = 'prefit.txt' # replace "plusminus" sign with "pm" in the file
+prefitFile = 'templates_minMlb_noJSF_tau21Fix1_2016_10_8_noCRuncertsplots/prefit800left.txt' # replace "plusminus" sign with "pm" in the file
 
 fprefit = open(prefitFile, 'rU')
 prefitlines = fprefit.readlines()
@@ -23,27 +23,29 @@ nuisNam = [
 			'tau21',
 			'jms',
 			'jmr',
-			'jsf',
+			#'jsf',
+			'topsf',
 			'btag',
+			'mistag',
 			'jer',
 			'jec',
 			'pileup',
-			'top1pW3pBSys',
-			'top1pW2BSys',
-			'top1pW1BSys',
-			'top1pW0BSys',
-			'top0W3pBSys',
-			'top0W2BSys',
-			'top0W1BSys',
-			'top0W0BSys',
-			'ewk1pW3pBSys',
-			'ewk1pW2BSys',
-			'ewk1pW1BSys',
-			'ewk1pW0BSys',
-			'ewk0W3pBSys',
-			'ewk0W2BSys',
-			'ewk0W1BSys',
-			'ewk0W0BSys',
+# 			'top0T0W1BSys',
+# 			'top0T0W2pBSys',
+# 			'top0T1pW1BSys',
+# 			'top0T1pW2pBSys',
+# 			'top1pT0W1BSys',
+# 			'top1pT0W2pBSys',
+# 			'top1pT1pW1BSys',
+# 			'top1pT1pW2pBSys',
+# 			'ewk0T0W1BSys',
+# 			'ewk0T0W2pBSys',
+# 			'ewk0T1pW1BSys',
+# 			'ewk0T1pW2pBSys',
+# 			'ewk1pT0W1BSys',
+# 			'ewk1pT0W2pBSys',
+# 			'ewk1pT1pW1BSys',
+# 			'ewk1pT1pW2pBSys',
 			'muTrigSys',
 			'elTrigSys',
 			'muIsoSys',
@@ -56,32 +58,34 @@ nuisNam = [
 nuisNamPlot = [
 			'PDF',
 			'muRF',
-			'Q$^{2}$',
+			'$Q^{2}$',
 			'Top Pt',
 			'Tau21',
 			'JMS',
 			'JMR',
-			'JSF',
-			'Btag',
+			#'JSF',
+			't-tag',
+			'b-tag',
+			'mis-tag',
 			'JER',
 			'JEC',
 			'pileup',
-			'top\_1+W\_3+b',
-			'top\_1+W\_2b',
-			'top\_1+W\_1b',
-			'top\_1+W\_0b',
-			'top\_0W\_3+b',
-			'top\_0W\_2b',
-			'top\_0W\_1b',
-			'top\_0W\_0b',
-			'ewk\_1+W\_3+b',
-			'ewk\_1+W\_2b',
-			'ewk\_1+W\_1b',
-			'ewk\_1+W\_0b',
-			'ewk\_0W\_3+b',
-			'ewk\_0W\_2b',
-			'ewk\_0W\_1b',
-			'ewk\_0W\_0b',
+# 			'top\_0t\_0W\_1b',
+# 			'top\_0t\_0W\_2+b',
+# 			'top\_0t\_1+W\_1b',
+# 			'top\_0t\_1+W\_2+b',
+# 			'top\_1+t\_0W\_1b',
+# 			'top\_1+t\_0W\_2+b',
+# 			'top\_1+t\_1+W\_1b',
+# 			'top\_1+t\_1+W\_2+b',
+# 			'ewk\_0t\_0W\_1b',
+# 			'ewk\_0t\_0W\_2+b',
+# 			'ewk\_0t\_1+W\_1b',
+# 			'ewk\_0t\_1+W\_2+b',
+# 			'ewk\_1+t\_0W\_1b',
+# 			'ewk\_1+t\_0W\_2+b',
+# 			'ewk\_1+t\_1+W\_1b',
+# 			'ewk\_1+t\_1+W\_2+b',
 			'muTrig',
 			'elTrig',
 			'muIso',
@@ -95,6 +99,7 @@ ewkInd = 1
 qcdInd = 2
 sigInd = 3
 topInd = 4
+procs = ['ewk','qcd','sig','top']
 prefitUncs = {}
 for ind in obsIndexes:
 	lowerBy = 0
@@ -104,69 +109,25 @@ for ind in obsIndexes:
 	for item in data: 
 		if 'process' in item or '/' in item or 'nuisance' in item or 'parameter' in item or 'gauss' in item: continue
 		prefitUncs[ind]['main'].append([item,'(gauss)'])
-	if prefitlines[ind+ewkInd-lowerBy].startswith('ewk'): 
-		data = prefitlines[ind+ewkInd-lowerBy].strip().split()
-		prefitUncs[ind]['ewk'] = []
-		for it in range(1,len(data)): 
-			if '(s)' in data[it] or '(r)' in data[it]: continue
-			if it==len(data)-1 and data[it]!='---': continue
-			if data[it]!='---': 
-				if data[it].startswith('pm'): prefitUncs[ind]['ewk'].append([data[it].replace('pm','$\pm$'),data[it+1]])
-				else:
-					for k in range(1,len(data[it])):
-						if not (data[it][k].isdigit() or data[it][k]=='.'): 
-							up = data[it][:k]
-							dn = data[it][k:]
-					prefitUncs[ind]['ewk'].append(['$^{'+up+'}_{'+dn+'}$',data[it+1]])
-			else: prefitUncs[ind]['ewk'].append([data[it].replace('---','-'),''])
-	else: lowerBy+=1
-	if prefitlines[ind+qcdInd-lowerBy].startswith('qcd'): 
-		data = prefitlines[ind+qcdInd-lowerBy].strip().split()
-		prefitUncs[ind]['qcd'] = []
-		for it in range(1,len(data)): 
-			if '(s)' in data[it] or '(r)' in data[it]: continue
-			if it==len(data)-1 and data[it]!='---': continue
-			if data[it]!='---': 
-				if data[it].startswith('pm'): prefitUncs[ind]['qcd'].append([data[it].replace('pm','$\pm$'),data[it+1]])
-				else:
-					for k in range(1,len(data[it])):
-						if not (data[it][k].isdigit() or data[it][k]=='.'): 
-							up = data[it][:k]
-							dn = data[it][k:]
-					prefitUncs[ind]['qcd'].append(['$^{'+up+'}_{'+dn+'}$',data[it+1]])
-			else: prefitUncs[ind]['qcd'].append([data[it].replace('---','-'),''])	
-	else: lowerBy+=1
-	if prefitlines[ind+sigInd-lowerBy].startswith('sig'): 
-		data = prefitlines[ind+sigInd-lowerBy].strip().split()
-		prefitUncs[ind]['sig'] = []
-		for it in range(1,len(data)): 
-			if '(s)' in data[it] or '(r)' in data[it]: continue
-			if it==len(data)-1 and data[it]!='---': continue
-			if data[it]!='---': 
-				if data[it].startswith('pm'): prefitUncs[ind]['sig'].append([data[it].replace('pm','$\pm$'),data[it+1]])
-				else:
-					for k in range(1,len(data[it])):
-						if not (data[it][k].isdigit() or data[it][k]=='.'): 
-							up = data[it][:k]
-							dn = data[it][k:]
-					prefitUncs[ind]['sig'].append(['$^{'+up+'}_{'+dn+'}$',data[it+1]])
-			else: prefitUncs[ind]['sig'].append([data[it].replace('---','-'),''])	
-	else: lowerBy+=1
-	if prefitlines[ind+topInd-lowerBy].startswith('top'): 
-		data = prefitlines[ind+topInd-lowerBy].strip().split()
-		prefitUncs[ind]['top'] = []
-		for it in range(1,len(data)): 
-			if '(s)' in data[it] or '(r)' in data[it]: continue
-			if it==len(data)-1 and data[it]!='---': continue
-			if data[it]!='---': 
-				if data[it].startswith('pm'): prefitUncs[ind]['top'].append([data[it].replace('pm','$\pm$'),data[it+1]])
-				else:
-					for k in range(1,len(data[it])):
-						if not (data[it][k].isdigit() or data[it][k]=='.'): 
-							up = data[it][:k]
-							dn = data[it][k:]
-					prefitUncs[ind]['top'].append(['$^{'+up+'}_{'+dn+'}$',data[it+1]])
-			else: prefitUncs[ind]['top'].append([data[it].replace('---','-'),''])
+	procInd = 0
+	for proc in procs:
+		procInd+=1
+		if prefitlines[ind+procInd-lowerBy].startswith(proc): 
+			data = prefitlines[ind+procInd-lowerBy].strip().split()
+			prefitUncs[ind][proc] = []
+			for it in range(1,len(data)): 
+				if '(s)' in data[it] or '(r)' in data[it]: continue
+				if it==len(data)-1 and data[it]!='---': continue
+				if data[it]!='---': 
+					if data[it].startswith('pm'): prefitUncs[ind][proc].append([data[it].replace('pm','$\pm$'),data[it+1]])
+					else:
+						for k in range(1,len(data[it])):
+							if not (data[it][k].isdigit() or data[it][k]=='.'): 
+								up = data[it][:k]
+								dn = data[it][k:]
+						prefitUncs[ind][proc].append(['$^{'+up+'}_{'+dn+'}$',data[it+1]])
+				else: prefitUncs[ind][proc].append([data[it].replace('---','-'),''])
+		else: lowerBy+=1
 
 nCat = 1
 for ind in obsIndexes:
@@ -175,23 +136,25 @@ for ind in obsIndexes:
 	print "\\topcaption{Pre-fit uncertainties in the",
 	if "isE" in observables[obsIndexes.index(ind)]: print "electron channel with",
 	if "isM" in observables[obsIndexes.index(ind)]: print "muon channel with",
-	if "nW0" in observables[obsIndexes.index(ind)]: print "0 W tag and",
-	if "nW1p" in observables[obsIndexes.index(ind)]: print "1 or more W tag and",
+	if "nT0" in observables[obsIndexes.index(ind)]: print "0 top tag,",
+	if "nT1p" in observables[obsIndexes.index(ind)]: print "1 or more top tag,",
+	if "nW0" in observables[obsIndexes.index(ind)]: print "0 W tag, and",
+	if "nW1p" in observables[obsIndexes.index(ind)]: print "1 or more W tag, and",
 	if "nB0" in observables[obsIndexes.index(ind)]: print "0 b tag.}"
 	if "nB1" in observables[obsIndexes.index(ind)]: print "1 b tag.}"
-	if "nB2" in observables[obsIndexes.index(ind)]: print "2 b tag.}"
-	if "nB3p" in observables[obsIndexes.index(ind)]: print "3 or more b tag.}"
+	if "nB2p" in observables[obsIndexes.index(ind)]: print "2 or more b tag.}"
 	print "\\begin{tabular}{|c||c|c|c|c|}"
 	print "\\hline"
-	print "Nuisance Parameter & TTM800 & TOP & EWK & QCD \\\\"
+	print "Nuisance Parameter & X53X53800LH & TOP & EWK & QCD \\\\"
 	print "\\hline"
 	for nui in nuisNam:
 		i = prefitUncs[ind]['main'].index([nui,'(gauss)'])
-		if prefitUncs[ind]['sig'][i][0]=='-' and prefitUncs[ind]['top'][i][0]=='-' and prefitUncs[ind]['ewk'][i][0]=='-': continue
+		if prefitUncs[ind]['sig'][i][0]=='-' and prefitUncs[ind]['top'][i][0]=='-': continue
 		print nuisNamPlot[nuisNam.index(nui)]+' (gauss)'+' & ',
 		print prefitUncs[ind]['sig'][i][0]+' '+prefitUncs[ind]['sig'][i][1]+' & ',
 		print prefitUncs[ind]['top'][i][0]+' '+prefitUncs[ind]['top'][i][1]+' & ',
-		print prefitUncs[ind]['ewk'][i][0]+' '+prefitUncs[ind]['ewk'][i][1]+' & ',
+		try: print prefitUncs[ind]['ewk'][i][0]+' '+prefitUncs[ind]['ewk'][i][1]+' & ',
+		except: print '-  & ',
 		try: print prefitUncs[ind]['qcd'][i][0]+' '+prefitUncs[ind]['qcd'][i][1]+' \\\\'
 		except: print '- \\\\'
 	print "\\hline"

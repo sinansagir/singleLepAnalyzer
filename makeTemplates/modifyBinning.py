@@ -29,13 +29,14 @@ start_time = time.time()
 # -- Use "removalKeys" to remove specific systematics from the output file.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-iPlot='NBJetsNoSF'
+iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/kinematics_CR_2016_11_19_wJSF_minMlbselect/'+cutString
+templateDir = os.getcwd()+'/kinematics_PS_2016_11_26/'+cutString
 combinefile = 'templates_'+iPlot+'_36p0fb.root'
 
-rebinCombine = True #else rebins theta templates
+quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
+rebinCombine = False #else rebins theta templates
 doStatShapes = True
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
@@ -203,7 +204,7 @@ for rfile in rfiles:
 					for bkg in bkgProcList:
 						val = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)
 						if val==0:
-							print "WARNING: "+bkg+" has zero content in "+chn+" channel and bin#"+str(ibin)+", is this what you expect??? I will not assign stat shape shifts for this proc and chn!!!"
+							if not quiet: print "WARNING: "+bkg+" has zero content in "+chn+" channel and bin#"+str(ibin)+", is this what you expect??? I will not assign stat shape shifts for this proc and chn!!!"
 							continue
 						error = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinError(ibin)
 						err_up_name = rebinnedHists[chnHistName.replace(dataName,bkg)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+bkg+"_bin_%iUp" % ibin
@@ -214,7 +215,7 @@ for rfile in rfiles:
 						rebinnedHists[err_dn_name].SetBinContent(ibin, val - error)
 						if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
 						elif val-error==0:
-							print "WARNING: "+bkg+" has zero down shift in "+chn+" channel and bin#"+str(ibin)+" (1 event). Setting down shift to (bin content)*0.001"
+							if not quiet: print "WARNING: "+bkg+" has zero down shift in "+chn+" channel and bin#"+str(ibin)+" (1 event). Setting down shift to (bin content)*0.001"
 							rebinnedHists[err_dn_name].SetBinContent(ibin, val*0.001)
 						rebinnedHists[err_up_name].Write()
 						rebinnedHists[err_dn_name].Write()
@@ -225,7 +226,7 @@ for rfile in rfiles:
 						if rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)>val: 
 							val = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)
 							dominantBkgProc = bkg
-					if val==0: print "WARNING: The most dominant bkg proc "+dominantBkgProc+" has zero content in "+chn+" channel and bin#"+str(ibin)+". Something is wrong!!!"
+					if val==0 and not quiet: print "WARNING: The most dominant bkg proc "+dominantBkgProc+" has zero content in "+chn+" channel and bin#"+str(ibin)+". Something is wrong!!!"
 					error = rebinnedHists['chnTotBkgHist'].GetBinError(ibin)
 					err_up_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iUp" % ibin
 					err_dn_name = rebinnedHists[chnHistName.replace(dataName,dominantBkgProc)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+dominantBkgProc+"_bin_%iDown" % ibin
@@ -242,7 +243,7 @@ for rfile in rfiles:
 					if 'right' in sig: sigNameNoMass = sigName+'right'
 					val = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinContent(ibin)
 					if val==0: #This is not a sensitive bin, so no need for stat shape??
-						print "WARNING: "+sig+" has zero content in "+chn+" channel and bin#"+str(ibin)+". I won't assign shape shifts for this bin!!!"
+						if not quiet: print "WARNING: "+sig+" has zero content in "+chn+" channel and bin#"+str(ibin)+". I won't assign shape shifts for this bin!!!"
 						continue
 					error = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinError(ibin)
 					err_up_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iUp" % ibin

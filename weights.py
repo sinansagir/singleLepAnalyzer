@@ -2,6 +2,8 @@
 
 #targetlumi = 12892. # 1/pb
 targetlumi = 36000. # 1/pb
+#targetlumi = 36418. # 1/pb
+#targetlumi = 36459. # 1/pb --> for rereco that will come
 
 BR={}
 BR['BW'] = 0.5
@@ -360,6 +362,11 @@ xsec['TbtWQ2D'] = xsec['TbtW']
 
 # Calculate lumi normalization weights
 weight = {}
-for sample in nRun.keys(): 
-	if 'BBM' not in sample and 'TTM' not in sample: weight[sample] = (targetlumi*xsec[sample]) / (nRun[sample])
+for sample in sorted(nRun.keys()): 
+	if 'BBM' not in sample and 'TTM' not in sample: 
+		weight[sample] = (targetlumi*xsec[sample]) / (nRun[sample])
+		#print sample, (xsec[sample]) / (nRun[sample])
 	else: weight[sample] = (targetlumi*BR[sample[:2]+sample[-4:]]*xsec[sample[:-4]]) / (nRun[sample])
+# Samples for Jet reweighting (to be able to run w/ and w/o JSF together!):
+for sample in sorted(nRun.keys()):
+	if 'QCDht' in sample or 'WJetsMG' in sample: weight[sample+'JSF'] = weight[sample]

@@ -11,21 +11,21 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=33.6 #for plots
+lumi=36 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='PS' #SR,TTCR,WJCR
-isCategorized=False
+region='WJCR' #PS,SR,TTCR,WJCR
+isCategorized=True
 iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
-if region=='SR': pfix='templates_'+iPlot
-elif region=='WJCR': pfix='wjets_'+iPlot
-elif region=='TTCR': pfix='ttbar_'+iPlot
-if not isCategorized: pfix='kinematics_'+region
-templateDir=os.getcwd()+'/'+pfix+'_2016_11_15_wJSF/'+cutString+'/'
+if region=='SR': pfix='templates_'
+elif region=='WJCR': pfix='wjets_'
+elif region=='TTCR': pfix='ttbar_'
+if not isCategorized: pfix='kinematics_'+region+'_'
+templateDir=os.getcwd()+'/'+pfix+'2016_11_18_wJSF_minMlbselect/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p25' #post for ROOT file names
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig1='X53X53M800left' #  choose the 1st signal to plot
@@ -33,6 +33,7 @@ sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
 sig2='X53X53M1100right' #  choose the 2nd signal to plot
 sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
 scaleSignals = False
+sigScaleFact = -1 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 bkgProcList = ['top','ewk','qcd']
@@ -40,18 +41,20 @@ if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
-systematicList = ['pileup','jec','jer','btag','tau21','mistag','trigeff','jsf','muRFcorrdNew','pdfNew']
+systematicList = ['pileup','jec','jer','tau21','toppt','topsf','jsf','muRFcorrdNew','pdfNew']#,'btag','mistag','trigeff'
 doAllSys = True
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
 addCRsys = False
-doNormByBinWidth=False
+doNormByBinWidth=True
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
-yLog  = False
+yLog  = True
 doRealPull = False
 if doRealPull: doOneBand=False
+compareShapes = False
+if compareShapes: blind,yLog=True,False
 
 isEMlist =['E','M']
 if region=='SR': nttaglist=['0','1p']
@@ -63,8 +66,8 @@ else: nbtaglist=['1','2p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['1p']
-	if region=='WJCR': nbtaglist = ['0']
+	nbtaglist = ['0p','1p']
+	if region=='CR': nbtaglist = ['0','0p','1p']
 njetslist = ['4p']
 if region=='PS': njetslist = ['3p']
 if iPlot=='YLD':
@@ -104,12 +107,13 @@ def formatUpperHist(histogram):
 		histogram.GetYaxis().SetTitleSize(0.055)
 		histogram.GetYaxis().SetTitleOffset(1.15)
 		histogram.GetXaxis().SetNdivisions(506)
+		if 'YLD' in iPlot: histogram.GetXaxis().LabelsOption("u")
 	else:
 		histogram.GetYaxis().SetLabelSize(0.07)
 		histogram.GetYaxis().SetTitleSize(0.08)
 		histogram.GetYaxis().SetTitleOffset(.71)
 
-	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,jets)] (GeV)")
+	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,j)], j#neqb [GeV]")
 	histogram.GetYaxis().CenterTitle()
 	histogram.SetMinimum(0.000101)
 	if not yLog: 
@@ -151,8 +155,11 @@ for tag in tagList:
 		catStr='is'+isEM+'_'+tagStr
 		histPrefix+=catStr
 		print histPrefix
+		totBkg = 0.
 		for proc in bkgProcList: 
-			try: bkghists[proc+catStr] = RFile1.Get(histPrefix+'__'+proc).Clone()
+			try: 
+				bkghists[proc+catStr] = RFile1.Get(histPrefix+'__'+proc).Clone()
+				totBkg += bkghists[proc+catStr].Integral()
 			except:
 				print "There is no QCD!!!!!!!!"
 				print "Skipping QCD....."
@@ -231,6 +238,9 @@ for tag in tagList:
 		if scaleFact2==0: scaleFact2=int(bkgHT.GetMaximum()/hsig2.GetMaximum())
 		if scaleFact1==0: scaleFact1=1
 		if scaleFact2==0: scaleFact2=1
+		if sigScaleFact>0:
+			scaleFact1=sigScaleFact
+			scaleFact2=sigScaleFact
 		if not scaleSignals:
 			scaleFact1=1
 			scaleFact2=1
@@ -246,7 +256,10 @@ for tag in tagList:
 		except: pass
 
 		stackbkgHT = THStack("stackbkgHT","")
-		for proc in bkgProcList:
+		bkgProcListNew = bkgProcList[:]
+		if region=='WJCR':
+			bkgProcListNew[bkgProcList.index("top")],bkgProcListNew[bkgProcList.index("ewk")]=bkgProcList[bkgProcList.index("ewk")],bkgProcList[bkgProcList.index("top")]
+		for proc in bkgProcListNew:
 			try: 
 				if drawQCD or proc!='qcd': stackbkgHT.Add(bkghists[proc+catStr])
 			except: pass
@@ -308,6 +321,9 @@ for tag in tagList:
 		formatUpperHist(hData)
 		uPad.cd()
 		hData.SetTitle("")
+		if compareShapes: 
+			hsig1.Scale(totBkg/hsig1.Integral())
+			hsig2.Scale(totBkg/hsig2.Integral())
 		if not blind: hData.Draw("E1 X0")
 		if blind: 
 			hsig1.SetMinimum(0.015)
@@ -345,8 +361,8 @@ for tag in tagList:
 			if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' j'
 			else: tagString+=tag[3]+' j'
 		if tagString.endswith(', '): tagString = tagString[:-2]
-		chLatex.DrawLatex(0.26, 0.84, flvString)
-		chLatex.DrawLatex(0.26, 0.78, tagString)
+		chLatex.DrawLatex(0.28, 0.84, flvString)
+		chLatex.DrawLatex(0.28, 0.78, tagString)
 
 		if drawQCD: leg = TLegend(0.45,0.52,0.95,0.87)
 		if not drawQCD or blind: leg = TLegend(0.45,0.64,0.95,0.89)
@@ -369,16 +385,12 @@ for tag in tagList:
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
 			try: leg.AddEntry(bkghists['ewk'+catStr],"EWK","f")
 			except: pass
+			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+			try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
+			except: pass
 			if not blind: 
-				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
-				try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
-				except: pass
 				leg.AddEntry(0, "", "")
 				leg.AddEntry(hData,"DATA")
-			else:
-				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
-				try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
-				except: pass
 				
 		if not drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
@@ -523,6 +535,7 @@ for tag in tagList:
 		if doNormByBinWidth: savePrefix+='_NBBW'
 		if yLog: savePrefix+='_logy'
 		if blind: savePrefix+='_blind'
+		if compareShapes: savePrefix+='_shp'
 
 		if doOneBand:
 			c1.SaveAs(savePrefix+"totBand.pdf")
@@ -543,10 +556,12 @@ for tag in tagList:
 	# Making plots for e+jets/mu+jets combined #
 	histPrefixE = iPlot+'_'+lumiInTemplates+'fb_isE_'+tagStr
 	histPrefixM = iPlot+'_'+lumiInTemplates+'fb_isM_'+tagStr
+	totBkgMerged = 0.
 	for proc in bkgProcList:
 		try: 
 			bkghistsmerged[proc+'isL'+tagStr] = RFile1.Get(histPrefixE+'__'+proc).Clone()
 			bkghistsmerged[proc+'isL'+tagStr].Add(RFile1.Get(histPrefixM+'__'+proc))
+			totBkgMerged += bkghistsmerged[proc+'isL'+tagStr].Integral()
 		except:pass
 	hDatamerged = RFile1.Get(histPrefixE+'__DATA').Clone()
 	hsig1merged = RFile1.Get(histPrefixE+'__sig').Clone(histPrefixE+'__sig1merged')
@@ -623,6 +638,9 @@ for tag in tagList:
 	if scaleFact2merged==0: scaleFact2merged=int(bkgHTmerged.GetMaximum()/hsig2merged.GetMaximum())
 	if scaleFact1merged==0: scaleFact1merged=1
 	if scaleFact2merged==0: scaleFact2merged=1
+	if sigScaleFact>0:
+		scaleFact1merged=sigScaleFact
+		scaleFact2merged=sigScaleFact
 	if not scaleSignals:
 		scaleFact1merged=1
 		scaleFact2merged=1
@@ -634,7 +652,10 @@ for tag in tagList:
 	except: pass
 
 	stackbkgHTmerged = THStack("stackbkgHTmerged","")
-	for proc in bkgProcList:
+	bkgProcListNew = bkgProcList[:]
+	if region=='WJCR':
+		bkgProcListNew[bkgProcList.index("top")],bkgProcListNew[bkgProcList.index("ewk")]=bkgProcList[bkgProcList.index("ewk")],bkgProcList[bkgProcList.index("top")]
+	for proc in bkgProcListNew:
 		try: 
 			if drawQCDmerged or proc!='qcd': stackbkgHTmerged.Add(bkghistsmerged[proc+'isL'+tagStr])
 		except: pass
@@ -690,6 +711,9 @@ for tag in tagList:
 	uPad.cd()
 	hDatamerged.SetTitle("")
 	stackbkgHTmerged.SetTitle("")
+	if compareShapes: 
+		hsig1merged.Scale(totBkgMerged/hsig1merged.Integral())
+		hsig2merged.Scale(totBkgMerged/hsig2merged.Integral())
 	if not blind: hDatamerged.Draw("E1 X0")
 	if blind: 
 		hsig1merged.SetMinimum(0.015)
@@ -725,8 +749,8 @@ for tag in tagList:
 		if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' j'
 		else: tagString+=tag[3]+' j'
 	if tagString.endswith(', '): tagString = tagString[:-2]
-	chLatexmerged.DrawLatex(0.26, 0.85, flvString)
-	chLatexmerged.DrawLatex(0.26, 0.78, tagString)
+	chLatexmerged.DrawLatex(0.28, 0.85, flvString)
+	chLatexmerged.DrawLatex(0.28, 0.78, tagString)
 
 	if drawQCDmerged: legmerged = TLegend(0.45,0.52,0.95,0.87)
 	if not drawQCDmerged or blind: legmerged = TLegend(0.45,0.64,0.95,0.89)
@@ -900,6 +924,7 @@ for tag in tagList:
 	if doNormByBinWidth: savePrefixmerged+='_NBBW'
 	if yLog: savePrefixmerged+='_logy'
 	if blind: savePrefixmerged+='_blind'
+	if compareShapes: savePrefixmerged+='_shp'
 
 	if doOneBand: 
 		c1merged.SaveAs(savePrefixmerged+"totBand.pdf")

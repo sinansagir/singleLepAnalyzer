@@ -20,11 +20,11 @@ if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='ST_2016_11_13_wJSF'
+pfix+='2016_11_18_wJSF_minMlbselect'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
-scaleLumi = True
+scaleLumi = False
 lumiScaleCoeff = 33590./36000.
 doAllSys = True
 doQ2sys = True
@@ -32,17 +32,20 @@ if not doAllSys: doQ2sys = False
 addCRsys = False
 systematicList = ['pileup','jec','jer','btag','mistag','tau21','topsf','toppt','muR','muF','muRFcorrd','jsf','trigeff']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
-		       
+
+doJetRwt= 0
 bkgGrupList = ['top','ewk','qcd']
 bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets']  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500'] 
+if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']] 
 bkgProcs['ZJets']  = ['DY']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
 bkgProcs['TTV']    = ['TTWl','TTWq','TTZl','TTZq']
 bkgProcs['TTJets'] = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 bkgProcs['T']      = ['Tt','Tbt','Ts','TtW','TbtW']
 bkgProcs['qcd'] = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']] 
 bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['TTV']+bkgProcs['T']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV'] 
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
@@ -78,8 +81,8 @@ else: nbtaglist=['1','2p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['1p']
-	if region=='WJCR': nbtaglist = ['0']
+	nbtaglist = ['0p','1p']
+	if region=='CR': nbtaglist = ['0','0p','1p']
 njetslist=['4p']
 if region=='PS': njetslist=['3p']
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
@@ -178,7 +181,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					for proc in bkgProcList+bkgGrupList:
 						hists[proc+i+'pdf'+str(pdfInd)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkgProcs[proc][0]].Clone(histoPrefix+'__'+proc+'__pdf'+str(pdfInd))
 						for bkg in bkgProcs[proc]:
-							if bkg!=bkgProcs[proc][0]: hists[proc+i+syst+ud].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
+							if bkg!=bkgProcs[proc][0]: hists[proc+i+'pdf'+str(pdfInd)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
 					for signal in sigList:
 						hists[signal+i+'pdf'+str(pdfInd)] = sighists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__pdf'+str(pdfInd))
 						if doBRScan: hists[signal+i+'pdf'+str(pdfInd)].Scale(BRs[decays[0][:2]][BRind]*BRs[decays[0][2:]][BRind]/(BR[decays[0][:2]]*BR[decays[0][2:]]))
@@ -207,8 +210,8 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			if doQ2sys:
 				for proc in bkgProcList+bkgGrupList:
 					if proc+'_q2up' not in bkgProcs.keys(): continue
-					yieldTable[histoPrefix+'q2Up'][q2up] = hists[proc+i+'q2Up'].Integral()
-					yieldTable[histoPrefix+'q2Down'][q2up] = hists[proc+i+'q2Down'].Integral()
+					yieldTable[histoPrefix+'q2Up'][proc] = hists[proc+i+'q2Up'].Integral()
+					yieldTable[histoPrefix+'q2Down'][proc] = hists[proc+i+'q2Down'].Integral()
 
 			#prepare yield table
 			for proc in bkgGrupList+bkgProcList+sigList+['data']: yieldTable[histoPrefix][proc] = hists[proc+i].Integral()
@@ -260,6 +263,10 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 								hists[proc+i+syst+'Up'].Write()
 								hists[proc+i+syst+'Down'].Write()
 							for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
+						if doQ2sys:
+							if proc+'_q2up' not in bkgProcs.keys(): continue
+							hists[proc+i+'q2Up'].Write()
+							hists[proc+i+'q2Down'].Write()
 				hists['data'+i].Write()
 			thetaRfile.Close()
 
@@ -543,7 +550,7 @@ for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
     if 'bkghists' not in file: continue
     if not os.path.exists(file.replace('bkghists','datahists')): continue
     if not os.path.exists(file.replace('bkghists','sighists')): continue
-    iPlotList.append(file.split('_')[-1][:-2])
+    iPlotList.append(file.split('/')[-1].replace('bkghists_','')[:-2])
 
 print "WORKING DIR:",outDir
 for iPlot in iPlotList:
@@ -560,6 +567,15 @@ for iPlot in iPlotList:
 	if scaleLumi:
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
+
+ 	#Negative Bin Correction
+ 	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
+ 	for sig in sighists.keys(): negBinCorrection(sighists[sig])
+
+ 	#OverFlow Correction
+ 	for data in datahists.keys(): overflow(datahists[data])
+ 	for bkg in bkghists.keys():   overflow(bkghists[bkg])
+ 	for sig in sighists.keys():   overflow(sighists[sig])
 
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
 	makeThetaCats(datahists,sighists,bkghists,iPlot)

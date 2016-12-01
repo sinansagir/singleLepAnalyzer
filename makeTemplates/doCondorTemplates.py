@@ -13,7 +13,8 @@ if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_'+date+'_wJSF'#+'_'+time
+pfix+='_'+date#+'_'+time
+#pfix+='_2016_11_19_wJSF_STselect'#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 	        'MTlmet',
@@ -38,6 +39,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 			'Jet6Pt',
 			'MET',
 			'NJets',
+			'NBJetsNoSF',
 			'NBJets',
 			'NWJets',
 			'NTJets',
@@ -55,6 +57,8 @@ iPlotList = [#distribution name as defined in "doHists.py"
 			'Bjet1Pt',
 			'Wjet1Pt',
 			'Tjet1Pt',
+			
+# 			'NJets_vs_NBJets',
 
 			'HT',
 			'ST',
@@ -98,8 +102,8 @@ else: nbtaglist = ['1','2p']
 if not categorize: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['1p']
-	if region=='WJCR': nbtaglist = ['0']
+	nbtaglist = ['0p','1p']
+	if region=='CR': nbtaglist = ['0','0p','1p']
 njetslist = ['4p']
 if region=='PS': njetslist = ['3p']
 
