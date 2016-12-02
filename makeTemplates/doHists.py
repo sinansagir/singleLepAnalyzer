@@ -174,7 +174,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'BDT':('BDT',linspace(-1, 1, 37).tolist(),';BDT'),
 	'PtRel':('ptRel_lepJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
 	'LeadJetPt':('theJetLeadPt',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}) [GeV]'),
-	'aveBBdr':('aveBBdr',linspace(0, 6, 51).tolist(),';#topbar{#DeltaR(b,b)}'),
+	'aveBBdr':('aveBBdr',linspace(0, 6, 51).tolist(),';#bar{#DeltaR(b,b)}'),
 	'mass_maxJJJpt':('mass_maxJJJpt',linspace(0, 3000, 51).tolist(),';M(jjj) with max[p_{T}(jjj)] [GeV]'),
 	'mass_maxBBmass':('mass_maxBBmass',linspace(0, 1500, 51).tolist(),';max[M(b,b)] [GeV]'),
 	'mass_maxBBpt':('mass_maxBBpt',linspace(0, 1500, 51).tolist(),';M(b,b) with max[p_{T}(bb)] [GeV]'),
@@ -202,6 +202,7 @@ nCats  = len(catList)
 catInd = 1
 for cat in catList:
  	if not runData: break
+ 	if skip(cat[4],cat[3]): continue #DO YOU WANT TO HAVE THIS??
  	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
  	datahists = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
@@ -223,6 +224,7 @@ for cat in catList:
 catInd = 1
 for cat in catList:
  	if not runBkgs: break
+ 	if skip(cat[4],cat[3]): continue #DO YOU WANT TO HAVE THIS??
  	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
  	bkghists  = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
@@ -251,6 +253,7 @@ for cat in catList:
 catInd = 1
 for cat in catList:
  	if not runSigs: break
+ 	if skip(cat[4],cat[3]): continue #DO YOU WANT TO HAVE THIS??
  	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
  	sighists  = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
