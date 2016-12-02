@@ -13,14 +13,14 @@ saveKey=''
 lumiPlot = '36'
 lumiStr = '36p0'
 spin=''#'right'
-discriminant='HT'
+discriminant='ST'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+spin
 stat='0p3'#0.75
 isRebinned='_rebinned_stat'+str(stat).replace('.','p')
-tempKey='all_noBBB'
-limitDir='/user_data/ssagir/HTB_limits_2016/templates_CategoriesWithSys__2016_11_22_0_0_25/'+tempKey+'/'
+tempKey='all'
+limitDir='/user_data/ssagir/HTB_limits_2016/templates_2016_11_26_moreToys/'+tempKey+'/'
 cutString=''
-LH700file='/templates_'+discriminant+'_HTBM180'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
+LH700file='/templates_'+discriminant+'_HTBM400'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
 
 parVals=pickle.load(open(limitDir+cutString+LH700file,'rb'))
 
@@ -181,9 +181,10 @@ gdmmy.GetHistogram().Draw('axis,same')
 c.Modified()
 c.Update()
 
-c.SaveAs('postFitNuis.root')
-c.SaveAs('postFitNuis.pdf')
-c.SaveAs('postFitNuis.png')
-c.SaveAs('postFitNuis.C')
+#c.SaveAs('postFitNuis.root')
+c.SaveAs('postFitNuis_'+discriminant+'.pdf')
+c.SaveAs('postFitNuis_'+discriminant+'.png')
+c.SaveAs('postFitNuis_'+discriminant+'.eps')
+#c.SaveAs('postFitNuis.C')
 
 

@@ -77,6 +77,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		weighttopptDownStr  = 'topPtWeight * '+weightStr 
 		weightjsfUpStr      = weightStr.replace('JetSF_80X','1')
 		weightjsfDownStr    = weightStr.replace('JetSF_80X','JetSF_80X*JetSF_80X')
+	#weightStr = '1'
+	#cut += ' && MCWeight_singleLepCalc < 0'
 
 	# For N-1 tagging cuts
 	pruned_massvar = 'theJetAK8PrunedMassWtagUncerts_JetSubCalc_PtOrdered'

@@ -18,7 +18,7 @@ def skip(njets,nbjets): # function to skip certain categories in final categoriz
  	if nbjets=='3':
  		if njets=='3' or njets=='4': return True
  	if nbjets=='3p':
- 		if njets!='4': return True
+ 		if njets=='3': return True
  	if nbjets=='4p':
  		if njets=='3' or njets=='4': return True
  	return False

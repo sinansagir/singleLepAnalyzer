@@ -10,13 +10,12 @@ setTDRStyle()
 
 blind=False
 saveKey=''#'_test'
-signal = 'HTB'
+signal = 'X53'
 lumiPlot = '36'
 lumiStr = '36p0'
-discriminant='YLD'
 
-mass_str = ['180','200','250','300','350','400','450','500']
-theory_xsec = [0.919,0.783951,0.4982015,0.324766,0.2184385,0.148574,0.104141,0.0735225][:len(mass_str)]#pb
+mass_str = ['700','800','900','1000','1100','1200','1300','1400','1500','1600']
+theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391][:len(mass_str)]#pb
 scale_up = [1.9,1.9,1.9,1.8,1.8,1.8,1.7,1.8,1.7,1.6,1.7,1.7][:len(mass_str)]#%
 scale_dn = [1.9,1.8,1.7,1.6,1.6,1.5,1.5,1.5,1.5,1.5,1.5,1.5][:len(mass_str)]#%
 pdf_up   = [3.7,3.9,4.1,4.4,4.7,5.1,5.6,6.1,6.7,7.0,8.0,9.0][:len(mass_str)]#%
@@ -33,8 +32,8 @@ exp68L=array('d',[0 for i in range(len(mass))])
 exp95H=array('d',[0 for i in range(len(mass))])
 exp95L=array('d',[0 for i in range(len(mass))])
 
-theory_xsec_up = [math.sqrt(scale**2+pdf**2)*xsec*0/100 for xsec,scale,pdf in zip(theory_xsec,scale_up,pdf_up)]
-theory_xsec_dn = [math.sqrt(scale**2+pdf**2)*xsec*0/100 for xsec,scale,pdf in zip(theory_xsec,scale_dn,pdf_dn)]
+theory_xsec_up = [math.sqrt(scale**2+pdf**2)*xsec/100 for xsec,scale,pdf in zip(theory_xsec,scale_up,pdf_up)]
+theory_xsec_dn = [math.sqrt(scale**2+pdf**2)*xsec/100 for xsec,scale,pdf in zip(theory_xsec,scale_dn,pdf_dn)]
 
 theory_xsec_v    = TVectorD(len(mass),array('d',theory_xsec))
 theory_xsec_up_v = TVectorD(len(mass),array('d',theory_xsec_up))
@@ -65,26 +64,26 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     print
     print 'mass'.ljust(ljust_i), 'observed'.ljust(ljust_i), 'expected'.ljust(ljust_i), '-2 Sigma'.ljust(ljust_i), '-1 Sigma'.ljust(ljust_i), '+1 Sigma'.ljust(ljust_i), '+2 Sigma'.ljust(ljust_i)
     
-    limExpected = 180
-    limObserved = 180
+    limExpected = 700
+    limObserved = 700
     for i in range(len(mass)):
         lims = {}
         
         try:
-        	if blind:fobs = open(limitDir+cutString+limitFile.replace(signal+'M180',signal+'M'+mass_str[i]), 'rU')
-        	if not blind: fobs = open(limitDir+cutString+limitFile.replace(signal+'M180',signal+'M'+mass_str[i]).replace('expected','observed'), 'rU')
+        	if blind: fobs = open(limitDir+cutString+limitFile.replace(signal+signal+'M700',signal+signal+'M'+mass_str[i]), 'rU')
+        	if not blind: fobs = open(limitDir+cutString+limitFile.replace(signal+signal+'M700',signal+signal+'M'+mass_str[i]).replace('expected','observed'), 'rU')
         	linesObs = fobs.readlines()
         	fobs.close()
         	
-        	fexp = open(limitDir+cutString+limitFile.replace(signal+'M180',signal+'M'+mass_str[i]), 'rU')
+        	fexp = open(limitDir+cutString+limitFile.replace(signal+signal+'M700',signal+signal+'M'+mass_str[i]), 'rU')
         	linesExp = fexp.readlines()
         	fexp.close()
         except: 
         	print "SKIPPING SIGNAL: "+mass_str[i]
         	continue
         
-        lims[-1] = float(linesObs[1].strip().split()[1])#/10
-        obs[i] = float(linesObs[1].strip().split()[1])#/10
+        lims[-1] = float(linesObs[1].strip().split()[1])
+        obs[i] = float(linesObs[1].strip().split()[1])
         obserr[i] = 0
         
         lims[.5] = float(linesExp[1].strip().split()[1])
@@ -113,10 +112,10 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
         round_i = 5
         print str(mass[i]).ljust(ljust_i), str(round(lims[-1],round_i)).ljust(ljust_i), str(round(lims[.5],round_i)).ljust(ljust_i), str(round(lims[.025],round_i)).ljust(ljust_i), str(round(lims[.16],round_i)).ljust(ljust_i), str(round(lims[.84],round_i)).ljust(ljust_i), str(round(lims[.975],round_i)).ljust(ljust_i)
     print
-    signExp = "= "
-    signObs = "= "
-    if limExpected==180: signExp = "< "
-    if limObserved==180: signObs = "< "
+    signExp = "="
+    signObs = "="
+    if limExpected==700: signExp = "<"
+    if limObserved==700: signObs = "<"
     print "Expected lower limit "+signExp,int(round(limExpected)),"GeV"
     print "Observed lower limit "+signObs,int(round(limObserved)),"GeV"
     print
@@ -153,16 +152,13 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     c4.SetLogy()
 
     expected95.Draw("a3")
-    expected95.GetYaxis().SetRangeUser(0.301+.00001,100.45)
+    expected95.GetYaxis().SetRangeUser(.001+.00001,1.45)
     #expected95.GetYaxis().SetRangeUser(.008+.00001,200.45)
-    expected95.GetXaxis().SetRangeUser(180,500)
+    expected95.GetXaxis().SetRangeUser(mass[0],mass[-1])
     if tempKey=='nB0': expected95.GetYaxis().SetRangeUser(.008+.00001,25.45)   
     if signal=='X53':
     	expected95.GetXaxis().SetTitle("X_{5/3} mass [GeV]")
     	expected95.GetYaxis().SetTitle("#sigma(X_{5/3}#bar{X}_{5/3})[pb] - "+chiral.replace('left','LH').replace('right','RH'))
-    if signal=='HTB':
-    	expected95.GetXaxis().SetTitle("H^{#pm} mass [GeV]")
-    	expected95.GetYaxis().SetTitle("#sigma#times(H^{#pm}#rightarrowtb)[pb]")
     else:
 		expected95.GetXaxis().SetTitle(signal+" mass [GeV]")
 		expected95.GetYaxis().SetTitle("#sigma ("+signal+"#bar{"+signal+"})[pb]")
@@ -174,11 +170,11 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     theory_xsec_gr.SetLineColor(2)
     theory_xsec_gr.SetLineStyle(1)
     theory_xsec_gr.SetLineWidth(2)
-    #theory_xsec_gr.Draw("3same") 
+    theory_xsec_gr.Draw("3same") 
     theory.SetLineColor(2)
     theory.SetLineStyle(1)
     theory.SetLineWidth(2)
-    #theory.Draw("same")                                                             
+    theory.Draw("same")                                                             
         
     latex2 = TLatex()
     latex2.SetNDC()
@@ -201,7 +197,7 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     legend.AddEntry(expected68, '#pm 1#sigma expected', "f")
     legend.AddEntry(expected, '95% CL expected', "l")
     legend.AddEntry(expected95, '#pm 2#sigma expected', "f")
-    #legend.AddEntry(theory_xsec_gr, 'Signal Cross Section', 'lf')
+    legend.AddEntry(theory_xsec_gr, 'Signal Cross Section', 'lf')
 
     legend.SetShadowColor(0)
     legend.SetFillStyle(0)
@@ -216,9 +212,11 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     folder = '.'
     outDir=folder+'/'+limitDir.split('/')[-3]+'plots'
     if not os.path.exists(outDir): os.system('mkdir '+outDir)
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.eps')
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.pdf')
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.png')
+    plotName = 'LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey
+    if blind: plotName+='_blind'
+    c4.SaveAs(outDir+'/'+plotName+'.eps')
+    c4.SaveAs(outDir+'/'+plotName+'.pdf')
+    c4.SaveAs(outDir+'/'+plotName+'.png')
     return int(round(limExpected)), int(round(limObserved))
 
 doBRScan = False
@@ -229,42 +227,46 @@ BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-#tempKeys = ['subset']#,'all_lumiFlat','isSR','isCR','isE','isM']
-# tempKeys = ['all','isSR','isCR','isE','isM','nB2_nJ4','nB2_nJ5','nB2_nJ6p','nB3_nJ5','nB3_nJ6p','nB3p_nJ4','nB4p_nJ5','nB4p_nJ6p']
-# tempKeys = [item+'_noBBB' for item in tempKeys]
-tempKeys = ['nB1_nJ3','nB1_nJ4','nB1_nJ5','nB1_nJ6p',
-		    'nB2p_nJ3','nB2_nJ4','nB2_nJ5','nB2_nJ6p',
-		    'nB3p_nJ4','nB3_nJ5','nB3_nJ6p',
-		    'nB4p_nJ5','nB4p_nJ6p','isCR','isSR','all']
-tempKeys = ['all']
-#tempKeys = ['all_20p_all_nottwjets']#,'all_20p_all','all_20p_all_nott']#,'all','all_ttbarOnly','all_ttbartopOnly','all_ttbartopqcdOnly','all_ttbartopqcdsigOnly']
-cutString=''
+iPlotList=['HT','minMlb']
+tempKeys = ['all']#,'isE','isM','nW0','nW1p','nB1','nB2p','nT0','nT1p']
+cutString=''#'templates_2016_11_18_wJSF_STselect'
 dirs = {
-		'conf1':'templates_2016_11_26_noNegWeightCorr_flatSysts',
+		'STsel':'templates_X53cuts_2016_11_24',
 		}
-dirKeyList = ['conf1']
-binnings = ['0p15','0p2','0p25','0p3']
-binnings = ['0p3_new']
+dirKeyList = ['STsel']
+binnings = ['0p3']
 
-expLims = {}
-obsLims = {}
-for dirKey in dirKeyList:
-	dir = dirs[dirKey]
-	expLims[dirKey] = {}
-	obsLims[dirKey] = {}
-	for binning in binnings:
-		expLims[dirKey][binning] = []
-		obsLims[dirKey][binning] = []
-		for tempKey in tempKeys:
-			for BRind in range(nBRconf):
-				BRconfStr=''
-				if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
-				limitDir='/user_data/ssagir/HTB_limits_2016/'+dir+'/'+tempKey+BRconfStr+'/'
-				limitFile='/limits_templates_'+discriminant+'_'+signal+'M180'+BRconfStr+'_'+str(lumiStr)+'fb_rebinned_stat'+str(binning).replace('.','p')+'_expected.txt'	
-				print limitDir+cutString+limitFile
-				expTemp,obsTemp = PlotLimits(limitDir,limitFile,'',tempKey+BRconfStr)
-				expLims[dirKey][binning].append(expTemp)
-				obsLims[dirKey][binning].append(obsTemp)
+expLimsL = {}
+obsLimsL = {}
+expLimsR = {}
+obsLimsR = {}
+for discriminant in iPlotList:
+	for dirKey in dirKeyList:
+		dir = dirs[dirKey]
+		#cutString=dir
+		expLimsL[dirKey+discriminant] = {}
+		obsLimsL[dirKey+discriminant] = {}
+		expLimsR[dirKey+discriminant] = {}
+		obsLimsR[dirKey+discriminant] = {}
+		for binning in binnings:
+			expLimsL[dirKey+discriminant][binning] = []
+			obsLimsL[dirKey+discriminant][binning] = []
+			expLimsR[dirKey+discriminant][binning] = []
+			obsLimsR[dirKey+discriminant][binning] = []
+			for tempKey in tempKeys:
+				for BRind in range(nBRconf):
+					BRconfStr=''
+					if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
+					limitDir='/user_data/ssagir/HTB_limits_2016/'+dir+'/'+tempKey+BRconfStr+'/'
+					limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M700left'+BRconfStr+'_'+str(lumiStr)+'fb_rebinned_stat'+str(binning).replace('.','p')+'_expected.txt'	
+					print limitDir+cutString+limitFile
+					expTemp,obsTemp = PlotLimits(limitDir,limitFile,'left',tempKey+BRconfStr)
+					expLimsL[dirKey+discriminant][binning].append(expTemp)
+					obsLimsL[dirKey+discriminant][binning].append(obsTemp)
+					limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M700right'+BRconfStr+'_'+str(lumiStr)+'fb_rebinned_stat'+str(binning).replace('.','p')+'_expected.txt'	
+					expTemp,obsTemp = PlotLimits(limitDir,limitFile,'right',tempKey+BRconfStr)
+					expLimsR[dirKey+discriminant][binning].append(expTemp)
+					obsLimsR[dirKey+discriminant][binning].append(obsTemp)
 if doBRScan:
 	print "BRs_bW:",BRs['BW']
 	print "BRs_tH:",BRs['TH']
@@ -276,25 +278,38 @@ if doBRScan:
 # 		print binning
 # 		print "Expected:",expLims[dir][binning]
 # 		print "Observed:",obsLims[dir][binning]
-for dirKey in dirKeyList: print dirKey,
-print
-for ind in range(len(tempKeys)):
-	print "////////////////////////////////"
-	print "Channel Configuration: "+tempKeys[ind]
-	print "////////////////////////////////"
-	for binning in binnings:
-		for dirKey in dirKeyList:
-			print dirKey+'_'+binning,
+for discriminant in iPlotList:
+	print discriminant
+	for dirKey in dirKeyList: print dirKey,
 	print
-	print "Expected:"
-	for binning in binnings:
-		for dirKey in dirKeyList: 
-			print expLims[dirKey][binning][ind],
-	print
-	print "Observed:"
-	for binning in binnings:
-		for dirKey in dirKeyList: 
-			print obsLims[dirKey][binning][ind],
-	print
-
+	for ind in range(len(tempKeys)):
+		print "////////////////////////////////"
+		print "Channel Configuration: "+tempKeys[ind]
+		print "////////////////////////////////"
+		for binning in binnings:
+			for dirKey in dirKeyList:
+				print dirKey+'_'+binning,
+		print
+		print "Expected:"
+		print "LH:",
+		for binning in binnings:
+			for dirKey in dirKeyList: 
+				print expLimsL[dirKey+discriminant][binning][ind],
+		print
+		print "RH:",
+		for binning in binnings:
+			for dirKey in dirKeyList: 
+				print expLimsR[dirKey+discriminant][binning][ind],
+		print
+		print "Observed:"
+		print "LH:",
+		for binning in binnings:
+			for dirKey in dirKeyList: 
+				print obsLimsL[dirKey+discriminant][binning][ind],
+		print 
+		print "RH:",
+		for binning in binnings:
+			for dirKey in dirKeyList: 
+				print obsLimsR[dirKey+discriminant][binning][ind],
+		print
 

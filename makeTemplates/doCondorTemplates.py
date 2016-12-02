@@ -14,7 +14,7 @@ date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_'+date#+'_'+time
+pfix+='_negSignals_'+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 # 			'lepPt',
@@ -29,8 +29,8 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'NJets',
 # 			'NBJets',
 			'HT',
-			'minMlb',
-			'ST',
+# 			'minMlb',
+# 			'ST',
 # 			'BDT',
 # 			'LeadJetPt',
 # 			'aveBBdr',
@@ -52,6 +52,7 @@ njetslist = ['3','4','5','6p']
 if not categorize: 
 	nbtaglist = ['2p']
 	njetslist = ['2p']
+catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
@@ -60,7 +61,7 @@ os.chdir(outDir)
 
 count=0
 for iplot in iPlotList:
-	for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)):
+	for cat in catList:
 		if skip(cat[4],cat[3]): continue #DO YOU WANT TO HAVE THIS??
 		catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
 		print catDir

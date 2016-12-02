@@ -18,17 +18,17 @@ isCategorized=True
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='X53cuts_2016_11_24'
+pfix+='negSignals_2016_12_1'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 33590./36000.
-doAllSys = True
+doAllSys = False
 doQ2sys = True
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','toppt','muR','muF','muRFcorrd','btag','mistag']#,'trigeff']
+systematicList = ['pileup','jec','jer','toppt','muR','muF','muRFcorrd','btag','mistag','trigeff']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgGrupList = ['ttbar','wjets','top','ewk','qcd']
@@ -71,8 +71,10 @@ if not doBRScan: nBRconf=1
 isEMlist =['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['2','3','3p','4p']
-njetslist = ['4','5','6p']
+# nbtaglist = ['2','3','3p','4p']
+# njetslist = ['4','5','6p']
+nbtaglist = ['1','2','2p','3','3p','4p']
+njetslist = ['3','4','5','6p']
 if not isCategorized: 
 	nbtaglist = ['2p']
 	njetslist = ['2p']
@@ -268,7 +270,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		for cat in catList:
 			print "              ... "+cat
 			i=BRconfStr+cat
-			if '_nB2_' in cat or '_nJ4' in cat: postTag = 'isCR_'
+			if '_nB1_' in cat or '_nB2p_' in cat or '_nB2_nJ4' in cat: postTag = 'isCR_'
 			else: postTag = 'isSR_'
 			for signal in sigList:
 				mass = [str(mass) for mass in massList if str(mass) in signal][0]
@@ -561,9 +563,20 @@ for iPlot in iPlotList:
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
 
+	if iPlot=='BDT':
+		for key in bkghists.keys(): 
+			if key.startswith(iPlot+'jecUp') or key.startswith(iPlot+'jecDown'): continue
+			if key.startswith(iPlot+'jerUp') or key.startswith(iPlot+'jerDown'): continue
+			if 'TTJetsPHQ2U' in key or 'TTJetsPHQ2D' in key: continue
+			bkghists[key].Scale(2)
+		for key in sighists.keys(): 
+			if key.startswith(iPlot+'jecUp') or key.startswith(iPlot+'jecDown'): continue
+			if key.startswith(iPlot+'jerUp') or key.startswith(iPlot+'jerDown'): continue
+			sighists[key].Scale(2)
+
  	#Negative Bin Correction
  	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
- 	for sig in sighists.keys(): negBinCorrection(sighists[sig])
+ 	#for sig in sighists.keys(): negBinCorrection(sighists[sig]) #should we do the correction after rebinning? -- SS
 
  	#OverFlow Correction
  	for data in datahists.keys(): overflow(datahists[data])

@@ -16,14 +16,14 @@ lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #SR,PS
 isCategorized=True
-iPlot='minMlb'
+iPlot='YLD'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
 if not isCategorized: pfix='kinematics_'+region
-templateDir=os.getcwd()+'/'+pfix+'_X53_2016_11_24/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_2016_11_26_noNegWeightCorr/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_rebinned_stat0p3_new' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig1='HTBM200' # choose the 1st signal to plot
@@ -55,8 +55,10 @@ if doRealPull: doOneBand=False
 isEMlist =['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['2','3','3p','4p']
-njetslist = ['4','5','6p']
+# nbtaglist = ['2','3','3p','4p']
+# njetslist = ['4','5','6p']
+nbtaglist = ['1','2','2p','3','3p','4p']
+njetslist = ['3','4','5','6p']
 if not isCategorized: 
 	nbtaglist = ['2p']
 	njetslist = ['2p']
@@ -124,7 +126,9 @@ def formatLowerHist(histogram):
 	histogram.GetYaxis().SetTitle('Data/Bkg')
 	histogram.GetYaxis().SetNdivisions(5)
 	if doRealPull: histogram.GetYaxis().SetRangeUser(min(-2.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(2.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
-	else: histogram.GetYaxis().SetRangeUser(0,2.99)
+	else: 
+		if iPlot=='YLD': histogram.GetYaxis().SetRangeUser(0.5,1.5)
+		else: histogram.GetYaxis().SetRangeUser(0,2.99)
 	histogram.GetYaxis().CenterTitle()
 
 RFile1 = TFile(templateDir+tempsig.replace(sig1,sig1))
@@ -151,7 +155,8 @@ for tag in tagList:
 				print "There is no "+proc+"!!!!!!!!"
 				print "Skipping "+proc+"....."
 				pass
-		hData = RFile1.Get(histPrefix+'__DATA').Clone()
+		if blind and iPlot=='YLD': hData = RFile1.Get(histPrefix+'__DATA_blind').Clone()
+		else: hData = RFile1.Get(histPrefix+'__DATA').Clone()
 		hsig1 = RFile1.Get(histPrefix+'__sig').Clone(histPrefix+'__sig1')
 		hsig2 = RFile2.Get(histPrefix+'__sig').Clone(histPrefix+'__sig2')
 		hsig1.Scale(xsec[sig1])
@@ -431,8 +436,12 @@ for tag in tagList:
 			for binNo in range(0,hData.GetNbinsX()+2):
 				if bkgHT.GetBinContent(binNo)!=0:
 					pull.SetBinError(binNo,hData.GetBinError(binNo)/bkgHT.GetBinContent(binNo))
-			pull.SetMaximum(3)
-			pull.SetMinimum(0)
+			if iPlot=='YLD':
+				pull.SetMaximum(1.5)
+				pull.SetMinimum(0.5)
+			else: 
+				pull.SetMaximum(3)
+				pull.SetMinimum(0)
 			pull.SetFillColor(1)
 			pull.SetLineColor(1)
 			formatLowerHist(pull)
@@ -554,10 +563,12 @@ for tag in tagList:
 			bkghistsmerged[proc+'isL'+tagStr] = RFile1.Get(histPrefixE+'__'+proc).Clone()
 			bkghistsmerged[proc+'isL'+tagStr].Add(RFile1.Get(histPrefixM+'__'+proc))
 		except:pass
-	hDatamerged = RFile1.Get(histPrefixE+'__DATA').Clone()
+	if blind and iPlot=='YLD': hDatamerged = RFile1.Get(histPrefixE+'__DATA_blind').Clone()
+	else: hDatamerged = RFile1.Get(histPrefixE+'__DATA').Clone()
 	hsig1merged = RFile1.Get(histPrefixE+'__sig').Clone(histPrefixE+'__sig1merged')
 	hsig2merged = RFile2.Get(histPrefixE+'__sig').Clone(histPrefixE+'__sig2merged')
-	hDatamerged.Add(RFile1.Get(histPrefixM+'__DATA').Clone())
+	if blind and iPlot=='YLD': hDatamerged.Add(RFile1.Get(histPrefixM+'__DATA_blind').Clone())
+	else: hDatamerged.Add(RFile1.Get(histPrefixM+'__DATA').Clone())
 	hsig1merged.Add(RFile1.Get(histPrefixM+'__sig').Clone())
 	hsig2merged.Add(RFile2.Get(histPrefixM+'__sig').Clone())
 	hsig1merged.Scale(xsec[sig1])
@@ -785,7 +796,6 @@ for tag in tagList:
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 		try: legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
 		except: pass
-		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 	legmerged.Draw("same")
 
@@ -823,8 +833,12 @@ for tag in tagList:
 		for binNo in range(0,hDatamerged.GetNbinsX()+2):
 			if bkgHTmerged.GetBinContent(binNo)!=0:
 				pull.SetBinError(binNo,hDatamerged.GetBinError(binNo)/bkgHTmerged.GetBinContent(binNo))
-		pullmerged.SetMaximum(3)
-		pullmerged.SetMinimum(0)
+		if iPlot=='YLD':
+			pullmerged.SetMaximum(1.5)
+			pullmerged.SetMinimum(0.5)
+		else:
+			pullmerged.SetMaximum(3)
+			pullmerged.SetMinimum(0)
 		pullmerged.SetFillColor(1)
 		pullmerged.SetLineColor(1)
 		formatLowerHist(pullmerged)

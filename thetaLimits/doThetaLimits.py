@@ -1,31 +1,53 @@
 import os,sys,fnmatch
 
 templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/cHiggs_2016/makeTemplates/'
-templateDir+='templates_2016_11_23'
+templateDir+='templates_2016_11_26_noNegWeightCorr'
 thetaConfigTemp = os.getcwd()+'/theta_config_template_test.py'
 lumiInFile = '36p0fb'
 
 toFilter0 = ['pdf','muRFdecorrdNew','muRFenv','muR','muF','muRFcorrd'] #always remove in case they are in templates
-#toFilter0+= ['pileup','jec','jer','toppt','jsf','muRFcorrdNew','pdfNew','q2']#,'btag','mistag','trigeff'
+#toFilter0+= ['pileup','jec','jer','toppt','jsf','muRFcorrdNew','pdfNew','q2','trigeff']#,'btag','mistag'
+toFilter0+= ['wjets__muRFcorrdNew','wjets__pdfNew']
 toFilter0 = ['__'+item+'__' for item in toFilter0]
 
+catList = ['nB1_nJ3','nB1_nJ4','nB1_nJ5','nB1_nJ6p',
+		   'nB2p_nJ3','nB2_nJ4','nB2_nJ5','nB2_nJ6p',
+		   'nB3p_nJ4','nB3_nJ5','nB3_nJ6p',
+		   'nB4p_nJ5','nB4p_nJ6p']
+SRcatList=['nB2_nJ5','nB2_nJ6p','nB3p_nJ4','nB3_nJ5','nB3_nJ6p','nB4p_nJ5','nB4p_nJ6p']
+CRcatList=['nB1_nJ3','nB1_nJ4','nB1_nJ5','nB1_nJ6p','nB2p_nJ3','nB2_nJ4']
+		   
 limitConfs = {#'<limit type>':[filter list]
 			  'all':[],
-			  'isE':['isM'], #only electron channel
-			  'isM':['isE'], #only muon channel
-			  'isCR':['isSR'], #only 0 t tag category
-			  'isSR':['isCR'], #only 1p t tag category
-			  'nB2_nJ4':['_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
-			  'nB2_nJ5':['_nB2_nJ4_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
-			  'nB2_nJ6p':['_nB2_nJ4_','_nB2_nJ5_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
-			  'nB3_nJ5':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
-			  'nB3_nJ6p':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
-			  'nB3p_nJ4':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB4p_nJ5_','_nB4p_nJ6p_'],
-			  'nB4p_nJ5':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ6p_'],
-			  'nB4p_nJ6p':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_'],
+# 			  'isE':['isM'], #only electron channel
+# 			  'isM':['isE'], #only muon channel
+# 			  'isCR':['_'+item+'_' for item in SRcatList], #only 0 t tag category
+# 			  'isSR':['_'+item+'_' for item in CRcatList], #only 1p t tag category
+# 			  'nB2_nJ4':['_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+# 			  'nB2_nJ5':['_nB2_nJ4_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+# 			  'nB2_nJ6p':['_nB2_nJ4_','_nB2_nJ5_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+# 			  'nB3_nJ5':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+# 			  'nB3_nJ6p':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3p_nJ4_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+# 			  'nB3p_nJ4':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB4p_nJ5_','_nB4p_nJ6p_'],
+# 			  'nB4p_nJ5':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ6p_'],
+# 			  'nB4p_nJ6p':['_nB2_nJ4_','_nB2_nJ5_','_nB2_nJ6p_','_nB3_nJ5_','_nB3_nJ6p_','_nB3p_nJ4_','_nB4p_nJ5_'],
+
+# 			  'nB1_nJ3':['_'+item+'_' for item in catList if item!='nB1_nJ3'],
+# 			  'nB1_nJ4':['_'+item+'_' for item in catList if item!='nB1_nJ4'],
+# 			  'nB1_nJ5':['_'+item+'_' for item in catList if item!='nB1_nJ5'],
+# 			  'nB1_nJ6p':['_'+item+'_' for item in catList if item!='nB1_nJ6p'],
+# 			  'nB2p_nJ3':['_'+item+'_' for item in catList if item!='nB2p_nJ3'],
+# 			  'nB2_nJ4':['_'+item+'_' for item in catList if item!='nB2_nJ4'],
+# 			  'nB2_nJ5':['_'+item+'_' for item in catList if item!='nB2_nJ5'],
+# 			  'nB2_nJ6p':['_'+item+'_' for item in catList if item!='nB2_nJ6p'],
+# 			  'nB3p_nJ4':['_'+item+'_' for item in catList if item!='nB3p_nJ4'],
+# 			  'nB3_nJ5':['_'+item+'_' for item in catList if item!='nB3_nJ5'],
+# 			  'nB3_nJ6p':['_'+item+'_' for item in catList if item!='nB3_nJ6p'],
+# 			  'nB4p_nJ5':['_'+item+'_' for item in catList if item!='nB4p_nJ5'],
+# 			  'nB4p_nJ6p':['_'+item+'_' for item in catList if item!='nB4p_nJ6p'],
 			  }
 
-limitType = ''#'_noCRuncerts'
+limitType = '_flatSysts'
 outputDir = '/user_data/ssagir/HTB_limits_2016/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 # outputDir+= '/'+limitType+'/'
@@ -40,8 +62,8 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if '0_36p0fb_rebinned_stat0p3' not in rootfile: continue
-    if 'YLD' in rootfile: continue
+    if '0_36p0fb_rebinned_stat0p3_new.' not in rootfile: continue
+    if 'YLD' not in rootfile: continue
     if 'plots' in rootfile: continue
     rootfilelist.append(rootfile)
     i+=1

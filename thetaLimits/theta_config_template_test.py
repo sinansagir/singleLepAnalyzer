@@ -14,20 +14,20 @@ def get_model():
 
     for obs in obsvs:
 		if 'isE' in obs:
-			model.add_lognormal_uncertainty('elTrigSys', math.log(1.01), '*', obs)
+			model.add_lognormal_uncertainty('elTrigSys', math.log(1.03), '*', obs)
 			model.add_lognormal_uncertainty('elIdSys', math.log(1.01), '*', obs)
 			model.add_lognormal_uncertainty('elIsoSys', math.log(1.01), '*', obs)
 		elif 'isM' in obs:
-			model.add_lognormal_uncertainty('muTrigSys', math.log(1.0112), '*', obs)
-			model.add_lognormal_uncertainty('muIdSys', math.log(1.0112), '*', obs)
+			model.add_lognormal_uncertainty('muTrigSys', math.log(1.011), '*', obs)
+			model.add_lognormal_uncertainty('muIdSys', math.log(1.011), '*', obs)
 			model.add_lognormal_uncertainty('muIsoSys', math.log(1.03), '*', obs)
     model.add_lognormal_uncertainty('lumiSys', math.log(1.062), '*', '*')
 
-#     model.add_lognormal_uncertainty('topSys', math.log(1.10), 'top', '*')
-#     model.add_lognormal_uncertainty('ewkSys', math.log(1.10), 'ewk', '*')
-#     model.add_lognormal_uncertainty('qcdSys', math.log(1.10), 'qcd', '*')
-#     model.add_lognormal_uncertainty('ttbarSys', math.log(1.20), 'ttbar', '*')
-#     model.add_lognormal_uncertainty('wjetsSys', math.log(1.05), 'wjets', '*')
+#     model.add_lognormal_uncertainty('topSys', math.log(1.20), 'top', '*')
+#     model.add_lognormal_uncertainty('ewkSys', math.log(1.20), 'ewk', '*')
+#     model.add_lognormal_uncertainty('qcdSys', math.log(1.20), 'qcd', '*')
+#     #model.add_lognormal_uncertainty('ttbarSys', math.log(1.20), 'ttbar', '*')
+#     #model.add_lognormal_uncertainty('wjetsSys', math.log(1.20), 'wjets', '*')
 #     model.add_lognormal_uncertainty('sigSys', math.log(1.10), 'sig', '*')
 			
     return model

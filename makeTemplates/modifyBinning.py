@@ -32,7 +32,7 @@ start_time = time.time()
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_X53cuts_2016_11_24/'+cutString
+templateDir = os.getcwd()+'/templates_2016_11_26_noNegWeightCorr/'+cutString
 combinefile = 'templates_'+iPlot+'_36p0fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
@@ -518,16 +518,21 @@ if not addCRsys: postFix+='_noCRunc'
 out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
 printTable(table,out)
 
+#redefine channels manually if the automatic order is not wanted!
+#channels = [chn for chn in channels if 'nB1_nJ6p' not in chn and 'nB2_nJ6p' not in chn and 'nB4p_nJ5' not in chn and 'nB4p_nJ6p' not in chn]
+
 print "       WRITING SUMMARY TEMPLATES: "
 lumiStr = combinefile.split('_')[-1][:-7]
 for signal in sigProcList:
 	print "              ... "+signal
-	yldRfileName = templateDir+'/templates_YLD_'+signal+'_'+lumiStr+'fb_rebinned_stat'+str(stat).replace('.','p')+'.root'
+	yldRfileName = templateDir+'/templates_YLD_'+signal+'_'+lumiStr+'fb_rebinned_stat'+str(stat).replace('.','p')+'_new.root'
 	yldRfile = TFile(yldRfileName,'RECREATE')
 	for isEM in isEMlist:		
 		for proc in bkgProcList+[dataName,signal]:
 			yldHists = {}
 			yldHists[isEM+proc]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA'),'',len(channels)/2,0,len(channels)/2)
+			if proc==dataName:
+				yldHists[isEM+proc+'blind']=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA')+'_blind','',len(channels)/2,0,len(channels)/2)
 			systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
 			for syst in systematicList:
 				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
@@ -563,6 +568,15 @@ for signal in sigProcList:
 				yldHists[isEM+proc].SetBinContent(ibin,yldTemp)
 				yldHists[isEM+proc].SetBinError(ibin,yldErrTemp)
 				yldHists[isEM+proc].GetXaxis().SetBinLabel(ibin,binStr)
+				if proc==dataName:
+					yldTempDataBlind = yldTemp
+					yldErrTempDataBlind = yldErrTemp
+					if ibin>6:
+						yldTempDataBlind = 0
+						yldErrTempDataBlind = 0
+					yldHists[isEM+proc+'blind'].SetBinContent(ibin,yldTemp)
+					yldHists[isEM+proc+'blind'].SetBinError(ibin,yldErrTemp)
+					yldHists[isEM+proc+'blind'].GetXaxis().SetBinLabel(ibin,binStr)
 				for syst in systematicList:
 					for ud in [upTag,downTag]:
 						try: yldTemp = yieldsAll[histoPrefix+proc+'__'+syst+ud]
@@ -571,6 +585,7 @@ for signal in sigProcList:
 						yldHists[isEM+proc+syst+ud].GetXaxis().SetBinLabel(ibin,binStr)
 				ibin+=1
 			yldHists[isEM+proc].Write()
+			if proc==dataName: yldHists[isEM+proc+'blind'].Write()
 			for syst in systematicList:
 				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud].Write()
 	yldRfile.Close()
