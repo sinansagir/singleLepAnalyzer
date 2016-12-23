@@ -16,14 +16,21 @@ lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #SR,PS
 isCategorized=True
-iPlot='YLD'
+iPlot='BDT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
 if not isCategorized: pfix='kinematics_'+region
-templateDir=os.getcwd()+'/'+pfix+'_2016_11_26_noNegWeightCorr/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_BDT_2016_12_19/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3_new' #post for ROOT file names
+useHTbinned = True
+splitWJets = False
+splitTTbar = False
+isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
+if not useHTbinned: isRebinned+='_incWjets'
+if splitWJets: isRebinned+='_WJsplit'
+if splitTTbar: isRebinned+='_TTsplit'
+isRebinned+=''#'_rebinned_stat0p3'
 saveKey = '' # tag for plot names
 
 sig1='HTBM200' # choose the 1st signal to plot
@@ -34,13 +41,17 @@ scaleSignals = True
 scaleFact1 = 100
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-bkgProcList = ['ttbar','wjets','top','ewk','qcd']
+if splitWJets and not splitTTbar: bkgProcList = ['wjetsb','wjetsc','wjetsl','ttbar','top','ewk','qcd']
+elif not splitWJets and splitTTbar: bkgProcList = ['wjets','ttbb','ttll','top','ewk','qcd']
+elif splitWJets and splitTTbar: bkgProcList = ['wjetsb','wjetsc','wjetsl','ttbb','ttll','top','ewk','qcd']
+else: bkgProcList = ['ttbar','wjets','top','ewk','qcd']
+
 if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X53X53
-elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
+elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'ttbb':kGreen-3,'ttll':kGreen+3,'wjetsb':kRed-9,'wjetsc':kPink-4,'wjetsl':kBlue-7,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
 systematicList = ['pileup','jec','jer','toppt','pdfNew','muRFcorrdNew']#,'TrigEff','btag','mistag']
-doAllSys = True
+doAllSys = False
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
 addCRsys = False
@@ -48,6 +59,7 @@ doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
+blindYLD = False
 yLog  = False
 doRealPull = False
 if doRealPull: doOneBand=False
@@ -59,9 +71,13 @@ nWtaglist = ['0p']
 # njetslist = ['4','5','6p']
 nbtaglist = ['1','2','2p','3','3p','4p']
 njetslist = ['3','4','5','6p']
+# nbtaglist = ['1','2','3p']
+# njetslist = ['4p']
+# nbtaglist = ['1','1p','2p']
+# njetslist = ['3p']
 if not isCategorized: 
-	nbtaglist = ['2p']
-	njetslist = ['2p']
+	nbtaglist = ['1p']
+	njetslist = ['3p']
 if iPlot=='YLD':
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
@@ -155,7 +171,7 @@ for tag in tagList:
 				print "There is no "+proc+"!!!!!!!!"
 				print "Skipping "+proc+"....."
 				pass
-		if blind and iPlot=='YLD': hData = RFile1.Get(histPrefix+'__DATA_blind').Clone()
+		if blindYLD and iPlot=='YLD': hData = RFile1.Get(histPrefix+'__DATA_blind').Clone()
 		else: hData = RFile1.Get(histPrefix+'__DATA').Clone()
 		hsig1 = RFile1.Get(histPrefix+'__sig').Clone(histPrefix+'__sig1')
 		hsig2 = RFile2.Get(histPrefix+'__sig').Clone(histPrefix+'__sig2')
@@ -373,10 +389,21 @@ for tag in tagList:
 				except: pass
 				try: leg.AddEntry(bkghists['wjets'+catStr],"W+jets","f")
 				except: pass
-				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
-				try: leg.AddEntry(bkghists['ttbar'+catStr],"t#bar{t}","f")
+				try: leg.AddEntry(bkghists['wjetsb'+catStr],"W+b","f")
 				except: pass
-				leg.AddEntry(0, "", "")
+				try: leg.AddEntry(bkghists['wjetsc'+catStr],"W+c","f")
+				except: pass
+				try: leg.AddEntry(bkghists['wjetsl'+catStr],"W+udsg","f")
+				except: pass
+				leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
+				try: 
+					leg.AddEntry(bkghists['ttbar'+catStr],"t#bar{t}","f")
+					leg.AddEntry(0, "", "")
+				except: pass
+				try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}bb","f")
+				except: pass
+				try: leg.AddEntry(bkghists['ttll'+catStr],"t#bar{t}ll","f")
+				except: pass
 				leg.AddEntry(hData,"DATA")
 			else:
 				try: leg.AddEntry(bkghists['top'+catStr],"Other Top","f")
@@ -496,9 +523,11 @@ for tag in tagList:
 			pullLegend.SetLineStyle(0)
 			pullLegend.SetBorderSize(0)
 			pullLegend.SetTextFont(42)
-			if not doOneBand: pullLegend.AddEntry(pullUncBandStat , "Bkg uncert. (shape syst.)" , "f")
-			if not doOneBand: pullLegend.AddEntry(pullUncBandNorm , "Bkg uncert. (shape #oplus norm. syst.)" , "f")
-			if not doOneBand: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus all syst.)" , "f")
+			if not doOneBand: 
+				pullLegend.AddEntry(pullUncBandStat , "Bkg uncert. (shape syst.)" , "f")
+				pullLegend.AddEntry(pullUncBandNorm , "Bkg uncert. (shape #oplus norm. syst.)" , "f")
+				pullLegend.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus all syst.)" , "f")
+			elif not doAllSys: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus norm.)" , "f")
 			else: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus syst.)" , "f")
 			#pullLegend.AddEntry(pullQ2up , "Q^{2} Up" , "l")
 			#pullLegend.AddEntry(pullQ2dn , "Q^{2} Down" , "l")
@@ -537,7 +566,7 @@ for tag in tagList:
 		if doRealPull: savePrefix+='_pull'
 		if doNormByBinWidth: savePrefix+='_NBBW'
 		if yLog: savePrefix+='_logy'
-		if blind: savePrefix+='_blind'
+		if blind or blindYLD: savePrefix+='_blind'
 
 		if doOneBand:
 			c1.SaveAs(savePrefix+"totBand.pdf")
@@ -563,11 +592,11 @@ for tag in tagList:
 			bkghistsmerged[proc+'isL'+tagStr] = RFile1.Get(histPrefixE+'__'+proc).Clone()
 			bkghistsmerged[proc+'isL'+tagStr].Add(RFile1.Get(histPrefixM+'__'+proc))
 		except:pass
-	if blind and iPlot=='YLD': hDatamerged = RFile1.Get(histPrefixE+'__DATA_blind').Clone()
+	if blindYLD and iPlot=='YLD': hDatamerged = RFile1.Get(histPrefixE+'__DATA_blind').Clone()
 	else: hDatamerged = RFile1.Get(histPrefixE+'__DATA').Clone()
 	hsig1merged = RFile1.Get(histPrefixE+'__sig').Clone(histPrefixE+'__sig1merged')
 	hsig2merged = RFile2.Get(histPrefixE+'__sig').Clone(histPrefixE+'__sig2merged')
-	if blind and iPlot=='YLD': hDatamerged.Add(RFile1.Get(histPrefixM+'__DATA_blind').Clone())
+	if blindYLD and iPlot=='YLD': hDatamerged.Add(RFile1.Get(histPrefixM+'__DATA_blind').Clone())
 	else: hDatamerged.Add(RFile1.Get(histPrefixM+'__DATA').Clone())
 	hsig1merged.Add(RFile1.Get(histPrefixM+'__sig').Clone())
 	hsig2merged.Add(RFile2.Get(histPrefixM+'__sig').Clone())
@@ -771,18 +800,39 @@ for tag in tagList:
 			except: pass
 			try: legmerged.AddEntry(bkghistsmerged['wjetsisL'+tagStr],"W+jets","f")
 			except: pass
-			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
-			try: legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
+			try: legmerged.AddEntry(bkghistsmerged['wjetsbisL'+tagStr],"W+b","f")
 			except: pass
-			legmerged.AddEntry(0, "", "")
+			try: legmerged.AddEntry(bkghistsmerged['wjetscisL'+tagStr],"W+c","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['wjetslisL'+tagStr],"W+udsg","f")
+			except: pass
+			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
+			try: 
+				legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
+				legmerged.AddEntry(0, "", "")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}bb","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['ttllisL'+tagStr],"t#bar{t}ll","f")
+			except: pass
 			legmerged.AddEntry(hDatamerged,"DATA")
 		else:
 			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"Other Top","f")
 			except: pass
 			try: legmerged.AddEntry(bkghistsmerged['wjetsisL'+tagStr],"W+jets","f")
 			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['wjetsbisL'+tagStr],"W+b","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['wjetscisL'+tagStr],"W+c","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['wjetslisL'+tagStr],"W+udsg","f")
+			except: pass
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 			try: legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}bb","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['ttllisL'+tagStr],"t#bar{t}ll","f")
 			except: pass
 	if not drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
@@ -793,8 +843,18 @@ for tag in tagList:
 		except: pass
 		try: legmerged.AddEntry(bkghistsmerged['wjetsisL'+tagStr],"W+jets","f")
 		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['wjetsbisL'+tagStr],"W+b","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['wjetscisL'+tagStr],"W+c","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['wjetslisL'+tagStr],"W+udsg","f")
+		except: pass
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 		try: legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}bb","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['ttllisL'+tagStr],"t#bar{t}ll","f")
 		except: pass
 		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 	legmerged.Draw("same")
@@ -893,9 +953,11 @@ for tag in tagList:
 		pullLegendmerged.SetLineStyle(0)
 		pullLegendmerged.SetBorderSize(0)
 		pullLegendmerged.SetTextFont(42)
-		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandStat , "Bkg uncert. (shape syst.)" , "f")
-		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandNorm , "Bkg uncert. (shape #oplus norm. syst.)" , "f")
-		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus all syst.)" , "f")
+		if not doOneBand: 
+			pullLegendmerged.AddEntry(pullUncBandStat , "Bkg uncert. (shape syst.)" , "f")
+			pullLegendmerged.AddEntry(pullUncBandNorm , "Bkg uncert. (shape #oplus norm. syst.)" , "f")
+			pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus all syst.)" , "f")
+		elif not doAllSys: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus norm.)" , "f")
 		else: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus syst.)" , "f")
 		pullLegendmerged.Draw("SAME")
 		pullmerged.Draw("SAME")
@@ -932,7 +994,7 @@ for tag in tagList:
 	if doRealPull: savePrefixmerged+='_pull'
 	if doNormByBinWidth: savePrefixmerged+='_NBBW'
 	if yLog: savePrefixmerged+='_logy'
-	if blind: savePrefixmerged+='_blind'
+	if blind or blindYLD: savePrefixmerged+='_blind'
 
 	if doOneBand: 
 		c1merged.SaveAs(savePrefixmerged+"totBand.pdf")

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 #targetlumi = 12892. # 1/pb
-targetlumi = 36000. # 1/pb
+targetlumi = 36400. # 1/pb
 
 BR={}
 BR['BW'] = 0.5
@@ -56,15 +56,20 @@ nRun['Tt'] = 3279200.
 nRun['Tbt']= 1682400.
 nRun['TtW'] = 998400.
 nRun['TbtW'] = 985000.
-nRun['HTBM180'] = 415000. #6199394500. #1493830.* 4150.
-nRun['HTBM200'] = 410000. #6124047000. #1493670.* 4100.
-nRun['HTBM220'] = 1471367.   
-nRun['HTBM250'] = 400000. #5896336000. #1474084.* 4000.
-nRun['HTBM300'] = 395000. #5855329900. #1482362.* 3950.
-nRun['HTBM350'] = 365000. #5437496250. #1489725.* 3650.
-nRun['HTBM400'] = 410000. #6103887300. #1488753.* 4100.
-nRun['HTBM450'] = 405000. #5994032400. #1480008.* 4050.
-nRun['HTBM500'] = 415000. #5654752650. #1362591.* 4150.
+nRun['HTBM180'] = 403236. #Ngen=1493830
+nRun['HTBM200'] = 405668. #Ngen=1493670
+nRun['HTBM220'] = 395089. #Ngen=1471367  
+nRun['HTBM250'] = 391074. #Ngen=1474084
+nRun['HTBM300'] = 385324. #Ngen=1482362, problems with jobs, extrapolated from 549690 --> 142886
+nRun['HTBM350'] = 388331. #Ngen=1489725
+nRun['HTBM400'] = 385633. #Ngen=1488753
+nRun['HTBM450'] = 379926. #Ngen=1480008
+nRun['HTBM500'] = 363317. #Ngen=1362591
+nRun['HTBM750'] = 377320. #Ngen=1497192
+nRun['HTBM800'] = 377648. #Ngen=1500000
+nRun['HTBM1000'] = 371654. #Ngen=1472160
+nRun['HTBM2000'] = 372640. #Ngen=1497510
+nRun['HTBM3000'] = 378143. #Ngen=1498565
 nRun['TTM700BWBW'] = 798600.0*0.333*0.333 #not used
 nRun['TTM800BWBW'] = 766000.0*0.333*0.333
 nRun['TTM900BWBW'] = 828000.0*0.333*0.333
@@ -284,15 +289,20 @@ xsec['Ts'] = 3.36 #(1/3 was suggested by Thomas Peiffer to account for the lepto
 xsec['TtW'] = 35.6 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['TbtW'] = 35.6 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 
-xsec['HTBM180'] = 0.919
-xsec['HTBM200'] = 0.783951
-xsec['HTBM220'] = 0.648629
-xsec['HTBM250'] = 0.4982015
-xsec['HTBM300'] = 0.324766
-xsec['HTBM350'] = 0.2184385
-xsec['HTBM400'] = 0.148574
-xsec['HTBM450'] = 0.104141
-xsec['HTBM500'] = 0.0735225
+xsec['HTBM180'] = (0.824531)**2/0.683584 #extrapolation using the fact that xsec proportional to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM200'] = 0.824531 #was 0.783951 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM220'] = 0.683584 #was 0.648629 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM250'] = 0.524247 #was 0.4982015 interpolation using the fact that xsec proportional to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM300'] = 0.343796 #was 0.324766 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM350'] = 0.231218 #was 0.2184385 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM400'] = 0.158142 #was 0.148574 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM450'] = 0.1106674 #was 0.104141 interpolation using the fact that xsec proportional to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM500'] = 0.0785572 #was 0.0735225 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM750'] = 0.0172205 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM800'] = 0.0130645 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM1000'] = 0.00474564 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM2000'] = 8.70916e-05 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['HTBM3000'] = (8.70916e-05)**2/0.00474564 #extrapolation using the fact that xsec proportional to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
 
 xsec['TTM700']   = 0.455 # from https://twiki.cern.ch/twiki/bin/view/CMS/B2GMonteCarlo
 xsec['TTM800']  = 0.196 # from https://twiki.cern.ch/twiki/bin/view/CMS/B2GMonteCarlo
@@ -363,3 +373,12 @@ weight = {}
 for sample in nRun.keys(): 
 	if 'BBM' not in sample and 'TTM' not in sample: weight[sample] = (targetlumi*xsec[sample]) / (nRun[sample])
 	else: weight[sample] = (targetlumi*BR[sample[:2]+sample[-4:]]*xsec[sample[:-4]]) / (nRun[sample])
+
+for smp in weight.keys():
+	if 'WJetsMG' in smp:
+		weight[smp+'_bflv']=weight[smp]
+		weight[smp+'_cflv']=weight[smp]
+		weight[smp+'_lflv']=weight[smp]	
+	if 'TTJets' in smp:
+		weight[smp+'_bbflv']=weight[smp]
+		weight[smp+'_llflv']=weight[smp]			

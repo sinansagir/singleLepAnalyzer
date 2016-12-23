@@ -32,8 +32,9 @@ start_time = time.time()
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_2016_11_26_noNegWeightCorr/'+cutString
-combinefile = 'templates_'+iPlot+'_36p0fb.root'
+templateDir = os.getcwd()+'/templates_bkgSplit_wRwt_cats_2016_12_10/'+cutString
+combinefile = 'templates_'+iPlot+'_36p4fb_WJsplit_TTsplit.root'
+lumiStr = '36p4fb'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = False #else rebins theta templates
@@ -42,12 +43,14 @@ normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 sigName = 'HTB' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
-massList = range(180,200+1,20)+range(250,500+1,50)
+massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
 	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
-bkgProcList = ['ttbar','wjets','top','ewk','qcd'] #put the most dominant process first
+#bkgProcList = ['ttbar','wjets','top','ewk','qcd'] #put the most dominant process first
+bkgProcList = ['ttbb','ttll','wjetsb','wjetsc','wjetsl','top','ewk','qcd'] #put the most dominant process first
+#bkgProcList = ['ttbar','wjetsb','wjetsc','wjetsl','top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
@@ -86,7 +89,7 @@ def findfiles(path, filtre):
             yield os.path.join(root, f)
 
 #Setup the selection of the files to be rebinned:          
-rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
+rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1] and 'WJsplit_TTsplit' in file.split('/')[-1]]
 if rebinCombine: rfiles = [templateDir+'/'+combinefile]
 
 tfile = TFile(rfiles[0])
@@ -186,7 +189,8 @@ for rfile in rfiles:
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
 			rebinnedHists[hist].Write()
 			yieldHistName = hist
-			if not rebinCombine: yieldHistName = hist.replace('_sig','_'+rfile.split('_')[-2])
+			if not rebinCombine: yieldHistName = hist.replace('_sig','_'+rfile.split('/')[-1].split('_')[2])
+			#print hist,yieldHistName
 			yieldsAll[yieldHistName] = rebinnedHists[hist].Integral()
 			yieldsErrsAll[yieldHistName] = 0.
 			for ibin in range(1,rebinnedHists[hist].GetXaxis().GetNbins()+1):
@@ -412,16 +416,59 @@ for isEM in isEMlist:
 				else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 			row.append('\\\\')
 			table.append(row)
-			
-for nttag in nttaglist:
+
+channelsE= ['isE_nT0p_nW0p_nB1_nJ3', 
+			'isE_nT0p_nW0p_nB1_nJ4', 
+			'isE_nT0p_nW0p_nB1_nJ5', 
+			'isE_nT0p_nW0p_nB1_nJ6p', 
+			'isE_nT0p_nW0p_nB2p_nJ3', 
+			'isE_nT0p_nW0p_nB2_nJ4', 
+			'isE_nT0p_nW0p_nB2_nJ5', 
+			'isE_nT0p_nW0p_nB2_nJ6p', 
+			'isE_nT0p_nW0p_nB3p_nJ4', 
+			'isE_nT0p_nW0p_nB3_nJ5', 
+			'isE_nT0p_nW0p_nB3_nJ6p', 
+			'isE_nT0p_nW0p_nB4p_nJ5', 
+			'isE_nT0p_nW0p_nB4p_nJ6p',
+			'isE_nT0p_nW0p_nB3p_nJ5', 
+			'isE_nT0p_nW0p_nB3p_nJ6p', 
+			]
+channels = channelsE[:]
+for chn in channelsE: channels.append(chn.replace('isE','isM'))
+
+chnGroups= [['isE_nT0p_nW0p_nB1_nJ3', 
+			 'isE_nT0p_nW0p_nB1_nJ4', 
+			 'isE_nT0p_nW0p_nB1_nJ5', 
+			 'isE_nT0p_nW0p_nB1_nJ6p'
+			 ],
+			['isE_nT0p_nW0p_nB2p_nJ3', 
+			 'isE_nT0p_nW0p_nB2_nJ4'
+			 ], 
+			['isE_nT0p_nW0p_nB2_nJ5', 
+		     'isE_nT0p_nW0p_nB2_nJ6p', 
+			 'isE_nT0p_nW0p_nB3p_nJ4', 
+			 'isE_nT0p_nW0p_nB3_nJ5'
+			 ], 
+			['isE_nT0p_nW0p_nB3_nJ6p', 
+			 'isE_nT0p_nW0p_nB4p_nJ5', 
+			 'isE_nT0p_nW0p_nB4p_nJ6p'
+			 ],
+			['isE_nT0p_nW0p_nB3p_nJ5', 
+			 'isE_nT0p_nW0p_nB3p_nJ6p'
+			 ]
+			]
+
+grInd = 0			
+for chngr in chnGroups:
 	table.append(['break'])
-	table.append(['','isL_'+nttag+'_yields'])
+	table.append(['','isL_group'+str(grInd)+'_yields'])
 	table.append(['break'])
-	table.append(['YIELDS']+[chn.replace('isE','isL') for chn in channels if 'isE' in chn and nttag in chn]+['\\\\'])
+	table.append(['YIELDS']+[chn.replace('isE','isL') for chn in channels if 'isE' in chn and chn in chngr]+['\\\\'])
+	grInd+=1
 	for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList:
 		row = [proc]
-		for chn in channels:
-			if not ('isE' in chn and nttag in chn): continue
+		for chn in chngr:
+			#if not ('isE' in chn and nttag in chn): continue
 			modTag = chn[chn.find('nW'):]
 			histoPrefixE = allhists[chn][0][:allhists[chn][0].find('__')+2]
 			histoPrefixM = histoPrefixE.replace('isE','isM')
@@ -520,22 +567,41 @@ printTable(table,out)
 
 #redefine channels manually if the automatic order is not wanted!
 #channels = [chn for chn in channels if 'nB1_nJ6p' not in chn and 'nB2_nJ6p' not in chn and 'nB4p_nJ5' not in chn and 'nB4p_nJ6p' not in chn]
+channelsE= ['isE_nT0p_nW0p_nB1_nJ3', 
+			'isE_nT0p_nW0p_nB1_nJ4', 
+			'isE_nT0p_nW0p_nB1_nJ5', 
+			'isE_nT0p_nW0p_nB1_nJ6p', 
+			'isE_nT0p_nW0p_nB2p_nJ3', 
+			'isE_nT0p_nW0p_nB2_nJ4', 
+			'isE_nT0p_nW0p_nB2_nJ5', 
+			'isE_nT0p_nW0p_nB2_nJ6p', 
+			'isE_nT0p_nW0p_nB3p_nJ4', 
+			'isE_nT0p_nW0p_nB3_nJ5', 
+			'isE_nT0p_nW0p_nB3_nJ6p', 
+			'isE_nT0p_nW0p_nB4p_nJ5', 
+			'isE_nT0p_nW0p_nB4p_nJ6p',
+			'isE_nT0p_nW0p_nB3p_nJ5', 
+			'isE_nT0p_nW0p_nB3p_nJ6p', 
+			]
+channels = channelsE[:]
+for chn in channelsE: channels.append(chn.replace('isE','isM'))
 
 print "       WRITING SUMMARY TEMPLATES: "
-lumiStr = combinefile.split('_')[-1][:-7]
+fileTag = combinefile[combinefile.find(lumiStr):-5]
 for signal in sigProcList:
+	if rebinCombine: break
 	print "              ... "+signal
-	yldRfileName = templateDir+'/templates_YLD_'+signal+'_'+lumiStr+'fb_rebinned_stat'+str(stat).replace('.','p')+'_new.root'
+	yldRfileName = templateDir+'/templates_YLD_'+signal+'_'+fileTag+'_rebinned_stat'+str(stat).replace('.','p')+'.root'
 	yldRfile = TFile(yldRfileName,'RECREATE')
 	for isEM in isEMlist:		
 		for proc in bkgProcList+[dataName,signal]:
 			yldHists = {}
-			yldHists[isEM+proc]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA'),'',len(channels)/2,0,len(channels)/2)
+			yldHists[isEM+proc]=TH1F('YLD_'+lumiStr+'_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA'),'',len(channels)/2,0,len(channels)/2)
 			if proc==dataName:
-				yldHists[isEM+proc+'blind']=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA')+'_blind','',len(channels)/2,0,len(channels)/2)
+				yldHists[isEM+proc+'blind']=TH1F('YLD_'+lumiStr+'_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA')+'_blind','',len(channels)/2,0,len(channels)/2)
 			systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
 			for syst in systematicList:
-				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
+				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
 			ibin = 1
 			for chn in channels:
 				if isEM not in chn: continue
@@ -574,8 +640,8 @@ for signal in sigProcList:
 					if ibin>6:
 						yldTempDataBlind = 0
 						yldErrTempDataBlind = 0
-					yldHists[isEM+proc+'blind'].SetBinContent(ibin,yldTemp)
-					yldHists[isEM+proc+'blind'].SetBinError(ibin,yldErrTemp)
+					yldHists[isEM+proc+'blind'].SetBinContent(ibin,yldTempDataBlind)
+					yldHists[isEM+proc+'blind'].SetBinError(ibin,yldErrTempDataBlind)
 					yldHists[isEM+proc+'blind'].GetXaxis().SetBinLabel(ibin,binStr)
 				for syst in systematicList:
 					for ud in [upTag,downTag]:

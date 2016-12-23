@@ -17,36 +17,47 @@ region='SR' #SR,PS
 isCategorized=True
 iPlot='YLD'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
-cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
+cutString='lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
 if not isCategorized: pfix='kinematics_'+region
 #templateDir=os.getcwd()+'/'+pfix+'_negSignals_2016_12_1/'+cutString+'/' #for negative signal fraction
-#templateDir=os.getcwd()+'/'+pfix+'_noWeight_2016_11_28/'+cutString+'/' #for signal efficiency
-templateDir=os.getcwd()+'/'+pfix+'_2016_11_26_noNegWeightCorr/'+cutString+'/' #for background yields and fraction
+templateDir=os.getcwd()+'/'+pfix+'_noWeight_2016_11_28/'+cutString+'/' #for signal efficiency
+#templateDir=os.getcwd()+'/'+pfix+'_bkgSplit_wRwt_cats_2016_12_10/'+cutString+'/' #for background yields and fraction
 plotLimits = False
 limitFile = '/user_data/ssagir/HTB_limits_2016/templates_2016_11_26/nB1_nJ3/limits_templates_HT_HTBM200_36p0fb_rebinned_stat0p3_expected.txt'
 massList = range(180,200+1,20)+range(250,500+1,50)
 massList = [str(mss) for mss in massList]
-    	
+
+useHTbinned = True
+splitWJets = False
+splitTTbar = False
 isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
+if not useHTbinned: isRebinned+='_incWjets'
+if splitWJets: isRebinned+='_WJsplit'
+if splitTTbar: isRebinned+='_TTsplit'
+isRebinned+=''#'_rebinned_stat0p3'
 saveKey = '' # tag for plot names
 
-mass = '500'
+mass = '450'
 sig1='HTBM'+mass # choose the 1st signal to plot
 sig1leg='H^{#pm} ('+mass+' GeV)'
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-bkgProcList = ['ttbar','wjets','top','ewk','qcd']
+if splitWJets and not splitTTbar: bkgProcList = ['ttbar','wjetsb','wjetsc','wjetsl','top','ewk','qcd']
+elif not splitWJets and splitTTbar: bkgProcList = ['ttbb','ttll','wjets','top','ewk','qcd']
+elif splitWJets and splitTTbar: bkgProcList = ['ttbb','ttll','wjetsb','wjetsc','wjetsl','top','ewk','qcd']
+else: bkgProcList = ['ttbar','wjets','top','ewk','qcd']
+
 if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X53X53
-elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
+elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'ttbb':kGreen-3,'ttll':kGreen+3,'wjetsb':kRed-9,'wjetsc':kPink-4,'wjetsl':kBlue-7,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
 yLog  = False
-plotProc = 'totBkg'#sig,totBkg,sigOverBkg,'ttbar','wjets','top','ewk','qcd'
-doBkgFraction = True #set plotProc to "totBkg"
+plotProc = 'sig'#sig,totBkg,sigOverBkg,'ttbar','wjets','top','ewk','qcd'
+doBkgFraction = False #set plotProc to "totBkg"
 doNegSigFrac = False
-doEfficiency = False
-scaleXsec = True
+doEfficiency = True
+scaleXsec = False
 
 isEMlist =['E','M']
 nttaglist = ['0p']
@@ -357,6 +368,7 @@ for tag in tagList:
 		sighistsmerged[mass].SetLineColor(2)
 		sighistsmerged[mass].SetFillColor(2)
 		sighistsmerged[mass].SetLineWidth(2)
+		sighistsmerged[mass].SetMaximum(0.07)
 		sighistsmerged[mass].Draw("HIST")
 	elif plotProc=='totBkg':
 		if doBkgFraction: 
@@ -392,7 +404,17 @@ for tag in tagList:
 			except: pass
 			try: leg.AddEntry(bkghistsmerged['wjets'+'isL'+tagStr],"W+jets","f")
 			except: pass
+			try: leg.AddEntry(bkghistsmerged['wjetsb'+'isL'+tagStr],"W+b","f")
+			except: pass
+			try: leg.AddEntry(bkghistsmerged['wjetsc'+'isL'+tagStr],"W+c","f")
+			except: pass
+			try: leg.AddEntry(bkghistsmerged['wjetsl'+'isL'+tagStr],"W+udsg","f")
+			except: pass
 			try: leg.AddEntry(bkghistsmerged['ttbar'+'isL'+tagStr],"t#bar{t}","f")
+			except: pass
+			try: leg.AddEntry(bkghistsmerged['ttbb'+'isL'+tagStr],"t#bar{t}bb","f")
+			except: pass
+			try: leg.AddEntry(bkghistsmerged['ttll'+'isL'+tagStr],"t#bar{t}ll","f")
 			except: pass
 			leg.Draw("same")
 		else:
@@ -449,6 +471,27 @@ for tag in tagList:
 			hsigObkgmerged[mass].SetFillColor(0)
 			hsigObkgmerged[mass].SetLineWidth(4)
 			hsigObkgmerged[mass].Draw("HIST")
+			
+# 			ind_=0
+# 			for mss in massList: 
+# 				ind_+=1
+# 				hsigObkgmerged[mss].SetLineColor(ind_)
+# 				hsigObkgmerged[mss].SetFillColor(0)
+# 				hsigObkgmerged[mss].SetLineWidth(4)
+# 				hsigObkgmerged[mss].Draw("SAME HIST")
+				
+			leg = TLegend(0.45,0.75,0.99,0.90)
+			leg.SetShadowColor(0)
+			leg.SetFillColor(0)
+			leg.SetFillStyle(0)
+			leg.SetLineColor(0)
+			leg.SetLineStyle(0)
+			leg.SetBorderSize(0) 
+			leg.SetNColumns(4)
+			leg.SetTextFont(62)#42)
+			leg.AddEntry(hsigObkgmerged[mass],mass,"f")
+			#for mss in massList: leg.AddEntry(hsigObkgmerged[mss],mss,"f")
+			leg.Draw("same")
 	
 	#uPad.RedrawAxis()
 	chLatexmerged = TLatex()

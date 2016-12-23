@@ -18,7 +18,7 @@ isCategorized=True
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='negSignals_2016_12_1'
+pfix+='BDT_2016_12_19'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -28,21 +28,52 @@ doAllSys = False
 doQ2sys = True
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','toppt','muR','muF','muRFcorrd','btag','mistag','trigeff']
+systematicList = ['pileup','jec','jer','toppt','muR','muF','muRFcorrd','jsf','btag','mistag','trigeff']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
-		       
-bkgGrupList = ['ttbar','wjets','top','ewk','qcd']
-bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
+
+useHTbinned = True
+if not useHTbinned: saveKey = '_incWjets'
+else: saveKey = ''
+splitWJets = False
+splitTTbar = False		       
+if splitWJets and not splitTTbar: 
+	bkgGrupList = ['ttbar','wjetsb','wjetsc','wjetsl','top','ewk','qcd']
+	bkgProcList = ['TTJets','T','TTV','WJetsB','WJetsC','WJetsL','ZJets','VV','qcd']
+elif not splitWJets and splitTTbar: 
+	bkgGrupList = ['ttbb','ttll','wjets','top','ewk','qcd']
+	bkgProcList = ['TTBB','TTLL','T','TTV','WJets','ZJets','VV','qcd']
+elif splitWJets and splitTTbar: 
+	bkgGrupList = ['ttbb','ttll','wjetsb','wjetsc','wjetsl','top','ewk','qcd']
+	bkgProcList = ['TTBB','TTLL','T','TTV','WJetsB','WJetsC','WJetsL','ZJets','VV','qcd']
+else:
+	bkgGrupList = ['ttbar','wjets','top','ewk','qcd']
+	bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
 bkgProcs = {}
-bkgProcs['WJets'] = ['WJetsMG'] 
+if useHTbinned:
+	bkgProcs['WJetsB'] = ['WJetsMG100_bflv','WJetsMG200_bflv','WJetsMG400_bflv','WJetsMG600_bflv','WJetsMG800_bflv','WJetsMG1200_bflv','WJetsMG2500_bflv']
+	bkgProcs['WJetsC'] = ['WJetsMG100_cflv','WJetsMG200_cflv','WJetsMG400_cflv','WJetsMG600_cflv','WJetsMG800_cflv','WJetsMG1200_cflv','WJetsMG2500_cflv']
+	bkgProcs['WJetsL'] = ['WJetsMG100_lflv','WJetsMG200_lflv','WJetsMG400_lflv','WJetsMG600_lflv','WJetsMG800_lflv','WJetsMG1200_lflv','WJetsMG2500_lflv']
+	bkgProcs['WJets']  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
+else:
+	bkgProcs['WJetsB'] = ['WJetsMG_bflv']
+	bkgProcs['WJetsC'] = ['WJetsMG_cflv']
+	bkgProcs['WJetsL'] = ['WJetsMG_lflv']
+	bkgProcs['WJets']  = ['WJetsMG']
 bkgProcs['ZJets'] = ['DY']
 bkgProcs['VV']    = ['WW','WZ','ZZ']
 bkgProcs['TTV']   = ['TTWl','TTWq','TTZl','TTZq']
+bkgProcs['TTBB']  = ['TTJetsPH0to700inc_bbflv','TTJetsPH700to1000inc_bbflv','TTJetsPH1000toINFinc_bbflv','TTJetsPH700mtt_bbflv','TTJetsPH1000mtt_bbflv']
+bkgProcs['TTLL']  = ['TTJetsPH0to700inc_llflv','TTJetsPH700to1000inc_llflv','TTJetsPH1000toINFinc_llflv','TTJetsPH700mtt_llflv','TTJetsPH1000mtt_llflv']
 bkgProcs['TTJets']= ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 bkgProcs['T']     = ['Tt','Tbt','Ts','TtW','TbtW']
 bkgProcs['qcd']   = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 bkgProcs['top']   = bkgProcs['TTV']+bkgProcs['T']
-bkgProcs['ewk']   = bkgProcs['ZJets']+bkgProcs['VV'] 
+bkgProcs['ewk']   = bkgProcs['ZJets']+bkgProcs['VV']
+bkgProcs['ttbb']  = bkgProcs['TTBB']
+bkgProcs['ttll']  = bkgProcs['TTLL']
+bkgProcs['wjetsb']= bkgProcs['WJetsB']
+bkgProcs['wjetsc']= bkgProcs['WJetsC']
+bkgProcs['wjetsl']= bkgProcs['WJetsL']
 bkgProcs['ttbar'] = bkgProcs['TTJets']
 bkgProcs['wjets'] = bkgProcs['WJets']
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
@@ -52,7 +83,7 @@ bkgProcs['ttbar_q2up'] = ['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
 bkgProcs['ttbar_q2dn'] = ['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
 
 whichSignal = 'HTB' #HTB, TT, BB, or X53X53
-massList = range(180,200+1,20)+range(250,500+1,50)
+massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -75,9 +106,13 @@ nWtaglist = ['0p']
 # njetslist = ['4','5','6p']
 nbtaglist = ['1','2','2p','3','3p','4p']
 njetslist = ['3','4','5','6p']
+# nbtaglist = ['1','2','3p']
+# njetslist = ['4p']
+# nbtaglist = ['1','1p','2p']
+# njetslist = ['3p']
 if not isCategorized: 
-	nbtaglist = ['2p']
-	njetslist = ['2p']
+	nbtaglist = ['1p']
+	njetslist = ['3p']
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[4] ,item[3])]
 tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[3] ,item[2])]
 
@@ -99,6 +134,9 @@ for tag in tagList:
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
+
+if splitWJets: saveKey += '_WJsplit'
+if splitTTbar: saveKey += '_TTsplit'
 	
 # if 'CR' in region: postTag = 'isCR_'
 # else: postTag = 'isSR_'
@@ -243,7 +281,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		print "       WRITING THETA TEMPLATES: "
 		for signal in sigList:
 			print "              ... "+signal
-			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
+			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+saveKey+'.root'
 			thetaRfile = TFile(thetaRfileName,'RECREATE')
 			for cat in catList:
 				i=BRconfStr+cat
@@ -265,7 +303,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 
 		#Combine templates:
 		print "       WRITING COMBINE TEMPLATES: "
-		combineRfileName = outDir+'/templates_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.root'
+		combineRfileName = outDir+'/templates_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+saveKey+'.root'
 		combineRfile = TFile(combineRfileName,'RECREATE')
 		for cat in catList:
 			print "              ... "+cat
@@ -273,7 +311,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			if '_nB1_' in cat or '_nB2p_' in cat or '_nB2_nJ4' in cat: postTag = 'isCR_'
 			else: postTag = 'isSR_'
 			for signal in sigList:
-				mass = [str(mass) for mass in massList if str(mass) in signal][0]
+				mass = [str(mass) for mass in massList if signal.endswith(str(mass))][0]
 				hists[signal+i].SetName(hists[signal+i].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass))
 				hists[signal+i].Write()
 				if doAllSys:
@@ -312,7 +350,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		print "       WRITING SUMMARY TEMPLATES: "
 		for signal in sigList:
 			print "              ... "+signal
-			yldRfileName = outDir+'/templates_YLD_'+signal+BRconfStr+'_'+lumiStr+'fb.root'
+			yldRfileName = outDir+'/templates_YLD_'+signal+BRconfStr+'_'+lumiStr+'fb'+saveKey+'.root'
 			yldRfile = TFile(yldRfileName,'RECREATE')
 			for isEM in isEMlist:	
 				for proc in bkgGrupList+['data',signal]:
@@ -531,8 +569,8 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						table.append(row)
 				table.append(['break'])
 			
-		if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
-		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+		if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+saveKey+'.txt','w')
+		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+saveKey+'.txt','w')
 		printTable(table,out)
 
 def findfiles(path, filtre):
@@ -563,7 +601,7 @@ for iPlot in iPlotList:
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
 
-	if iPlot=='BDT':
+	if iPlot=='BDTTT':
 		for key in bkghists.keys(): 
 			if key.startswith(iPlot+'jecUp') or key.startswith(iPlot+'jecDown'): continue
 			if key.startswith(iPlot+'jerUp') or key.startswith(iPlot+'jerDown'): continue

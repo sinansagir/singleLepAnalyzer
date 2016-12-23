@@ -54,13 +54,14 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	if isotrig == 1:
 		cut += ' && DataPastTrigger == 1'# && MCPastTrigger == 1' # no MC HLT except signal
 	else:
-		TrigEff = 'TrigEffAltWeight'
+		#TrigEff = 'TrigEffAltWeight'
 		cut += ' && DataPastTriggerAlt == 1'# && MCPastTriggerAlt == 1'
 
 	jetSFstr='1'
 	if doJetRwt and ('WJetsMG' in process or 'QCD' in process): jetSFstr= 'JetSF_80X'
 
 	weightStr = '1'
+	if doJetRwt and 'TTJets' in process: weightStr += ' * topPtWeight13TeV'
 	if 'Data' not in process: 
 		weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * MuTrkSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
 		weightTrigEffUpStr  = weightStr.replace(TrigEff,'TrigEffWeightUncert')
@@ -115,35 +116,57 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	else: nWtagCut+=' && '+nWtagLJMETname+'=='+nWtag
 	if nWtag=='0p': nWtagCut=''
 	
+# 	nbjCut = ''	
+# 	if isCategorized:
+# 		nbtagCut = ''
+# 		if 'p' in nbtag: nbtagCut+=' && '+nbtagLJMETname+'>='+nbtag[:-1]
+# 		else: nbtagCut+=' && '+nbtagLJMETname+'=='+nbtag
+# 	
+# 		if nbtag=='0' and iPlot=='minMlb': 
+# 			originalLJMETName=plotTreeName
+# 			plotTreeName='minMleppJet'
+# 
+# 		njetsCut = ''
+# 		if 'p' in njets: njetsCut+=' && '+njetsLJMETname+'>='+njets[:-1]
+# 		else: njetsCut+=' && '+njetsLJMETname+'=='+njets
+# 		if njets=='0p': njetsCut=''
+# 		
+# 		nbjCut += nbtagCut+njetsCut
+# 		
+# 	else:
+# 		if 'CR' in region:
+# 			nbjCut+=' && ( ('+nbtagLJMETname+'==1 && '+njetsLJMETname+'>=3)'
+# 			nbjCut+=  ' || ('+nbtagLJMETname+'>=2 && '+njetsLJMETname+'==3)'
+# 			nbjCut+=  ' || ('+nbtagLJMETname+'==2 && '+njetsLJMETname+'==4))'
+# 		if 'SR' in region:
+# 			nbjCut+=' && ( ('+nbtagLJMETname+'==2 && '+njetsLJMETname+'>=5)'
+# 			nbjCut+=  ' || ('+nbtagLJMETname+'==3 && '+njetsLJMETname+'>=5)'
+# 			nbjCut+=  ' || ('+nbtagLJMETname+'>=4 && '+njetsLJMETname+'>=5)'
+# 			nbjCut+=  ' || ('+nbtagLJMETname+'>=3 && '+njetsLJMETname+'==4))'
 	nbjCut = ''	
-	if isCategorized:
-		nbtagCut = ''
-		if 'p' in nbtag: nbtagCut+=' && '+nbtagLJMETname+'>='+nbtag[:-1]
-		else: nbtagCut+=' && '+nbtagLJMETname+'=='+nbtag
-	
-		if nbtag=='0' and iPlot=='minMlb': 
-			originalLJMETName=plotTreeName
-			plotTreeName='minMleppJet'
+	nbtagCut = ''
+	if 'p' in nbtag: nbtagCut+=' && '+nbtagLJMETname+'>='+nbtag[:-1]
+	else: nbtagCut+=' && '+nbtagLJMETname+'=='+nbtag
 
-		njetsCut = ''
-		if 'p' in njets: njetsCut+=' && '+njetsLJMETname+'>='+njets[:-1]
-		else: njetsCut+=' && '+njetsLJMETname+'=='+njets
-		if njets=='0p': njetsCut=''
-		
-		nbjCut += nbtagCut+njetsCut
-		
-	else:
-		if 'CR' in region:
-			nbjCut+=' && ( ('+nbtagLJMETname+'==1 && '+njetsLJMETname+'>=3)'
-			nbjCut+=  ' || ('+nbtagLJMETname+'>=2 && '+njetsLJMETname+'==3)'
-			nbjCut+=  ' || ('+nbtagLJMETname+'==2 && '+njetsLJMETname+'==4))'
-		if 'SR' in region:
-			nbjCut+=' && ( ('+nbtagLJMETname+'==2 && '+njetsLJMETname+'>=5)'
-			nbjCut+=  ' || ('+nbtagLJMETname+'==3 && '+njetsLJMETname+'>=5)'
-			nbjCut+=  ' || ('+nbtagLJMETname+'>=4 && '+njetsLJMETname+'>=5)'
-			nbjCut+=  ' || ('+nbtagLJMETname+'>=3 && '+njetsLJMETname+'==4))'
+	if nbtag=='0' and iPlot=='minMlb': 
+		originalLJMETName=plotTreeName
+		plotTreeName='minMleppJet'
+
+	njetsCut = ''
+	if 'p' in njets: njetsCut+=' && '+njetsLJMETname+'>='+njets[:-1]
+	else: njetsCut+=' && '+njetsLJMETname+'=='+njets
+	if njets=='0p': njetsCut=''
+	
+	nbjCut += nbtagCut+njetsCut
 	
 	fullcut = cut+isEMCut+nttagCut+nWtagCut+nbjCut
+	if 'WJets' in process: 
+		if process.endswith('_bflv'): fullcut+=' && NbHFlav>0'
+		elif process.endswith('_cflv'): fullcut+=' && NbHFlav==0 && NcHFlav>0'
+		elif process.endswith('_lflv'): fullcut+=' && NbHFlav==0 && NcHFlav==0'
+	elif 'TTJets' in process: 
+		if process.endswith('_bbflv'): fullcut+=' && NbHFlav>=3'
+		elif process.endswith('_llflv'): fullcut+=' && NbHFlav<3'
 
 	# replace cuts for shifts
 	cut_btagUp = fullcut#.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[0]')
@@ -178,7 +201,12 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	for key in hists.keys(): hists[key].Sumw2()
 
 	# DRAW histograms
+	fullcutShape = fullcut
+	if iPlot=='BDT' and 'Data' not in process and 'Q2' not in process: fullcut+=' && isTraining==1'
 	tTree[process].Draw(plotTreeName+' >> '+iPlot+''+'_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+# 	if 'TTJets' in process: 
+# 		if process.endswith('_bbflv'): hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process].Scale(1.71)
+# 		elif process.endswith('_llflv'): hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process].Scale((1.-1.71*hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process].Integral())/(1.-hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process].Integral()))
 	if doAllSys:
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffUp_'    +lumiStr+'fb_'+catStr+'_'+process, weightTrigEffUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffDown_'  +lumiStr+'fb_'+catStr+'_'+process, weightTrigEffDownStr+'*('+fullcut+')', 'GOFF')
@@ -211,12 +239,13 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		tTree[process].Draw(MISTAGupName+' >> '+iPlot+'mistagUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_mistagUp+')', 'GOFF')
 		tTree[process].Draw(MISTAGdnName+' >> '+iPlot+'mistagDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_mistagDn+')', 'GOFF')
 
+		print 'Cuts (JECR shape): '+fullcutShape
 		if tTree[process+'jecUp']:
-			tTree[process+'jecUp'].Draw(plotTreeName   +' >> '+iPlot+'jecUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
-			tTree[process+'jecDown'].Draw(plotTreeName +' >> '+iPlot+'jecDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+			tTree[process+'jecUp'].Draw(plotTreeName   +' >> '+iPlot+'jecUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcutShape+')', 'GOFF')
+			tTree[process+'jecDown'].Draw(plotTreeName +' >> '+iPlot+'jecDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcutShape+')', 'GOFF')
 		if tTree[process+'jerUp']:
-			tTree[process+'jerUp'].Draw(plotTreeName   +' >> '+iPlot+'jerUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
-			tTree[process+'jerDown'].Draw(plotTreeName +' >> '+iPlot+'jerDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+			tTree[process+'jerUp'].Draw(plotTreeName   +' >> '+iPlot+'jerUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcutShape+')', 'GOFF')
+			tTree[process+'jerDown'].Draw(plotTreeName +' >> '+iPlot+'jerDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcutShape+')', 'GOFF')
 		for i in range(100): tTree[process].Draw(plotTreeName+' >> '+iPlot+'pdf'+str(i)+'_'+lumiStr+'fb_'+catStr+'_'+process, 'pdfWeights['+str(i)+'] * '+weightStr+'*('+fullcut+')', 'GOFF')
 	
 	for key in hists.keys(): hists[key].SetDirectory(0)	

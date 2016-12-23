@@ -1,9 +1,9 @@
 import os,sys,fnmatch
 
 templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/cHiggs_2016/makeTemplates/'
-templateDir+='templates_2016_11_26_noNegWeightCorr'
+templateDir+='templates_bkgSplit_wRwt_cats_2016_12_10'
 thetaConfigTemp = os.getcwd()+'/theta_config_template_test.py'
-lumiInFile = '36p0fb'
+lumiInFile = '36p4fb'
 
 toFilter0 = ['pdf','muRFdecorrdNew','muRFenv','muR','muF','muRFcorrd'] #always remove in case they are in templates
 #toFilter0+= ['pileup','jec','jer','toppt','jsf','muRFcorrdNew','pdfNew','q2','trigeff']#,'btag','mistag'
@@ -16,9 +16,13 @@ catList = ['nB1_nJ3','nB1_nJ4','nB1_nJ5','nB1_nJ6p',
 		   'nB4p_nJ5','nB4p_nJ6p']
 SRcatList=['nB2_nJ5','nB2_nJ6p','nB3p_nJ4','nB3_nJ5','nB3_nJ6p','nB4p_nJ5','nB4p_nJ6p']
 CRcatList=['nB1_nJ3','nB1_nJ4','nB1_nJ5','nB1_nJ6p','nB2p_nJ3','nB2_nJ4']
-		   
+mergedCats   = ['nB3p_nJ5','nB3p_nJ6p']
+unmergedCats = ['nB3_nJ5','nB3_nJ6p','nB4p_nJ5','nB4p_nJ6p']
+	   
 limitConfs = {#'<limit type>':[filter list]
 			  'all':[],
+			  #'all_merged':[item for item in mergedCats],
+			  #'all_unmerged':[item for item in unmergedCats],
 # 			  'isE':['isM'], #only electron channel
 # 			  'isM':['isE'], #only muon channel
 # 			  'isCR':['_'+item+'_' for item in SRcatList], #only 0 t tag category
@@ -62,7 +66,8 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if '0_36p0fb_rebinned_stat0p3_new.' not in rootfile: continue
+    if 'merged.root' not in rootfile: continue
+    #if '0_36p4fb_WJsplit_rebinned_stat0p3' not in rootfile: continue
     if 'YLD' not in rootfile: continue
     if 'plots' in rootfile: continue
     rootfilelist.append(rootfile)

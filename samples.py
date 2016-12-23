@@ -22,6 +22,11 @@ samples = {
 'HTBM400':'ChargedHiggs_HplusTB_HplusToTB_M-400_13TeV_amcatnlo_pythia8',
 'HTBM450':'ChargedHiggs_HplusTB_HplusToTB_M-450_13TeV_amcatnlo_pythia8',
 'HTBM500':'ChargedHiggs_HplusTB_HplusToTB_M-500_13TeV_amcatnlo_pythia8',
+'HTBM750':'ChargedHiggs_HplusTB_HplusToTB_M-750_13TeV_amcatnlo_pythia8',
+'HTBM800':'ChargedHiggs_HplusTB_HplusToTB_M-800_13TeV_amcatnlo_pythia8',
+'HTBM1000':'ChargedHiggs_HplusTB_HplusToTB_M-1000_13TeV_amcatnlo_pythia8',
+'HTBM2000':'ChargedHiggs_HplusTB_HplusToTB_M-2000_13TeV_amcatnlo_pythia8',
+'HTBM3000':'ChargedHiggs_HplusTB_HplusToTB_M-3000_13TeV_amcatnlo_pythia8',
 
 'TTM700BWBW':'TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8_BWBW',
 'TTM800BWBW':'TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8_BWBW',
@@ -178,4 +183,12 @@ samples = {
 'QCDht2000':'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
 }
 
+for smp in samples.keys():
+	if 'WJetsMG' in smp:
+		samples[smp+'_bflv']=samples[smp]
+		samples[smp+'_cflv']=samples[smp]
+		samples[smp+'_lflv']=samples[smp]
+	if 'TTJets' in smp:
+		samples[smp+'_bbflv']=samples[smp]
+		samples[smp+'_llflv']=samples[smp]
 

@@ -11,6 +11,7 @@ def skip_atlas(njets,nbjets): # function to skip certain categories in atlas cat
  	return False
 
 def skip(njets,nbjets): # function to skip certain categories in final categorization
+ 	#return False #use if you want this function to do nothing!
  	if nbjets=='2':
  		if njets=='3': return True
  	if nbjets=='2p':

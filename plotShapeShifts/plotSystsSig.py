@@ -16,30 +16,28 @@ templateFile = '../makeThetaTemplates/'+tempVersion+'/'+cutString+'/templates_'+
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signals'): os.system('mkdir '+outDir+tempVersion+'/signals')
 
-bkgList = ['top','ewk','qcd']
+bkgList = ['ttbar','wjets','top','ewk','qcd']
 channels = ['isE','isM']
 ttags = ['nT0p']
-wtags = ['nW0','nW1p']
-btags = ['nB0','nB1','nB2','nB3p']
-systematics = ['pileup','jec','jer','btag','mistag','tau21','jsf','muRFcorrdNew','pdfNew','trigeff']
+wtags = ['nW0p']
+btags = ['nB1','nB2','nB2p','nB3','nB3p','nB4p']
+njets = ['nJ3','nJ4','nJ5','nJ6p']
+systematics = ['pileup','jec','jer','muRFcorrdNew','pdfNew']#,'btag','mistag','trigeff']
 
-signameList = ['TTM800',
-	       'TTM900',
-	       'TTM1000',
-	       'TTM1100',
-	       'TTM1200',
-	       'TTM1300',
-	       'TTM1400',
-	       'TTM1500',
-	       'TTM1600',
-	       'TTM1700',
-	       'TTM1800',
-	       ]
+signameList = ['HTBM180',
+			   'HTBM200',
+			   'HTBM250',
+			   'HTBM300',
+			   'HTBM350',
+			   'HTBM400',
+			   'HTBM450',
+			   'HTBM500',
+			   ]
 
 for signal in signameList:
-	RFile = R.TFile(templateFile.replace('TTM900',signal))
+	RFile = R.TFile(templateFile.replace('HTBM200',signal))
 	for syst in systematics:
-		Prefix = discriminant+'_12p892fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'__sig'
+		Prefix = discriminant+'_36p0fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'__sig'
 		print Prefix
 		hNm = RFile.Get(Prefix).Clone()
 		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()

@@ -5,6 +5,7 @@ from ROOT import TH1D,gROOT,TFile,TTree
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from numpy import linspace
+import argparse
 from weights import *
 from analyze import *
 from samples import *
@@ -13,10 +14,17 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
+# parser = argparse.ArgumentParser(description='Welcome to singleLepAnalyzer!')
+# parser.add_argument('-i','--input', help='Input file name',required=True)
+# parser.add_argument('-o','--output',help='Output file name', required=True)
+# args = parser.parse_args()
+
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 #step1Dir = '/user_data/bhardwaj/LJMet_1lepCHiggs_110716_step2hadds_FullData2016_Fixed_JetsCut3_BJetsCut1/nominal'
-step1Dir = '/user_data/jlee/chargedHiggs/LJMet_1lep_111816_step2preSel_aveBBdr_fixed/STEP2/nominal'
+#step1Dir = '/user_data/jlee/chargedHiggs/LJMet_1lep_111816_step2preSel_aveBBdr_fixed/STEP2/nominal'
 #step1Dir = '/user_data/jlee/chargedHiggs/atLeast3B/newSample/normal/500'#BDT
+#step1Dir = '/user_data/ssagir/LJMet_1lep_120916_step2preSel/nominal'
+step1Dir = '/user_data/jlee/chargedHiggs/LJMet_1lep_120916_step2preSel_BDT/Condor/WeightAppliedOnFULL500/nominal'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -30,10 +38,20 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 bkgList = [
 		  'DY',
 		  'WJetsMG',
-		  #'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+# 		  'WJetsMG_bflv',
+# 		  'WJetsMG_cflv',
+# 		  'WJetsMG_lflv',
+		  'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+# 		  'WJetsMG100_bflv','WJetsMG200_bflv','WJetsMG400_bflv','WJetsMG600_bflv','WJetsMG800_bflv','WJetsMG1200_bflv','WJetsMG2500_bflv',
+# 		  'WJetsMG100_cflv','WJetsMG200_cflv','WJetsMG400_cflv','WJetsMG600_cflv','WJetsMG800_cflv','WJetsMG1200_cflv','WJetsMG2500_cflv',
+# 		  'WJetsMG100_lflv','WJetsMG200_lflv','WJetsMG400_lflv','WJetsMG600_lflv','WJetsMG800_lflv','WJetsMG1200_lflv','WJetsMG2500_lflv',
 		  'WW','WZ','ZZ',
 		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
 		  'TTJetsPH700mtt','TTJetsPH1000mtt',
+# 		  'TTJetsPH0to700inc_bbflv','TTJetsPH700to1000inc_bbflv','TTJetsPH1000toINFinc_bbflv',
+# 		  'TTJetsPH700mtt_bbflv','TTJetsPH1000mtt_bbflv',
+# 		  'TTJetsPH0to700inc_llflv','TTJetsPH700to1000inc_llflv','TTJetsPH1000toINFinc_llflv',
+# 		  'TTJetsPH700mtt_llflv','TTJetsPH1000mtt_llflv',
 		  'TTWl','TTWq','TTZl','TTZq',
 		  'Tt','Tbt','Ts','TtW','TbtW',
 		  'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
@@ -42,7 +60,7 @@ bkgList = [
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']#'DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
 
 whichSignal = 'HTB' #HTB, TT, BB, or X53X53
-massList = range(180,200+1,20)+range(250,500+1,50)
+massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -56,8 +74,8 @@ region = 'SR'
 if len(sys.argv)>3: region=sys.argv[3]
 isCategorized = 1
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
-isotrig = 1
-doJetRwt= 0
+isotrig = 0
+doJetRwt= 1
 doAllSys= False
 doQ2sys = False
 q2List  = [#energy scale sample to be processed
@@ -162,11 +180,19 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'Jet1Pt':('theJetPt_JetSubCalc_PtOrdered[0]',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}), AK4 [GeV]'),
 	'Jet2Pt':('theJetPt_JetSubCalc_PtOrdered[1]',linspace(0, 1500, 51).tolist(),';p_{T}(j_{2}), AK4 [GeV]'),
 	'Jet3Pt':('theJetPt_JetSubCalc_PtOrdered[2]',linspace(0, 800, 51).tolist(),';p_{T}(j_{3}), AK4 [GeV]'),
-	'deltaPhilepJets0':('deltaPhi_lepJets[0]',linspace(0,3.2,51).tolist(),';#Delta#Phi(l,j_{1})'),
-	'deltaPhilepJets1':('deltaPhi_lepJets[1]',linspace(0,3.2,51).tolist(),';#Delta#Phi(l,j_{2})'),
-	'masslepJets0':('mass_lepJets[0]',linspace(0,1000,51).tolist(),';M(l,j_{1}) [GeV]'),
-	'masslepJets1':('mass_lepJets[1]',linspace(0,1000,51).tolist(),';M(l,j_{2}) [GeV]'),
-	'mindeltaR':('minDR_lepJet',linspace(0, 5, 51).tolist(),';min#DeltaR(l,j)'),
+	'deltaPhilepJets0':('deltaPhi_lepJets0',linspace(0,3.2,51).tolist(),';#Delta#phi(l,j_{1})'),
+	'deltaPhilepJets1':('deltaPhi_lepJets1',linspace(0,3.2,51).tolist(),';#Delta#phi(l,j_{2})'),
+	'deltaPhilepJets2':('deltaPhi_lepJets2',linspace(0,3.2,51).tolist(),';#Delta#phi(l,j_{3})'),
+	'deltaRlepJets0':('deltaR_lepJets0',linspace(0,6,51).tolist(),';#DeltaR(l,j_{1})'),
+	'deltaRlepJets1':('deltaR_lepJets1',linspace(0,6,51).tolist(),';#DeltaR(l,j_{2})'),
+	'deltaRlepJets2':('deltaR_lepJets2',linspace(0,6,51).tolist(),';#DeltaR(l,j_{3})'),
+	'deltaR_lepBJets0':('deltaR_lepBJets0',linspace(0,6,51).tolist(),';#DeltaR(l,b_{1})'),
+	'mindeltaRlb':('minDR_lepBJet',linspace(0,6,51).tolist(),';min[#DeltaR(l,b)]'),
+	'masslepJets0':('mass_lepJets0',linspace(0,1000,51).tolist(),';M(l,j_{1}) [GeV]'),
+	'masslepJets1':('mass_lepJets1',linspace(0,1000,51).tolist(),';M(l,j_{2}) [GeV]'),
+	'masslepJets2':('mass_lepJets2',linspace(0,1000,51).tolist(),';M(l,j_{3}) [GeV]'),
+	'masslepBJets0':('mass_lepBJet0',linspace(0,1000,51).tolist(),';M(l,b_{1}) [GeV]'),
+	'mindeltaR':('minDR_lepJet',linspace(0, 6, 51).tolist(),';min[#DeltaR(l,j)]'),
 	'MET':('corr_met_singleLepCalc',linspace(0, 1500, 51).tolist(),';#slash{E}_{T} [GeV]'),
 	'NJets':('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity'),
 	'NBJetsNoSF':('NJetsCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity'),
@@ -175,15 +201,18 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'PtRel':('ptRel_lepJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
 	'LeadJetPt':('theJetLeadPt',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}) [GeV]'),
 	'aveBBdr':('aveBBdr',linspace(0, 6, 51).tolist(),';#bar{#DeltaR(b,b)}'),
+	'minBBdr':('minBBdr',linspace(0, 6, 51).tolist(),';min[#DeltaR(b,b)]'),
 	'mass_maxJJJpt':('mass_maxJJJpt',linspace(0, 3000, 51).tolist(),';M(jjj) with max[p_{T}(jjj)] [GeV]'),
 	'mass_maxBBmass':('mass_maxBBmass',linspace(0, 1500, 51).tolist(),';max[M(b,b)] [GeV]'),
 	'mass_maxBBpt':('mass_maxBBpt',linspace(0, 1500, 51).tolist(),';M(b,b) with max[p_{T}(bb)] [GeV]'),
-	'lepDR_minBBdr':('lepDR_minBBdr',linspace(0, 6, 51).tolist(),';#DeltaR(l,bb) with min#DeltaR(b,b)'),
+	'lepDR_minBBdr':('lepDR_minBBdr',linspace(0, 6, 51).tolist(),';#DeltaR(l,bb) with min[#DeltaR(b,b)]'),
 	'mass_minBBdr':('mass_minBBdr',linspace(0, 1000, 51).tolist(),';M(b,b) with min[#DeltaR(b,b)] [GeV]'),
 	'mass_minLLdr':('mass_minLLdr',linspace(0, 1000, 51).tolist(),';M(j,j) with min[#DeltaR(j,j)], j #neq b [GeV]'),
+ 	'mass_lepBB_minBBdr':('mass_lepBB_minBBdr',linspace(0, 1000, 51).tolist(),';M(l,bb) with min[#DeltaR(b,b)] [GeV]'),
+	'mass_lepJJ_minJJdr':('mass_lepJJ_minJJdr',linspace(0, 1000, 51).tolist(),';M(l,jj) with min[#DeltaR(j,j)], j #neq b [GeV]'),
 
-    'HT':('AK4HT',linspace(0, 5000, 51).tolist(),';H_{T} [GeV]'),
- 	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 51).tolist(),';S_{T} [GeV]'),
+    'HT':('AK4HT',linspace(0, 3000, 51).tolist(),';H_{T} [GeV]'),
+ 	'ST':('AK4HTpMETpLepPt',linspace(0, 3000, 51).tolist(),';S_{T} [GeV]'),
 	'minMlb':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]'),
 
 	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity',linspace(0, 10, 11).tolist(),';b tag multiplicity'),

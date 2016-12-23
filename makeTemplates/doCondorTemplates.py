@@ -14,32 +14,55 @@ date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_negSignals_'+date#+'_'+time
+pfix+='_BDT_'+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
+# 			'NPV',
+# 			'MTlmet',
+# 			'topPt',
+# 			'Bjet1Pt',
 # 			'lepPt',
 # 			'lepEta',
-# 			'NPV',
 # 			'JetEta',
 # 			'JetPt',
 # 			'Jet1Pt',
 # 			'Jet2Pt',
 # 			'Jet3Pt',
+# 			'mindeltaR',
 # 			'MET',
 # 			'NJets',
+# 			'NBJetsNoSF',
 # 			'NBJets',
+# 			'PtRel',
+			
 			'HT',
-# 			'minMlb',
-# 			'ST',
-# 			'BDT',
+			'ST',
+			'minMlb',
+			'BDT',
+			
+# 			'deltaPhilepJets0',
+# 			'deltaPhilepJets1',
+# 			'deltaPhilepJets2',
+# 			'deltaRlepJets0',
+# 			'deltaRlepJets1',
+# 			'deltaRlepJets2',
+# 			'deltaR_lepBJets0',
+# 			'mindeltaRlb',
+# 			'masslepJets0',
+# 			'masslepJets1',
+# 			'masslepJets2',
+# 			'masslepBJets0',
 # 			'LeadJetPt',
 # 			'aveBBdr',
+# 			'minBBdr',
 # 			'mass_maxJJJpt',
 # 			'mass_maxBBmass',
 # 			'mass_maxBBpt',
 # 			'lepDR_minBBdr',
 # 			'mass_minLLdr', 
 # 			'mass_minBBdr',
+# 			'mass_lepBB_minBBdr',
+# 			'mass_lepJJ_minJJdr',
 			]
 
 isEMlist = ['E','M']
@@ -49,9 +72,13 @@ nWtaglist = ['0p']
 # njetslist = ['4','5','6p']
 nbtaglist = ['1','2','2p','3','3p','4p']
 njetslist = ['3','4','5','6p']
+# nbtaglist = ['1','2','3p']
+# njetslist = ['4p']
+# nbtaglist = ['1','1p','2p']
+# njetslist = ['3p']
 if not categorize: 
-	nbtaglist = ['2p']
-	njetslist = ['2p']
+	nbtaglist = ['1p']
+	njetslist = ['3p']
 catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 
 outDir = outputDir+pfix

@@ -16,7 +16,7 @@ signal = 'HTB'
 postfix = '' # for plot names in order to save them as different files
 xrange_min=180.
 xrange_max=500.
-yrange_min=.3+.01
+yrange_min=.1-.01
 yrange_max=20.05
 
 massPoints = [180,200,250,300,350,400,450,500]
@@ -36,9 +36,15 @@ limFiles   = ['/user_data/ssagir/HTB_limits_2016/templates_BDT_ATLAS_All_2016_11
 			  '/user_data/ssagir/HTB_limits_2016/templates_BDT_ATLAS_All_2016_11_3/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_BDT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
 			  '/user_data/ssagir/HTB_limits_2016/templates_HT_ATLAS_2016_11_3/SR/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_HT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
 			  '/user_data/ssagir/HTB_limits_2016/templates_HT_ATLAS_2016_11_3/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_HT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
-			  '/user_data/ssagir/HTB_limits_2016/templates_BDT_trainedMassesFor3pB_2016_11_3/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_BDT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
-			  '/user_data/ssagir/HTB_limits_2016/templates_BDT_trainedMasses_2016_11_2/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_BDT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
-			  '/user_data/ssagir/HTB_limits_2016/templates_BDT_2016_11_2/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_BDT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
+# 			  '/user_data/ssagir/HTB_limits_2016/templates_BDT_trainedMassesFor3pB_2016_11_3/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_BDT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
+			  '/user_data/jlee/chargedHiggs/CMSSW_7_4_7/src/HTB_limits_2016/combinedOutDir_noSys/isSR_unmerged/limits_templates_BDT_HTBM180_36p0fb_rebinned_stat0p3_expected.txt',
+			  '/user_data/jlee/chargedHiggs/CMSSW_7_4_7/src/HTB_limits_2016/combinedOutDir_noSys/all_unmerged/limits_templates_BDT_HTBM180_36p0fb_rebinned_stat0p3_expected.txt',
+			  '/user_data/jlee/chargedHiggs/CMSSW_7_4_7/src/HTB_limits_2016/combinedOutDir_noSys/all_merged/limits_templates_BDT_HTBM180_36p0fb_rebinned_stat0p3_expected.txt',
+# 			  '/user_data/ssagir/HTB_limits_2016/templates_BDT_2016_11_2/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_BDT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
+			  '/user_data/ssagir/HTB_limits_2016/templates_bkgSplit_wRwt_cats_2016_12_10_flatSysts/all_unmerged/limits_templates_HT_HTBM180_36p4fb_WJsplit_rebinned_stat0p3_expected.txt',
+# 			  '/user_data/ssagir/HTB_limits_2016/templates_BDT_trainedMassesFor3pB_2016_11_3/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_BDT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
+# 			  '/user_data/ssagir/HTB_limits_2016/templates_BDT_trainedMasses_2016_11_2/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_BDT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
+# 			  '/user_data/ssagir/HTB_limits_2016/templates_BDT_2016_11_2/all/lep50_MET30_NJets4p_NBJets2_1jet50_2jet40/limits_templates_BDT_HTBM180_33p59fb_rebinned_stat0p3_expected.txt',
 			  '/user_data/ssagir/HTB_limits_2016/templates_HT_SR_True_New_2016_9_12_toys5000/all/lep50_MET30_1jet50_2jet40_NJets4_NBJets0_3jet0_4jet0_5jet0_DR0_1Wjet0_1bjet0_HT0_ST0_minMlb0/limits_templates_HT_HTBM180_12p892fb_rebinned_statSR0p3_expected.txt'
 			  ]
 
@@ -46,9 +52,14 @@ limLegs    = ['BDT -- trained all signals for 3+b -- (4SR)',
 			  'BDT -- trained all signals for 3+b -- (4SR+4CR)',
 			  'HT -- (4SR)',
 			  'HT -- (4SR+4CR)',
-			  'BDT -- trained all signals for 3+b -- 2,3+b',
-			  'BDT -- trained all signals for 2+b -- 2,3+b',
-			  'BDT -- trained 500 GeV for 2+b -- 2,3+b',
+			  'BDT -- trained all signals for 3+b -- (7SR)',
+			  'BDT -- trained all signals for 3+b -- (7SR+6CR)',
+			  'BDT -- trained all signals for 3+b -- (5SR+6CR)',
+# 			  'HT -- (7SR)',
+			  'HT -- (7SR+6CR)',
+# 			  'BDT -- trained all signals for 3+b -- 2,3+b',
+# 			  'BDT -- trained all signals for 2+b -- 2,3+b',
+# 			  'BDT -- trained 500 GeV for 2+b -- 2,3+b',
 			  'HT -- 0,1,2,3+b',
 			  ]
 
@@ -145,7 +156,7 @@ leg.SetLineColor(0);
 leg.Draw() 
 
 folder='.'
-c0.SaveAs(folder+'/overlayPlots/overlayPlots_v2.pdf')
-c0.SaveAs(folder+'/overlayPlots/overlayPlots_v2.png')
-c0.SaveAs(folder+'/overlayPlots/overlayPlots_v2.eps')
+c0.SaveAs(folder+'/overlayPlots/overlayPlots_Dec11_v3.pdf')
+c0.SaveAs(folder+'/overlayPlots/overlayPlots_Dec11_v3.png')
+c0.SaveAs(folder+'/overlayPlots/overlayPlots_Dec11_v3.eps')
 

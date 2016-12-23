@@ -8,11 +8,11 @@ from tdrStyle import *
 setTDRStyle()
 
 blind=False
-signal = 'X53'
-lumiPlot = '2.3'
-discriminant='minMlb'
+signal = 'HTB'
+lumiPlot = '36'
+discriminant='HT'
 
-mass_str = ['700','800','900','1000','1100','1200','1300','1400','1500']#,'1600']
+mass_str = ['200','250','300','350','400','450','500']#,'1400','1500']#,'1600']
 theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391][:len(mass_str)]#pb
 scale_up = [1.9,1.9,1.9,1.8,1.8,1.8,1.7,1.8,1.7,1.6,1.7,1.7][:len(mass_str)]#%
 scale_dn = [1.9,1.8,1.7,1.6,1.6,1.5,1.5,1.5,1.5,1.5,1.5,1.5][:len(mass_str)]#%
@@ -64,7 +64,7 @@ def PlotLimits(json_file,chiral,binning,saveKey):
     json_data=open(json_file)
     data_lims = json.load(json_data)
     json_data.close()
-        
+    
     limExpected = 700
     limObserved = 700
     for i in range(len(mass)):
@@ -140,11 +140,14 @@ def PlotLimits(json_file,chiral,binning,saveKey):
     c4.SetLogy()
 
     expected95.Draw("a3")
-    expected95.GetYaxis().SetRangeUser(.008+.00001,10.45)
-    expected95.GetXaxis().SetRangeUser(700,1500)
+    expected95.GetYaxis().SetRangeUser(.301+.00001,25.45)
+    expected95.GetXaxis().SetRangeUser(200,500)
     if signal=='X53':
     	expected95.GetXaxis().SetTitle("X_{5/3} mass [GeV]")
     	expected95.GetYaxis().SetTitle("#sigma(X_{5/3}#bar{X}_{5/3})[pb] - "+chiral.replace('left','LH').replace('right','RH'))
+    if signal=='HTB':
+    	expected95.GetXaxis().SetTitle("H^{#pm} mass [GeV]")
+    	expected95.GetYaxis().SetTitle("#sigma#times(H^{#pm}#rightarrowtb)[pb]")
     else:
 		expected95.GetXaxis().SetTitle(signal+" mass [GeV]")
 		expected95.GetYaxis().SetTitle("#sigma ("+signal+"#bar{"+signal+"})[pb]")
@@ -156,11 +159,11 @@ def PlotLimits(json_file,chiral,binning,saveKey):
     theory_xsec_gr.SetLineColor(2)
     theory_xsec_gr.SetLineStyle(1)
     theory_xsec_gr.SetLineWidth(2)
-    theory_xsec_gr.Draw("3same") 
+    #theory_xsec_gr.Draw("3same") 
     theory.SetLineColor(2)
     theory.SetLineStyle(1)
     theory.SetLineWidth(2)
-    theory.Draw("same")                                                             
+    #theory.Draw("same")                                                             
         
     latex2 = TLatex()
     latex2.SetNDC()
@@ -178,7 +181,7 @@ def PlotLimits(json_file,chiral,binning,saveKey):
     legend.AddEntry(expected68, '#pm 1#sigma expected', "f")
     legend.AddEntry(expected, '95% CL expected', "l")
     legend.AddEntry(expected95, '#pm 2#sigma expected', "f")
-    legend.AddEntry(theory_xsec_gr, 'Signal Cross Section', 'lf')
+    #legend.AddEntry(theory_xsec_gr, 'Signal Cross Section', 'lf')
 
     legend.SetShadowColor(0)
     legend.SetFillStyle(0)
@@ -201,13 +204,9 @@ def PlotLimits(json_file,chiral,binning,saveKey):
 
 #PlotLimits(json_file,chiral,binning,saveKey)
 
-print "=========>>>>>>>>>>> X53X53_LH"
-expLim,obsLim = PlotLimits('LIMITS_LH/limits_isSR_isE.json','LH','0p2','_isE')
-expLim,obsLim = PlotLimits('LIMITS_LH/limits_isSR_isM.json','LH','0p2','_isM')
-expLim,obsLim = PlotLimits('LIMITS_LH/limits_cmb.json','LH','0p2','_all')
-print "=========>>>>>>>>>>> X53X53_RH"
-expLim,obsLim = PlotLimits('LIMITS_RH/limits_isSR_isE.json','RH','0p2','_isE')
-expLim,obsLim = PlotLimits('LIMITS_RH/limits_isSR_isM.json','RH','0p2','_isM')
-expLim,obsLim = PlotLimits('LIMITS_RH/limits_cmb.json','RH','0p2','_all')
+print "=========>>>>>>>>>>> HPLUS"
+# expLim,obsLim = PlotLimits('LIMITS_lumiTheory_on_tt_W_noDDnorm/limits_isSR_isE.json','','0p3','_isE')
+# expLim,obsLim = PlotLimits('LIMITS_lumiTheory_on_tt_W_noDDnorm/limits_isSR_isM.json','','0p3','_isM')
+expLim,obsLim = PlotLimits(sys.argv[1]+'/limits_cmb.json','','0p3','_all_'+sys.argv[1])
 
 

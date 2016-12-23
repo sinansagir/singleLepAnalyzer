@@ -12,8 +12,7 @@ blind=False
 saveKey=''#'_test'
 signal = 'HTB'
 lumiPlot = '36'
-lumiStr = '36p0'
-discriminant='YLD'
+lumiStr = '36p4'
 
 mass_str = ['180','200','250','300','350','400','450','500']
 theory_xsec = [0.919,0.783951,0.4982015,0.324766,0.2184385,0.148574,0.104141,0.0735225][:len(mass_str)]#pb
@@ -59,7 +58,7 @@ def getSensitivity(index, exp):
 	t = (a1*c2-a2*c1)/(a1*b2-a2*b1)
 	return mass[index-1]+s*(mass[index]-mass[index-1]), exp[index-1]+s*(exp[index]-exp[index-1])
 
-def PlotLimits(limitDir,limitFile,chiral,tempKey):
+def PlotLimits(limitDir,limitFile,discriminant,chiral,tempKey):
     histPrefix=discriminant+'_'+str(lumiStr)+'fb'+chiral
     ljust_i = 10
     print
@@ -216,9 +215,9 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     folder = '.'
     outDir=folder+'/'+limitDir.split('/')[-3]+'plots'
     if not os.path.exists(outDir): os.system('mkdir '+outDir)
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.eps')
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.pdf')
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.png')
+    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_'+binning+saveKey+'_'+tempKey+'.eps')
+    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_'+binning+saveKey+'_'+tempKey+'.pdf')
+    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_'+binning+saveKey+'_'+tempKey+'.png')
     return int(round(limExpected)), int(round(limObserved))
 
 doBRScan = False
@@ -236,15 +235,16 @@ tempKeys = ['nB1_nJ3','nB1_nJ4','nB1_nJ5','nB1_nJ6p',
 		    'nB2p_nJ3','nB2_nJ4','nB2_nJ5','nB2_nJ6p',
 		    'nB3p_nJ4','nB3_nJ5','nB3_nJ6p',
 		    'nB4p_nJ5','nB4p_nJ6p','isCR','isSR','all']
-tempKeys = ['all']
-#tempKeys = ['all_20p_all_nottwjets']#,'all_20p_all','all_20p_all_nott']#,'all','all_ttbarOnly','all_ttbartopOnly','all_ttbartopqcdOnly','all_ttbartopqcdsigOnly']
+tempKeys = ['all']#_merged','all_unmerged']
 cutString=''
 dirs = {
-		'conf1':'templates_2016_11_26_noNegWeightCorr_flatSysts',
+		'conf1':'templates_bkgSplit_wRwt_cats_2016_12_10_flatSysts',
 		}
 dirKeyList = ['conf1']
 binnings = ['0p15','0p2','0p25','0p3']
-binnings = ['0p3_new']
+binnings = ['WJsplit_rebinned_stat0p3_merged','WJsplit_TTsplit_rebinned_stat0p3_merged',
+'WJsplit_rebinned_stat0p3_unmerged','WJsplit_TTsplit_rebinned_stat0p3_unmerged']
+iPlots = ['YLD']#,'HT','ST','minMlb']
 
 expLims = {}
 obsLims = {}
@@ -252,19 +252,22 @@ for dirKey in dirKeyList:
 	dir = dirs[dirKey]
 	expLims[dirKey] = {}
 	obsLims[dirKey] = {}
-	for binning in binnings:
-		expLims[dirKey][binning] = []
-		obsLims[dirKey][binning] = []
-		for tempKey in tempKeys:
-			for BRind in range(nBRconf):
-				BRconfStr=''
-				if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
-				limitDir='/user_data/ssagir/HTB_limits_2016/'+dir+'/'+tempKey+BRconfStr+'/'
-				limitFile='/limits_templates_'+discriminant+'_'+signal+'M180'+BRconfStr+'_'+str(lumiStr)+'fb_rebinned_stat'+str(binning).replace('.','p')+'_expected.txt'	
-				print limitDir+cutString+limitFile
-				expTemp,obsTemp = PlotLimits(limitDir,limitFile,'',tempKey+BRconfStr)
-				expLims[dirKey][binning].append(expTemp)
-				obsLims[dirKey][binning].append(obsTemp)
+	for iPlot in iPlots:
+		expLims[dirKey][iPlot] = {}
+		obsLims[dirKey][iPlot] = {}
+		for binning in binnings:
+			expLims[dirKey][iPlot][binning] = []
+			obsLims[dirKey][iPlot][binning] = []
+			for tempKey in tempKeys:
+				for BRind in range(nBRconf):
+					BRconfStr=''
+					if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
+					limitDir='/user_data/ssagir/HTB_limits_2016/'+dir+'/'+tempKey+BRconfStr+'/'
+					limitFile='/limits_templates_'+iPlot+'_'+signal+'M180'+BRconfStr+'_'+str(lumiStr)+'fb_'+binning+'_expected.txt'	
+					print limitDir+cutString+limitFile
+					expTemp,obsTemp = PlotLimits(limitDir,limitFile,iPlot,'',tempKey+BRconfStr)
+					expLims[dirKey][iPlot][binning].append(expTemp)
+					obsLims[dirKey][iPlot][binning].append(obsTemp)
 if doBRScan:
 	print "BRs_bW:",BRs['BW']
 	print "BRs_tH:",BRs['TH']
@@ -284,17 +287,17 @@ for ind in range(len(tempKeys)):
 	print "////////////////////////////////"
 	for binning in binnings:
 		for dirKey in dirKeyList:
-			print dirKey+'_'+binning,
+			for iPlot in iPlots: print dirKey+'_'+iPlot+'_'+binning,
 	print
 	print "Expected:"
 	for binning in binnings:
 		for dirKey in dirKeyList: 
-			print expLims[dirKey][binning][ind],
+			for iPlot in iPlots: print expLims[dirKey][iPlot][binning][ind],
 	print
 	print "Observed:"
 	for binning in binnings:
 		for dirKey in dirKeyList: 
-			print obsLims[dirKey][binning][ind],
+			for iPlot in iPlots: print obsLims[dirKey][iPlot][binning][ind],
 	print
 
 
