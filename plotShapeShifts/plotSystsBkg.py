@@ -7,27 +7,27 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 2.3
+lumi = 36.4
 discriminant = 'minMlb'
-rfilePostFix = '_modified'
-tempVersion = 'templates_minMlb_ObjRev/'
-cutString = 'SelectionFile'
-templateFile = '../makeThetaTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_TTM900_12p892fb'+rfilePostFix+'.root'
+rfilePostFix = '_rebinned_stat1p1'
+tempVersion = 'templates_Wkshp/'
+cutString = ''#SelectionFile'
+templateFile = '../makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_TTM900_36p0fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/bkgs'): os.system('mkdir '+outDir+tempVersion+'/bkgs')
 
 saveKey = ''
 bkgList = ['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
 channels = ['isE','isM']
-ttags = ['nT0p']#,'nT1p']
-wtags = ['nW0','nW1p']
-btags = ['nB0','nB1','nB2','nB3p']
-systematics = ['pileup','jec','jer','btag','mistag','tau21','q2','jsf','muRFcorrdNew','pdfNew','trigeff']
+htags = ['nH0','nH1b','nH2b']
+wtags = ['nW0','nW0p','nW1p']
+btags = ['nB0','nB1p','nB1','nB2','nB3p']
+systematics = ['pileup','jec','jer','tau21','q2','jsf','muRFcorrdNew','pdfNew','toppt']#'btag','mistag',,'trigeff']
 		
 RFile = R.TFile(templateFile)
 
 for syst in systematics:
-	Prefix = discriminant+'_12p892fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'__'+bkgList[0]
+	Prefix = discriminant+'_36p0fb_'+channels[0]+'_'+htags[0]+'_'+wtags[0]+'_'+btags[0]+'_nJ3p__'+bkgList[0]
 	if (syst=='q2' or syst=='toppt') and bkgList[0]!='top': continue
 	if (syst=='pdNewf' or syst=='muRFcorrdNew') and bkgList[0]=='qcd': continue
 	print Prefix
@@ -35,22 +35,26 @@ for syst in systematics:
 	hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
 	hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
 	for ch in channels:
-		for ttag in ttags:
+		for htag in htags:
 			for wtag in wtags:
+				if htag=='nH0' and wtag=='nW0p': continue
+				if htag!='nH0' and wtag!='nW0p': continue
 				for btag in btags:
+					if htag=='nH0' and btag=='nB1p': continue
+					if htag!='nH0' and btag!='nB1p': continue
 					for bkg in bkgList:
-						if ch==channels[0] and btag==btags[0] and ttag==ttags[0] and wtag==wtags[0] and bkg==bkgList[0]: continue
+						if ch==channels[0] and btag==btags[0] and htag==htags[0] and wtag==wtags[0] and bkg==bkgList[0]: continue
 						try: 
-							print Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)
-							htemp = RFile.Get(Prefix.replace('isE',ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)).Clone()
+							print Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)
+							htemp = RFile.Get(Prefix.replace('isE',ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)).Clone()
 							hNm.Add(htemp)
 						except: pass
 						try:
 							if (syst=='q2' or syst=='toppt') and bkg!='top':
-								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)).Clone()
+								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)).Clone()
 								hUp.Add(htempUp)
 							else:
-								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__plus').Clone()
+								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__plus').Clone()
 								scaleHist = 1.
 
 								htempUp.Scale(scaleHist)
@@ -58,10 +62,10 @@ for syst in systematics:
 						except:pass
 						try: 
 							if (syst=='q2' or syst=='toppt') and bkg!='top':
-								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)).Clone()
+								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)).Clone()
 								hDn.Add(htempDown)
 							else:
-								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
+								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
 								scaleHist = 1.
 
 								htempDown.Scale(scaleHist)
