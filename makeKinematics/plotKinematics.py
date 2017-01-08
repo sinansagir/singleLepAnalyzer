@@ -3,13 +3,14 @@
 import os,sys,time,math,pickle
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
-import ROOT as R
+import ROOT as rt
 from weights import *
 from modSyst import *
 from utils import *
+import CMS_lumi, tdrstyle
 
-R.gROOT.SetBatch(1)
-#R.TGaxis.SetMaxDigits(3)
+rt.gROOT.SetBatch(1)
+#rt.TGaxis.SetMaxDigits(3)
 start_time = time.time()
 
 lumi=2.3 #for plots
@@ -38,6 +39,7 @@ doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
 yLog  = False
+doPaperStyle = True
 
 doRealPull = True
 if doRealPull: doOneBand=False
@@ -73,6 +75,7 @@ def formatUpperHist(histogram):
 
 	if 'JetPt' in histogram.GetName() or 'JetEta' in histogram.GetName() or 'JetPhi' in histogram.GetName() or 'Pruned' in histogram.GetName() or 'Tau' in histogram.GetName(): histogram.GetYaxis().SetTitle(histogram.GetYaxis().GetTitle().replace("Events","Jets"))
 	if 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,b)] (GeV)")
+	if 'deltaRjet2' in histogram.GetName(): histogram.GetXaxis().SetTitle("#DeltaR(l,j_{2})")
 	histogram.GetYaxis().CenterTitle()
 	histogram.SetMinimum(0.00101)
 	if not yLog: 
@@ -110,40 +113,81 @@ def formatLowerHist(histogram):
 	histogram.GetYaxis().CenterTitle()	
 
 plotList = [#distribution name as defined in "doHists.py"
-		'NPV',
-		'lepPt',
-		'lepEta',
-		'JetEta',
-		'JetPt' ,
-		'Jet1Pt',
-		'Jet2Pt',
-		'Jet3Pt',
-		'Jet4Pt',
-		'Jet5Pt',
-		'Jet6Pt',
-		'HT',
-		'ST',
-		'MET',
+# 		'NPV',
+# 		'lepPt',
+# 		'lepEta',
+# 		'JetEta',
+# 		'JetPt' ,
+# 		'Jet1Pt',
+# 		'Jet2Pt',
+# 		'Jet3Pt',
+# 		'Jet4Pt',
+# 		'Jet5Pt',
+# 		'Jet6Pt',
+# 		'HT',
+# 		'ST',
+# 		'MET',
 		'NJets' ,
 		'NBJets',
 		'NWJets',
-		'NJetsAK8',
-		'JetPtAK8',
-		'JetEtaAK8',
-		'Tau21',
-		'Tau32',
-		'mindeltaR',
-		'deltaRjet1',
+# 		'NJetsAK8',
+# 		'JetPtAK8',
+# 		'JetEtaAK8',
+# 		'Tau21',
+# 		'Tau32',
+# 		'mindeltaR',
+# 		'deltaRjet1',
 		'deltaRjet2',
-		'deltaRjet3',
-		'PtRel',
-		'PrunedSmeared',
-		'SDMass',
-		'NTJets',
+# 		'deltaRjet3',
+# 		'PtRel',
+# 		'PrunedSmeared',
+# 		'SDMass',
+# 		'NTJets',
 		'NTJetsSF',
 		'minMlb',
-		'minMlbDR',
+# 		'minMlbDR',
 		]
+
+#set the tdr style
+tdrstyle.setTDRStyle()
+
+#change the CMS_lumi variables (see CMS_lumi.py)
+CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
+CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
+CMS_lumi.lumi_13TeV= "2.3 fb^{-1}"
+CMS_lumi.writeExtraText = 0
+CMS_lumi.extraText = "Preliminary"
+CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+
+iPos = 11
+if( iPos==0 ): CMS_lumi.relPosX = 0.12
+
+H_ref = 600; 
+W_ref = 800; 
+W = W_ref
+H  = H_ref
+
+# 
+# Simple example of macro: plot with CMS name and lumi text
+#  (this script does not pretend to work in all configurations)
+# iPeriod = 1*(0/1 7 TeV) + 2*(0/1 8 TeV)  + 4*(0/1 13 TeV) 
+# For instance: 
+#               iPeriod = 3 means: 7 TeV + 8 TeV
+#               iPeriod = 7 means: 7 TeV + 8 TeV + 13 TeV 
+#               iPeriod = 0 means: free form (uses lumi_sqrtS)
+# Initiated by: Gautier Hamel de Monchenault (Saclay)
+# Translated in Python by: Joshua Hardenbrook (Princeton)
+# Updated by:   Dinko Ferencek (Rutgers)
+#
+
+iPeriod = 4
+
+# references for T, B, L, R
+T = 0.10*H_ref
+B = 0.35*H_ref 
+if blind == True: B = 0.12*H_ref
+L = 0.12*W_ref
+R = 0.04*W_ref
 
 totBkgTemp1 = {}
 totBkgTemp2 = {}
@@ -155,7 +199,7 @@ for discriminant in plotList:
 	if not os.path.exists(templateDir+'/'+fileTemp): 
 		print 'not found, skipping'
 		continue
-	RFile = R.TFile(templateDir+'/'+fileTemp)
+	RFile = rt.TFile(templateDir+'/'+fileTemp)
 
 	systHists={}
 	
@@ -221,9 +265,9 @@ for discriminant in plotList:
 		try: bkgHT.Add(hQCD)
 		except: pass
 
-		totBkgTemp1[isEM] = R.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapeOnly'))
-		totBkgTemp2[isEM] = R.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapePlusNorm'))
-		totBkgTemp3[isEM] = R.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'All'))
+		totBkgTemp1[isEM] = rt.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapeOnly'))
+		totBkgTemp2[isEM] = rt.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapePlusNorm'))
+		totBkgTemp3[isEM] = rt.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'All'))
 			
 		for ibin in range(1,hTOP.GetNbinsX()+1):
 			errorUp = 0.
@@ -305,7 +349,7 @@ for discriminant in plotList:
 		hsig1.Scale(scaleFact1)
 		hsig2.Scale(scaleFact2)
 				
-		stackbkgHT = R.THStack("stackbkgHT","")
+		stackbkgHT = rt.THStack("stackbkgHT","")
 		try: stackbkgHT.Add(hTOP)
 		except: pass
 		try: stackbkgHT.Add(hEWK)
@@ -314,17 +358,17 @@ for discriminant in plotList:
 			if hQCD.Integral()/bkgHT.Integral()>.005: stackbkgHT.Add(hQCD) #don't plot QCD if it is less than 0.5%
 		except: pass
 
-		topColor = R.kAzure+8
-		ewkColor = R.kMagenta-2
-		qcdColor = R.kOrange+5
-		sig1Color= R.kBlack
-		sig2Color= R.kRed
+		topColor = rt.kAzure+8
+		ewkColor = rt.kMagenta-2
+		qcdColor = rt.kOrange+5
+		sig1Color= rt.kBlack
+		sig2Color= rt.kRed
 		if '53' in sig1: 
-			topColor = R.kRed-9
-			ewkColor = R.kBlue-7
-			qcdColor = R.kOrange-5
-			sig1Color= R.kBlack
-			sig2Color= R.kBlack
+			topColor = rt.kRed-9
+			ewkColor = rt.kBlue-7
+			qcdColor = rt.kOrange-5
+			sig1Color= rt.kBlack
+			sig2Color= rt.kBlack
 			
 		hTOP.SetLineColor(topColor)
 		hTOP.SetFillColor(topColor)
@@ -349,48 +393,73 @@ for discriminant in plotList:
 				
 		hData.SetMarkerStyle(20)
 		hData.SetMarkerSize(1.2)
+		hData.SetMarkerColor(rt.kBlack)
 		hData.SetLineWidth(2)
+		hData.SetLineColor(rt.kBlack)
 
 		bkgHTgerr.SetFillStyle(3004)
-		bkgHTgerr.SetFillColor(R.kBlack)
+		bkgHTgerr.SetFillColor(rt.kBlack)
+		bkgHTgerr.SetFillColor(rt.kBlack)
+		bkgHTgerr.SetLineColor(rt.kBlack)
 
-		R.gStyle.SetOptStat(0)
-		c1 = R.TCanvas("c1","c1",1200,1000)
-		R.gStyle.SetErrorX(0.5)
+		c1 = rt.TCanvas("c1","c1",50,50,W,H)
+		c1.SetFillColor(0)
+		c1.SetBorderMode(0)
+		c1.SetFrameFillStyle(0)
+		c1.SetFrameBorderMode(0)
+		c1.SetTickx(0)
+		c1.SetTicky(0)
+	
 		yDiv=0.35
-		if blind == True: yDiv=0.1
-		uMargin = 0
-		if blind == True: uMargin = 0.15
-		rMargin=.04
-		lMargin=0.12
-		if stackbkgHT.GetMaximum()>1e3: lMargin=0.14
-		if stackbkgHT.GetMaximum()>1e4: lMargin=0.16
-		uPad=R.TPad("uPad","",0,yDiv,1,1) #for actual plots
-		uPad.SetTopMargin(0.10)
-		uPad.SetBottomMargin(uMargin)
-		uPad.SetRightMargin(rMargin)
-		uPad.SetLeftMargin(lMargin)
+		if blind == True: yDiv=0.0
+		uPad=rt.TPad("uPad","",0,yDiv,1,1) #for actual plots
+	
+		uPad.SetLeftMargin( L/W )
+		uPad.SetRightMargin( R/W )
+		uPad.SetTopMargin( T/H )
+		uPad.SetBottomMargin( 0 )
+		if blind == True: uPad.SetBottomMargin( B/H )
+	
+		uPad.SetFillColor(0)
+		uPad.SetBorderMode(0)
+		uPad.SetFrameFillStyle(0)
+		uPad.SetFrameBorderMode(0)
+		uPad.SetTickx(0)
+		uPad.SetTicky(0)
 		uPad.Draw()
 		if blind == False:
-			lPad=R.TPad("lPad","",0,0,1,yDiv) #for sigma runner
-			lPad.SetTopMargin(0)
-			lPad.SetBottomMargin(.4)
-			lPad.SetRightMargin(rMargin)
-			lPad.SetLeftMargin(lMargin)
+			lPad=rt.TPad("lPad","",0,0,1,yDiv) #for sigma runner
+
+			lPad.SetLeftMargin( L/W )
+			lPad.SetRightMargin( R/W )
+			lPad.SetTopMargin( 0 )
+			lPad.SetBottomMargin( B/H )
+
 			lPad.SetGridy()
+			lPad.SetFillColor(0)
+			lPad.SetBorderMode(0)
+			lPad.SetFrameFillStyle(0)
+			lPad.SetFrameBorderMode(0)
+			lPad.SetTickx(0)
+			lPad.SetTicky(0)
 			lPad.Draw()
-		if not doNormByBinWidth: hData.SetMaximum(1.2*max(hData.GetMaximum(),bkgHT.GetMaximum()))
+
+		#if not doNormByBinWidth: hData.SetMaximum(1.2*max(hData.GetMaximum(),bkgHT.GetMaximum()))
+		if doPaperStyle: 
+			if 'NWJets' in discriminant or 'NTJets' in discriminant: hData.SetMaximum(1.41*max(hData.GetMaximum(),bkgHT.GetMaximum()))
+			elif 'minMlb' in discriminant or 'deltaRjet2' in discriminant: hData.SetMaximum(1.45*max(hData.GetMaximum(),bkgHT.GetMaximum()))
+			else: hData.SetMaximum(1.35*max(hData.GetMaximum(),bkgHT.GetMaximum()))
 		hData.SetMinimum(0.015)
 		hData.SetTitle("")
-		if doNormByBinWidth: hData.GetYaxis().SetTitle("Events / 1 GeV")
+		if doNormByBinWidth: hData.GetYaxis().SetTitle("< Events / GeV >")
 		else: 
 			binWidth = hData.GetBinWidth(1)
-			hData.GetYaxis().SetTitle("Events / "+str(binWidth))
+			hData.GetYaxis().SetTitle("Events / "+str(binWidth)+" units")
 			if 'GeV' in hData.GetXaxis().GetTitle(): hData.GetYaxis().SetTitle("Events / "+str(binWidth)+" GeV")
 		formatUpperHist(hData)
 		uPad.cd()
 		hData.SetTitle("")
-		if not blind: hData.Draw("E1 X0")
+		if not blind: hData.Draw("esamex0")
 		if blind: 
 
 			hsig1.SetMinimum(0.015)
@@ -405,17 +474,21 @@ for discriminant in plotList:
 		hsig1.Draw("SAME HIST")
 		hsig2.Draw("SAME HIST")
 		
-		if not blind: hData.Draw("SAME E1 X0") #redraw data so its not hidden
+		if not blind: hData.Draw("esamex0") #redraw data so its not hidden
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
 
 		leg = {}
 		if 'Tau21' in discriminant or 'Tau32' in discriminant or 'deltaRjet1' in discriminant:
-			leg = R.TLegend(0.15,0.53,0.45,0.90)
+			leg = rt.TLegend(0.15,0.53,0.45,0.90)
 		elif 'Eta' in discriminant or 'deltaRjet2' in discriminant:
-			leg = R.TLegend(0.72,0.43,0.95,0.90)
+			leg = rt.TLegend(0.72,0.43,0.95,0.90)
 		else:
-			leg = R.TLegend(0.65,0.53,0.95,0.90)
+			leg = rt.TLegend(0.65,0.53,0.95,0.90)
+		if doPaperStyle: 
+			leg = rt.TLegend(0.55,0.44,0.95,0.90)
+			if 'deltaRjet2' in discriminant: leg = rt.TLegend(0.65,0.44,0.95,0.90)
+			if 'NJets' in discriminant: leg = rt.TLegend(0.58,0.44,0.95,0.90)
 		leg.SetShadowColor(0)
 		leg.SetFillColor(0)
 		leg.SetFillStyle(0)
@@ -423,7 +496,7 @@ for discriminant in plotList:
 		leg.SetLineStyle(0)
 		leg.SetBorderSize(0) 
 		leg.SetTextFont(42)
-		if not blind: leg.AddEntry(hData,"DATA")
+		if not blind: leg.AddEntry(hData,"Data","ep")
 		
 		scaleFact1Str = ' x'+str(scaleFact1)
 		if not scaleSignals:
@@ -439,49 +512,33 @@ for discriminant in plotList:
 		except: pass
 		try: leg.AddEntry(hTOP,"TOP","f")
 		except: pass
-		leg.AddEntry(bkgHTgerr,"Bkg uncert. (stat. #oplus syst.)","f")
+		leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 		leg.Draw("same")
 
-		prelimTex=R.TLatex()
-		prelimTex.SetNDC()
-		prelimTex.SetTextAlign(31) # align right
-		prelimTex.SetTextFont(42)
-		prelimTex.SetTextSize(0.07)
-		prelimTex.SetLineWidth(2)
-		prelimTex.DrawLatex(0.95,0.92,str(lumi)+" fb^{-1} (13 TeV)")
+		#draw the lumi text on the canvas
+		CMS_lumi.CMS_lumi(uPad, iPeriod, iPos)
+	
+		uPad.Update()
+		uPad.RedrawAxis()
+		frame = uPad.GetFrame()
+		uPad.Draw()
 
-		prelimTex2=R.TLatex()
-		prelimTex2.SetNDC()
-		prelimTex2.SetTextFont(61)
-		prelimTex2.SetLineWidth(2)
-		prelimTex2.SetTextSize(0.10)
-		prelimTex2.DrawLatex(lMargin,0.92,"CMS")
+		flat = rt.TF1("flat","pol1",30,250);
 
-		prelimTex3=R.TLatex()
-		prelimTex3.SetNDC()
-		prelimTex3.SetTextAlign(13)
-		prelimTex3.SetTextFont(52)
-		prelimTex3.SetTextSize(0.075)
-		prelimTex3.SetLineWidth(2)
-		if not blind: prelimTex3.DrawLatex(lMargin+0.12,0.975,"Preliminary")
-		if blind: prelimTex3.DrawLatex(0.29175,0.9364,"Preliminary")
-
-		flat = R.TF1("flat","pol1",30,250);
-
-		line = R.TF1("line","pol1",250,1500);
-		line2 = R.TF1("line2","pol1",30,1500);
-		line3 = R.TF1("line3","pol1",30,1500);
-		line4 = R.TF1("line4","pol1",30,1500);
+		line = rt.TF1("line","pol1",250,1500);
+		line2 = rt.TF1("line2","pol1",30,1500);
+		line3 = rt.TF1("line3","pol1",30,1500);
+		line4 = rt.TF1("line4","pol1",30,1500);
 
 		line.SetLineWidth(2);
 
-		para = R.TF1("para","pol2",30,1500); para.SetLineColor(R.kBlue);
-		para2 = R.TF1("para2","pol2",30,1500); para2.SetLineColor(R.kBlue);
-		para3 = R.TF1("para3","pol2",30,1500); para3.SetLineColor(R.kBlue);
+		para = rt.TF1("para","pol2",30,1500); para.SetLineColor(rt.kBlue);
+		para2 = rt.TF1("para2","pol2",30,1500); para2.SetLineColor(rt.kBlue);
+		para3 = rt.TF1("para3","pol2",30,1500); para3.SetLineColor(rt.kBlue);
 
-		cube = R.TF1("cube","pol3",30,1500); cube.SetLineColor(R.kGreen);
-		cube2 = R.TF1("cube2","pol3",30,1500); cube2.SetLineColor(R.kGreen);
-		cube3 = R.TF1("cube3","pol3",30,1500); cube3.SetLineColor(R.kGreen);
+		cube = rt.TF1("cube","pol3",30,1500); cube.SetLineColor(rt.kGreen);
+		cube2 = rt.TF1("cube2","pol3",30,1500); cube2.SetLineColor(rt.kGreen);
+		cube3 = rt.TF1("cube3","pol3",30,1500); cube3.SetLineColor(rt.kGreen);
 
 		if blind == False and not doRealPull:
 			lPad.cd()
@@ -510,7 +567,7 @@ for discriminant in plotList:
 		
 			BkgOverBkg = pull.Clone("bkgOverbkg")
 			BkgOverBkg.Divide(bkgHT, bkgHT)
-			pullUncBandTot=R.TGraphAsymmErrors(BkgOverBkg.Clone("pulluncTot"))
+			pullUncBandTot=rt.TGraphAsymmErrors(BkgOverBkg.Clone("pulluncTot"))
 			for binNo in range(0,hData.GetNbinsX()+2):
 				if bkgHT.GetBinContent(binNo)!=0:
 					pullUncBandTot.SetPointEYhigh(binNo-1,totBkgTemp3[isEM].GetErrorYhigh(binNo-1)/bkgHT.GetBinContent(binNo))
@@ -520,10 +577,10 @@ for discriminant in plotList:
 			pullUncBandTot.SetFillColor(1)
 			pullUncBandTot.SetLineColor(1)
 			pullUncBandTot.SetMarkerSize(0)
-			R.gStyle.SetHatchesLineWidth(1)
+			rt.gStyle.SetHatchesLineWidth(1)
 			pullUncBandTot.Draw("SAME E2")
 				
-			pullUncBandNorm=R.TGraphAsymmErrors(BkgOverBkg.Clone("pulluncNorm"))
+			pullUncBandNorm=rt.TGraphAsymmErrors(BkgOverBkg.Clone("pulluncNorm"))
 			for binNo in range(0,hData.GetNbinsX()+2):
 				if bkgHT.GetBinContent(binNo)!=0:
 					pullUncBandNorm.SetPointEYhigh(binNo-1,totBkgTemp2[isEM].GetErrorYhigh(binNo-1)/bkgHT.GetBinContent(binNo))
@@ -532,10 +589,10 @@ for discriminant in plotList:
 			pullUncBandNorm.SetFillColor(2)
 			pullUncBandNorm.SetLineColor(2)
 			pullUncBandNorm.SetMarkerSize(0)
-			R.gStyle.SetHatchesLineWidth(1)
+			rt.gStyle.SetHatchesLineWidth(1)
 			if not doOneBand: pullUncBandNorm.Draw("SAME E2")
 			
-			pullUncBandStat=R.TGraphAsymmErrors(BkgOverBkg.Clone("pulluncStat"))
+			pullUncBandStat=rt.TGraphAsymmErrors(BkgOverBkg.Clone("pulluncStat"))
 			for binNo in range(0,hData.GetNbinsX()+2):
 				if bkgHT.GetBinContent(binNo)!=0:
 					pullUncBandStat.SetPointEYhigh(binNo-1,totBkgTemp1[isEM].GetErrorYhigh(binNo-1)/bkgHT.GetBinContent(binNo))
@@ -544,7 +601,7 @@ for discriminant in plotList:
 			pullUncBandStat.SetFillColor(3)
 			pullUncBandStat.SetLineColor(3)
 			pullUncBandStat.SetMarkerSize(0)
-			R.gStyle.SetHatchesLineWidth(1)
+			rt.gStyle.SetHatchesLineWidth(1)
 			if not doOneBand: pullUncBandStat.Draw("SAME E2")
 		
 			if doQ2sys:
@@ -563,10 +620,10 @@ for discriminant in plotList:
 				pullQ2dn.SetLineStyle(5)
 				#pullQ2dn.Draw("SAME HIST")
 
-			if stackbkgHT.GetMaximum()>1e4: pullLegend=R.TLegend(0.18,0.87,0.89,0.96)
-			elif stackbkgHT.GetMaximum()>1e3: pullLegend=R.TLegend(0.16,0.87,0.87,0.96)
-			else: pullLegend=R.TLegend(0.14,0.87,0.85,0.96)
-			R.SetOwnership( pullLegend, 0 )   # 0 = release (not keep), 1 = keep
+			if stackbkgHT.GetMaximum()>1e4: pullLegend=rt.TLegend(0.18,0.87,0.89,0.96)
+			elif stackbkgHT.GetMaximum()>1e3: pullLegend=rt.TLegend(0.16,0.87,0.87,0.96)
+			else: pullLegend=rt.TLegend(0.14,0.87,0.85,0.96)
+			rt.SetOwnership( pullLegend, 0 )   # 0 = release (not keep), 1 = keep
 			pullLegend.SetShadowColor(0)
 			pullLegend.SetNColumns(3)
 			pullLegend.SetFillColor(0)
@@ -605,6 +662,11 @@ for discriminant in plotList:
 			formatLowerHist(pull)
 			pull.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
 			pull.Draw("HIST")
+			
+			lPad.Update()
+			lPad.RedrawAxis()
+			frame = lPad.GetFrame()
+			lPad.Draw()
 
 		savePrefix = templateDir.split('/')[-1]+'/plots/'
 		if not addCRsys: savePrefix = templateDir.split('/')[-1]+'/plots_noCRunc/'
@@ -617,10 +679,12 @@ for discriminant in plotList:
 			c1.SaveAs(savePrefix+"_totBand.pdf")
 			c1.SaveAs(savePrefix+"_totBand.png")
 			c1.SaveAs(savePrefix+"_totBand.eps")
+			c1.SaveAs(savePrefix+"_totBand.root")
 		else:
 			c1.SaveAs(savePrefix+".pdf")
 			c1.SaveAs(savePrefix+".png")
 			c1.SaveAs(savePrefix+".eps")
+			c1.SaveAs(savePrefix+".root")
 			
 	RFile.Close()
 
