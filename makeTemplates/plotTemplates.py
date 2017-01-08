@@ -3,12 +3,13 @@
 import os,sys,time,math,pickle,itertools
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
-from ROOT import *
+import ROOT as rt
 from weights import *
 from modSyst import *
 from utils import *
+import CMS_lumi, tdrstyle
 
-gROOT.SetBatch(1)
+rt.gROOT.SetBatch(1)
 start_time = time.time()
 
 lumi=2.3 #for plots
@@ -41,11 +42,18 @@ blind = False
 yLog  = True
 doRealPull = True
 if doRealPull: doOneBand=False
+doPaperStyle = True
 
 isEMlist =['E','M']
 nttaglist=['0','1p']
 nWtaglist=['0','1p']
 nbtaglist=['1','2p']
+# nttaglist=['0p']
+# nWtaglist=['0p']
+# nbtaglist=['0p']
+# modelingSys['top_nW0p_nB0p']=0.
+# modelingSys['ewk_nW0p_nB0p']=0.
+# modelingSys['qcd_nW0p_nB0p']=0.
 
 lumiSys = 0.027 # lumi uncertainty
 trigSys = 0.05 # trigger uncertainty
@@ -75,6 +83,7 @@ def formatUpperHist(histogram):
 		histogram.GetYaxis().SetTitleOffset(.71)
 
 	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,jets)] (GeV)")
+	#if 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(\\ell,b)] (GeV)")
 	histogram.GetYaxis().CenterTitle()
 	histogram.SetMinimum(0.00101)
 	if not yLog: 
@@ -82,6 +91,7 @@ def formatUpperHist(histogram):
 	if yLog:
 		uPad.SetLogy()
 		if not doNormByBinWidth: histogram.SetMaximum(200*histogram.GetMaximum())
+		elif 'YLD' in histogram.GetName(): histogram.SetMaximum(500*histogram.GetMaximum())
 		else: histogram.SetMaximum(10*histogram.GetMaximum())
 		
 def formatLowerHist(histogram):
@@ -101,10 +111,51 @@ def formatLowerHist(histogram):
 
 tempsig1='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 tempsig2='templates_'+discriminant+'_'+sig2+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
-RFile1 = TFile(templateDir+tempsig1)
-RFile2 = TFile(templateDir+tempsig2)
+RFile1 = rt.TFile(templateDir+tempsig1)
+RFile2 = rt.TFile(templateDir+tempsig2)
 print RFile1
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
+
+#set the tdr style
+tdrstyle.setTDRStyle()
+
+#change the CMS_lumi variables (see CMS_lumi.py)
+CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
+CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
+CMS_lumi.lumi_13TeV= "2.3 fb^{-1}"
+CMS_lumi.writeExtraText = 0
+CMS_lumi.extraText = "Preliminary"
+CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+
+iPos = 11
+if( iPos==0 ): CMS_lumi.relPosX = 0.12
+
+H_ref = 600; 
+W_ref = 800; 
+W = W_ref
+H  = H_ref
+
+# 
+# Simple example of macro: plot with CMS name and lumi text
+#  (this script does not pretend to work in all configurations)
+# iPeriod = 1*(0/1 7 TeV) + 2*(0/1 8 TeV)  + 4*(0/1 13 TeV) 
+# For instance: 
+#               iPeriod = 3 means: 7 TeV + 8 TeV
+#               iPeriod = 7 means: 7 TeV + 8 TeV + 13 TeV 
+#               iPeriod = 0 means: free form (uses lumi_sqrtS)
+# Initiated by: Gautier Hamel de Monchenault (Saclay)
+# Translated in Python by: Joshua Hardenbrook (Princeton)
+# Updated by:   Dinko Ferencek (Rutgers)
+#
+
+iPeriod = 4
+
+# references for T, B, L, R
+T = 0.10*H_ref
+B = 0.35*H_ref 
+if blind == True: B = 0.12*H_ref
+L = 0.12*W_ref
+R = 0.04*W_ref
 
 systHists = {}
 totBkgTemp1 = {}
@@ -179,9 +230,9 @@ for tag in tagList:
 		try: bkgHT.Add(hQCD)
 		except: pass
 
-		totBkgTemp1[catStr] = TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapeOnly'))
-		totBkgTemp2[catStr] = TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapePlusNorm'))
-		totBkgTemp3[catStr] = TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'All'))
+		totBkgTemp1[catStr] = rt.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapeOnly'))
+		totBkgTemp2[catStr] = rt.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapePlusNorm'))
+		totBkgTemp3[catStr] = rt.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'All'))
 		
 		for ibin in range(1,hTOP.GetNbinsX()+1):
 			errorUp = 0.
@@ -258,7 +309,7 @@ for tag in tagList:
 		try: drawQCD = hQCD.Integral()/bkgHT.Integral()>.005 #don't plot QCD if it is less than 0.5%
 		except: pass
 
-		stackbkgHT = THStack("stackbkgHT","")
+		stackbkgHT = rt.THStack("stackbkgHT","")
 		try: stackbkgHT.Add(hTOP)
 		except: pass
 		try: stackbkgHT.Add(hEWK)
@@ -267,17 +318,17 @@ for tag in tagList:
 			if drawQCD: stackbkgHT.Add(hQCD)
 		except: pass
 
-		topColor = kAzure+8
-		ewkColor = kMagenta-2
-		qcdColor = kOrange+5
-		sig1Color= kBlack
-		sig2Color= kRed
+		topColor = rt.kAzure+8
+		ewkColor = rt.kMagenta-2
+		qcdColor = rt.kOrange+5
+		sig1Color= rt.kBlack
+		sig2Color= rt.kRed
 		if '53' in sig1: 
-			topColor = kRed-9
-			ewkColor = kBlue-7
-			qcdColor = kOrange-5
-			sig1Color= kBlack
-			sig2Color= kBlack
+			topColor = rt.kRed-9
+			ewkColor = rt.kBlue-7
+			qcdColor = rt.kOrange-5
+			sig1Color= rt.kBlack
+			sig2Color= rt.kBlack
 			
 		hTOP.SetLineColor(topColor)
 		hTOP.SetFillColor(topColor)
@@ -305,24 +356,24 @@ for tag in tagList:
 		hData.SetLineWidth(2)
 
 		bkgHTgerr.SetFillStyle(3004)
-		bkgHTgerr.SetFillColor(kBlack)
+		bkgHTgerr.SetFillColor(rt.kBlack)
 
-		gStyle.SetOptStat(0)
-		c1 = TCanvas("c1","c1",1200,1000)
-		gStyle.SetErrorX(0.5)
+		rt.gStyle.SetOptStat(0)
+		c1 = rt.TCanvas("c1","c1",1200,1000)
+		rt.gStyle.SetErrorX(0.5)
 		yDiv=0.35
 		if blind == True: yDiv=0.0
 		uMargin = 0
 		if blind == True: uMargin = 0.12
 		rMargin=.04
-		uPad=TPad("uPad","",0,yDiv,1,1) #for actual plots
+		uPad=rt.TPad("uPad","",0,yDiv,1,1) #for actual plots
 		uPad.SetTopMargin(0.10)
 		uPad.SetBottomMargin(uMargin)
 		uPad.SetRightMargin(rMargin)
 		uPad.SetLeftMargin(.12)
 		uPad.Draw()
 		if blind == False:
-			lPad=TPad("lPad","",0,0,1,yDiv) #for sigma runner
+			lPad=rt.TPad("lPad","",0,0,1,yDiv) #for sigma runner
 			lPad.SetTopMargin(0)
 			lPad.SetBottomMargin(.4)
 			lPad.SetRightMargin(rMargin)
@@ -354,7 +405,7 @@ for tag in tagList:
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
 		
-		chLatex = TLatex()
+		chLatex = rt.TLatex()
 		chLatex.SetNDC()
 		chLatex.SetTextSize(0.06)
 		if blind: chLatex.SetTextSize(0.04)
@@ -363,17 +414,20 @@ for tag in tagList:
 		if isEM=='E': chString+='e+jets'
 		if isEM=='M': chString+='#mu+jets'
 		tagString = ''
-		if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
-		else: tagString+=tag[0]+' t, '
-		if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
-		else: tagString+=tag[1]+' W, '
-		if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b'
-		else: tagString+=tag[2]+' b'
+		if tag[0]!='0p':
+			if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
+			else: tagString+=tag[0]+' t, '
+		if tag[1]!='0p':
+			if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
+			else: tagString+=tag[1]+' W, '
+		if tag[2]!='0p':
+			if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b'
+			else: tagString+=tag[2]+' b'
 		chLatex.DrawLatex(0.28, 0.83, chString)
 		chLatex.DrawLatex(0.28, 0.77, tagString)
 
-		if drawQCD: leg = TLegend(0.45,0.52,0.95,0.87)
-		if not drawQCD or blind: leg = TLegend(0.45,0.64,0.95,0.89)
+		if drawQCD: leg = rt.TLegend(0.45,0.52,0.95,0.87)
+		if not drawQCD or blind: leg = rt.TLegend(0.45,0.64,0.95,0.89)
 		leg.SetShadowColor(0)
 		leg.SetFillColor(0)
 		leg.SetFillStyle(0)
@@ -418,7 +472,7 @@ for tag in tagList:
 			if not blind: leg.AddEntry(hData,"DATA")
 		leg.Draw("same")
 
-		prelimTex=TLatex()
+		prelimTex=rt.TLatex()
 		prelimTex.SetNDC()
 		prelimTex.SetTextAlign(31) # align right
 		prelimTex.SetTextFont(42)
@@ -427,7 +481,7 @@ for tag in tagList:
 		prelimTex.SetLineWidth(2)
 		prelimTex.DrawLatex(0.95,0.92,str(lumi)+" fb^{-1} (13 TeV)")
 
-		prelimTex2=TLatex()
+		prelimTex2=rt.TLatex()
 		prelimTex2.SetNDC()
 		prelimTex2.SetTextFont(61)
 		prelimTex2.SetLineWidth(2)
@@ -435,7 +489,7 @@ for tag in tagList:
 		if blind: prelimTex2.SetTextSize(0.08)
 		prelimTex2.DrawLatex(0.12,0.92,"CMS")
 
-		prelimTex3=TLatex()
+		prelimTex3=rt.TLatex()
 		prelimTex3.SetNDC()
 		prelimTex3.SetTextAlign(13)
 		prelimTex3.SetTextFont(52)
@@ -461,7 +515,7 @@ for tag in tagList:
 			
 			BkgOverBkg = pull.Clone("bkgOverbkg")
 			BkgOverBkg.Divide(bkgHT, bkgHT)
-			pullUncBandTot=TGraphAsymmErrors(BkgOverBkg.Clone("pulluncTot"))
+			pullUncBandTot=rt.TGraphAsymmErrors(BkgOverBkg.Clone("pulluncTot"))
 			for binNo in range(0,hData.GetNbinsX()+2):
 				if bkgHT.GetBinContent(binNo)!=0:
 					pullUncBandTot.SetPointEYhigh(binNo-1,totBkgTemp3[catStr].GetErrorYhigh(binNo-1)/bkgHT.GetBinContent(binNo))
@@ -486,7 +540,7 @@ for tag in tagList:
 			gStyle.SetHatchesLineWidth(1)
 			if not doOneBand: pullUncBandNorm.Draw("SAME E2")
 			
-			pullUncBandStat=TGraphAsymmErrors(BkgOverBkg.Clone("pulluncStat"))
+			pullUncBandStat=rt.TGraphAsymmErrors(BkgOverBkg.Clone("pulluncStat"))
 			for binNo in range(0,hData.GetNbinsX()+2):
 				if bkgHT.GetBinContent(binNo)!=0:
 					pullUncBandStat.SetPointEYhigh(binNo-1,totBkgTemp1[catStr].GetErrorYhigh(binNo-1)/bkgHT.GetBinContent(binNo))
@@ -514,7 +568,7 @@ for tag in tagList:
 				pullQ2dn.SetLineStyle(5)
 				#pullQ2dn.Draw("SAME HIST")
 
-			pullLegend=TLegend(0.14,0.87,0.85,0.96)
+			pullLegend=rt.TLegend(0.14,0.87,0.85,0.96)
 			SetOwnership( pullLegend, 0 )   # 0 = release (not keep), 1 = keep
 			pullLegend.SetShadowColor(0)
 			pullLegend.SetNColumns(3)
@@ -564,13 +618,13 @@ for tag in tagList:
 		#if blind: savePrefix+='_blind'
 
 		if doOneBand:
-			c1.SaveAs(savePrefix+"totBand.pdf")
-			c1.SaveAs(savePrefix+"totBand.png")
-			c1.SaveAs(savePrefix+"totBand.eps")
+			c1.SaveAs(savePrefix+"totBand_TDRstyle.pdf")
+			c1.SaveAs(savePrefix+"totBand_TDRstyle.png")
+			c1.SaveAs(savePrefix+"totBand_TDRstyle.eps")
 		else:
-			c1.SaveAs(savePrefix+".pdf")
-			c1.SaveAs(savePrefix+".png")
-			c1.SaveAs(savePrefix+".eps")
+			c1.SaveAs(savePrefix+"_TDRstyle.pdf")
+			c1.SaveAs(savePrefix+"_TDRstyle.png")
+			c1.SaveAs(savePrefix+"_TDRstyle.eps")
 		try: del hTOP
 		except: pass
 		try: del hEWK
@@ -644,9 +698,9 @@ for tag in tagList:
 	try: bkgHTmerged.Add(hQCDmerged)
 	except: pass
 
-	totBkgTemp1['lep'+tagStr] = TGraphAsymmErrors(bkgHTmerged.Clone(bkgHTmerged.GetName()+'shapeOnly'))
-	totBkgTemp2['lep'+tagStr] = TGraphAsymmErrors(bkgHTmerged.Clone(bkgHTmerged.GetName()+'shapePlusNorm'))
-	totBkgTemp3['lep'+tagStr] = TGraphAsymmErrors(bkgHTmerged.Clone(bkgHTmerged.GetName()+'All'))
+	totBkgTemp1['lep'+tagStr] = rt.TGraphAsymmErrors(bkgHTmerged.Clone(bkgHTmerged.GetName()+'shapeOnly'))
+	totBkgTemp2['lep'+tagStr] = rt.TGraphAsymmErrors(bkgHTmerged.Clone(bkgHTmerged.GetName()+'shapePlusNorm'))
+	totBkgTemp3['lep'+tagStr] = rt.TGraphAsymmErrors(bkgHTmerged.Clone(bkgHTmerged.GetName()+'All'))
 	
 	for ibin in range(1,hTOPmerged.GetNbinsX()+1):
 		errorUp = 0.
@@ -719,7 +773,7 @@ for tag in tagList:
 	try: drawQCDmerged = hQCDmerged.Integral()/bkgHTmerged.Integral()>.005
 	except: pass
 
-	stackbkgHTmerged = THStack("stackbkgHTmerged","")
+	stackbkgHTmerged = rt.THStack("stackbkgHTmerged","")
 	try: stackbkgHTmerged.Add(hTOPmerged)
 	except: pass
 	try: stackbkgHTmerged.Add(hEWKmerged)
@@ -751,46 +805,69 @@ for tag in tagList:
 	
 	hDatamerged.SetMarkerStyle(20)
 	hDatamerged.SetMarkerSize(1.2)
+	hDatamerged.SetMarkerColor(rt.kBlack)
 	hDatamerged.SetLineWidth(2)
+	hDatamerged.SetLineColor(rt.kBlack)
 
 	bkgHTgerrmerged.SetFillStyle(3004)
-	bkgHTgerrmerged.SetFillColor(kBlack)
-
-	gStyle.SetOptStat(0)
-	c1merged = TCanvas("c1merged","c1merged",1200,1000)
-	gStyle.SetErrorX(0.5)
+	bkgHTgerrmerged.SetFillColor(rt.kBlack)
+	bkgHTgerrmerged.SetLineColor(rt.kBlack)
+	
+	c1merged = rt.TCanvas("c1merged","c1merged",50,50,W,H)
+	c1merged.SetFillColor(0)
+	c1merged.SetBorderMode(0)
+	c1merged.SetFrameFillStyle(0)
+	c1merged.SetFrameBorderMode(0)
+	c1merged.SetTickx(0)
+	c1merged.SetTicky(0)
+	
 	yDiv=0.35
 	if blind == True: yDiv=0.0
-	uMargin = 0
-	if blind == True: uMargin = 0.12
-	rMargin=.04
-	uPad=TPad("uPad","",0,yDiv,1,1) #for actual plots
-	uPad.SetTopMargin(0.10)
-	uPad.SetBottomMargin(uMargin)
-	uPad.SetRightMargin(rMargin)
-	uPad.SetLeftMargin(.12)
+	uPad=rt.TPad("uPad","",0,yDiv,1,1) #for actual plots
+	
+	uPad.SetLeftMargin( L/W )
+	uPad.SetRightMargin( R/W )
+	uPad.SetTopMargin( T/H )
+	uPad.SetBottomMargin( 0 )
+	if blind == True: uPad.SetBottomMargin( B/H )
+	
+	uPad.SetFillColor(0)
+	uPad.SetBorderMode(0)
+	uPad.SetFrameFillStyle(0)
+	uPad.SetFrameBorderMode(0)
+	uPad.SetTickx(0)
+	uPad.SetTicky(0)
 	uPad.Draw()
 	if blind == False:
-		lPad=TPad("lPad","",0,0,1,yDiv) #for sigma runner
-		lPad.SetTopMargin(0)
-		lPad.SetBottomMargin(.4)
-		lPad.SetRightMargin(rMargin)
-		lPad.SetLeftMargin(.12)
+		lPad=rt.TPad("lPad","",0,0,1,yDiv) #for sigma runner
+
+		lPad.SetLeftMargin( L/W )
+		lPad.SetRightMargin( R/W )
+		lPad.SetTopMargin( 0 )
+		lPad.SetBottomMargin( B/H )
+
 		lPad.SetGridy()
+		lPad.SetFillColor(0)
+		lPad.SetBorderMode(0)
+		lPad.SetFrameFillStyle(0)
+		lPad.SetFrameBorderMode(0)
+		lPad.SetTickx(0)
+		lPad.SetTicky(0)
 		lPad.Draw()
 	if not doNormByBinWidth: hDatamerged.SetMaximum(1.2*max(hDatamerged.GetMaximum(),bkgHTmerged.GetMaximum()))
+	if doPaperStyle: hDatamerged.SetMaximum(1.21*max(hDatamerged.GetMaximum(),bkgHTmerged.GetMaximum()))
 	hDatamerged.SetMinimum(0.015)
-	if doNormByBinWidth: hDatamerged.GetYaxis().SetTitle("Events / 1 GeV")
+	if doNormByBinWidth: hDatamerged.GetYaxis().SetTitle("< Events / GeV >")
 	elif isRebinned!='': hDatamerged.GetYaxis().SetTitle("Events / bin")
 	else: hDatamerged.GetYaxis().SetTitle("Events / 16 GeV")
 	formatUpperHist(hDatamerged)
 	uPad.cd()
 	hDatamerged.SetTitle("")
 	stackbkgHTmerged.SetTitle("")
-	if not blind: hDatamerged.Draw("E1 X0")
+	if not blind: hDatamerged.Draw("esamex0")
 	if blind: 
 		hsig1merged.SetMinimum(0.015)
-		if doNormByBinWidth: hsig1merged.GetYaxis().SetTitle("Events / 1 GeV")
+		if doNormByBinWidth: hsig1merged.GetYaxis().SetTitle("< Events / GeV >")
 		elif isRebinned!='': hsig1merged.GetYaxis().SetTitle("Events / bin")
 		else: hsig1merged.GetYaxis().SetTitle("Events / 16 GeV")
 		formatUpperHist(hsig1merged)
@@ -799,28 +876,35 @@ for tag in tagList:
 	stackbkgHTmerged.Draw("SAME HIST")
 	hsig1merged.Draw("SAME HIST")
 	hsig2merged.Draw("SAME HIST")
-	if not blind: hDatamerged.Draw("SAME E1 X0") #redraw data so its not hidden
+	if not blind: hDatamerged.Draw("esamex0") #redraw data so its not hidden
 	uPad.RedrawAxis()
 	bkgHTgerrmerged.Draw("SAME E2")
 
-	chLatexmerged = TLatex()
+	chLatexmerged = rt.TLatex()
 	chLatexmerged.SetNDC()
 	chLatexmerged.SetTextSize(0.06)
 	if blind: chLatexmerged.SetTextSize(0.04)
 	chLatexmerged.SetTextAlign(21) # align right
 	chString = 'e/#mu+jets'
 	tagString = ''
-	if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
-	else: tagString+=tag[0]+' t, '
-	if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
-	else: tagString+=tag[1]+' W, '
-	if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b'
-	else: tagString+=tag[2]+' b'
-	chLatexmerged.DrawLatex(0.28, 0.83, chString)
-	chLatexmerged.DrawLatex(0.28, 0.77, tagString)
+	if tag[0]!='0p':
+		if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
+		else: tagString+=tag[0]+' t, '
+	if tag[1]!='0p':
+		if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
+		else: tagString+=tag[1]+' W, '
+	if tag[2]!='0p':
+		if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b'
+		else: tagString+=tag[2]+' b'
+	if doPaperStyle:
+		chLatexmerged.DrawLatex(0.78, 0.58, chString)
+		chLatexmerged.DrawLatex(0.78, 0.52, tagString)
+	else:
+		chLatexmerged.DrawLatex(0.28, 0.83, chString)
+		chLatexmerged.DrawLatex(0.28, 0.77, tagString)
 
-	if drawQCDmerged: legmerged = TLegend(0.45,0.52,0.95,0.87)
-	if not drawQCDmerged or blind: legmerged = TLegend(0.45,0.6,0.95,0.85)
+	if drawQCDmerged: legmerged = rt.TLegend(0.45,0.52,0.95,0.87)
+	if not drawQCDmerged or blind: legmerged = rt.TLegend(0.45,0.64,0.95,0.89)
 	legmerged.SetShadowColor(0)
 	legmerged.SetFillColor(0)
 	legmerged.SetFillStyle(0)
@@ -848,7 +932,7 @@ for tag in tagList:
 			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
 			except: pass
 			legmerged.AddEntry(0, "", "")
-			legmerged.AddEntry(hDatamerged,"DATA")
+			legmerged.AddEntry(hDatamerged,"Data")
 		else:
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
@@ -861,36 +945,17 @@ for tag in tagList:
 		try: legmerged.AddEntry(hTOPmerged,"TOP","f")
 		except: pass
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
-		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
+		if not blind: legmerged.AddEntry(hDatamerged,"Data","ep")
 	legmerged.Draw("same")
 
-	prelimTex=TLatex()
-	prelimTex.SetNDC()
-	prelimTex.SetTextAlign(31) # align right
-	prelimTex.SetTextFont(42)
-	prelimTex.SetTextSize(0.07)
-	if blind: prelimTex.SetTextSize(0.05)
-	prelimTex.SetLineWidth(2)
-	prelimTex.DrawLatex(0.95,0.92,str(lumi)+" fb^{-1} (13 TeV)")
+	#draw the lumi text on the canvas
+	CMS_lumi.CMS_lumi(uPad, iPeriod, iPos)
 	
-	prelimTex2=TLatex()
-	prelimTex2.SetNDC()
-	prelimTex2.SetTextFont(61)
-	prelimTex2.SetLineWidth(2)
-	prelimTex2.SetTextSize(0.10)
-	if blind: prelimTex2.SetTextSize(0.08)
-	prelimTex2.DrawLatex(0.12,0.92,"CMS")
-	
-	prelimTex3=TLatex()
-	prelimTex3.SetNDC()
-	prelimTex3.SetTextAlign(13)
-	prelimTex3.SetTextFont(52)
-	prelimTex3.SetTextSize(0.075)
-	if blind: prelimTex3.SetTextSize(0.055)
-	prelimTex3.SetLineWidth(2)
-	if not blind: prelimTex3.DrawLatex(0.24,0.975,"Preliminary")
-	if blind: prelimTex3.DrawLatex(0.26,0.96,"Preliminary")
-	
+	uPad.Update()
+	uPad.RedrawAxis()
+	frame = uPad.GetFrame()
+	uPad.Draw()
+		
 	if blind == False and not doRealPull:
 		lPad.cd()
 		pullmerged=hDatamerged.Clone("pullmerged")
@@ -907,7 +972,7 @@ for tag in tagList:
 		
 		BkgOverBkgmerged = pullmerged.Clone("bkgOverbkgmerged")
 		BkgOverBkgmerged.Divide(bkgHTmerged, bkgHTmerged)
-		pullUncBandTotmerged=TGraphAsymmErrors(BkgOverBkgmerged.Clone("pulluncTotmerged"))
+		pullUncBandTotmerged=rt.TGraphAsymmErrors(BkgOverBkgmerged.Clone("pulluncTotmerged"))
 		for binNo in range(0,hDatamerged.GetNbinsX()+2):
 			if bkgHTmerged.GetBinContent(binNo)!=0:
 				pullUncBandTotmerged.SetPointEYhigh(binNo-1,totBkgTemp3['lep'+tagStr].GetErrorYhigh(binNo-1)/bkgHTmerged.GetBinContent(binNo))
@@ -917,10 +982,10 @@ for tag in tagList:
 		pullUncBandTotmerged.SetFillColor(1)
 		pullUncBandTotmerged.SetLineColor(1)
 		pullUncBandTotmerged.SetMarkerSize(0)
-		gStyle.SetHatchesLineWidth(1)
+		rt.gStyle.SetHatchesLineWidth(1)
 		pullUncBandTotmerged.Draw("SAME E2")
 		
-		pullUncBandNormmerged=TGraphAsymmErrors(BkgOverBkgmerged.Clone("pulluncNormmerged"))
+		pullUncBandNormmerged=rt.TGraphAsymmErrors(BkgOverBkgmerged.Clone("pulluncNormmerged"))
 		for binNo in range(0,hData.GetNbinsX()+2):
 			if bkgHTmerged.GetBinContent(binNo)!=0:
 				pullUncBandNormmerged.SetPointEYhigh(binNo-1,totBkgTemp2['lep'+tagStr].GetErrorYhigh(binNo-1)/bkgHTmerged.GetBinContent(binNo))
@@ -929,10 +994,10 @@ for tag in tagList:
 		pullUncBandNormmerged.SetFillColor(2)
 		pullUncBandNormmerged.SetLineColor(2)
 		pullUncBandNormmerged.SetMarkerSize(0)
-		gStyle.SetHatchesLineWidth(1)
+		rt.gStyle.SetHatchesLineWidth(1)
 		if not doOneBand: pullUncBandNormmerged.Draw("SAME E2")
 		
-		pullUncBandStatmerged=TGraphAsymmErrors(BkgOverBkgmerged.Clone("pulluncStatmerged"))
+		pullUncBandStatmerged=rt.TGraphAsymmErrors(BkgOverBkgmerged.Clone("pulluncStatmerged"))
 		for binNo in range(0,hDatamerged.GetNbinsX()+2):
 			if bkgHTmerged.GetBinContent(binNo)!=0:
 				pullUncBandStatmerged.SetPointEYhigh(binNo-1,totBkgTemp1['lep'+tagStr].GetErrorYhigh(binNo-1)/bkgHTmerged.GetBinContent(binNo))
@@ -941,10 +1006,10 @@ for tag in tagList:
 		pullUncBandStatmerged.SetFillColor(3)
 		pullUncBandStatmerged.SetLineColor(3)
 		pullUncBandStatmerged.SetMarkerSize(0)
-		gStyle.SetHatchesLineWidth(1)
+		rt.gStyle.SetHatchesLineWidth(1)
 		if not doOneBand: pullUncBandStatmerged.Draw("SAME E2")
 
-		pullLegendmerged=TLegend(0.14,0.87,0.85,0.96)
+		pullLegendmerged=rt.TLegend(0.14,0.87,0.85,0.96)
 		SetOwnership( pullLegendmerged, 0 )   # 0 = release (not keep), 1 = keep
 		pullLegendmerged.SetShadowColor(0)
 		pullLegendmerged.SetNColumns(3)
@@ -981,6 +1046,11 @@ for tag in tagList:
 		formatLowerHist(pullmerged)
 		pullmerged.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
 		pullmerged.Draw("HIST")
+		
+		lPad.Update()
+		lPad.RedrawAxis()
+		frame = lPad.GetFrame()
+		lPad.Draw()
 
 	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 	if not addCRsys: savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots_noCRunc/'
@@ -995,10 +1065,12 @@ for tag in tagList:
 		c1merged.SaveAs(savePrefixmerged+"totBand.pdf")
 		c1merged.SaveAs(savePrefixmerged+"totBand.png")
 		c1merged.SaveAs(savePrefixmerged+"totBand.eps")
+		c1merged.SaveAs(savePrefixmerged+"totBand.root")
 	else: 
 		c1merged.SaveAs(savePrefixmerged+".pdf")
 		c1merged.SaveAs(savePrefixmerged+".png")
 		c1merged.SaveAs(savePrefixmerged+".eps")
+		c1merged.SaveAs(savePrefixmerged+".root")
 	try: del hTOPmerged
 	except: pass
 	try: del hEWKmerged
