@@ -1,12 +1,52 @@
-from ROOT import *
+import ROOT as rt
 from array import array
 import os,sys,math
 from math import *
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
+import CMS_lumi, tdrstyle
 
-gROOT.SetBatch(1)
+rt.gROOT.SetBatch(1)
 
-from tdrStyle import *
-setTDRStyle()
+#set the tdr style
+tdrstyle.setTDRStyle()
+
+#change the CMS_lumi variables (see CMS_lumi.py)
+CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
+CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
+CMS_lumi.lumi_13TeV= "2.3 fb^{-1}"
+CMS_lumi.writeExtraText = 0
+CMS_lumi.extraText = "Preliminary"
+CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
+
+iPos = 11
+if( iPos==0 ): CMS_lumi.relPosX = 0.12
+
+H_ref = 600; 
+W_ref = 800; 
+W = W_ref
+H  = H_ref
+
+# 
+# Simple example of macro: plot with CMS name and lumi text
+#  (this script does not pretend to work in all configurations)
+# iPeriod = 1*(0/1 7 TeV) + 2*(0/1 8 TeV)  + 4*(0/1 13 TeV) 
+# For instance: 
+#               iPeriod = 3 means: 7 TeV + 8 TeV
+#               iPeriod = 7 means: 7 TeV + 8 TeV + 13 TeV 
+#               iPeriod = 0 means: free form (uses lumi_sqrtS)
+# Initiated by: Gautier Hamel de Monchenault (Saclay)
+# Translated in Python by: Joshua Hardenbrook (Princeton)
+# Updated by:   Dinko Ferencek (Rutgers)
+#
+
+iPeriod = 4
+
+# references for T, B, L, R
+T = 0.08*H_ref
+B = 0.12*H_ref 
+L = 0.12*W_ref
+R = 0.04*W_ref
 
 blind=False
 saveKey=''#'_test'
@@ -36,15 +76,15 @@ exp95L=array('d',[0 for i in range(len(mass))])
 theory_xsec_up = [math.sqrt(scale**2+pdf**2)*xsec/100 for xsec,scale,pdf in zip(theory_xsec,scale_up,pdf_up)]
 theory_xsec_dn = [math.sqrt(scale**2+pdf**2)*xsec/100 for xsec,scale,pdf in zip(theory_xsec,scale_dn,pdf_dn)]
 
-theory_xsec_v    = TVectorD(len(mass),array('d',theory_xsec))
-theory_xsec_up_v = TVectorD(len(mass),array('d',theory_xsec_up))
-theory_xsec_dn_v = TVectorD(len(mass),array('d',theory_xsec_dn))      
+theory_xsec_v    = rt.TVectorD(len(mass),array('d',theory_xsec))
+theory_xsec_up_v = rt.TVectorD(len(mass),array('d',theory_xsec_up))
+theory_xsec_dn_v = rt.TVectorD(len(mass),array('d',theory_xsec_dn))      
 
-theory_xsec_gr = TGraphAsymmErrors(TVectorD(len(mass),mass),theory_xsec_v,TVectorD(len(mass),masserr),TVectorD(len(mass),masserr),theory_xsec_dn_v,theory_xsec_up_v)
+theory_xsec_gr = rt.TGraphAsymmErrors(rt.TVectorD(len(mass),mass),theory_xsec_v,rt.TVectorD(len(mass),masserr),rt.TVectorD(len(mass),masserr),theory_xsec_dn_v,theory_xsec_up_v)
 theory_xsec_gr.SetFillStyle(3001)
-theory_xsec_gr.SetFillColor(ROOT.kRed)
+theory_xsec_gr.SetFillColor(rt.kRed)
 			   
-theory = TGraph(len(mass))
+theory = rt.TGraph(len(mass))
 for i in range(len(mass)):
 	theory.SetPoint(i, mass[i], theory_xsec[i])
 
@@ -121,48 +161,58 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     print "Observed lower limit "+signObs,int(round(limObserved)),"GeV"
     print
 
-    massv = TVectorD(len(mass),mass)
-    expv = TVectorD(len(mass),exp)
-    exp68Hv = TVectorD(len(mass),exp68H)
-    exp68Lv = TVectorD(len(mass),exp68L)
-    exp95Hv = TVectorD(len(mass),exp95H)
-    exp95Lv = TVectorD(len(mass),exp95L)
+    massv = rt.TVectorD(len(mass),mass)
+    expv  = rt.TVectorD(len(mass),exp)
+    exp68Hv = rt.TVectorD(len(mass),exp68H)
+    exp68Lv = rt.TVectorD(len(mass),exp68L)
+    exp95Hv = rt.TVectorD(len(mass),exp95H)
+    exp95Lv = rt.TVectorD(len(mass),exp95L)
 
-    obsv = TVectorD(len(mass),obs)
-    masserrv = TVectorD(len(mass),masserr)
-    obserrv = TVectorD(len(mass),obserr)
-    experrv = TVectorD(len(mass),experr)       
+    obsv = rt.TVectorD(len(mass),obs)
+    masserrv = rt.TVectorD(len(mass),masserr)
+    obserrv = rt.TVectorD(len(mass),obserr)
+    experrv = rt.TVectorD(len(mass),experr)       
 
 
-    observed = TGraphAsymmErrors(massv,obsv,masserrv,masserrv,obserrv,obserrv)
-    observed.SetLineColor(ROOT.kBlack)
+    observed = rt.TGraphAsymmErrors(massv,obsv,masserrv,masserrv,obserrv,obserrv)
+    observed.SetLineColor(rt.kBlack)
     observed.SetLineWidth(2)
     observed.SetMarkerStyle(20)
-    expected = TGraphAsymmErrors(massv,expv,masserrv,masserrv,experrv,experrv)
-    expected.SetLineColor(ROOT.kBlack)
+    expected = rt.TGraphAsymmErrors(massv,expv,masserrv,masserrv,experrv,experrv)
+    expected.SetLineColor(rt.kBlue)
     expected.SetLineWidth(2)
     expected.SetLineStyle(2)
-    expected68 = TGraphAsymmErrors(massv,expv,masserrv,masserrv,exp68Lv,exp68Hv)
-    expected68.SetFillColor(ROOT.kGreen)
-    expected95 = TGraphAsymmErrors(massv,expv,masserrv,masserrv,exp95Lv,exp95Hv)
-    expected95.SetFillColor(ROOT.kYellow)
+    expected68 = rt.TGraphAsymmErrors(massv,expv,masserrv,masserrv,exp68Lv,exp68Hv)
+    expected68.SetFillColor(rt.kGreen+1)
+    expected95 = rt.TGraphAsymmErrors(massv,expv,masserrv,masserrv,exp95Lv,exp95Hv)
+    expected95.SetFillColor(rt.kOrange)
 
-    c4 = TCanvas("c4","Limits", 1000, 800)
-    c4.SetBottomMargin(0.15)
-    c4.SetRightMargin(0.06)
-    c4.SetLogy()
+    canvas = rt.TCanvas("c4","c4",50,50,W,H)
+    canvas.SetFillColor(0)
+    canvas.SetBorderMode(0)
+    canvas.SetFrameFillStyle(0)
+    canvas.SetFrameBorderMode(0)
+    canvas.SetLeftMargin( L/W )
+    canvas.SetRightMargin( R/W )
+    canvas.SetTopMargin( T/H )
+    canvas.SetBottomMargin( B/H )
+    canvas.SetTickx(0)
+    canvas.SetTicky(0)
+    canvas.SetLogy()
 
+    if signal=='X53':
+    	XaxisTitle = "X_{5/3} mass [GeV]"
+    	YaxisTitle = "#sigma(_{}X_{5/3}#bar{X}_{5/3})[pb] - "+chiral.replace('left','LH').replace('right','RH')
+    else:
+		XaxisTitle = signal+" mass [GeV]"
+		YaxisTitle = "#sigma("+signal+"#bar{"+signal+"})[pb]"
+    
     expected95.Draw("a3")
     expected95.GetYaxis().SetRangeUser(.008+.00001,10.45)
-    #expected95.GetYaxis().SetRangeUser(.008+.00001,200.45)
     expected95.GetXaxis().SetRangeUser(700,1500)
-    if tempKey=='nB0': expected95.GetYaxis().SetRangeUser(.008+.00001,25.45)   
-    if signal=='X53':
-    	expected95.GetXaxis().SetTitle("X_{5/3} mass [GeV]")
-    	expected95.GetYaxis().SetTitle("#sigma(X_{5/3}#bar{X}_{5/3})[pb] - "+chiral.replace('left','LH').replace('right','RH'))
-    else:
-		expected95.GetXaxis().SetTitle(signal+" mass [GeV]")
-		expected95.GetYaxis().SetTitle("#sigma ("+signal+"#bar{"+signal+"})[pb]")
+    expected95.GetXaxis().SetTitle(XaxisTitle)
+    expected95.GetYaxis().SetTitle(YaxisTitle)
+    expected95.GetYaxis().SetTitleOffset(1)
 		
     expected68.Draw("3same")
     expected.Draw("same")
@@ -175,30 +225,20 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     theory.SetLineColor(2)
     theory.SetLineStyle(1)
     theory.SetLineWidth(2)
-    theory.Draw("same")                                                             
-        
-    latex2 = TLatex()
-    latex2.SetNDC()
-    latex2.SetTextSize(0.03)
-    latex2.SetTextAlign(11) # align right
-    latex2.DrawLatex(0.58, 0.96, "CMS Preliminary, " + str(lumiPlot) + " fb^{-1} (13 TeV)")
+    theory.Draw("same")
+    
+    #draw the lumi text on the canvas
+    CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
 
-    latex4 = TLatex()
-    latex4.SetNDC()
-    latex4.SetTextSize(0.06)
-    latex4.SetTextAlign(31) # align right
-    #if chiral=='left': latex4.DrawLatex(0.30, 0.82, "LH")
-    #if chiral=='right': latex4.DrawLatex(0.30, 0.82, "RH")
-
-    #legend = TLegend(.62,.62,.92,.92) # top right
-    legend = TLegend(.32,.72,.92,.92) # top right
-    #if tempKey=='nB0': legend = TLegend(.62,.32,.92,.62)
-    if tempKey=='nB0': legend = TLegend(.32,.42,.92,.62)
-    if not blind: legend.AddEntry(observed , '95% CL observed', "lp")
-    legend.AddEntry(expected68, '#pm 1#sigma expected', "f")
-    legend.AddEntry(expected, '95% CL expected', "l")
-    legend.AddEntry(expected95, '#pm 2#sigma expected', "f")
-    legend.AddEntry(theory_xsec_gr, 'Signal Cross Section', 'lf')
+    legend = rt.TLegend(.37,.69,.94,.89) # top right
+    if tempKey=='nB0': legend = rt.TLegend(.32,.42,.92,.62)
+    if not blind: legend.AddEntry(observed, "95% CL observed", "lp")
+    #legend.AddEntry(expected68, "#pm 1 std. deviation", "f")
+    legend.AddEntry(expected68, "#pm 1 s.d.", "f")
+    legend.AddEntry(expected, "95% CL expected", "l")
+    #legend.AddEntry(expected95, "#pm 2 std. deviation", "f")
+    legend.AddEntry(expected95, "#pm 2 s.d.", "f")
+    legend.AddEntry(theory_xsec_gr, "Signal Cross Section", "lf")
 
     legend.SetShadowColor(0)
     legend.SetFillStyle(0)
@@ -208,14 +248,19 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     legend.SetNColumns(2)
     legend.Draw()
     
-    c4.RedrawAxis()
+    canvas.cd()
+    canvas.Update()
+    canvas.RedrawAxis()
+    frame = canvas.GetFrame()
+    frame.Draw()
 
     folder = '.'
     outDir=folder+'/'+limitDir.split('/')[-3]+'plots'
     if not os.path.exists(outDir): os.system('mkdir '+outDir)
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.eps')
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.pdf')
-    c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.png')
+    canvas.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.eps')
+    canvas.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.pdf')
+    canvas.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.png')
+    canvas.SaveAs(outDir+'/LimitPlot_'+histPrefix+'_rebinned_stat'+str(binning).replace('.','p')+saveKey+'_'+tempKey+'.root')
     return int(round(limExpected)), int(round(limObserved))
 
 doBRScan = False
@@ -226,7 +271,7 @@ BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-tempKeys = ['all','isE','isM','nW0','nW1p','nB1','nB2p','nT0','nT1p']
+tempKeys = ['all']#,'isE','isM','nW0','nW1p','nB1','nB2p','nT0','nT1p']
 #tempKeys = [item+'_moreToys' for item in tempKeys]
 #tempKeys = ['all_moreToys','noJMS','noJMR','noTAU21','noTOPSF','noWTAGsys','noWtTAGsys','noTtbarCRsys','noCRsys','noCRWtTAGsys']
 #tempKeys+= ['no_nT0_nW0_nB0']
@@ -248,8 +293,8 @@ dirs = {
 		'ttag_noCRunc':'templates_minMlb_noJSF_tau21Fix1_2016_10_8_noCRuncerts',
 		#'ttag':'templates_minMlb_2016_10_28_noCRuncerts',
 		}
-dirKeyList = ['ttag','ttag_noCRunc']
-binnings = ['0p15','0p25']
+dirKeyList = ['ttag_noCRunc']#,'ttag']
+binnings = ['0p15']#,'0p25']
 
 expLimsL = {}
 obsLimsL = {}
