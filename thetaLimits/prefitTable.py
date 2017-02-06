@@ -2,7 +2,7 @@
 
 import os,sys,time,math
 
-prefitFile = 'templates_minMlb_noJSF_tau21Fix1_2016_10_8_noCRuncertsplots/prefit800left.txt' # replace "plusminus" sign with "pm" in the file
+prefitFile = 'templates_2017_1_24plots/prefit800left.txt' # replace "plusminus" sign with "pm" in the file
 
 fprefit = open(prefitFile, 'rU')
 prefitlines = fprefit.readlines()
@@ -18,15 +18,15 @@ for ind in range(len(prefitlines)):
 nuisNam = [
 			'pdfNew',
 			'muRFcorrdNew',
-			'q2',
+# 			'q2',
 			'toppt',
 			'tau21',
 			'jms',
 			'jmr',
-			#'jsf',
+# 			'jsf',
 			'topsf',
-			'btag',
-			'mistag',
+# 			'btag',
+# 			'mistag',
 			'jer',
 			'jec',
 			'pileup',
@@ -46,27 +46,32 @@ nuisNam = [
 # 			'ewk1pT0W2pBSys',
 # 			'ewk1pT1pW1BSys',
 # 			'ewk1pT1pW2pBSys',
-			'muTrigSys',
-			'elTrigSys',
+# 			'muTrigSys',
+# 			'elTrigSys',
+			'trigeff',
 			'muIsoSys',
 			'elIsoSys',
 			'muIdSys',
 			'elIdSys',
 			'lumiSys',
+			'topSys',
+			'ewkSys',
+			'qcdSys',
+			'sigSys',
 			]
 
 nuisNamPlot = [
 			'PDF',
 			'muRF',
-			'$Q^{2}$',
-			'Top Pt',
-			'Tau21',
+# 			'$Q^{2}$',
+			'top \\pt',
+			'$\\tau_{2}/\\tau_{1}$',
 			'JMS',
 			'JMR',
-			#'JSF',
+# 			'JSF',
 			't-tag',
-			'b-tag',
-			'mis-tag',
+# 			'b-tag',
+# 			'mis-tag',
 			'JER',
 			'JEC',
 			'pileup',
@@ -86,13 +91,18 @@ nuisNamPlot = [
 # 			'ewk\_1+t\_0W\_2+b',
 # 			'ewk\_1+t\_1+W\_1b',
 # 			'ewk\_1+t\_1+W\_2+b',
-			'muTrig',
-			'elTrig',
+# 			'muTrig',
+# 			'elTrig',
+			'Trigger', 
 			'muIso',
 			'elIso',
 			'muId',
 			'elId',
 			'lumi',
+			'top (temp)',
+			'ewk (temp)',
+			'qcd (temp)',
+			'sig (temp)',
 			]
 
 ewkInd = 1
@@ -149,7 +159,7 @@ for ind in obsIndexes:
 	print "\\hline"
 	for nui in nuisNam:
 		i = prefitUncs[ind]['main'].index([nui,'(gauss)'])
-		if prefitUncs[ind]['sig'][i][0]=='-' and prefitUncs[ind]['top'][i][0]=='-': continue
+		if prefitUncs[ind]['sig'][i][0]=='-' and prefitUncs[ind]['top'][i][0]=='-' and nui!='ewkSys' and nui!='qcdSys': continue
 		print nuisNamPlot[nuisNam.index(nui)]+' (gauss)'+' & ',
 		print prefitUncs[ind]['sig'][i][0]+' '+prefitUncs[ind]['sig'][i][1]+' & ',
 		print prefitUncs[ind]['top'][i][0]+' '+prefitUncs[ind]['top'][i][1]+' & ',

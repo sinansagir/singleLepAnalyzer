@@ -16,9 +16,9 @@ distribution = 'minMlb'
 signal = 'X53X53'
 chiral = 'left'
 spin = 'left'
-limitDir='/user_data/ssagir/x53x53_limits_2016/templates_minMlb_2016_10_29/all/'#_beforeRebinning/'
+limitDir='/user_data/ssagir/x53x53_limits_2016/templates_minMlb_2016_9_3/all/'#_beforeRebinning/'
 postfix = '' # for plot names in order to save them as different files
-isRebinned='_rebinned_stat0p25'
+isRebinned='_rebinned_stat0p3'
 xrange_min=700.
 xrange_max=1200.
 yrange_min=.0003+.01
@@ -51,7 +51,7 @@ def getSensitivity(index, exp):
 cutStrings = [x for x in os.walk(limitDir).next()[1]]
 
 #bestSelection = 'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet50_3jet0'#ST
-bestSelection = 'lep30_MET100_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0'#minMlb
+bestSelection = 'lep30_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0'#minMlb
 additionalSelToCompare = []
 
 observed = {}

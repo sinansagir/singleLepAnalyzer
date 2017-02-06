@@ -7,11 +7,11 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 36
+lumi = 36.8
 discriminant = 'minMlb'
-lumiStr = '36p0fb'
+lumiStr = '36p814fb'
 rfilePostFix = '_rebinned_stat0p3'
-tempVersion = 'templates_2016_11_18_wJSF_minMlbselect'
+tempVersion = 'templates_2017_1_24'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
@@ -24,7 +24,7 @@ nWtaglist = ['0','1p']
 nbtaglist = ['1','2p']
 njetslist = ['4p']
 
-systematics = ['topsf','pileup','jec','jer','tau21','jsf','muRFcorrdNew','pdfNew','q2','toppt']#,'btag','mistag']
+systematics = ['pileup','jec','jer','jms','jmr','tau21','toppt','topsf','muRFcorrdNew','pdfNew','trigeff']#,'btag','mistag','q2','jsf'
 
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 RFile = R.TFile(templateFile)
@@ -32,32 +32,47 @@ RFile = R.TFile(templateFile)
 for syst in systematics:
 	for cat in catList:
 		Prefix = discriminant+'_'+lumiStr+'_'+cat+'__'+bkgList[0]
-		print Prefix
+		print Prefix+'__'+syst
 		hNm = RFile.Get(Prefix).Clone()
-		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
-		hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+		try:
+			hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
+			hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+		except:
+			print "No shape for",bkgList[0],cat,syst
+			hUp = RFile.Get(Prefix).Clone()
+			hDn = RFile.Get(Prefix).Clone()
 		for bkg in bkgList:
 			if bkg==bkgList[0]: continue
 			try: 
 				htemp = RFile.Get(Prefix.replace(bkgList[0],bkg)).Clone()
 				hNm.Add(htemp)
-			except: pass
+			except: 
+				print "No nominal for",bkg,cat,syst
+				pass
 			try:
-				if (syst=='q2' or syst=='toppt') and bkg!='top':
+				htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+'__plus').Clone()
+				hUp.Add(htempUp)
+			except:
+				print "No shape for",bkg,cat,syst
+				try:
 					htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg)).Clone()
 					hUp.Add(htempUp)
-				else:
-					htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+'__plus').Clone()
-					hUp.Add(htempUp)
-			except:pass
-			try: 
-				if (syst=='q2' or syst=='toppt') and bkg!='top':
+				except: 
+					print "No nominal for",bkg,cat,syst
+					pass
+			
+			try:
+				htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
+				hDn.Add(htempDown)
+			except:
+				print "No shape for",bkg,cat,syst
+				try:
 					htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg)).Clone()
 					hDn.Add(htempDown)
-				else:
-					htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
-					hDn.Add(htempDown)
-			except:pass
+				except: 
+					print "No nominal for",bkg,cat,syst
+					pass
+
 		hNm.Draw()
 		hUp.Draw()
 		hDn.Draw()
@@ -218,24 +233,24 @@ for syst in systematics:
 		if flv=='isE': flvString+='e+jets'
 		if flv=='isM': flvString+='#mu+jets'
 		if ttag!='0p': 
-			if 'p' in ttag: tagString+='#geq'+ttag[:-1]+' t, '
-			else: tagString+=ttag+' t, '
+			if 'p' in ttag: tagString+='#geq'+ttag[2:-1]+' t, '
+			else: tagString+=ttag[2:]+' t, '
 		if wtag!='0p': 
-			if 'p' in wtag: tagString+='#geq'+wtag[:-1]+' W, '
-			else: tagString+=wtag+' W, '
+			if 'p' in wtag: tagString+='#geq'+wtag[2:-1]+' W, '
+			else: tagString+=wtag[2:]+' W, '
 		if btag!='0p': 
-			if 'p' in btag: tagString+='#geq'+btag[:-1]+' b, '
-			else: tagString+=btag+' b, '
+			if 'p' in btag: tagString+='#geq'+btag[2:-1]+' b, '
+			else: tagString+=btag[2:]+' b, '
 		if njet!='0p': 
-			if 'p' in njet: tagString+='#geq'+njet[:-1]+' j'
-			else: tagString+=njet+' j'
+			if 'p' in njet: tagString+='#geq'+njet[2:-1]+' j'
+			else: tagString+=njet[2:]+' j'
 		if tagString.endswith(', '): tagString = tagString[:-2]
 		chLatex.DrawLatex(0.45, 0.84, flvString)
 		chLatex.DrawLatex(0.45, 0.78, tagString)
 
-		#canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+cat+'.pdf')
+		canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+cat+'.pdf')
 		canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+cat+'.png')
-		#canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+cat+'.eps')
+		canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+cat+'.eps')
 
 RFile.Close()
 

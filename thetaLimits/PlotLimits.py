@@ -11,8 +11,8 @@ setTDRStyle()
 blind=True
 saveKey=''#'_test'
 signal = 'X53'
-lumiPlot = '36'
-lumiStr = '36p0'
+lumiPlot = '36.8'
+lumiStr = '36p814'
 
 mass_str = ['700','800','900','1000','1100','1200','1300','1400','1500','1600']
 theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391][:len(mass_str)]#pb
@@ -227,14 +227,14 @@ BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-iPlotList=['YLD','ST','minMlb']
-tempKeys = ['all','all_noShpSys']#,'isE','isM','nW0','nW1p','nB1','nB2p','nT0','nT1p']
+iPlotList=['minMlb','YLD']#,'ST']
+tempKeys = ['all']#,'isE','isM','nW0','nW1p','nB1','nB2p','nT0','nT1p']
 cutString=''#'templates_2016_11_18_wJSF_STselect'
 dirs = {
 		'STsel':'templates_2016_11_18_wJSF_STselect',
-		'minMlbsel':'templates_2016_11_18_wJSF_minMlbselect',
+		'minMlbsel':'templates_2017_1_24',#'templates_2016_11_18_wJSF_minMlbselect',
 		}
-dirKeyList = ['STsel','minMlbsel']
+dirKeyList = ['minMlbsel']#,'STsel']
 binnings = ['0p3']
 
 expLimsL = {}

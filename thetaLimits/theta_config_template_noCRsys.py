@@ -14,20 +14,24 @@ def get_model():
 
     for obs in obsvs:
 		if 'isE' in obs:
-			model.add_lognormal_uncertainty('elTrigSys', math.log(1.01), '*', obs)
-			model.add_lognormal_uncertainty('elIdSys', math.log(1.01), '*', obs)
+			#model.add_lognormal_uncertainty('elTrigSys', math.log(1.01), '*', obs)
+			model.add_lognormal_uncertainty('elIdSys', math.log(1.02), '*', obs)
 			model.add_lognormal_uncertainty('elIsoSys', math.log(1.01), '*', obs)
 		elif 'isM' in obs:
-			model.add_lognormal_uncertainty('muTrigSys', math.log(1.0112), '*', obs)
-			model.add_lognormal_uncertainty('muIdSys', math.log(1.0112), '*', obs)
-			model.add_lognormal_uncertainty('muIsoSys', math.log(1.03), '*', obs)
+			#model.add_lognormal_uncertainty('muTrigSys', math.log(1.01), '*', obs)
+			model.add_lognormal_uncertainty('muIdSys', math.log(1.01), '*', obs)
+			model.add_lognormal_uncertainty('muIsoSys', math.log(1.01), '*', obs)
     model.add_lognormal_uncertainty('lumiSys', math.log(1.062), '*', '*')
     
     #additional uncertainties for missing systs: btag,mistag, and trigEff
-    model.add_lognormal_uncertainty('topSys', math.log(1.10), 'top', '*')
-    model.add_lognormal_uncertainty('ewkSys', math.log(1.10), 'ewk', '*')
-    model.add_lognormal_uncertainty('qcdSys', math.log(1.10), 'qcd', '*')
-    model.add_lognormal_uncertainty('sigSys', math.log(1.10), 'sig', '*')
+    try: model.add_lognormal_uncertainty('topSys', math.log(1.10), 'top', '*')
+    except: pass
+    try: model.add_lognormal_uncertainty('ewkSys', math.log(1.10), 'ewk', '*')
+    except: pass
+    try: model.add_lognormal_uncertainty('qcdSys', math.log(1.10), 'qcd', '*')
+    except: pass
+    try: model.add_lognormal_uncertainty('sigSys', math.log(1.10), 'sig', '*')
+    except: pass
     			
     return model
 

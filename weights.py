@@ -1,9 +1,16 @@
 #!/usr/bin/python
 
 #targetlumi = 12892. # 1/pb
-targetlumi = 36000. # 1/pb
-#targetlumi = 36418. # 1/pb
-#targetlumi = 36459. # 1/pb --> for rereco that will come
+targetlumi = 36814. # 1/pb
+
+genHTweight={}#https://github.com/jmhogan/GenHTweight/blob/master/WJetsToLNuSFs.txt
+genHTweight['WJetsMG100'] = 0.998056
+genHTweight['WJetsMG200'] = 0.978569
+genHTweight['WJetsMG400'] = 0.928054
+genHTweight['WJetsMG600'] = 0.856705
+genHTweight['WJetsMG800'] = 0.757463
+genHTweight['WJetsMG1200']= 0.608292
+genHTweight['WJetsMG2500']= 0.454246
 
 BR={}
 BR['BW'] = 0.5

@@ -1,5 +1,5 @@
 import ROOT as R
-import os,sys,math
+import os,sys,math,itertools
 from array import array
 
 from tdrStyle import *
@@ -7,69 +7,92 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 2.3
+lumi = 36.8
 discriminant = 'minMlb'
-rfilePostFix = '_modified'
-tempVersion = 'templates_minMlb_69mbNoTops'
-cutString = 'SelectionFile'
-templateFile = '../makeThetaTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_TTM900_12p892fb'+rfilePostFix+'.root'
+lumiStr = '36p814fb'
+rfilePostFix = '_rebinned_stat1p1'
+tempVersion = 'templates_2017_1_24'
+cutString = ''
+templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signals'): os.system('mkdir '+outDir+tempVersion+'/signals')
 
-bkgList = ['top','ewk','qcd']
-channels = ['isE','isM']
-ttags = ['nT0p']
-wtags = ['nW0','nW1p']
-btags = ['nB0','nB1','nB2','nB3p']
-systematics = ['pileup','jec','jer','btag','mistag','tau21','jsf','muRFcorrdNew','pdfNew','trigeff']
+isEMlist = ['E','M']
+nttaglist = ['0','1p']
+nWtaglist = ['0','1p']
+nbtaglist = ['1','2p']
+njetslist = ['4p']
 
-signameList = ['TTM800',
-			   'TTM900',
-			   'TTM1000',
-			   'TTM1100',
-			   'TTM1200',
-			   'TTM1300',
-			   'TTM1400',
-			   'TTM1500',
-			   'TTM1600',
-			   'TTM1700',
-			   'TTM1800',
-			   ]
+systematics = ['pileup','jec','jer','jms','jmr','tau21','topsf','muRFcorrdNew','pdfNew','trigeff']#,'btag','mistag'
+
+signameList = [
+# 		   'X53X53M700left',
+		   'X53X53M800left',
+# 		   'X53X53M900left',
+# 		   'X53X53M1000left',
+# 		   'X53X53M1100left',
+# 		   'X53X53M1200left',
+# 		   'X53X53M1300left',
+# 		   'X53X53M1400left',
+# 		   'X53X53M1500left',
+# 		   'X53X53M1600left',
+# 		   'X53X53M700right',
+# 		   'X53X53M800right',
+# 		   'X53X53M900right',
+# 		   'X53X53M1000right',
+# 		   'X53X53M1100right',
+# 		   'X53X53M1200right',
+# 		   'X53X53M1300right',
+# 		   'X53X53M1400right',
+# 		   'X53X53M1500right',
+# 		   'X53X53M1600right',
+		       ]
+
+catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 
 for signal in signameList:
-	RFile = R.TFile(templateFile.replace('TTM900',signal))
+	RFile = R.TFile(templateFile.replace('X53X53M900left',signal))
 	for syst in systematics:
-		Prefix = discriminant+'_12p892fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'__sig'
-		print Prefix
+		if (syst=='q2' or syst=='toppt'):
+			print "Do you expect to have "+syst+" for your signal? FIX ME IF SO! I'll skip this systematic"
+			continue
+		Prefix = discriminant+'_'+lumiStr+'_'+catList[0]+'__sig'
+		print Prefix+'__'+syst
 		hNm = RFile.Get(Prefix).Clone()
 		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
 		hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
-		for ch in channels:
-			for ttag in ttags:
-				for wtag in wtags:
-					for btag in btags:
-						if ch==channels[0] and btag==btags[0] and ttag==ttags[0] and wtag==wtags[0]: continue
-						try: 
-							print Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)
-							htemp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
-							hNm.Add(htemp)
-						except: pass
-						try:
-							if (syst=='q2' or syst=='toppt'):
-								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
-								hUp.Add(htempUp)
-							else:
-								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__plus').Clone()
-								hUp.Add(htempUp)
-						except:pass
-						try: 
-							if (syst=='q2' or syst=='toppt'):
-								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
-								hDn.Add(htempDown)
-							else:
-								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__minus').Clone()
-								hDn.Add(htempDown)
-						except:pass
+		for cat in catList:
+			if cat==catList[0]: continue
+			try: 
+				htemp = RFile.Get(Prefix.replace(catList[0],cat)).Clone()
+				hNm.Add(htemp)
+			except: 
+				print "No nominal for",signal,cat,syst
+				pass
+				
+			try:
+				htempUp = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+'__plus').Clone()
+				hUp.Add(htempUp)
+			except:
+				print "No shape for",signal,cat,syst
+				try:
+					htempUp = RFile.Get(Prefix.replace(catList[0],cat)).Clone()
+					hUp.Add(htempUp)
+				except: 
+					print "No nominal for",signal,cat,syst
+					pass
+		
+			try:
+				htempDown = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+'__minus').Clone()
+				hDn.Add(htempDown)
+			except:
+				print "No shape for",signal,cat,syst
+				try:
+					htempDown = RFile.Get(Prefix.replace(catList[0],cat)).Clone()
+					hDn.Add(htempDown)
+				except: 
+					print "No nominal for",signal,cat,syst
+					pass
 		hNm.Draw()
 		hUp.Draw()
 		hDn.Draw()

@@ -13,46 +13,47 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='SR' #PS,SR,TTCR,WJCR
-isCategorized=True
+region='PS' #PS,SR,TTCR,WJCR
+isCategorized=0
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='2016_11_18_wJSF_minMlbselect'
+pfix+='2017_2_5'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
-lumiScaleCoeff = 33590./36000.
-doAllSys = True
+lumiScaleCoeff = 36200./36459.
+doAllSys = 0
 doQ2sys = True
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','btag','mistag','tau21','topsf','toppt','muR','muF','muRFcorrd','jsf','trigeff']
+systematicList = ['pileup','jec','jer','jms','jmr','tau21','topsf','toppt','muR','muF','muRFcorrd','trigeff']#,'btag','mistag','jsf'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 
 doJetRwt= 0
 bkgGrupList = ['top','ewk','qcd']
-bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
+#bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
+bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets']  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500'] 
 if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']] 
 bkgProcs['ZJets']  = ['DY']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
-bkgProcs['TTV']    = ['TTWl','TTWq','TTZl','TTZq']
+#bkgProcs['TTV']    = ['TTWl','TTWq','TTZl','TTZq']
 bkgProcs['TTJets'] = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 bkgProcs['T']      = ['Tt','Tbt','Ts','TtW','TbtW']
 bkgProcs['qcd'] = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']] 
-bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['TTV']+bkgProcs['T']
+bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']#+bkgProcs['TTV']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV'] 
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
 
 topptProcs = ['top','TTJets']
-bkgProcs['top_q2up'] = bkgProcs['TTV']+bkgProcs['T']+['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
-bkgProcs['top_q2dn'] = bkgProcs['TTV']+bkgProcs['T']+['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
+bkgProcs['top_q2up'] = bkgProcs['T']+['TTJetsPHQ2U']#bkgProcs['TTV']+,'TtWQ2U','TbtWQ2U']
+bkgProcs['top_q2dn'] = bkgProcs['T']+['TTJetsPHQ2D']#bkgProcs['TTV']+,'TtWQ2D','TbtWQ2D']
 
 whichSignal = 'X53X53' #HTB, TT, BB, or X53X53
 massList = range(700,1600+1,100)
@@ -81,7 +82,7 @@ else: nbtaglist=['1','2p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['0p','1p']
+	nbtaglist = ['0','1p','2p']
 	if region=='CR': nbtaglist = ['0','0p','1p']
 njetslist=['4p']
 if region=='PS': njetslist=['3p']
@@ -89,12 +90,12 @@ catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] 
 tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))]
 
 lumiSys = 0.062 #lumi uncertainty
-eltrigSys = 0.03 #electron trigger uncertainty
-mutrigSys = 0.011 #muon trigger uncertainty
-elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.011 #muon id uncertainty
+eltrigSys = 0.0 #electron trigger uncertainty
+mutrigSys = 0.0 #muon trigger uncertainty
+elIdSys = 0.02 #electron id uncertainty
+muIdSys = 0.01 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.03 #muon isolation uncertainty
+muIsoSys = 0.01 #muon isolation uncertainty
 
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
@@ -553,11 +554,12 @@ for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
     iPlotList.append(file.split('/')[-1].replace('bkghists_','')[:-2])
 
 print "WORKING DIR:",outDir
+print iPlotList
 for iPlot in iPlotList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	#if iPlot=='minMlj': continue
+	#if iPlot!='deltaPhiLMET': continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]

@@ -11,21 +11,21 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=36 #for plots
+lumi=36.8 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='WJCR' #PS,SR,TTCR,WJCR
-isCategorized=True
-iPlot='minMlb'
+region='PS' #PS,SR,TTCR,WJCR
+isCategorized=0
+iPlot='lepIso'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
 if region=='SR': pfix='templates_'
 elif region=='WJCR': pfix='wjets_'
 elif region=='TTCR': pfix='ttbar_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-templateDir=os.getcwd()+'/'+pfix+'2016_11_18_wJSF_minMlbselect/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'2017_2_5/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig1='X53X53M800left' #  choose the 1st signal to plot
@@ -41,20 +41,20 @@ if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
-systematicList = ['pileup','jec','jer','tau21','toppt','topsf','jsf','muRFcorrdNew','pdfNew']#,'btag','mistag','trigeff'
-doAllSys = True
-doQ2sys  = True
+systematicList = ['pileup','jec','jer','jms','jmr','tau21','toppt','topsf','muRFcorrdNew','pdfNew','trigeff']#,'btag','mistag','jsf'
+doAllSys = False
+doQ2sys  = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-doNormByBinWidth=True
+doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
-yLog  = True
+yLog  = False
 doRealPull = False
 if doRealPull: doOneBand=False
 compareShapes = False
-if compareShapes: blind,yLog=True,False
+if compareShapes: blind,yLog,scaleSignals,sigScaleFact=True,False,False,-1
 
 isEMlist =['E','M']
 if region=='SR': nttaglist=['0','1p']
@@ -66,11 +66,12 @@ else: nbtaglist=['1','2p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['0p','1p']
+	nbtaglist = ['0','1p','2p']
 	if region=='CR': nbtaglist = ['0','0p','1p']
 njetslist = ['4p']
 if region=='PS': njetslist = ['3p']
 if iPlot=='YLD':
+	doNormByBinWidth = False
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['0p']
@@ -78,8 +79,8 @@ if iPlot=='YLD':
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
 
 lumiSys = 0.062 # lumi uncertainty
-trigSys = 0.03 # trigger uncertainty
-lepIdSys = 0.011 # lepton id uncertainty
+trigSys = 0.0 # trigger uncertainty
+lepIdSys = 0.02 # lepton id uncertainty
 lepIsoSys = 0.01 # lepton isolation uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total e/m values are close
 
@@ -116,6 +117,7 @@ def formatUpperHist(histogram):
 	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,j)], j#neqb [GeV]")
 	histogram.GetYaxis().CenterTitle()
 	histogram.SetMinimum(0.000101)
+	if region=='PS': histogram.SetMinimum(0.0101)
 	if not yLog: 
 		histogram.SetMinimum(0.25)
 	if yLog:
@@ -135,7 +137,7 @@ def formatLowerHist(histogram):
 	histogram.GetYaxis().SetTitle('Data/Bkg')
 	histogram.GetYaxis().SetNdivisions(5)
 	if doRealPull: histogram.GetYaxis().SetRangeUser(min(-2.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(2.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
-	else: histogram.GetYaxis().SetRangeUser(0,2.99)
+	else: histogram.GetYaxis().SetRangeUser(0.45,1.55)#0,2.99)
 	histogram.GetYaxis().CenterTitle()
 
 RFile1 = TFile(templateDir+tempsig.replace(sig1,sig1))
@@ -161,8 +163,7 @@ for tag in tagList:
 				bkghists[proc+catStr] = RFile1.Get(histPrefix+'__'+proc).Clone()
 				totBkg += bkghists[proc+catStr].Integral()
 			except:
-				print "There is no QCD!!!!!!!!"
-				print "Skipping QCD....."
+				print "There is no "+proc+"!!! Skipping it....."
 				pass
 		hData = RFile1.Get(histPrefix+'__DATA').Clone()
 		hsig1 = RFile1.Get(histPrefix+'__sig').Clone(histPrefix+'__sig1')
@@ -442,7 +443,7 @@ for tag in tagList:
 			pull.SetFillColor(1)
 			pull.SetLineColor(1)
 			formatLowerHist(pull)
-			pull.Draw("E1")
+			pull.Draw("E0")#"E1")
 			
 			BkgOverBkg = pull.Clone("bkgOverbkg")
 			BkgOverBkg.Divide(bkgHT, bkgHT)
@@ -496,7 +497,9 @@ for tag in tagList:
 			if not doOneBand: pullLegend.AddEntry(pullUncBandStat , "Bkg uncert. (shape syst.)" , "f")
 			if not doOneBand: pullLegend.AddEntry(pullUncBandNorm , "Bkg uncert. (shape #oplus norm. syst.)" , "f")
 			if not doOneBand: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus all syst.)" , "f")
-			else: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus syst.)" , "f")
+			else: 
+				if doAllSys: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus syst.)" , "f")
+				else: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert. (stat.)" , "f")
 			#pullLegend.AddEntry(pullQ2up , "Q^{2} Up" , "l")
 			#pullLegend.AddEntry(pullQ2dn , "Q^{2} Down" , "l")
 			pullLegend.Draw("SAME")
@@ -833,7 +836,7 @@ for tag in tagList:
 		pullmerged.SetFillColor(1)
 		pullmerged.SetLineColor(1)
 		formatLowerHist(pullmerged)
-		pullmerged.Draw("E1")
+		pullmerged.Draw("E0")#"E1")
 		
 		BkgOverBkgmerged = pullmerged.Clone("bkgOverbkgmerged")
 		BkgOverBkgmerged.Divide(bkgHTmerged, bkgHTmerged)
@@ -887,7 +890,9 @@ for tag in tagList:
 		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandStat , "Bkg uncert. (shape syst.)" , "f")
 		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandNorm , "Bkg uncert. (shape #oplus norm. syst.)" , "f")
 		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus all syst.)" , "f")
-		else: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus syst.)" , "f")
+		else: 
+			if doAllSys: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert. (stat. #oplus syst.)" , "f")
+			else: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert. (stat.)" , "f")
 		pullLegendmerged.Draw("SAME")
 		pullmerged.Draw("SAME")
 		lPad.RedrawAxis()

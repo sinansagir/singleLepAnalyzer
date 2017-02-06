@@ -13,7 +13,7 @@ setTDRStyle()
 blind = True
 lumiPlot = '36'
 signal = 'X53X53'
-chiral = 'left'
+chiral = 'right'
 postfix = '' # for plot names in order to save them as different files
 xrange_min=700.
 xrange_max=1600.

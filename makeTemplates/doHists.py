@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet_1lep_111816_step2preSel/nominal'
+step1Dir = '/user_data/ssagir/LJMet80X_1lep_011717_step2preSel/nominal'
 
 """
 Note: 
@@ -28,17 +28,14 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 
 bkgList = [
 		  'DY',
-		  'WJetsMG',
+		  #'WJetsMG',
 		  'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
 		  'WW','WZ','ZZ',
 		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
 		  'TTJetsPH700mtt','TTJetsPH1000mtt',
-		  'TTWl','TTWq','TTZl','TTZq',
+		  #'TTWl','TTWq','TTZl','TTZq',
 		  'Tt','Tbt','Ts','TtW','TbtW',
 		  'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
-		  
-		  'WJetsMG100JSF','WJetsMG200JSF','WJetsMG400JSF','WJetsMG600JSF','WJetsMG800JSF','WJetsMG1200JSF','WJetsMG2500JSF',
-		  'QCDht100JSF','QCDht200JSF','QCDht300JSF','QCDht500JSF','QCDht700JSF','QCDht1000JSF','QCDht1500JSF','QCDht2000JSF',
 		  ]
 
 #dataList = ['DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
@@ -53,26 +50,26 @@ if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' d
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 if whichSignal=='HTB': decays = ['']
 
-iPlot = 'minMlb' #choose a discriminant from plotList below!
+iPlot = 'mindeltaR' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
-region = 'SR'
+region = 'PS'
 if len(sys.argv)>3: region=sys.argv[3]
-isCategorized = 1
+isCategorized = 0
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 isotrig = 1
-doJetRwt= 1
-doAllSys= True
-doQ2sys = True
+doJetRwt= 0
+doAllSys= False
+doQ2sys = False
 q2List  = [#energy scale sample to be processed
 	       'TTJetsPHQ2U','TTJetsPHQ2D',
 	       #'TtWQ2U','TbtWQ2U',
 	       #'TtWQ2D','TbtWQ2D',
 	       ]
 
-# if iPlot=='ST': cutList = {'lepPtCut':30,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':250,'jet2PtCut':150,'jet3PtCut':0}
-# else:           cutList = {'lepPtCut':30,'metCut':150,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
-cutList = {'lepPtCut':30,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':250,'jet2PtCut':150,'jet3PtCut':0}
-if region=='PS':cutList = {'lepPtCut':30,'metCut':100,'njetsCut':3,'drCut':0,'jet1PtCut':250,'jet2PtCut':150, 'jet3PtCut':0}
+# if iPlot=='ST': cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':250,'jet2PtCut':150,'jet3PtCut':0}
+# else:           cutList = {'lepPtCut':80,'metCut':150,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
+cutList = {'lepPtCut':80,'metCut':150,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
+if region=='PS': cutList = {'lepPtCut':80,'metCut':100,'njetsCut':3,'drCut':0,'jet1PtCut':250,'jet2PtCut':150, 'jet3PtCut':0}
 #'lep30_MET100_NJets3_NBJets0_DR0_1jet200_2jet50_3jet0', preSel
 #'lep30_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0', #minMlb
 #'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet50_3jet0', #ST change to 'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet150_3jet0' for trigger HT400
@@ -105,16 +102,20 @@ else:
 	else: nttaglist = ['0p']
 if len(sys.argv)>7: nWtaglist=[str(sys.argv[7])]
 else: 
-	if not isCategorized: nWtaglist = ['0p']
 	if region=='TTCR': nWtaglist = ['0p']
-	else: nWtaglist=['0','1p']
+	else: 
+		if not isCategorized: nWtaglist = ['0p']
+		else: nWtaglist=['0','1p']
 if len(sys.argv)>8: nbtaglist=[str(sys.argv[8])]
 else: 
-	if not isCategorized: nbtaglist = ['1p']
 	if region=='WJCR': nbtaglist = ['0']
-	else: nbtaglist=['1','2p']
+	else: 
+		if not isCategorized: nbtaglist = ['1p']
+		else: nbtaglist=['1','2p']
 if len(sys.argv)>9: njetslist=[str(sys.argv[9])]
-else: njetslist=['4p']
+else: 
+	if region=='PS': njetslist=['3p']
+	else: njetslist=['4p']
 
 def readTree(file):
 	if not os.path.exists(file): 
@@ -215,7 +216,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'lepDxy':('leptonDxy_singleLepCalc',linspace(-0.02,0.02,51).tolist(),';lepton xy impact param [cm]'),
 	'lepDz':('leptonDz_singleLepCalc',linspace(-0.1,0.1,51).tolist(),';lepton z impact param [cm]'),
 	'lepCharge':('leptonCharge_singleLepCalc',linspace(-2,2,5).tolist(),';lepton charge'),
-	'lepIso':('leptonMiniIso_singleLepCalc',linspace(0,0.2,51).tolist(),';lepton mini isolation'),
+	'lepIso':('leptonMiniIso_singleLepCalc',linspace(0,0.1,51).tolist(),';lepton mini isolation'),
 	'Tau1':('theJetAK8NjettinessTau1_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{1}'),
 	'Tau2':('theJetAK8NjettinessTau2_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{2}'),
 	'JetPhi':('theJetPhi_JetSubCalc_PtOrdered',linspace(-3.2,3.2,65).tolist(),';AK4 Jet #phi'),
@@ -247,6 +248,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'deltaPhiWb2':('deltaPhitaggedWbJet2',linspace(0,5,51).tolist(),';#Delta#phi(W_{jet},b_{2})'), ## 2 B TAG
 	'WjetPt':('WJetTaggedPt',linspace(0,1500,51).tolist(),';p_{T}(W_{jet}) [GeV]'),
 	'PtRel':('ptRel_lepJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
+	'deltaPhiLMET':('deltaPhi_lepMET',linspace(-3.2,3.2,51).tolist(),';#Delta#phi(l,#slash{E}_{T})'),
 	
 	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity',linspace(0, 10, 11).tolist(),';b tag multiplicity'),
 

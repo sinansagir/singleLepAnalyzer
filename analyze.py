@@ -54,21 +54,24 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
 
 	# Define weights
-	TrigEff = 'TrigEffWeight'
+	TrigEff = '((27.957*TrigEffWeight+8.857*TrigEffWeightPRH)/36.814)'
 	if isotrig == 1:
-		cut += ' && DataPastTrigger == 1'# && MCPastTrigger == 1' # no MC HLT except signal
+		cut += ' && DataPastTriggerOR == 1'# && MCPastTrigger == 1' # no MC HLT except signal
 	else:
 		TrigEff = 'TrigEffAltWeight'
 		cut += ' && DataPastTriggerAlt == 1'# && MCPastTriggerAlt == 1'
 
-	jetSFstr='1'
+	jetSFstr = '1'
 	if doJetRwt and ('WJetsMG' in process or 'QCD' in process) and 'JSF' in process: jetSFstr= 'JetSF_80X'
 
 	weightStr = '1'
+	if 'WJetsMG' in process and process!='WJetsMG' and not doJetRwt: weightStr += ' * '+str(genHTweight[process])
+	topPt13TeVstr = '1'
+	if 'TTJets' in process: topPt13TeVstr = 'topPtWeight13TeV'
 	if 'Data' not in process: 
-		weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * MuTrkSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
-		weightTrigEffUpStr  = weightStr.replace(TrigEff,'TrigEffWeightUncert')
-		weightTrigEffDownStr= weightStr
+		weightStr          += ' * '+topPt13TeVstr+' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * MuTrkSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
+		weightTrigEffUpStr  = weightStr.replace(TrigEff,'((27.957*(TrigEffWeight+TrigEffWeightUncert)+8.857*(TrigEffWeightPRH+TrigEffWeightPRHUncert))/36.814)')
+		weightTrigEffDownStr= weightStr.replace(TrigEff,'((27.957*(TrigEffWeight-TrigEffWeightUncert)+8.857*(TrigEffWeightPRH-TrigEffWeightPRHUncert))/36.814)')
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
@@ -77,8 +80,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		weightmuRDownStr    = 'renormWeights[2] * '+weightStr
 		weightmuFUpStr      = 'renormWeights[1] * '+weightStr
 		weightmuFDownStr    = 'renormWeights[0] * '+weightStr
-		weighttopptUpStr    = weightStr 
-		weighttopptDownStr  = 'topPtWeight * '+weightStr 
+		weighttopptUpStr    = weightStr.replace(topPt13TeVstr+' *','')
+		weighttopptDownStr  = weightStr 
 		weightjsfUpStr      = weightStr.replace('JetSF_80X','1')
 		weightjsfDownStr    = weightStr.replace('JetSF_80X','JetSF_80X*JetSF_80X')
 
@@ -140,6 +143,10 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	
 	cut_tauUp = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[0]')
 	cut_tauDn = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[1]')
+	cut_jmsUp = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[2]')
+	cut_jmsDn = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[3]')
+	cut_jmrUp = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[4]')
+	cut_jmrDn = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[5]')
 	
 	cut_topsfUp = fullcut.replace(nttagLJMETname,nttagLJMETname+'_shifts[0]')
 	cut_topsfDn = fullcut.replace(nttagLJMETname,nttagLJMETname+'_shifts[1]')
@@ -154,7 +161,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	if isPlot2D: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process]  = TH2D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['trigeff','pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','tau21','btag','mistag','jec','jer']
+		systList = ['trigeff','pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jms','jmr','tau21','btag','mistag','jec','jer']
 		for syst in systList:
 			for ud in ['Up','Down']:
 				if isPlot2D: hists[iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process] = TH2D(iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
@@ -194,12 +201,24 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 
 		TAUupName = plotTreeName
 		TAUdnName = plotTreeName
+		JMSupName = plotTreeName
+		JMSdnName = plotTreeName
+		JMRupName = plotTreeName
+		JMRdnName = plotTreeName
 		if 'Wtagged' in TAUupName or 'Wjet' in TAUupName or 'WJet' in TAUupName: 
 			TAUupName = TAUupName+'_shifts[0]'
 			TAUdnName = TAUdnName+'_shifts[1]'
-		print 'WTAG SHIFT LJMET NAMES',TAUupName,TAUdnName
+			JMSupName = JMSupName+'_shifts[2]'
+			JMSdnName = JMSdnName+'_shifts[3]'
+			JMRupName = JMRupName+'_shifts[4]'
+			JMRdnName = JMRdnName+'_shifts[5]'
+		print 'WTAG SHIFT LJMET NAMES',TAUupName,TAUdnName,JMSupName,JMSdnName,JMRupName,JMRdnName
 		tTree[process].Draw(TAUupName+' >> '+iPlot+'tau21Up_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_tauUp+')', 'GOFF')
 		tTree[process].Draw(TAUdnName+' >> '+iPlot+'tau21Down_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_tauDn+')', 'GOFF')		
+		tTree[process].Draw(JMSupName+' >> '+iPlot+'jmsUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_jmsUp+')', 'GOFF')
+		tTree[process].Draw(JMSdnName+' >> '+iPlot+'jmsDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_jmsDn+')', 'GOFF')		
+		tTree[process].Draw(JMRupName+' >> '+iPlot+'jmrUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_jmrUp+')', 'GOFF')
+		tTree[process].Draw(JMRdnName+' >> '+iPlot+'jmrDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_jmrDn+')', 'GOFF')		
 
 		BTAGupName = plotTreeName.replace('_lepBJets','_bSFup_lepBJets')
 		BTAGdnName = plotTreeName.replace('_lepBJets','_bSFdn_lepBJets')

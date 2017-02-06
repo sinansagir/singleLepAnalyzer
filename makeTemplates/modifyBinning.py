@@ -32,8 +32,8 @@ start_time = time.time()
 iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/kinematics_PS_2016_11_26/'+cutString
-combinefile = 'templates_'+iPlot+'_36p0fb.root'
+templateDir = os.getcwd()+'/templates_2017_1_24/'+cutString
+combinefile = 'templates_'+iPlot+'_36p814fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = False #else rebins theta templates
@@ -66,19 +66,20 @@ else: #theta
 addCRsys = False
 addShapes = True
 lumiSys = 0.062 #lumi uncertainty
-eltrigSys = 0.03 #electron trigger uncertainty
-mutrigSys = 0.011 #muon trigger uncertainty
-elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.011 #muon id uncertainty
+eltrigSys = 0.0 #electron trigger uncertainty
+mutrigSys = 0.0 #muon trigger uncertainty
+elIdSys = 0.02 #electron id uncertainty
+muIdSys = 0.01 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.03 #muon isolation uncertainty
+muIsoSys = 0.01 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
 removalKeys = {} # True == keep, False == remove
-removalKeys['btag__']    = False
-removalKeys['mistag__']  = False
-removalKeys['trigeff__'] = False
+removalKeys['btag__']  = False
+removalKeys['mistag__']= False
+removalKeys['jsf__']   = False
+removalKeys['q2__']    = False
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -172,6 +173,7 @@ for rfile in rfiles:
 		for hist in allhists[chn]:
 			rebinnedHists[hist]=tfiles[iRfile].Get(hist).Rebin(len(xbins[chn])-1,hist,xbins[chn])
 			rebinnedHists[hist].SetDirectory(0)
+			overflow(rebinnedHists[hist])
 			if 'sig__mu' in hist and normalizeRENORM: #normalize the renorm/fact shapes to nominal
 				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__mu')]).Clone()
 				renormSysHist = tfiles[iRfile].Get(hist).Clone()
@@ -181,7 +183,7 @@ for rfile in rfiles:
 				renormSysHist = tfiles[iRfile].Get(hist).Clone()
 				rebinnedHists[hist].Scale(renormNomHist.Integral()/renormSysHist.Integral())
 			if '__pdf' in hist:
-				if 'Up' not in hist or 'Down' not in hist: continue
+				if upTag not in hist or downTag not in hist: continue
 			if '__mu' in hist: continue
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
 			rebinnedHists[hist].Write()
@@ -282,9 +284,9 @@ for rfile in rfiles:
 				muRFcorrdNewUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
 				muRFcorrdNewDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
 			if ('sig__mu' in hist and normalizeRENORM) or (rebinCombine and '__'+sigName in hist and '__mu' in hist and normalizeRENORM): #normalize the renorm/fact shapes to nominal
-				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__mu')]).Clone()
-				muRFcorrdNewUpHist.Scale(renormNomHist.Integral()/muRFcorrdNewUpHist.Integral())
-				muRFcorrdNewDnHist.Scale(renormNomHist.Integral()/muRFcorrdNewDnHist.Integral())
+				nominalInt = rebinnedHists[hist[:hist.find('__mu')]].Integral()
+				muRFcorrdNewUpHist.Scale(nominalInt/muRFcorrdNewUpHist.Integral())
+				muRFcorrdNewDnHist.Scale(nominalInt/muRFcorrdNewDnHist.Integral())
 			muRFcorrdNewUpHist.Write()
 			muRFcorrdNewDnHist.Write()
 			yieldsAll[muRFcorrdNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewUpHist.Integral()
@@ -305,9 +307,9 @@ for rfile in rfiles:
 				pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
 				pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
 			if ('sig__pdf' in hist and normalizePDF) or (rebinCombine and '__'+sigName in hist and '__pdf' in hist and normalizePDF): #normalize the renorm/fact shapes to nominal
-				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__pdf')]).Clone()
-				pdfNewUpHist.Scale(renormNomHist.Integral()/pdfNewUpHist.Integral())
-				pdfNewDnHist.Scale(renormNomHist.Integral()/pdfNewDnHist.Integral())
+				nominalInt = rebinnedHists[hist[:hist.find('__pdf')]].Integral()
+				pdfNewUpHist.Scale(nominalInt/pdfNewUpHist.Integral())
+				pdfNewDnHist.Scale(nominalInt/pdfNewDnHist.Integral())
 			pdfNewUpHist.Write()
 			pdfNewDnHist.Write()
 			yieldsAll[pdfNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewUpHist.Integral()

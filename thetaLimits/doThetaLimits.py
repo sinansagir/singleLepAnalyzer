@@ -1,11 +1,11 @@
 import os,sys,fnmatch
 
-templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/x53x53_2016/makeTemplates/'
-#templateDir+='templates_minMlb_2016_10_29' #Total number of jobs submitted: 3402
+templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/x53x53_2016/optimization/'
+templateDir+='templates_minMlb_2016_10_29' #Total number of jobs submitted: 3402
 #templateDir+='templates_ST_2016_10_29' #Total number of jobs submitted: 4374
-templateDir+='templates_2016_11_18_wJSF_minMlbselect'
-thetaConfigTemp = os.getcwd()+'/theta_config_template_noCRsys.py'
-lumiInFile = '36p0fb'
+#templateDir+='templates_2017_1_24'
+thetaConfigTemp = os.getcwd()+'/theta_discovery_optimization.py'
+lumiInFile = '12p892fb'
 
 toFilter0 = ['pdf','muRFdecorrdNew','muRFenv','muR','muF','muRFcorrd'] #always remove in case they are in templates
 #toFilter0+= ['pileup','jec','jer','tau21','toppt','topsf','jsf','muRFcorrdNew','pdfNew']#,'btag','mistag','trigeff'
@@ -23,7 +23,7 @@ limitConfs = {#'<limit type>':[filter list]
 # 			  'nB2p':['nB1'], #only 2p b tag category
 			  }
 
-limitType = ''#'_noCRuncerts'
+limitType = '_discovery'#'_noCRuncerts'
 outputDir = '/user_data/ssagir/x53x53_limits_2016/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 # outputDir+= '/'+limitType+'/'
@@ -38,7 +38,7 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if 'rebinned_stat0p3' not in rootfile: continue
+    if 'rebinned_stat0p25' not in rootfile: continue
     #if 'right' in rootfile: continue
     if 'plots' in rootfile: continue
     #if 'X53X53M1300' in rootfile: continue

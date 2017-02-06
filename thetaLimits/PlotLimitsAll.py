@@ -15,9 +15,9 @@ lumiStr = '12p892'
 distribution = 'minMlb'
 signal = 'X53X53'
 chiral = 'left'
-limitDir='/user_data/ssagir/x53x53_limits_2016/templates_'+distribution+'_2016_10_29/all/'
+limitDir='/user_data/ssagir/x53x53_limits_2016/templates_'+distribution+'_2016_9_3/all/'
 postfix = '' # for plot names in order to save them as different files
-isRebinned='_rebinned_stat0p25'
+isRebinned='_rebinned_stat0p3'
 xrange_min=700.
 xrange_max=1200.
 yrange_min=.0003+.01
@@ -78,6 +78,7 @@ for cutString in cutStrings:
 	#if '_NJets4_' not in cutString: continue
 	#if '_DR1_' not in cutString: continue
 	plotLimits = True
+	#print limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M700'+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt'
 	for kutle in mass_str:
 		if not os.path.exists(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+kutle+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt'): 
 			plotLimits = False
@@ -108,7 +109,7 @@ for cutString in cutStrings:
 		fexp = open(limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+mass_str[i]+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt', 'rU')
 		linesExp = fexp.readlines()
 		fexp.close()
-		print limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+mass_str[i]+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt'
+		#print limitDir+'/'+cutString+'/limits_templates_'+distribution+'_'+signal+'M'+mass_str[i]+chiral+'_'+lumiStr+'fb'+isRebinned+'_expected.txt'
 
 		lims[-1] = float(linesObs[1].strip().split()[1])
 		obs[i] = float(linesObs[1].strip().split()[1]) * xsec[i]
@@ -155,7 +156,7 @@ for key in crossingList.keys():
 print "********************************************************************************"
 print "Run over", ind, "sets of cuts"
 print "Skipped", len(skipped), "sets of cuts:"
-print skipped
+#print skipped
 print "********************************************************************************"
 print "The best set of cuts are ", sensitivityStr
 print "with sensitivity up to ", sensitivity, "GeV"

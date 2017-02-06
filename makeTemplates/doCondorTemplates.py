@@ -14,57 +14,57 @@ elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
 pfix+='_'+date#+'_'+time
-#pfix+='_2016_11_19_wJSF_STselect'#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
-	        'MTlmet',
-			'lepPt',
-			'lepEta',
-			'mindeltaR',
-			'PtRel',
-			'deltaRjet1',
-			'deltaRjet2',
-			'deltaRjet3',
-			'minMlj',
-			'lepIso',
-			'deltaRAK8',
-			'NPV',
-			'JetEta',
-			'JetPt',
-			'Jet1Pt',
-			'Jet2Pt',
-			'Jet3Pt',
-			'Jet4Pt',
-			'Jet5Pt',
-			'Jet6Pt',
-			'MET',
-			'NJets',
-			'NBJetsNoSF',
-			'NBJets',
-			'NWJets',
-			'NTJets',
-			'NJetsAK8',
-			'JetPtAK8',
-			'JetEtaAK8',
-			'Tau21',
-			'Tau21Nm1',
-			'Tau32',
-			'Tau32Nm1',
-			'PrunedSmeared',
-			'PrunedSmearedNm1',
-			'SoftDropMass', 
-			'SoftDropMassNm1', 
-			'Bjet1Pt',
-			'Wjet1Pt',
-			'Tjet1Pt',
-			
+# 			'lepPt',
+# 			'lepEta',
+# 			'deltaRjet1',
+# 			'deltaRjet2',
+# 			'deltaRjet3',
+# 			'NPV',
+# 			'JetEta',
+# 			'JetPt',
+# 			'Jet1Pt',
+# 			'Jet2Pt',
+# 			'Jet3Pt',
+# 			'Jet4Pt',
+# 			'Jet5Pt',
+# 			'Jet6Pt',
+# 			'MET',
+# 			'NJets',
+# 			'NBJetsNoSF',
+# 			'NBJets',
+# 			'NWJets',
+# 			'NTJets',
+# 			'NJetsAK8',
+# 			'JetPtAK8',
+# 			'JetEtaAK8',
+# 			'Tau21',
+# 			'Tau21Nm1',
+# 			'Tau32',
+# 			'Tau32Nm1',
+# 			'PrunedSmeared',
+# 			'PrunedSmearedNm1',
+# 			'SoftDropMass', 
+# 			'SoftDropMassNm1', 
+# 			'topPt',
+# # 			
+# 			'HT',
+# 			'ST',
+# 			'minMlb',
+
 # 			'NJets_vs_NBJets',
 
-			'HT',
-			'ST',
-			'minMlb',
-	
-# 			'topPt',
+# 	        'MTlmet',
+# 			'mindeltaR',
+# 			'PtRel',
+# 			'minMlj',
+			'lepIso',
+# 			'deltaRAK8',
+# 			'Bjet1Pt',
+# 			'Wjet1Pt',
+# 			'Tjet1Pt',
+# 			'deltaPhiLMET',	
 # 			'JetPtBins',
 # 			'Jet1PtBins',
 # 			'Jet2PtBins',
@@ -78,7 +78,6 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'minMlbDR',
 # 			'minMlbDPhi',
 # 			'topMass',
-# 			'topPt',
 # 			'nLepGen',
 # 			'METphi',
 # 			'lepPhi',
@@ -102,7 +101,7 @@ else: nbtaglist = ['1','2p']
 if not categorize: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['0p','1p']
+	nbtaglist = ['0','1p','2p']
 	if region=='CR': nbtaglist = ['0','0p','1p']
 njetslist = ['4p']
 if region=='PS': njetslist = ['3p']
@@ -118,15 +117,17 @@ for iplot in iPlotList:
 		catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
 		print catDir
 		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+catDir)
-		os.chdir(catDir)			
+		os.chdir(catDir)
+		os.system('cp '+outputDir+'/doCondorTemplates.sh '+outDir+'/'+catDir+'/'+cat[0]+'T'+cat[1]+'W'+cat[2]+'B'+cat[3]+'J'+cat[4]+iplot+'.sh')			
 	
 		dict={'dir':outputDir,'iPlot':iplot,'region':region,'isCategorized':categorize,
-			  'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
+			  'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4],
+			  'exeDir':outDir+'/'+catDir}
 	
 		jdf=open('condor.job','w')
 		jdf.write(
 """universe = vanilla
-Executable = %(dir)s/doCondorTemplates.sh
+Executable = %(exeDir)s/%(isEM)sT%(nttag)sW%(nWtag)sB%(nbtag)sJ%(njets)s%(iPlot)s.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 request_memory = 3072
