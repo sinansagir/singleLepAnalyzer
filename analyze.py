@@ -54,7 +54,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
 
 	# Define weights
-	TrigEff = '((27.957*TrigEffWeight+8.857*TrigEffWeightPRH)/36.814)'
+	TrigEff = 'TrigEffWeight'
 	if isotrig == 1:
 		cut += ' && DataPastTriggerOR == 1'# && MCPastTrigger == 1' # no MC HLT except signal
 	else:
@@ -62,16 +62,22 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		cut += ' && DataPastTriggerAlt == 1'# && MCPastTriggerAlt == 1'
 
 	jetSFstr = '1'
-	if doJetRwt and ('WJetsMG' in process or 'QCD' in process) and 'JSF' in process: jetSFstr= 'JetSF_80X'
+	#if doJetRwt and ('WJetsMG' in process or 'QCD' in process) and 'JSF' in process: jetSFstr= 'JetSF_80X'
 
 	weightStr = '1'
-	if 'WJetsMG' in process and process!='WJetsMG' and not doJetRwt: weightStr += ' * '+str(genHTweight[process])
+	HTweightStr = '1'
+	if ('WJetsMG' in process and process!='WJetsMG' and 'WJetsMGPt' not in process) or ('DYMG' in process and process!='DYMG'): 
+		HTweightStr = str(genHTweight[process])
+	weightStr += ' * '+HTweightStr
+	
 	topPt13TeVstr = '1'
 	if 'TTJets' in process: topPt13TeVstr = 'topPtWeight13TeV'
+	weightStr = '1'
+	topPt13TeVstr = '1'
 	if 'Data' not in process: 
-		weightStr          += ' * '+topPt13TeVstr+' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * MuTrkSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
-		weightTrigEffUpStr  = weightStr.replace(TrigEff,'((27.957*(TrigEffWeight+TrigEffWeightUncert)+8.857*(TrigEffWeightPRH+TrigEffWeightPRHUncert))/36.814)')
-		weightTrigEffDownStr= weightStr.replace(TrigEff,'((27.957*(TrigEffWeight-TrigEffWeightUncert)+8.857*(TrigEffWeightPRH-TrigEffWeightPRHUncert))/36.814)')
+		weightStr          += ' * '+topPt13TeVstr+' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
+		weightTrigEffUpStr  = weightStr.replace(TrigEff,'(TrigEffWeight+TrigEffWeightUncert)')
+		weightTrigEffDownStr= weightStr.replace(TrigEff,'(TrigEffWeight-TrigEffWeightUncert)')
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
@@ -81,9 +87,13 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		weightmuFUpStr      = 'renormWeights[1] * '+weightStr
 		weightmuFDownStr    = 'renormWeights[0] * '+weightStr
 		weighttopptUpStr    = weightStr.replace(topPt13TeVstr+' *','')
-		weighttopptDownStr  = weightStr 
-		weightjsfUpStr      = weightStr.replace('JetSF_80X','1')
-		weightjsfDownStr    = weightStr.replace('JetSF_80X','JetSF_80X*JetSF_80X')
+		weighttopptDownStr  = weightStr
+		weighthtUpStr       = weightStr.replace(' * '+HTweightStr,'')
+		weighthtDownStr     = weightStr
+		weighttauptUpStr    = 'TauPtWeightUp * '+weightStr
+		weighttauptDownStr  = 'TauPtWeightDown * '+weightStr
+		#weightjsfUpStr      = weightStr.replace('JetSF_80X','1')
+		#weightjsfDownStr    = weightStr.replace('JetSF_80X','JetSF_80X*JetSF_80X')
 
 	# For N-1 tagging cuts
 	pruned_massvar = 'theJetAK8PrunedMassWtagUncerts_JetSubCalc_PtOrdered'
@@ -96,10 +106,10 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	if 'Tau32Nm1' in iPlot:  cut += ' && ('+soft_massvar+' > 105 && '+ soft_massvar+' < 220)'
 
 	#plot with a specific number of b tags
-	if not isCategorized:
-		if 'Bjet1' in iPlot or 'Mlb' in iPlot or 'b1' in iPlot: nbtag='1p'
-		if 'b2' in iPlot: nbtag='2p'
-		if 'Mlj' in iPlot: nbtag='0'
+# 	if not isCategorized:
+# 		if 'Bjet1' in iPlot or 'Mlb' in iPlot or 'b1' in iPlot: nbtag='1p'
+# 		if 'b2' in iPlot: nbtag='2p'
+# 		if 'Mlj' in iPlot: nbtag='0'
 
 	# Design the tagging cuts for categories
 	isEMCut=''
@@ -107,8 +117,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	elif isEM=='M': isEMCut+=' && isMuon==1'
 
 	nttagLJMETname = 'NJetsTtagged_0p81'
-	nWtagLJMETname = 'NJetsWtagged_0p6'
-	nbtagLJMETname = 'NJetsCSV_JetSubCalc'#'NJetsCSVwithSF_JetSubCalc'
+	nWtagLJMETname = 'NJetsWtagged_0p6_notTtagged'
+	nbtagLJMETname = 'NJetsCSVwithSF_JetSubCalc'
 	njetsLJMETname = 'NJets_JetSubCalc'
 	nttagCut = ''
 	if 'p' in nttag: nttagCut+=' && '+nttagLJMETname+'>='+nttag[:-1]
@@ -136,10 +146,10 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	fullcut = cut+isEMCut+nttagCut+nWtagCut+nbtagCut+njetsCut
 
 	# replace cuts for shifts
-	cut_btagUp = fullcut.replace(nbtagLJMETname,'NJetsCSVwithSF_JetSubCalc_shifts[0]')#nbtagLJMETname+'_shifts[0]')
-	cut_btagDn = fullcut.replace(nbtagLJMETname,'NJetsCSVwithSF_JetSubCalc_shifts[1]')#nbtagLJMETname+'_shifts[1]')
-	cut_mistagUp = fullcut.replace(nbtagLJMETname,'NJetsCSVwithSF_JetSubCalc_shifts[2]')#nbtagLJMETname+'_shifts[2]')
-	cut_mistagDn = fullcut.replace(nbtagLJMETname,'NJetsCSVwithSF_JetSubCalc_shifts[3]')#nbtagLJMETname+'_shifts[3]')
+	cut_btagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[0]')
+	cut_btagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[1]')
+	cut_mistagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[2]')
+	cut_mistagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_shifts[3]')
 	
 	cut_tauUp = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[0]')
 	cut_tauDn = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[1]')
@@ -161,7 +171,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	if isPlot2D: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process]  = TH2D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['trigeff','pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jms','jmr','tau21','btag','mistag','jec','jer']
+		systList = ['trigeff','pileup','muRFcorrd','muR','muF','toppt','topsf','jms','jmr','tau21','taupt','btag','mistag','jec','jer','ht']
 		for syst in systList:
 			for ud in ['Up','Down']:
 				if isPlot2D: hists[iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process] = TH2D(iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
@@ -186,8 +196,12 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muFDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightmuFDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptUp_'      +lumiStr+'fb_'+catStr+'_'+process, weighttopptUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptDown_'    +lumiStr+'fb_'+catStr+'_'+process, weighttopptDownStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'jsfUp_'        +lumiStr+'fb_'+catStr+'_'+process, weightjsfUpStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'jsfDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightjsfDownStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'htUp_'         +lumiStr+'fb_'+catStr+'_'+process, weighthtUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'htDown_'       +lumiStr+'fb_'+catStr+'_'+process, weighthtDownStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'tauptUp_'      +lumiStr+'fb_'+catStr+'_'+process, weighttauptUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'tauptDown_'    +lumiStr+'fb_'+catStr+'_'+process, weighttauptDownStr+'*('+fullcut+')', 'GOFF')
+		#tTree[process].Draw(plotTreeName+' >> '+iPlot+'jsfUp_'        +lumiStr+'fb_'+catStr+'_'+process, weightjsfUpStr+'*('+fullcut+')', 'GOFF')
+		#tTree[process].Draw(plotTreeName+' >> '+iPlot+'jsfDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightjsfDownStr+'*('+fullcut+')', 'GOFF')
 
 		# Change the plot name itself for shifts if needed
 		TTAGupName= plotTreeName

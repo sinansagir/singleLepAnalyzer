@@ -13,7 +13,7 @@ if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_'+date#+'_'+time
+pfix+='_woRwt_'+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 # 			'lepPt',
@@ -22,12 +22,12 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'deltaRjet2',
 # 			'deltaRjet3',
 # 			'NPV',
-# 			'JetEta',
-# 			'JetPt',
-# 			'Jet1Pt',
-# 			'Jet2Pt',
-# 			'Jet3Pt',
-# 			'Jet4Pt',
+			'JetEta',
+			'JetPt',
+			'Jet1Pt',
+			'Jet2Pt',
+			'Jet3Pt',
+			'Jet4Pt',
 # 			'Jet5Pt',
 # 			'Jet6Pt',
 # 			'MET',
@@ -47,11 +47,12 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'PrunedSmearedNm1',
 # 			'SoftDropMass', 
 # 			'SoftDropMassNm1', 
-# 			'topPt',
-# # 			
-# 			'HT',
-# 			'ST',
-# 			'minMlb',
+			'topPt',
+# 			'nTrueInt',
+# 			
+			'HT',
+			'ST',
+			'minMlb',
 
 # 			'NJets_vs_NBJets',
 
@@ -59,7 +60,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'mindeltaR',
 # 			'PtRel',
 # 			'minMlj',
-			'lepIso',
+# 			'lepIso',
 # 			'deltaRAK8',
 # 			'Bjet1Pt',
 # 			'Wjet1Pt',

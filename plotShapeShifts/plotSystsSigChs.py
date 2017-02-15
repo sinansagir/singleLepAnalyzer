@@ -7,11 +7,11 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 36.8
+lumi = 35.9
 discriminant = 'minMlb'
-lumiStr = '36p814fb'
+lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat0p3'
-tempVersion = 'templates_2017_1_24'
+tempVersion = 'templates_2017_2_12'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
@@ -23,7 +23,7 @@ nWtaglist = ['0','1p']
 nbtaglist = ['1','2p']
 njetslist = ['4p']
 
-systematics = ['pileup','jec','jer','jms','jmr','tau21','topsf','muRFcorrdNew','pdfNew','trigeff']#,'btag','mistag'
+systematics = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
 
 signameList = [
 # 		   'X53X53M700left',

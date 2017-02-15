@@ -2,6 +2,7 @@
 
 import os,sys,time,math,datetime,pickle,itertools,fnmatch
 from ROOT import gROOT,TFile,TH1F
+from array import array
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from weights import *
@@ -20,43 +21,44 @@ if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='2017_2_5'
+pfix+='woRwt_2017_2_12'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 36200./36459.
-doAllSys = 0
-doQ2sys = True
+doAllSys = True
+doQ2sys = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','jms','jmr','tau21','topsf','toppt','muR','muF','muRFcorrd','trigeff']#,'btag','mistag','jsf'
+systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','muR','muF','muRFcorrd','trigeff','btag','mistag']#,'jsf'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 
 doJetRwt= 0
 bkgGrupList = ['top','ewk','qcd']
-#bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
 bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
 bkgProcs = {}
-bkgProcs['WJets']  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500'] 
+bkgProcs['WJets']  = ['WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
+#bkgProcs['WJets']  = ['WJetsMGPt250','WJetsMGPt400','WJetsMGPt600']
 if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']] 
-bkgProcs['ZJets']  = ['DY']
+bkgProcs['ZJets']  = ['DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500'] 
 bkgProcs['VV']     = ['WW','WZ','ZZ']
-#bkgProcs['TTV']    = ['TTWl','TTWq','TTZl','TTZq']
 bkgProcs['TTJets'] = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 bkgProcs['T']      = ['Tt','Tbt','Ts','TtW','TbtW']
-bkgProcs['qcd'] = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+bkgProcs['qcd'] = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']] 
-bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']#+bkgProcs['TTV']
+bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV'] 
 dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
 
+htProcs = ['ewk','WJets','ZJets']
 topptProcs = ['top','TTJets']
-bkgProcs['top_q2up'] = bkgProcs['T']+['TTJetsPHQ2U']#bkgProcs['TTV']+,'TtWQ2U','TbtWQ2U']
-bkgProcs['top_q2dn'] = bkgProcs['T']+['TTJetsPHQ2D']#bkgProcs['TTV']+,'TtWQ2D','TbtWQ2D']
+bkgProcs['top_q2up'] = bkgProcs['T']+['TTJetsPHQ2U']#'TtWQ2U','TbtWQ2U']
+bkgProcs['top_q2dn'] = bkgProcs['T']+['TTJetsPHQ2D']#'TtWQ2D','TbtWQ2D']
 
 whichSignal = 'X53X53' #HTB, TT, BB, or X53X53
 massList = range(700,1600+1,100)
+if region=='PS': massList = [800,1100]
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -167,10 +169,11 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					for ud in ['Up','Down']:
 						for proc in bkgProcList+bkgGrupList:
 							if syst=='toppt' and proc not in topptProcs: continue
+							if syst=='ht' and proc not in htProcs: continue
 							hists[proc+i+syst+ud] = bkghists[histoPrefix.replace(discriminant,discriminant+syst+ud)+'_'+bkgProcs[proc][0]].Clone(histoPrefix+'__'+proc+'__'+syst+'__'+ud.replace('Up','plus').replace('Down','minus'))
 							for bkg in bkgProcs[proc]:
 								if bkg!=bkgProcs[proc][0]: hists[proc+i+syst+ud].Add(bkghists[histoPrefix.replace(discriminant,discriminant+syst+ud)+'_'+bkg])
-						if syst=='toppt': continue
+						if syst=='toppt' or syst=='ht': continue
 						for signal in sigList:
 							hists[signal+i+syst+ud] = sighists[histoPrefix.replace(discriminant,discriminant+syst+ud)+'_'+signal+decays[0]].Clone(histoPrefix+'__sig__'+syst+'__'+ud.replace('Up','plus').replace('Down','minus'))
 							if doBRScan: hists[signal+i+syst+ud].Scale(BRs[decays[0][:2]][BRind]*BRs[decays[0][2:]][BRind]/(BR[decays[0][:2]]*BR[decays[0][2:]]))
@@ -207,6 +210,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					for ud in ['Up','Down']:
 						for proc in bkgGrupList+bkgProcList+sigList:
 							if syst=='toppt' and proc not in topptProcs: continue
+							if syst=='ht' and proc not in htProcs: continue
 							yieldTable[histoPrefix+syst+ud][proc] = hists[proc+i+syst+ud].Integral()
 			if doQ2sys:
 				for proc in bkgProcList+bkgGrupList:
@@ -261,6 +265,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						if doAllSys:
 							for syst in systematicList:
 								if syst=='toppt' and proc not in topptProcs: continue
+								if syst=='ht' and proc not in htProcs: continue
 								hists[proc+i+syst+'Up'].Write()
 								hists[proc+i+syst+'Down'].Write()
 							for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
@@ -284,7 +289,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				hists[signal+i].Write()
 				if doAllSys:
 					for syst in systematicList:
-						if syst=='toppt': continue
+						if syst=='toppt' or syst=='ht': continue
 						hists[signal+i+syst+'Up'].SetName(hists[signal+i+syst+'Up'].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__plus','Up'))
 						hists[signal+i+syst+'Down'].SetName(hists[signal+i+syst+'Down'].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__minus','Down'))
 						hists[signal+i+syst+'Up'].Write()
@@ -298,6 +303,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				if doAllSys:
 					for syst in systematicList:
 						if syst=='toppt' and proc not in topptProcs: continue
+						if syst=='ht' and proc not in htProcs: continue
 						hists[proc+i+syst+'Up'].SetName(hists[proc+i+syst+'Up'].GetName().replace('fb_','fb_'+postTag).replace('__plus','Up'))
 						hists[proc+i+syst+'Down'].SetName(hists[proc+i+syst+'Down'].GetName().replace('fb_','fb_'+postTag).replace('__minus','Down'))
 						hists[proc+i+syst+'Up'].Write()
@@ -328,6 +334,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						for syst in systematicList:
 							for ud in ['Up','Down']:
 								if syst=='toppt' and proc not in topptProcs: continue
+								if syst=='ht' and proc not in htProcs: continue
 								yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+'__'+ud.replace('Up','plus').replace('Down','minus'),'',len(tagList),0,len(tagList))
 					if doQ2sys and proc+'_q2up' in bkgProcs.keys(): 
 						yldHists[isEM+proc+'q2Up']  =TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__q2__plus','',len(tagList),0,len(tagList))
@@ -361,6 +368,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							for syst in systematicList:
 								for ud in ['Up','Down']:
 									if syst=='toppt' and proc not in topptProcs: continue
+									if syst=='ht' and proc not in htProcs: continue
 									yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yieldTable[histoPrefix+syst+ud][proc])
 									yldHists[isEM+proc+syst+ud].GetXaxis().SetBinLabel(ibin,binStr)
 						if doQ2sys and proc+'_q2up' in bkgProcs.keys(): 
@@ -374,6 +382,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						for syst in systematicList:
 							for ud in ['Up','Down']:
 								if syst=='toppt' and proc not in topptProcs: continue
+								if syst=='ht' and proc not in htProcs: continue
 								yldHists[isEM+proc+syst+ud].Write()
 					if doQ2sys and proc+'_q2up' in bkgProcs.keys(): 
 						yldHists[isEM+proc+'q2Up'].Write()
@@ -530,7 +539,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							shpHist = histoPrefix+syst+ud
 							try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
 							except:
-								if not ((syst=='toppt' and proc not in topptProcs) or (proc+'_q2up' not in bkgProcs.keys())):
+								if not ((syst=='toppt' and proc not in topptProcs) or (syst=='ht' and proc not in htProcs) or (proc+'_q2up' not in bkgProcs.keys())):
 									print "Missing",proc,"for channel:",cat,"and systematic:",syst
 								pass
 						row.append('\\\\')
@@ -559,7 +568,7 @@ for iPlot in iPlotList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	#if iPlot!='deltaPhiLMET': continue
+	#if iPlot!='nTrueInt': continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]
@@ -581,6 +590,51 @@ for iPlot in iPlotList:
 
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
 	makeThetaCats(datahists,sighists,bkghists,iPlot)
+
+# print "WORKING DIR:",outDir
+# print iPlotList
+# for iPlot in iPlotList:
+# 	datahists0 = {}
+# 	bkghists0  = {}
+# 	sighists0  = {}
+# 	#if iPlot!='nTrueInt': continue
+# 	print "LOADING DISTRIBUTION: "+iPlot
+# 	for cat in catList:
+# 		print "         ",cat[2:]
+# 		datahists0.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
+# 		bkghists0.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists_'+iPlot+'.p','rb')))
+# 		sighists0.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))
+# 	if scaleLumi:
+# 		for key in bkghists0.keys(): bkghists0[key].Scale(lumiScaleCoeff)
+# 		for key in sighists0.keys(): sighists0[key].Scale(lumiScaleCoeff)
+# 	xBins = []
+# 	for iBin in range(1,bkghists0[bkghists0.keys()[0]].GetNbinsX()+1,2):
+# 		xBins.append(bkghists0[bkghists0.keys()[0]].GetXaxis().GetBinLowEdge(iBin))
+# 	xBins.append(bkghists0[bkghists0.keys()[0]].GetXaxis().GetBinUpEdge(bkghists0[bkghists0.keys()[0]].GetNbinsX()))
+# 	xbinsArray = array('d', xBins)
+# 
+#  	#Rebin
+# 	datahists = {}
+# 	bkghists  = {}
+# 	sighists  = {}
+#  	for data in datahists0.keys(): datahists[data] = datahists0[data].Rebin(len(xbinsArray)-1,data,xbinsArray)
+#  	for bkg in bkghists0.keys():   bkghists[bkg] = bkghists0[bkg].Rebin(len(xbinsArray)-1,bkg,xbinsArray)
+#  	for sig in sighists0.keys():   sighists[sig] = sighists0[sig].Rebin(len(xbinsArray)-1,sig,xbinsArray)
+# 	datahists0 = {}
+# 	bkghists0  = {}
+# 	sighists0  = {}
+# 
+#  	#Negative Bin Correction
+#  	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
+#  	for sig in sighists.keys(): negBinCorrection(sighists[sig])
+# 
+#  	#OverFlow Correction
+#  	for data in datahists.keys(): overflow(datahists[data])
+#  	for bkg in bkghists.keys():   overflow(bkghists[bkg])
+#  	for sig in sighists.keys():   overflow(sighists[sig])
+# 
+# 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
+# 	makeThetaCats(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 

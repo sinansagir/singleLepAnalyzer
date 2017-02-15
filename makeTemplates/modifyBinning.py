@@ -29,11 +29,11 @@ start_time = time.time()
 # -- Use "removalKeys" to remove specific systematics from the output file.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-iPlot='minMlb'
+iPlot='ST'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_2017_1_24/'+cutString
-combinefile = 'templates_'+iPlot+'_36p814fb.root'
+templateDir = os.getcwd()+'/kinematics_PS_woRwt_2017_2_12/'+cutString
+combinefile = 'templates_'+iPlot+'_35p867fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = False #else rebins theta templates
@@ -43,6 +43,7 @@ normalizePDF    = True #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 sigName = 'X53X53' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
 massList = range(700,1600+1,100)
+if '_PS_' in templateDir: massList = [800,1100]
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
@@ -76,8 +77,6 @@ elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
 removalKeys = {} # True == keep, False == remove
-removalKeys['btag__']  = False
-removalKeys['mistag__']= False
 removalKeys['jsf__']   = False
 removalKeys['q2__']    = False
 
@@ -519,7 +518,7 @@ if addShapes: postFix+='_addShps'
 if not addCRsys: postFix+='_noCRunc'
 out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
 printTable(table,out)
-
+#os._exit(1)
 print "       WRITING SUMMARY TEMPLATES: "
 lumiStr = combinefile.split('_')[-1][:-7]
 for signal in sigProcList:

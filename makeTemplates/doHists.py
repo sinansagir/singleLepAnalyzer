@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet80X_1lep_011717_step2preSel/nominal'
+step1Dir = '/user_data/ssagir/LJMet80X_1lep_012817_step2preSel/nominal'
 
 """
 Note: 
@@ -27,15 +27,18 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 bkgList = [
-		  'DY',
+		  #'DY',
+		  'DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
 		  #'WJetsMG',
-		  'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+		  'WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+		  'WJetsMGPt250','WJetsMGPt400','WJetsMGPt600',
 		  'WW','WZ','ZZ',
+		  #'TTJetsPH',
 		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
 		  'TTJetsPH700mtt','TTJetsPH1000mtt',
 		  #'TTWl','TTWq','TTZl','TTZq',
 		  'Tt','Tbt','Ts','TtW','TbtW',
-		  'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+		  'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
 
 #dataList = ['DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
@@ -58,7 +61,7 @@ isCategorized = 0
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 isotrig = 1
 doJetRwt= 0
-doAllSys= False
+doAllSys= True
 doQ2sys = False
 q2List  = [#energy scale sample to be processed
 	       'TTJetsPHQ2U','TTJetsPHQ2D',
@@ -66,10 +69,10 @@ q2List  = [#energy scale sample to be processed
 	       #'TtWQ2D','TbtWQ2D',
 	       ]
 
-# if iPlot=='ST': cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':250,'jet2PtCut':150,'jet3PtCut':0}
-# else:           cutList = {'lepPtCut':80,'metCut':150,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
-cutList = {'lepPtCut':80,'metCut':150,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
+cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
 if region=='PS': cutList = {'lepPtCut':80,'metCut':100,'njetsCut':3,'drCut':0,'jet1PtCut':250,'jet2PtCut':150, 'jet3PtCut':0}
+if (region=='SR' or 'CR' in region) and iPlot=='ST':
+	cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':250,'jet2PtCut':150,'jet3PtCut':0}
 #'lep30_MET100_NJets3_NBJets0_DR0_1jet200_2jet50_3jet0', preSel
 #'lep30_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0', #minMlb
 #'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet50_3jet0', #ST change to 'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet150_3jet0' for trigger HT400
@@ -169,7 +172,8 @@ bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'deltaRAK8':('minDR_leadAK8otherAK8',linspace(0,5,51).tolist(),';min #DeltaR(1^{st} AK8 jet, other AK8 jet)'),
 	'MTlmet':('MT_lepMet',linspace(0,250,51).tolist(),';M_{T}(l,#slash{E}_{T}) [GeV]'),
-	'NPV'   :('nPV_singleLepCalc',linspace(0, 40, 41).tolist(),';PV multiplicity'),
+	'NPV'   :('nPV_singleLepCalc',linspace(0, 60, 61).tolist(),';PV multiplicity'),
+	'nTrueInt':('nTrueInteractions_singleLepCalc',linspace(0, 75, 76).tolist(),';# true interactions'),
 	'lepPt' :('leptonPt_singleLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV]'),
 	'lepEta':('leptonEta_singleLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta'),
 	'JetEta':('theJetEta_JetSubCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK4 Jet #eta'),

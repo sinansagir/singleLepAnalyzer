@@ -2,7 +2,7 @@
 
 import os,sys,time,math
 
-prefitFile = 'templates_2017_1_24plots/prefit800left.txt' # replace "plusminus" sign with "pm" in the file
+prefitFile = 'templates_2017_2_12plots/prefit800left.txt' # replace "plusminus" sign with "pm" in the file
 
 fprefit = open(prefitFile, 'rU')
 prefitlines = fprefit.readlines()
@@ -23,10 +23,11 @@ nuisNam = [
 			'tau21',
 			'jms',
 			'jmr',
+			'taupt',
 # 			'jsf',
 			'topsf',
-# 			'btag',
-# 			'mistag',
+			'btag',
+			'mistag',
 			'jer',
 			'jec',
 			'pileup',
@@ -54,10 +55,6 @@ nuisNam = [
 			'muIdSys',
 			'elIdSys',
 			'lumiSys',
-			'topSys',
-			'ewkSys',
-			'qcdSys',
-			'sigSys',
 			]
 
 nuisNamPlot = [
@@ -68,10 +65,11 @@ nuisNamPlot = [
 			'$\\tau_{2}/\\tau_{1}$',
 			'JMS',
 			'JMR',
+			'$\\tau_{2}/\\tau_{1}$ $p_{T}$',
 # 			'JSF',
 			't-tag',
-# 			'b-tag',
-# 			'mis-tag',
+			'b-tag',
+			'mis-tag',
 			'JER',
 			'JEC',
 			'pileup',
@@ -99,10 +97,6 @@ nuisNamPlot = [
 			'muId',
 			'elId',
 			'lumi',
-			'top (temp)',
-			'ewk (temp)',
-			'qcd (temp)',
-			'sig (temp)',
 			]
 
 ewkInd = 1

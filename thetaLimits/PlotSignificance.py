@@ -12,10 +12,10 @@ setTDRStyle()
 
 lumiPlot = '12.9'
 lumiStr = '12p892'
-distribution = 'minMlb'
+distribution = 'ST'
 signal = 'X53X53'
 chiral = 'left'
-limitDir='/user_data/ssagir/x53x53_limits_2016/templates_minMlb_2016_10_29_discovery/all/'
+limitDir='/user_data/ssagir/x53x53_limits_2016/templates_ST_2016_10_29_discovery/all/'
 postfix = '' # for plot names in order to save them as different files
 isRebinned='_rebinned_stat0p25'
 xrange_min=800.
@@ -36,7 +36,7 @@ theory = TGraph(len(mass))
 for i in range(len(mass)):
 	theory.SetPoint(i, mass[i], theory_xsec[i])
 
-cutStrings = [x for x in os.walk(limitDir).next()[1]]
+cutStrings = [x for x in os.walk(limitDir).next()[1] if float(x[x.find('_1jet')+5:x.find('_2jet')])+float(x[x.find('_2jet')+5:x.find('_3jet')])>=350 and float(x[x.find('lep')+3:x.find('_MET')])>=50]
 # cutStrings = ['lep50_MET100_NJets5_NBJets0_DR0.75_1jet300_2jet150_3jet0',
 # 			  'lep50_MET100_NJets5_NBJets0_DR1_1jet300_2jet150_3jet0',
 # 			  'lep80_MET100_NJets5_NBJets0_DR0.75_1jet300_2jet150_3jet0',
@@ -46,8 +46,10 @@ cutStrings = [x for x in os.walk(limitDir).next()[1]]
 # 			  'lep80_MET100_NJets4_NBJets0_DR1_1jet200_2jet90_3jet0',
 # 			  ]
 
-bestSelection = 'lep80_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0'
-additionalSelToCompare = []#['lep30_MET100_NJets4_NBJets0_DR0.75_1jet450_2jet150_3jet0','lep30_MET100_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0']
+bestSelection = 'lep50_MET100_NJets4_NBJets0_DR0.75_1jet200_2jet150_3jet0'
+additionalSelToCompare = ['lep80_MET100_NJets4_NBJets0_DR1_1jet250_2jet150_3jet0',
+						  #'lep50_MET100_NJets4_NBJets0_DR0.75_1jet200_2jet150_3jet0'
+						  ]#['lep30_MET100_NJets4_NBJets0_DR0.75_1jet450_2jet150_3jet0','lep30_MET100_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0']
 
 significance = {}
 ind=0
@@ -75,17 +77,17 @@ for cutString in cutStrings:
 			linesSig = json.load(fsig)
 			fsig.close()
 			expSig = linesSig[0][0]
+			if mass[i]==comMass:
+				if maxSignificance<expSig: 
+					maxSignificanceCut=cutString
+					maxSignificance=expSig
+				if minSignificance>expSig: 
+					minSignificanceCut=cutString
+					minSignificance=expSig
+			significance[cutString].SetPoint(i,mass[i],expSig)
 		except: 
 			print "NO JSON:",cutString,mass[i]
 			pass
-		if mass[i]==comMass:
-			if maxSignificance<expSig: 
-				maxSignificanceCut=cutString
-				maxSignificance=expSig
-			if minSignificance>expSig: 
-				minSignificanceCut=cutString
-				minSignificance=expSig
-		significance[cutString].SetPoint(i,mass[i],expSig)
 
 	ind+=1							
 	significance[cutString].SetLineColor(ind)
@@ -148,6 +150,7 @@ legends['NJets']= TLegend(.3,.82,.93,.93) # for varying Njets
 legends['DR']   = TLegend(.3,.76,.93,.93) # for varying DRs
 
 canvs = {}
+#print significance.keys()
 for sel in bestSelection.split('_'):
 	if 'NBJets' in sel or '3jet' in sel: continue
 	variedCut = ''
@@ -156,6 +159,7 @@ for sel in bestSelection.split('_'):
 	postfix = 'vary'+variedCut
 
 	cutStrs = sorted([item for item in significance.keys() if (bestSelection.split(sel)[0] in item and bestSelection.split(sel)[1] in item)], key=lambda cut: float(cut[cut.find(variedCut)+len(variedCut):cut.find(variedCut)+cut[cut.find(variedCut):].find('_')]))
+	print sel,cutStrs
 	cutStrs = cutStrs+additionalSelToCompare
 		
 	canvs[variedCut] = TCanvas(variedCut,"Limits", 1000, 800)

@@ -11,14 +11,14 @@ from tdrStyle import *
 setTDRStyle()
 
 blind = True
-lumiPlot = '36'
+lumiPlot = '36.8'
 signal = 'X53X53'
-chiral = 'right'
+chiral = 'left'
 postfix = '' # for plot names in order to save them as different files
 xrange_min=700.
 xrange_max=1600.
-yrange_min=.005+.00001
-yrange_max=0.805
+yrange_min=.002+.00001
+yrange_max=0.205
 
 mass_str = ['700','800','900','1000','1100','1200','1300','1400','1500','1600']
 theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391][:len(mass_str)]#pb
@@ -37,22 +37,36 @@ for i in range(len(mass)):
 	theory.SetPoint(i, mass[i], theory_xsec[i])
 
 limFiles   = [ #compare different optimized selections and discriminants
-              '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_STselect/all/limits_templates_YLD_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
-              '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_STselect/all/limits_templates_ST_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
-              '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_STselect/all/limits_templates_minMlb_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
-              '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_minMlbselect/all/limits_templates_YLD_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
-              '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_minMlbselect/all/limits_templates_ST_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
-              '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_minMlbselect/all/limits_templates_minMlb_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
+              '/user_data/ssagir/x53x53_limits_2016/templates_2017_2_10/all/limits_templates_ST_X53X53M800left_36p814fb_rebinned_stat0p3_expected.txt',
+              '/user_data/ssagir/x53x53_limits_2016/templates_2017_2_10/all/limits_templates_minMlb_X53X53M800left_36p814fb_rebinned_stat0p3_expected.txt',
+              '/user_data/ssagir/x53x53_limits_2016/templates_lep60_2017_2_10/all/limits_templates_ST_X53X53M800left_36p814fb_rebinned_stat0p3_expected.txt',
+              '/user_data/ssagir/x53x53_limits_2016/templates_lep60_2017_2_10/all/limits_templates_minMlb_X53X53M800left_36p814fb_rebinned_stat0p3_expected.txt',
 			  ]
 
 limLegs    = [
-              'optimize ST -- use Counting',
-              'optimize ST -- use ST',
-              'optimize ST -- use minMlb',
-              'optimize minMlb -- use Counting',
-              'optimize minMlb -- use ST',
-              'optimize minMlb -- use minMlb',
+              'ST -- lepPt>80 GeV',
+              'minMlb -- lepPt>80 GeV',
+              'ST -- lepPt>60 GeV',
+              'minMlb -- lepPt>60 GeV',
 			  ]
+
+# limFiles   = [ #compare different optimized selections and discriminants
+#               '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_STselect/all/limits_templates_YLD_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
+#               '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_STselect/all/limits_templates_ST_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
+#               '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_STselect/all/limits_templates_minMlb_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
+#               '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_minMlbselect/all/limits_templates_YLD_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
+#               '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_minMlbselect/all/limits_templates_ST_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
+#               '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_minMlbselect/all/limits_templates_minMlb_X53X53M800left_36p0fb_rebinned_stat0p3_expected.txt',
+# 			  ]
+# 
+# limLegs    = [
+#               'optimize ST -- use Counting',
+#               'optimize ST -- use ST',
+#               'optimize ST -- use minMlb',
+#               'optimize minMlb -- use Counting',
+#               'optimize minMlb -- use ST',
+#               'optimize minMlb -- use minMlb',
+# 			  ]
 
 # limFiles   = [ #compare different binning and selections for minMlb
 #               '/user_data/ssagir/x53x53_limits_2016/templates_2016_11_18_wJSF_STselect/all/limits_templates_minMlb_X53X53M800left_36p0fb_rebinned_stat0p15_expected.txt',
@@ -207,7 +221,7 @@ leg.SetLineColor(0);
 leg.Draw() 
 
 folder='.'
-c0.SaveAs(folder+'/overlayPlots/overlayPlots_'+chiral.replace('left','LH').replace('right','RH')+'_v1.pdf')
-c0.SaveAs(folder+'/overlayPlots/overlayPlots_'+chiral.replace('left','LH').replace('right','RH')+'_v1.png')
-c0.SaveAs(folder+'/overlayPlots/overlayPlots_'+chiral.replace('left','LH').replace('right','RH')+'_v1.eps')
+c0.SaveAs(folder+'/overlayPlots/2017_2_10/overlayPlots_'+chiral.replace('left','LH').replace('right','RH')+'.pdf')
+c0.SaveAs(folder+'/overlayPlots/2017_2_10/overlayPlots_'+chiral.replace('left','LH').replace('right','RH')+'.png')
+c0.SaveAs(folder+'/overlayPlots/2017_2_10/overlayPlots_'+chiral.replace('left','LH').replace('right','RH')+'.eps')
 
