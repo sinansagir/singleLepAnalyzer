@@ -13,7 +13,7 @@ observables = []
 for ind in range(len(prefitlines)):
 	if prefitlines[ind].startswith('process / nuisance parameter'): 
 		obsIndexes.append(ind)
-		observables.append(prefitlines[ind-2])
+		observables.append(prefitlines[ind-1])
 
 nuisNam = [
 			'pdfNew',
@@ -21,29 +21,12 @@ nuisNam = [
 			'q2',
 			'toppt',
 			'tau21',
-			'jms',
-			'jmr',
 			'jsf',
-			'btag',
+			#'btag',
+			#'mistag',
 			'jer',
 			'jec',
 			'pileup',
-			'top1pW3pBSys',
-			'top1pW2BSys',
-			'top1pW1BSys',
-			'top1pW0BSys',
-			'top0W3pBSys',
-			'top0W2BSys',
-			'top0W1BSys',
-			'top0W0BSys',
-			'ewk1pW3pBSys',
-			'ewk1pW2BSys',
-			'ewk1pW1BSys',
-			'ewk1pW0BSys',
-			'ewk0W3pBSys',
-			'ewk0W2BSys',
-			'ewk0W1BSys',
-			'ewk0W0BSys',
 			'muTrigSys',
 			'elTrigSys',
 			'muIsoSys',
@@ -51,6 +34,10 @@ nuisNam = [
 			'muIdSys',
 			'elIdSys',
 			'lumiSys',
+			'topsys',
+			'ewksys',
+			'qcdsys',
+			'sigsys',
 			]
 
 nuisNamPlot = [
@@ -59,29 +46,12 @@ nuisNamPlot = [
 			'Q$^{2}$',
 			'Top Pt',
 			'Tau21',
-			'JMS',
-			'JMR',
 			'JSF',
-			'Btag',
+			#'Btag',
+			#'Mistag',
 			'JER',
 			'JEC',
 			'pileup',
-			'top\_1+W\_3+b',
-			'top\_1+W\_2b',
-			'top\_1+W\_1b',
-			'top\_1+W\_0b',
-			'top\_0W\_3+b',
-			'top\_0W\_2b',
-			'top\_0W\_1b',
-			'top\_0W\_0b',
-			'ewk\_1+W\_3+b',
-			'ewk\_1+W\_2b',
-			'ewk\_1+W\_1b',
-			'ewk\_1+W\_0b',
-			'ewk\_0W\_3+b',
-			'ewk\_0W\_2b',
-			'ewk\_0W\_1b',
-			'ewk\_0W\_0b',
 			'muTrig',
 			'elTrig',
 			'muIso',
@@ -89,6 +59,10 @@ nuisNamPlot = [
 			'muId',
 			'elId',
 			'lumi',
+			'TOP flat',
+			'EWK flat',
+			'QCD flat',
+			'Sig flat',
 			]
 
 ewkInd = 1
@@ -170,20 +144,23 @@ for ind in obsIndexes:
 
 nCat = 1
 for ind in obsIndexes:
+	print observables[obsIndexes.index(ind)]
 	print "\\begin{table}"
 	print "\\centering"
 	print "\\topcaption{Pre-fit uncertainties in the",
 	if "isE" in observables[obsIndexes.index(ind)]: print "electron channel with",
 	if "isM" in observables[obsIndexes.index(ind)]: print "muon channel with",
-	if "nW0" in observables[obsIndexes.index(ind)]: print "0 W tag and",
-	if "nW1p" in observables[obsIndexes.index(ind)]: print "1 or more W tag and",
-	if "nB0" in observables[obsIndexes.index(ind)]: print "0 b tag.}"
+	if "nH1b" in observables[obsIndexes.index(ind)]: print "a 1b Higgs tag.}",
+	if "nH2b" in observables[obsIndexes.index(ind)]: print "a 2b Higgs tag.}",
+	if "nW0" in observables[obsIndexes.index(ind)]: print "0 Higgs tags, 0 W tags and",
+	if "nW1p" in observables[obsIndexes.index(ind)]: print "0 Higgs tags, $\geq 1$ W tags and",
+	if "nB0" in observables[obsIndexes.index(ind)]: print "0 b tags.}"
 	if "nB1" in observables[obsIndexes.index(ind)]: print "1 b tag.}"
-	if "nB2" in observables[obsIndexes.index(ind)]: print "2 b tag.}"
-	if "nB3p" in observables[obsIndexes.index(ind)]: print "3 or more b tag.}"
+	if "nB2" in observables[obsIndexes.index(ind)]: print "2 b tags.}"
+	if "nB3p" in observables[obsIndexes.index(ind)]: print "$\geq 3$ b tags.}"
 	print "\\begin{tabular}{|c||c|c|c|c|}"
 	print "\\hline"
-	print "Nuisance Parameter & TTM800 & TOP & EWK & QCD \\\\"
+	print "Nuisance Parameter & $\TTbar$ (1.2 TeV) & TOP & EWK & QCD \\\\"
 	print "\\hline"
 	for nui in nuisNam:
 		i = prefitUncs[ind]['main'].index([nui,'(gauss)'])

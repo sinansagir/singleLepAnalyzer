@@ -10,112 +10,106 @@ setTDRStyle()
 
 blind=False
 saveKey=''
-lumiPlot = '2.3'
-lumiStr = '2p318'
+lumiPlot = '36.4'
+lumiStr = '36p0'
 spin=''#'right'
 discriminant='minMlb'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+spin
-stat=''#0.75
-isRebinned='_rebinned'+str(stat).replace('.','p')
-tempKey='all_forPostFitNuis'
-limitDir='/user_data/ssagir/limits/templates_minMlb_tptp_2016_3_18/'+tempKey+'/'
-cutString='lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-LH700file='/templates_'+discriminant+'_TTM800'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
+stat='0.3'#0.75
+isRebinned='_rebinned'
+tempKey='all_postfit'
+limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limits/templates_Wkshp/'+tempKey+'/'
+cutString=''#SelectionFile'
+LH700file='/templates_'+discriminant+'_TTM900_36p0fb_rebinned_stat0p3_noQ2.p' #
+
+print limitDir+cutString+LH700file
 
 parVals=pickle.load(open(limitDir+cutString+LH700file,'rb'))
 
 nuisNam = []
 nuisVal = []
 nuisErr = []
-for nuis in parVals['sig'].keys():
+for nuis in parVals[''].keys(): #TpTp_M-0800'].keys():
 	if nuis=='__cov' or nuis=='__nll': continue
 	nuisNam.append(nuis)
-	nuisVal.append(parVals['sig'][nuis][0][0])
-	nuisErr.append(parVals['sig'][nuis][0][1])
-	print nuis,"=",parVals['sig'][nuis][0][0],"+/-",parVals['sig'][nuis][0][1]
+	nuisVal.append(parVals[''][nuis][0][0])
+	nuisErr.append(parVals[''][nuis][0][1])
+	print nuis,"=",parVals[''][nuis][0][0],"+/-",parVals[''][nuis][0][1]
+
 
 nuisNam = [
-			'pdfNew',
-			'muRFcorrdNew',
-			'q2',
-			'toppt',
-			'tau21',
-			'jms',
-			'jmr',
-			'jsf',
-			'btag',
-			'jer',
-			'jec',
-			'pileup',
-			'top1pW3pBSys',
-			'top1pW2BSys',
-			'top1pW1BSys',
-			'top1pW0BSys',
-			'top0W3pBSys',
-			'top0W2BSys',
-			'top0W1BSys',
-			'top0W0BSys',
-			'ewk1pW3pBSys',
-			'ewk1pW2BSys',
-			'ewk1pW1BSys',
-			'ewk1pW0BSys',
-			'ewk0W3pBSys',
-			'ewk0W2BSys',
-			'ewk0W1BSys',
-			'ewk0W0BSys',
-			'muTrigSys',
-			'elTrigSys',
-			'muIsoSys',
-			'elIsoSys',
-			'muIdSys',
-			'elIdSys',
-			'lumiSys',
-			]
+	'ewksys',
+	'topsys',
+	'qcdsys',
+	'elIdSys',#
+	'muIdSys',#
+	'elIsoSys',#
+	'muIsoSys',#
+	'elTrigSys',#
+	'muTrigSys',#
+	'lumiSys',#
+	'pileup',#
+	'jec',
+	'jer',
+	#'higgs_smear',
+	#'higgs_py2hw',
+	#'btag_udsg', #'mistag',#
+	#'btag_bc', #'btag',#
+	'jsf',
+	'tau21',
+	'toppt',
+	#'q2',
+	'muRFcorrdNew',#
+	'pdfNew',#
+	#'QCD_rate',
+	#'DYJets_rate',
+	#'Diboson_rate',
+	#'SingleTop_rate',
+	#'WJets_rate',
+	#'TTbar_rate',
+	]
 
 nuisNamPlot = [
-			'PDF',
-			'muRF',
-			'Q^{2}',
-			'Top Pt',
-			'Tau21',
-			'JMS',
-			'JMR',
-			'JSF',
-			'Btag',
-			'JER',
-			'JEC',
-			'pileup',
-			'top_1+W_3+b',
-			'top_1+W_2b',
-			'top_1+W_1b',
-			'top_1+W_0b',
-			'top_0W_3+b',
-			'top_0W_2b',
-			'top_0W_1b',
-			'top_0W_0b',
-			'ewk_1+W_3+b',
-			'ewk_1+W_2b',
-			'ewk_1+W_1b',
-			'ewk_1+W_0b',
-			'ewk_0W_3+b',
-			'ewk_0W_2b',
-			'ewk_0W_1b',
-			'ewk_0W_0b',
-			'muTrig',
-			'elTrig',
-			'muIso',
-			'elIso',
-			'muId',
-			'elId',
-			'lumi',
-			]
+	'EWK flat',
+	'TOP flat',
+	'QCD flat',
+	'ID: e',
+	'ID: #mu',
+	'Iso: e',
+	'Iso: #mu',
+	'Trigger: e',
+	'Trigger: #mu',
+	'Lumi',
+	'Pileup',
+	'JES',
+	'JER',
+	#'H tag: smear',
+	#'H tag: py8/hw',
+	#'B tag: udsg',
+	#'B tag: bc',
+	'Jet pT weight',
+	#'W tag: res',
+	#'W tag: scale',
+	'W tag: #tau_{2}/#tau_{1}',
+	#'W tag: #tau_{2}/#tau_{1} p_{T}-dep.',
+	'Top p_{T}',
+	#'Top shower',
+	'ME Scale',
+	'PDF',
+	#'QCD rate',
+	#'DY+jets rate',
+	#'VV rate',
+	#'Single t rate',
+	#'W+jets rate',
+	#'t#bar{t} rate',
+	]
 
 nuisVal = []
 nuisErr = []
 for i in range(len(nuisNam)):
 	nuis = nuisNam[i]
-	nuisVal.append(parVals['sig'][nuis][0][0])
-	nuisErr.append(parVals['sig'][nuis][0][1])
+	nuisVal.append(parVals[''][nuis][0][0])
+	nuisErr.append(parVals[''][nuis][0][1])
 nNuis = len(nuisNam)
 
 g   = TGraphAsymmErrors(nNuis)
@@ -139,10 +133,10 @@ g.SetMarkerSize(1.25)
 g68.SetFillColor(ROOT.kGreen)
 g95.SetFillColor(ROOT.kYellow)
 
-c = TCanvas('PostFit', 'PostFit', 1000, 1200)
-c.SetTopMargin(0.06)
-c.SetRightMargin(0.06)
-c.SetBottomMargin(0.12)
+c = TCanvas('PostFit', 'PostFit', 1000, 1400)
+c.SetTopMargin(0.04)
+c.SetRightMargin(0.04)
+c.SetBottomMargin(0.10)
 c.SetLeftMargin(0.25)
 c.SetTickx()
 c.SetTicky()
@@ -178,9 +172,9 @@ g95.GetHistogram().Draw('axis,same')
 c.Modified()
 c.Update()
 
-c.SaveAs('postFitNuis.root')
-c.SaveAs('postFitNuis.pdf')
-c.SaveAs('postFitNuis.png')
-c.SaveAs('postFitNuis.C')
+c.SaveAs(limitDir+'postFitNuis_SLBO_noQ2.root')
+c.SaveAs(limitDir+'postFitNuis_SLBO_noQ2.pdf')
+c.SaveAs(limitDir+'postFitNuis_SLBO_noQ2.png')
+c.SaveAs(limitDir+'postFitNuis_SLBO_noQ2.C')
 
 

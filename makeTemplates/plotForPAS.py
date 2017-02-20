@@ -5,55 +5,95 @@ parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from ROOT import *
 from weights import *
+from modSyst import *
+from utils import *
 
 gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=12.9 #for plots
+lumi=2.3 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
-templateDir=os.getcwd()
-isTTbarCR = True # else it is Wjets
-if isTTbarCR: templateDir+='/ttbar_tptp_ObjRev'+'/'
-else: templateDir+='/wjets_tptp_ObjRev'+'/'
-
-histPrefix=discriminant+'_'+lumiInTemplates+'fb_'
-isRebinned='' #post fix to match ROOT file names if needed
-saveKey = '' #tag for plot names
-cutString=''
-tempsig1='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
-tempsig2='templates_'+discriminant+'_'+sig2+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 discriminant = 'minMlb'
+cutString='finalsel'
+saveKey = ''#'_topPtSystOnly'
 
 m1 = '800'
 sig1='TTM'+m1 # choose the 1st signal to plot
 sig1leg='TT (0.8 TeV)'
-m2 = '1000'
+m2 = '1200'
 sig2='TTM'+m2 # choose the 2nd signal to plot
-sig2leg='TT (1.0 TeV)'
+sig2leg='TT (1.2 TeV)'
 scaleSignals = False
 
-systematicList = ['pileup','jec','jer','btag','tau21','mistag','muRFcorrdNew','pdfNew','jsf','trigeff']
+systematicList = ['pileup','jec','jer','btag','mistag','tau21','pdfNew','muRFcorrdNew','taupt','jsf']
 doAllSys = True
 doQ2sys  = True
-if not doAllSys: doQ2sys = False
-doNormByBinWidth=False # not tested, may not work out of the box
+if not doAllSys: doQ2sys = False # I assume you don't want Q^2 as well if you are not doing the other shape systematics! (this is just to change one bool)
+
+isRebinned='_rebinned_stat0p3'#post fix for file names if the name changed b/c of rebinning or some other process
+doNormByBinWidth=True # not tested, may not work out of the box
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
-yLog = True
+yLog  = True
 doRealPull = True
 if doRealPull: doOneBand=False
 
-lumiSys = 0.062 # lumi uncertainty
-trigSys = 0.03 # trigger uncertainty
-lepIdSys = 0.011 # lepton id uncertainty
-lepIsoSys = 0.01 # lepton isolation uncertainty
-corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total el/mu values are close
+templateDir=os.getcwd()+'/templates_minMlb_PaperARC_HTweightNew/'+cutString+'/'
+tempsig='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'	
 
-def getNormUnc(hist,ibin):
+isEMlist =['E','M']
+nttaglist=['0p']
+nWtaglist=['0','1p']
+nbtaglist=['0','1','2','3p']
+tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
+
+lumiSys = 0.027 #2.7% lumi uncertainty
+trigSys = 0.05 #5% trigger uncertainty
+lepIdSys = 0.01 #1% lepton id uncertainty
+lepIsoSys = 0.01 #1% lepton isolation uncertainty
+topXsecSys = 0.#0.055 #5.5% top x-sec uncertainty --> covered by PDF and muRF uncertainties
+ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty --> covered by PDF and muRF uncertainties
+qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty --> covered by PDF and muRF uncertainties
+corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
+topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
+#top_0p_0 : 0.108592856833
+#top_0p_1 : 0.0452487216945
+#top_0p_2p : 0.0568187341528
+			     'top_nT0p_nW0_nB0' :0.109,
+			     'top_nT0p_nW0_nB1' :0.026,
+			     'top_nT0p_nW0_nB2' :0.070,
+			     'top_nT0p_nW0_nB2p':0.070,
+			     'top_nT0p_nW0_nB3p':0.070,
+			     'top_nT0p_nW1p_nB0' :0.109,
+			     'top_nT0p_nW1p_nB1' :0.026,
+			     'top_nT0p_nW1p_nB2' :0.070,
+			     'top_nT0p_nW1p_nB2p':0.070,
+			     'top_nT0p_nW1p_nB3p':0.070,
+			     }
+ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
+#ewk_0_0p : 0.19668578421
+#ewk_1p_0p : 0.0426225978467
+			     'ewk_nT0p_nW0_nB0' :0.183,
+			     'ewk_nT0p_nW0_nB1' :0.183,
+			     'ewk_nT0p_nW0_nB2' :0.183,
+			     'ewk_nT0p_nW0_nB2p':0.183,
+			     'ewk_nT0p_nW0_nB3p':0.183,
+			     'ewk_nT0p_nW1p_nB0' :0.036,
+			     'ewk_nT0p_nW1p_nB1' :0.036,
+			     'ewk_nT0p_nW1p_nB2' :0.036,
+			     'ewk_nT0p_nW1p_nB2p':0.036,
+			     'ewk_nT0p_nW1p_nB3p':0.036,
+			     }
+
+def getNormUnc(hist,ibin,modelingUnc):
 	contentsquared = hist.GetBinContent(ibin)**2
-	error = corrdSys*corrdSys*contentsquared 
+	error = corrdSys*corrdSys*contentsquared  #correlated uncertainties
+	error += modelingUnc*modelingUnc*contentsquared #background modeling uncertainty from CRs
+	if 'top' in hist.GetName(): error += topXsecSys*topXsecSys*contentsquared # cross section
+	if 'ewk' in hist.GetName(): error += ewkXsecSys*ewkXsecSys*contentsquared # cross section
+	if 'qcd' in hist.GetName(): error += qcdXsecSys*qcdXsecSys*contentsquared # cross section
 	return error
 
 def formatUpperHist(histogram):
@@ -62,6 +102,7 @@ def formatUpperHist(histogram):
 	if blind == True:
 		histogram.GetXaxis().SetLabelSize(0.08)
 		histogram.GetXaxis().SetTitleSize(0.08)
+		#histogram.GetXaxis().SetTitle(xTitle)
 		histogram.GetYaxis().SetLabelSize(0.08)
 		histogram.GetYaxis().SetTitleSize(0.08)
 		histogram.GetYaxis().SetTitleOffset(1.2)
@@ -73,24 +114,27 @@ def formatUpperHist(histogram):
 
 	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,jets)] (GeV)")
 	histogram.GetYaxis().CenterTitle()
-	histogram.SetMinimum(0.00101)
+	histogram.SetMinimum(5.01e-4)
 	if not yLog: 
 		histogram.SetMinimum(0.25)
 	if yLog:
 		uPad.SetLogy()
 		if not doNormByBinWidth: histogram.SetMaximum(200*histogram.GetMaximum())
+		else: histogram.SetMaximum(25*histogram.GetMaximum())
 		
 def formatLowerHist(histogram):
 	histogram.GetXaxis().SetLabelSize(.12)
 	histogram.GetXaxis().SetTitleSize(0.15)
 	histogram.GetXaxis().SetTitleOffset(0.95)
 	histogram.GetXaxis().SetNdivisions(506)
+	#histogram.GetXaxis().SetTitle("S_{T} (GeV)")
 
 	histogram.GetYaxis().SetLabelSize(0.12)
 	histogram.GetYaxis().SetTitleSize(0.14)
 	histogram.GetYaxis().SetTitleOffset(.37)
-	histogram.GetYaxis().SetTitle('Data/Bkg')
-	histogram.GetYaxis().SetNdivisions(5)
+	if not doRealPull: histogram.GetYaxis().SetTitle('Data/Bkg')
+	else: histogram.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
+	histogram.GetYaxis().SetNdivisions(7)
 	if doRealPull: histogram.GetYaxis().SetRangeUser(min(-2.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(2.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
 	else: histogram.GetYaxis().SetRangeUser(0,2.99)
 	histogram.GetYaxis().CenterTitle()
@@ -115,19 +159,8 @@ def normByBinWidth(result):
 		result.SetBinContent(bin, content/width)
 		result.SetBinError(bin, error/width)
 
-RFile1 = TFile(templateDir+tempsig1)
-RFile2 = TFile(templateDir+tempsig2)
-print RFile1
-isEMlist =['E','M']
-if isTTbarCR: 
-	nttaglist = ['0p']
-	nWtaglist = ['0p']
-	nbtaglist = ['1','2p']
-else: 
-	nttaglist = ['0p']
-	nWtaglist = ['0','1p']
-	nbtaglist = ['0']
-tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
+RFile1 = TFile(templateDir+tempsig.replace(sig1,sig1))
+RFile2 = TFile(templateDir+tempsig.replace(sig1,sig2))
 systHists = {}
 totBkgTemp1 = {}
 totBkgTemp2 = {}
@@ -157,33 +190,41 @@ for tag in tagList:
 		hsig2.Scale(xsec[sig2])
 		if doNormByBinWidth:
 			normByBinWidth(hTOP)
-			normByBinWidth(hEWK)
-			normByBinWidth(hQCD)
+			try: normByBinWidth(hEWK)
+			except: pass
+			try: normByBinWidth(hQCD)
+			except: pass
 			normByBinWidth(hsig1)
 			normByBinWidth(hsig2)
 			normByBinWidth(hData)
 
 		if doAllSys:
 			for sys in systematicList:
+				print sys
 				for ud in ['minus','plus']:
 					systHists['top'+catStr+sys+ud] = RFile1.Get(histPrefix+'__top__'+sys+'__'+ud).Clone()
-					systHists['top'+catStr+sys+ud] = systHists['top'+catStr+sys+ud].Clone()
+					if doNormByBinWidth: normByBinWidth(systHists['top'+catStr+sys+ud])
 					try: 
 						systHists['ewk'+catStr+sys+ud] = RFile1.Get(histPrefix+'__ewk__'+sys+'__'+ud).Clone()
+						if doNormByBinWidth: normByBinWidth(systHists['ewk'+catStr+sys+ud])
 					except: pass
 					try: 
 						systHists['qcd'+catStr+sys+ud] = RFile1.Get(histPrefix+'__qcd__'+sys+'__'+ud).Clone()
+						if doNormByBinWidth: normByBinWidth(systHists['qcd'+catStr+sys+ud])
 					except: pass
 		if doQ2sys:
 			for ud in ['minus','plus']:
 				systHists['top'+catStr+'q2'+ud] = RFile1.Get(histPrefix+'__top__q2__'+ud).Clone()
+				if doNormByBinWidth: normByBinWidth(systHists['top'+catStr+'q2'+ud])
 				systHists['q2'+catStr+ud] = systHists['top'+catStr+'q2'+ud].Clone()
 				try:
 					systHists['ewk'+catStr+'q2'+ud] = RFile1.Get(histPrefix+'__ewk').Clone()
+					if doNormByBinWidth: normByBinWidth(systHists['ewk'+catStr+'q2'+ud])
 					systHists['q2'+catStr+ud].Add(systHists['ewk'+catStr+'q2'+ud])
 				except: pass
 				try:
 					systHists['qcd'+catStr+'q2'+ud] = RFile1.Get(histPrefix+'__qcd').Clone()
+					if doNormByBinWidth: normByBinWidth(systHists['qcd'+catStr+'q2'+ud])
 					systHists['q2'+catStr+ud].Add(systHists['qcd'+catStr+'q2'+ud])
 				except: pass
 
@@ -201,10 +242,10 @@ for tag in tagList:
 			errorUp = 0.
 			errorDn = 0.
 			errorStatOnly = bkgHT.GetBinError(ibin)**2
-			errorNorm = getNormUnc(hTOP,ibin)
-			try: errorNorm += getNormUnc(hEWK)
+			errorNorm = getNormUnc(hTOP,ibin,topModelingSys['top_'+tagStr])
+			try: errorNorm += getNormUnc(hEWK,ibin,ewkModelingSys['ewk_'+tagStr])
 			except: pass
-			try: errorNorm += getNormUnc(hQCD,ibin)
+			try: errorNorm += getNormUnc(hQCD,ibin,0.0)
 			except: pass
 
 			for sys in systematicList:
@@ -258,24 +299,21 @@ for tag in tagList:
 		if not scaleSignals:
 			scaleFact1=1
 			scaleFact2=1
+# 			else:
+# 				scaleFact1=25
+# 				scaleFact2=25
 		hsig1.Scale(scaleFact1)
 		hsig2.Scale(scaleFact2)
-
+		
 		drawQCD = False
 		try: drawQCD = hQCD.Integral()/bkgHT.Integral()>.005 #don't plot QCD if it is less than 0.5%
 		except: pass
 
-		stackbkgHT = THStack("stackbkgHT","")
-		if isTTbarCR:
-			try: stackbkgHT.Add(hTOP)
-			except: pass
-			try: stackbkgHT.Add(hEWK)
-			except: pass
-		else:
-			try: stackbkgHT.Add(hEWK)
-			except: pass
-			try: stackbkgHT.Add(hTOP)
-			except: pass
+		stackbkgHT = THStack("stackbkgHT","")#"CMS Preliminary, 5 fb^{-1} at #sqrt{s} = 13 TeV;H_{T} (GeV)")
+		try: stackbkgHT.Add(hTOP)
+		except: pass
+		try: stackbkgHT.Add(hEWK)
+		except: pass
 		try: 
 			if drawQCD: stackbkgHT.Add(hQCD)
 		except: pass
@@ -284,13 +322,14 @@ for tag in tagList:
 		ewkColor = kMagenta-2
 		qcdColor = kOrange+5
 		sig1Color= kBlack
-		sig2Color= kRed
+		sig2Color= kBlack
 		if '53' in sig1: 
 			topColor = kRed-9
 			ewkColor = kBlue-7
 			qcdColor = kOrange-5
 			sig1Color= kBlack
 			sig2Color= kBlack
+			
 		hTOP.SetLineColor(topColor)
 		hTOP.SetFillColor(topColor)
 		hTOP.SetLineWidth(2)
@@ -345,7 +384,7 @@ for tag in tagList:
 		hData.SetMinimum(0.015)
 		hData.SetTitle("")
 		if doNormByBinWidth: hData.GetYaxis().SetTitle("Events / 1 GeV")
-		else: hData.GetYaxis().SetTitle("Events / 16 GeV")
+		else: hData.GetYaxis().SetTitle("Events / bin")
 		formatUpperHist(hData)
 		uPad.cd()
 		hData.SetTitle("")
@@ -353,8 +392,8 @@ for tag in tagList:
 		if blind: 
 			hsig1.SetMinimum(0.015)
 			if doNormByBinWidth: hsig1.GetYaxis().SetTitle("Events / 1 GeV")
-			else: hsig1.GetYaxis().SetTitle("Events / 16 GeV")
-			formatUpperHist(sighist1RH)
+			else: hsig1.GetYaxis().SetTitle("Events / bin")
+			formatUpperHist(hsig1)
 			hsig1.SetMaximum(hData.GetMaximum())
 			hsig1.Draw("HIST")
 		stackbkgHT.Draw("SAME HIST")
@@ -363,7 +402,7 @@ for tag in tagList:
 		if not blind: hData.Draw("SAME E1 X0") #redraw data so its not hidden
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
-
+		
 		chLatex = TLatex()
 		chLatex.SetNDC()
 		chLatex.SetTextSize(0.06)
@@ -399,37 +438,23 @@ for tag in tagList:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
 			leg.AddEntry(hQCD,"QCD","f")
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
-			if isTTbarCR:
-				try: leg.AddEntry(hEWK,"EWK","f")
-				except: pass
-			else:
-				try: leg.AddEntry(hTOP,"TOP","f")
-				except: pass
+			try: leg.AddEntry(hEWK,"EWK","f")
+			except: pass
 			if not blind: leg.AddEntry(hData,"DATA")
-			if isTTbarCR:
-				try: leg.AddEntry(hTOP,"TOP","f")
-				except: pass
-			else:
-				try: leg.AddEntry(hEWK,"EWK","f")
-				except: pass
+			try: leg.AddEntry(hTOP,"TOP","f")
+			except: pass
 			leg.AddEntry(0, "", "")
+			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
 			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 		if not drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
-			if isTTbarCR:
-				try: leg.AddEntry(hEWK,"EWK","f")
-				except: pass
-			else:
-				try: leg.AddEntry(hTOP,"TOP","f")
-				except: pass
+			try: leg.AddEntry(hEWK,"EWK","f")
+			except: pass
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
-			if isTTbarCR:
-				try: leg.AddEntry(hTOP,"TOP","f")
-				except: pass
-			else:
-				try: leg.AddEntry(hEWK,"EWK","f")
-				except: pass
+			try: leg.AddEntry(hTOP,"TOP","f")
+			except: pass
 			if not blind: leg.AddEntry(hData,"DATA")
+			#leg.AddEntry(bkgHTgerr,"MC uncert. (stat. #oplus syst.)","f")
 			leg.AddEntry(bkgHTgerr,"Bkg uncert.","f")
 		leg.Draw("same")
 
@@ -454,8 +479,8 @@ for tag in tagList:
 		prelimTex3.SetTextFont(52)
 		prelimTex3.SetTextSize(0.075)
 		prelimTex3.SetLineWidth(2)
-		if not blind: prelimTex3.DrawLatex(0.24,0.975,"Preliminary")
-		if blind: prelimTex3.DrawLatex(0.29175,0.9364,"Preliminary")
+		#if not blind: prelimTex3.DrawLatex(0.24,0.975,"Preliminary")
+		#if blind: prelimTex3.DrawLatex(0.29175,0.9364,"Preliminary")
 
 		if blind == False and not doRealPull:
 			lPad.cd()
@@ -549,7 +574,7 @@ for tag in tagList:
 		if blind == False and doRealPull:
 			lPad.cd()
 			pull=hData.Clone("pull")
-			for binNo in range(0,hData.GetNbinsX()+2):
+			for binNo in range(1,hData.GetNbinsX()+1):
 				if hData.GetBinContent(binNo)!=0:
 					MCerror = 0.5*(totBkgTemp3[catStr].GetErrorYhigh(binNo-1)+totBkgTemp3[catStr].GetErrorYlow(binNo-1))
 					pull.SetBinContent(binNo,(hData.GetBinContent(binNo)-bkgHT.GetBinContent(binNo))/math.sqrt(MCerror**2+hData.GetBinError(binNo)**2))
@@ -563,14 +588,14 @@ for tag in tagList:
 				pull.SetFillColor(kGray+2)
 				pull.SetLineColor(kGray+2)
 			formatLowerHist(pull)
-			pull.GetYaxis().SetTitle('Pull')
 			pull.Draw("HIST")
 
 		#c1.Write()
-		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
+		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plotsForPAS/'
 		if not os.path.exists(savePrefix): os.system('mkdir '+savePrefix)
 		savePrefix+=histPrefix+isRebinned+saveKey
 		if doRealPull: savePrefix+='_pull'
+		if doNormByBinWidth: savePrefix+='_NBBW'
 		if yLog: savePrefix+='_logy'
 
 		if doOneBand:
@@ -614,7 +639,8 @@ for tag in tagList:
 	if doNormByBinWidth:
 		normByBinWidth(hTOPmerged)
 		normByBinWidth(hEWKmerged)
-		normByBinWidth(hQCDmerged)
+		try: normByBinWidth(hQCDmerged)
+		except: pass
 		normByBinWidth(hsig1merged)
 		normByBinWidth(hsig2merged)
 		normByBinWidth(hDatamerged)
@@ -662,10 +688,10 @@ for tag in tagList:
 		errorUp = 0.
 		errorDn = 0.
 		errorStatOnly = bkgHTmerged.GetBinError(ibin)**2
-		errorNorm = getNormUnc(hTOPmerged,ibin)
-		try: errorNorm += getNormUnc(hEWKmerged,ibin)
+		errorNorm = getNormUnc(hTOPmerged,ibin,topModelingSys['top_'+tagStr])
+		try: errorNorm += getNormUnc(hEWKmerged,ibin,ewkModelingSys['ewk_'+tagStr])
 		except: pass
-		try: errorNorm += getNormUnc(hQCDmerged,ibin)
+		try: errorNorm += getNormUnc(hQCDmerged,ibin,0.0)
 		except: pass
 
 		for sys in systematicList:
@@ -726,17 +752,11 @@ for tag in tagList:
 	try: drawQCDmerged = hQCDmerged.Integral()/bkgHTmerged.Integral()>.005
 	except: pass
 
-	stackbkgHTmerged = THStack("stackbkgHTmerged","")
-	if isTTbarCR:
-		try: stackbkgHTmerged.Add(hTOPmerged)
-		except: pass
-		try: stackbkgHTmerged.Add(hEWKmerged)
-		except: pass
-	else:
-		try: stackbkgHTmerged.Add(hEWKmerged)
-		except: pass
-		try: stackbkgHTmerged.Add(hTOPmerged)
-		except: pass
+	stackbkgHTmerged = THStack("stackbkgHTmerged","")#"CMS Preliminary, 5 fb^{-1} at #sqrt{s} = 13 TeV;H_{T} (GeV)")
+	try: stackbkgHTmerged.Add(hTOPmerged)
+	except: pass
+	try: stackbkgHTmerged.Add(hEWKmerged)
+	except: pass
 	try: 
 		if drawQCDmerged: stackbkgHTmerged.Add(hQCDmerged)
 	except: pass
@@ -794,7 +814,7 @@ for tag in tagList:
 	if not doNormByBinWidth: hDatamerged.SetMaximum(1.2*max(hDatamerged.GetMaximum(),bkgHTmerged.GetMaximum()))
 	hDatamerged.SetMinimum(0.015)
 	if doNormByBinWidth: hDatamerged.GetYaxis().SetTitle("Events / 1 GeV")
-	else: hDatamerged.GetYaxis().SetTitle("Events / 16 GeV")
+	else: hDatamerged.GetYaxis().SetTitle("Events / bin")
 	formatUpperHist(hDatamerged)
 	uPad.cd()
 	hDatamerged.SetTitle("")
@@ -803,7 +823,7 @@ for tag in tagList:
 	if blind: 
 		sighist1RHmerged.SetMinimum(0.015)
 		if doNormByBinWidth: sighist1RHmerged.GetYaxis().SetTitle("Events / 1 GeV")
-		else: sighist1RHmerged.GetYaxis().SetTitle("Events / 16 GeV")
+		else: sighist1RHmerged.GetYaxis().SetTitle("Events / bin")
 		formatUpperHist(sighist1RHmerged)
 		sighist1RHmerged.SetMaximum(hDatamerged.GetMaximum())
 		sighist1RHmerged.Draw("HIST")
@@ -847,37 +867,23 @@ for tag in tagList:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
 		legmerged.AddEntry(hQCDmerged,"QCD","f")
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
-		if isTTbarCR:
-			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
-			except: pass
-		else:
-			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
-			except: pass
+		try: legmerged.AddEntry(hEWKmerged,"EWK","f")
+		except: pass
 		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
-		if isTTbarCR:
-			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
-			except: pass
-		else:
-			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
-			except: pass
+		try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+		except: pass
 		legmerged.AddEntry(0, "", "")
+		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 	if not drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
-		if isTTbarCR:
-			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
-			except: pass
-		else:
-			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
-			except: pass
+		try: legmerged.AddEntry(hEWKmerged,"EWK","f")
+		except: pass
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
-		if isTTbarCR:
-			try: legmerged.AddEntry(hTOPmerged,"TOP","f")
-			except: pass
-		else:
-			try: legmerged.AddEntry(hEWKmerged,"EWK","f")
-			except: pass
+		try: legmerged.AddEntry(hTOPmerged,"TOP","f")
+		except: pass
 		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
+		#legmerged.AddEntry(bkgHTgerrmerged,"MC uncert. (stat. #oplus syst.)","f")
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 	legmerged.Draw("same")
 
@@ -902,8 +908,8 @@ for tag in tagList:
 	prelimTex3.SetTextFont(52)
 	prelimTex3.SetTextSize(0.075)
 	prelimTex3.SetLineWidth(2)
-	if not blind: prelimTex3.DrawLatex(0.24,0.975,"Preliminary")
-	if blind: prelimTex3.DrawLatex(0.29175,0.9364,"Preliminary")
+	#if not blind: prelimTex3.DrawLatex(0.24,0.975,"Preliminary")
+	#if blind: prelimTex3.DrawLatex(0.29175,0.9364,"Preliminary")
 
 	if blind == False and not doRealPull:
 		lPad.cd()
@@ -979,7 +985,7 @@ for tag in tagList:
 	if blind == False and doRealPull:
 		lPad.cd()
 		pullmerged=hDatamerged.Clone("pullmerged")
-		for binNo in range(0,hDatamerged.GetNbinsX()+2):
+		for binNo in range(1,hDatamerged.GetNbinsX()+1):
 			if hDatamerged.GetBinContent(binNo)!=0:
 				MCerror = 0.5*(totBkgTemp3['lep'+tagStr].GetErrorYhigh(binNo-1)+totBkgTemp3['lep'+tagStr].GetErrorYlow(binNo-1))
 				pullmerged.SetBinContent(binNo,(hDatamerged.GetBinContent(binNo)-bkgHTmerged.GetBinContent(binNo))/math.sqrt(MCerror**2+hDatamerged.GetBinError(binNo)**2))
@@ -993,14 +999,14 @@ for tag in tagList:
 			pullmerged.SetFillColor(kGray+2)
 			pullmerged.SetLineColor(kGray+2)
 		formatLowerHist(pullmerged)
-		pullmerged.GetYaxis().SetTitle('Pull')
 		pullmerged.Draw("HIST")
 
 	#c1merged.Write()
-	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
+	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plotsForPAS/'
 	if not os.path.exists(savePrefixmerged): os.system('mkdir '+savePrefixmerged)
 	savePrefixmerged+=histPrefixE.replace('isE','lep')+isRebinned+saveKey
 	if doRealPull: savePrefixmerged+='_pull'
+	if doNormByBinWidth: savePrefixmerged+='_NBBW'
 	if yLog: savePrefixmerged+='_logy'
 
 	if doOneBand: 
