@@ -7,67 +7,72 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 2.3
+lumi = 36.4
 discriminant = 'minMlb'
-rfilePostFix = '_modified'
-tempVersion = 'templates_minMlb_69mbNoTops'
-cutString = 'SelectionFile'
-templateFile = '../makeThetaTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_TTM900_12p892fb'+rfilePostFix+'.root'
+rfilePostFix = '_rebinned_stat1p1'
+tempVersion = 'templates_Wkshp/'
+cutString = ''#SelectionFile'
+templateFile = '../makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_TTM1000_36p0fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-if not os.path.exists(outDir+tempVersion+'/signals'): os.system('mkdir '+outDir+tempVersion+'/signals')
+if not os.path.exists(outDir+tempVersion+'/sigs'): os.system('mkdir '+outDir+tempVersion+'/sigs')
 
-bkgList = ['top','ewk','qcd']
+saveKey = ''
+bkgList = ['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
 channels = ['isE','isM']
-ttags = ['nT0p']
-wtags = ['nW0','nW1p']
-btags = ['nB0','nB1','nB2','nB3p']
-systematics = ['pileup','jec','jer','btag','mistag','tau21','jsf','muRFcorrdNew','pdfNew','trigeff']
+htags = ['nH0','nH1b','nH2b']
+wtags = ['nW0','nW0p','nW1p']
+btags = ['nB0','nB1p','nB1','nB2','nB3p']
+systematics = ['pileup','jec','jer','tau21','muRFcorrdNew','pdfNew']#'btag','mistag',,'trigeff''jsf',,'toppt','q2']
 
-signameList = ['TTM800',
-	       'TTM900',
+signameList = [#'TTM800',
+	       #'TTM900',
 	       'TTM1000',
-	       'TTM1100',
-	       'TTM1200',
-	       'TTM1300',
-	       'TTM1400',
-	       'TTM1500',
-	       'TTM1600',
-	       'TTM1700',
-	       'TTM1800',
+	       #'TTM1100',
+	       #'TTM1200',
+	       #'TTM1300',
+	       #'TTM1400',
+	       #'TTM1500',
+	       #'TTM1600',
+	       #'TTM1700',
+	       #'TTM1800',
 	       ]
 
 for signal in signameList:
 	RFile = R.TFile(templateFile.replace('TTM900',signal))
 	for syst in systematics:
-		Prefix = discriminant+'_12p892fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'__sig'
+		Prefix = discriminant+'_36p0fb_'+channels[0]+'_'+htags[0]+'_'+wtags[0]+'_'+btags[0]+'_nJ3p__sig'
 		print Prefix
 		hNm = RFile.Get(Prefix).Clone()
 		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
 		hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
 		for ch in channels:
-			for ttag in ttags:
+			for htag in htags:
 				for wtag in wtags:
+					if htag=='nH0' and wtag=='nW0p': continue
+					if htag!='nH0' and wtag!='nW0p': continue
 					for btag in btags:
-						if ch==channels[0] and btag==btags[0] and ttag==ttags[0] and wtag==wtags[0]: continue
+						if htag=='nH0' and btag=='nB1p': continue
+						if htag!='nH0' and btag!='nB1p': continue
+						if ch==channels[0] and btag==btags[0] and htag==htags[0] and wtag==wtags[0]: continue
 						try: 
-							print Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)
-							htemp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
+							print Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag)
+							htemp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
 							hNm.Add(htemp)
 						except: pass
 						try:
 							if (syst=='q2' or syst=='toppt'):
-								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
+								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
 								hUp.Add(htempUp)
 							else:
-								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__plus').Clone()
+								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__plus').Clone()
 								hUp.Add(htempUp)
 						except:pass
 						try: 
 							if (syst=='q2' or syst=='toppt'):
-								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
+								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
 								hDn.Add(htempDown)
 							else:
-								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__minus').Clone()
+								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__minus').Clone()
 								hDn.Add(htempDown)
 						except:pass
 		hNm.Draw()
@@ -218,8 +223,8 @@ for signal in signameList:
 		Tex2.SetTextSize(0.05)
 		Tex2.SetTextAlign(31)
 
-		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.pdf')
-		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.png')
-		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.root')
+		canv.SaveAs(tempVersion+'/sigs/'+syst+'_'+signal+'.pdf')
+		canv.SaveAs(tempVersion+'/sigs/'+syst+'_'+signal+'.png')
+		canv.SaveAs(tempVersion+'/sigs/'+syst+'_'+signal+'.root')
 	RFile.Close()
 

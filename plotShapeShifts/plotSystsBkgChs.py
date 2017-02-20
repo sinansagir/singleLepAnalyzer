@@ -7,21 +7,21 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 2.3
-discriminant = 'minMlb'
-rfilePostFix = ''#'_rebinned'
-tempVersion = 'templates_minMlb_x53x53_2016_4_28'
-cutString = '/lep80_MET100_1jet200_2jet90_NJets4_NBJets1_3jet30_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
-templateFile = '../makeThetaTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_X53X53M900left_2p318fb'+rfilePostFix+'.root'
+lumi = 36.0
+discriminant = 'HT'
+rfilePostFix = '_rebinned_stat1p1'
+tempVersion = 'templates_CR_2016_11_28/'
+cutString = ''#finalsel'
+templateFile = '../Rishika_makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_HTBM200_36p0fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/bkgIndChannels'): os.system('mkdir '+outDir+tempVersion+'/bkgIndChannels')
 
-bkgList = ['top','ewk','qcd']
+bkgList = ['ttbar','wjets','top','ewk','qcd']#['top','ewk','qcd']
 channels = ['isE','isM']
-ttags = ['nT0','nT1p']
-wtags = ['nW0','nW1p']
-btags = ['nB0','nB1','nB2p']
-systematics = ['pileup','jec','jer','jmr','jms','btag','tau21','q2','toppt','jsf','muR','muF','muRFcorrd','muRFenv','pdf','topsf']#,'muRFcorrdNew','muRFdecorrdNew','pdfNew']
+ttags = ['nT0p']
+wtags = ['nW0p']#,'nW1p']
+btags = ['nB0','nB1','nB2','nB3']
+systematics = ['pileup','jec','jer','q2','muRFcorrdNew','pdfNew']#'tau21','taupt','jsf','btag',
 		
 RFile = R.TFile(templateFile)
 
@@ -30,7 +30,7 @@ for syst in systematics:
 		for ttag in ttags:
 			for wtag in wtags:
 				for btag in btags:
-					Prefix = discriminant+'_2p318fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'__'+bkgList[0]
+					Prefix = discriminant+'_36p0fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'_nJ2__'+bkgList[0]
 					print Prefix
 					hNm = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
 					hUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__plus').Clone()
@@ -58,6 +58,11 @@ for syst in systematics:
 								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
 								hDn.Add(htempDown)
 						except:pass
+						
+
+					#hNm.Rebin(20);
+					#hUp.Rebin(20);
+					#hDn.Rebin(20);
 					hNm.Draw()
 					hUp.Draw()
 					hDn.Draw()
