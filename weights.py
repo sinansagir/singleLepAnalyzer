@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-#targetlumi = 36814. # 1/pb
 targetlumi = 35867. # 1/pb
 
 genHTweight={}
@@ -65,7 +64,7 @@ nRun['WJetsMG600'] = 18687480.
 nRun['WJetsMG800'] = 7745467.
 nRun['WJetsMG1200']= 6872441.
 nRun['WJetsMG2500']= 2637821.
-nRun['WJetsMGPt100'] = 2183180. #from 99945850, missing one job in negative weight count!!!!
+nRun['WJetsMGPt100'] = 99945850.*(1.-2.*0.32) #from 99945850, missing 3 jobs in negative weight count. Do NGen*[1-2X], where X is the neg event fraction calculated from the jobs completed!
 nRun['WJetsMGPt250'] = 3696780. #from 10021205
 nRun['WJetsMGPt400'] = 376470. #from 988234
 nRun['WJetsMGPt600'] = 396491. #from 985127
@@ -282,7 +281,7 @@ nRun['TbtWQ2D'] = 497600. #not used
 # Cross sections for MC samples (in pb)
 xsec={}
 xsec['DY'] = 6025.2 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
-xsec['DYMG'] = 6025.2 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
+xsec['DYMG'] = 1921.8*3. # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 xsec['DYMG100'] = 147.4*1.23 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 xsec['DYMG200'] = 40.99*1.23 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 xsec['DYMG400'] = 5.678*1.23 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns

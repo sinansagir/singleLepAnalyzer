@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet80X_1lep_012817_step2preSel/nominal'
+step1Dir = '/user_data/ssagir/LJMet80X_1lep_012817_step2_022717/nominal'
 
 """
 Note: 
@@ -27,11 +27,10 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 bkgList = [
-		  #'DY',
-		  'DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
+		  'DYMG',
 		  #'WJetsMG',
 		  'WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
-		  'WJetsMGPt250','WJetsMGPt400','WJetsMGPt600',
+		  'WJetsMGPt100','WJetsMGPt250','WJetsMGPt400','WJetsMGPt600',
 		  'WW','WZ','ZZ',
 		  #'TTJetsPH',
 		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
@@ -41,8 +40,8 @@ bkgList = [
 		  'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
 
-#dataList = ['DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
-dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
+#dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
+dataList = ['DataERRB2H','DataMRRB2H']
 
 whichSignal = 'X53X53' #HTB, TT, BB, or X53X53
 massList = range(700,1600+1,100)
@@ -68,6 +67,9 @@ q2List  = [#energy scale sample to be processed
 	       #'TtWQ2U','TbtWQ2U',
 	       #'TtWQ2D','TbtWQ2D',
 	       ]
+runData = True
+runBkgs = True
+runSigs = True
 
 cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
 if region=='PS': cutList = {'lepPtCut':80,'metCut':100,'njetsCut':3,'drCut':0,'jet1PtCut':250,'jet2PtCut':150, 'jet3PtCut':0}
@@ -94,7 +96,7 @@ elif region=='WJCR': pfix='wjets_'
 else: pfix='templates_'
 if not isCategorized: pfix='kinematics_'+region+'_'
 pfix+=iPlot
-pfix+='_'+datestr+'_'+timestr
+pfix+='_TEST_'+datestr#+'_'+timestr
 		
 if len(sys.argv)>5: isEMlist=[str(sys.argv[5])]
 else: isEMlist = ['E','M']
@@ -133,12 +135,14 @@ shapesFiles = ['jec','jer']
 tTreeData = {}
 tFileData = {}
 for data in dataList:
+	if not runData: break
 	print "READING:", data
 	tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
 
 tTreeSig = {}
 tFileSig = {}
 for sig in sigList:
+	if not runSigs: break
 	for decay in decays:
 		print "READING:", sig+decay
 		print "        nominal"
@@ -152,6 +156,7 @@ for sig in sigList:
 tTreeBkg = {}
 tFileBkg = {}
 for bkg in bkgList+q2List:
+	if not runBkgs: break
 	if bkg in q2List and not doQ2sys: continue
 	print "READING:",bkg
 	print "        nominal"
@@ -259,6 +264,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'HT':('AK4HT',linspace(0, 5000, 51).tolist(),';H_{T} [GeV]'),
 	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 51).tolist(),';S_{T} [GeV]'),
 	'minMlb':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]'),
+	'minMlbSBins':('minMleppBjet',linspace(0, 1000, 1001).tolist(),';min[M(l,b)] [GeV]'),
 	}
 
 print "PLOTTING:",iPlot
@@ -266,9 +272,6 @@ print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
-runData = True
-runBkgs = True
-runSigs = True
 catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 nCats  = len(catList)
 

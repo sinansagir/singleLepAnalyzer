@@ -13,6 +13,9 @@ samples = {
 'DataERRBCDEFG':'SingleElectron_RRBCDEFG',
 'DataMRRBCDEFG':'SingleMuon_RRBCDEFG',
 
+'DataERRB2H':'SingleElectron_RRBCDEFGH',
+'DataMRRB2H':'SingleMuon_RRBCDEFGH',
+
 'HTBM180':'ChargedHiggs_HplusTB_HplusToTB_M-180_13TeV_amcatnlo_pythia8',
 'HTBM200':'ChargedHiggs_HplusTB_HplusToTB_M-200_13TeV_amcatnlo_pythia8',
 'HTBM220':'ChargedHiggs_HplusTB_HplusToTB_M-220_13TeV_amcatnlo_pythia8',

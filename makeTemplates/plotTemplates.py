@@ -15,8 +15,8 @@ start_time = time.time()
 lumi=35.9 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
+region='PS' #PS,SR,TTCR,WJCR
+isCategorized=0
 iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
@@ -24,9 +24,11 @@ if region=='SR': pfix='templates_'
 elif region=='WJCR': pfix='wjets_'
 elif region=='TTCR': pfix='ttbar_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-templateDir=os.getcwd()+'/'+pfix+'2017_2_12/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'test_2017_2_27/'+cutString+'/'
+postFitFile=os.getcwd()+'/../thetaLimits/chi2test_2017_2_12/histos-mle.root'
+plotPostFit = False
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig1='X53X53M800left' #  choose the 1st signal to plot
@@ -38,24 +40,26 @@ sigScaleFact = 30 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 bkgProcList = ['top','ewk','qcd']
-if '53' in sig1: bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOrange-5} #X53X53
+#bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
+if '53' in sig1: bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOrange-5,'TTJets':rt.kRed-9,'T':rt.kRed-5,'WJets':rt.kBlue-7,'ZJets':rt.kBlue-1,'VV':rt.kBlue+5,'qcd':rt.kOrange-5} #X53X53
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','toppt','topsf','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
-doAllSys = True
+systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','toppt','topsf','pdfNew','trigeff','btag','mistag','muRFcorrdNew']#,'muRFcorrdNew','jsf'
+doAllSys = False
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-doNormByBinWidth=True
+doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
-blind = True
+blind = False
 yLog  = True
 doRealPull = False
 if doRealPull: doOneBand=False
 compareShapes = False
 if compareShapes: blind,yLog,scaleSignals,sigScaleFact=True,False,False,-1
+drawYields = False
 
 isEMlist =['E','M']
 if region=='SR': nttaglist=['0','1p']
@@ -63,7 +67,7 @@ else: nttaglist = ['0p']
 if region=='TTCR': nWtaglist = ['0p']
 else: nWtaglist=['0','1p']
 if region=='WJCR': nbtaglist = ['0']
-else: nbtaglist=['1','2p']
+else: nbtaglist=['1','2p']#,'2','3p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
@@ -79,11 +83,12 @@ if iPlot=='YLD':
 	njetslist = ['0p']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
 
-lumiSys = 0.062 # lumi uncertainty
+lumiSys = 0.026 # lumi uncertainty
 trigSys = 0.0 # trigger uncertainty
 lepIdSys = 0.02 # lepton id uncertainty
 lepIsoSys = 0.01 # lepton isolation uncertainty
-corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total e/m values are close
+htRwtSys = 0.#15
+corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2+htRwtSys**2) #cheating while total e/m values are close
 
 for tag in tagList:
 	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]+'_nJ'+tag[3]
@@ -143,6 +148,7 @@ def formatLowerHist(histogram):
 
 RFile1 = rt.TFile(templateDir+tempsig.replace(sig1,sig1))
 RFile2 = rt.TFile(templateDir+tempsig.replace(sig1,sig2))
+RPostFile = rt.TFile(postFitFile)
 print RFile1
 
 #set the tdr style
@@ -202,13 +208,24 @@ for tag in tagList:
 		print histPrefix
 		totBkg = 0.
 		for proc in bkgProcList: 
-			try: 
+			try:
 				bkghists[proc+catStr] = RFile1.Get(histPrefix+'__'+proc).Clone()
+				if plotPostFit: 
+					postFitHist = RPostFile.Get(histPrefix+'__'+proc).Clone()
+					for ibin in range(1,bkghists[proc+catStr].GetNbinsX()+1):
+						bkghists[proc+catStr].SetBinContent(ibin,postFitHist.GetBinContent(ibin))
+						bkghists[proc+catStr].SetBinError(ibin,postFitHist.GetBinError(ibin))
 				totBkg += bkghists[proc+catStr].Integral()
 			except:
 				print "There is no "+proc+"!!! Skipping it....."
 				pass
 		hData = RFile1.Get(histPrefix+'__DATA').Clone()
+		hData_test = RFile1.Get(histPrefix+'__DATA').Clone()
+		bkgHT_test = bkghists[bkgProcList[0]+catStr].Clone()
+		for proc in bkgProcList:
+			if proc==bkgProcList[0]: continue
+			try: bkgHT_test.Add(bkghists[proc+catStr])
+			except: pass
 		hsig1 = RFile1.Get(histPrefix+'__sig').Clone(histPrefix+'__sig1')
 		hsig2 = RFile2.Get(histPrefix+'__sig').Clone(histPrefix+'__sig2')
 		hsig1.Scale(xsec[sig1])
@@ -267,12 +284,23 @@ for tag in tagList:
 							else: errorUp += errorMinus**2
 						except: pass
 
-			totBkgTemp1[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp))
-			totBkgTemp1[catStr].SetPointEYlow(ibin-1, math.sqrt(errorDn))
-			totBkgTemp2[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp+errorNorm))
-			totBkgTemp2[catStr].SetPointEYlow(ibin-1, math.sqrt(errorDn+errorNorm))
+			totBkgTemp1[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatOnly))
+			totBkgTemp1[catStr].SetPointEYlow(ibin-1, math.sqrt(errorStatOnly))
+			totBkgTemp2[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatOnly+errorNorm))
+			totBkgTemp2[catStr].SetPointEYlow(ibin-1, math.sqrt(errorStatOnly+errorNorm))
 			totBkgTemp3[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp+errorNorm+errorStatOnly))
 			totBkgTemp3[catStr].SetPointEYlow(ibin-1, math.sqrt(errorDn+errorNorm+errorStatOnly))
+			
+		for ibin in range(1, bkgHT_test.GetNbinsX()+1):
+			bkgHT_test.SetBinError(ibin,(totBkgTemp3[catStr].GetErrorYlow(ibin-1) + totBkgTemp3[catStr].GetErrorYhigh(ibin-1))/2 )
+
+		print '/'*80,'\n','*'*80
+		print histPrefix+'_KS =',bkgHT_test.KolmogorovTest(hData_test)
+		print 'WARNING: KS test works on unbinned distributions. For binned histograms, see NOTE3 at https://root.cern.ch/doc/master/classTH1.html#a2747cabe9ebe61c2fdfd74ff307cef3a'
+		print '*'*80,'\n','/'*80,'\n','*'*80
+		print histPrefix+'_Chi2Test:'
+		hData_test.Chi2Test(bkgHT_test,"UW P")
+		print '*'*80,'\n','/'*80
 		
 		bkgHTgerr = totBkgTemp3[catStr].Clone()
 
@@ -320,6 +348,10 @@ for tag in tagList:
 				bkghists[proc+catStr].SetFillColor(bkgHistColors[proc])
 				bkghists[proc+catStr].SetLineWidth(2)
 			except: pass
+		if drawYields: 
+			bkgHT.SetMarkerSize(4)
+			bkgHT.SetMarkerColor(rt.kRed)
+
 		hsig1.SetLineColor(sig1Color)
 		hsig1.SetFillStyle(0)
 		hsig1.SetLineWidth(3)
@@ -328,11 +360,12 @@ for tag in tagList:
 		hsig2.SetFillStyle(0)
 		hsig2.SetLineWidth(3)
 		
-		hData.SetMarkerStyle(20)
+		if not drawYields: hData.SetMarkerStyle(20)
 		hData.SetMarkerSize(1.2)
 		hData.SetMarkerColor(rt.kBlack)
 		hData.SetLineWidth(2)
 		hData.SetLineColor(rt.kBlack)
+		if drawYields: hData.SetMarkerSize(4)
 
 		bkgHTgerr.SetFillStyle(3004)
 		bkgHTgerr.SetFillColor(rt.kBlack)
@@ -399,9 +432,14 @@ for tag in tagList:
 			hsig1.SetMaximum(hData.GetMaximum())
 			hsig1.Draw("HIST")
 		stackbkgHT.Draw("SAME HIST")
+		if drawYields: 
+			rt.gStyle.SetPaintTextFormat("1.0f")
+			bkgHT.Draw("SAME TEXT90")
 		hsig1.Draw("SAME HIST")
 		hsig2.Draw("SAME HIST")
-		if not blind: hData.Draw("esamex0") #redraw data so its not hidden
+		if not blind: 
+			hData.Draw("esamex0") #redraw data so its not hidden
+			if drawYields: hData.Draw("SAME TEXT00") 
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
 		
@@ -451,8 +489,18 @@ for tag in tagList:
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
 			try: leg.AddEntry(bkghists['ewk'+catStr],"EWK","f")
 			except: pass
+			try: leg.AddEntry(bkghists['WJets'+catStr],"W+jets","f")
+			except: pass
+			try: leg.AddEntry(bkghists['ZJets'+catStr],"Z+jets","f")
+			except: pass
+			try: leg.AddEntry(bkghists['VV'+catStr],"VV","f")
+			except: pass
 			leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
 			try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
+			except: pass
+			try: leg.AddEntry(bkghists['TTJets'+catStr],"t#bar{t}","f")
+			except: pass
+			try: leg.AddEntry(bkghists['T'+catStr],"Single t","f")
 			except: pass
 			if not blind: 
 				leg.AddEntry(0, "", "")
@@ -462,8 +510,18 @@ for tag in tagList:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
 			try: leg.AddEntry(bkghists['ewk'+catStr],"EWK","f")
 			except: pass
+			try: leg.AddEntry(bkghists['WJets'+catStr],"W+jets","f")
+			except: pass
+			try: leg.AddEntry(bkghists['ZJets'+catStr],"Z+jets","f")
+			except: pass
+			try: leg.AddEntry(bkghists['VV'+catStr],"VV","f")
+			except: pass
 			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
 			try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
+			except: pass
+			try: leg.AddEntry(bkghists['TTJets'+catStr],"t#bar{t}","f")
+			except: pass
+			try: leg.AddEntry(bkghists['T'+catStr],"Single t","f")
 			except: pass
 			leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
 			if not blind: leg.AddEntry(hData,"Data","ep")
@@ -498,8 +556,7 @@ for tag in tagList:
 				if bkgHT.GetBinContent(binNo)!=0:
 					pullUncBandTot.SetPointEYhigh(binNo-1,totBkgTemp3[catStr].GetErrorYhigh(binNo-1)/bkgHT.GetBinContent(binNo))
 					pullUncBandTot.SetPointEYlow(binNo-1,totBkgTemp3[catStr].GetErrorYlow(binNo-1)/bkgHT.GetBinContent(binNo))			
-			if not doOneBand: pullUncBandTot.SetFillStyle(3001)
-			else: pullUncBandTot.SetFillStyle(3344)
+			pullUncBandTot.SetFillStyle(3001)
 			pullUncBandTot.SetFillColor(1)
 			pullUncBandTot.SetLineColor(1)
 			pullUncBandTot.SetMarkerSize(0)
@@ -540,9 +597,10 @@ for tag in tagList:
 			pullLegend.SetLineStyle(0)
 			pullLegend.SetBorderSize(0)
 			pullLegend.SetTextFont(42)
-			if not doOneBand: pullLegend.AddEntry(pullUncBandStat , "Bkg uncert (shape syst)" , "f")
-			if not doOneBand: pullLegend.AddEntry(pullUncBandNorm , "Bkg uncert (shape #oplus norm syst)" , "f")
-			if not doOneBand: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert (stat #oplus all syst)" , "f")
+			if not doOneBand: 
+				pullLegend.AddEntry(pullUncBandStat , "Bkg uncert (stat)" , "f")
+				pullLegend.AddEntry(pullUncBandNorm , "Bkg uncert (stat #oplus norm syst)" , "f")
+				pullLegend.AddEntry(pullUncBandTot , "Bkg uncert (stat #oplus all syst)" , "f")
 			else: 
 				if doAllSys: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert (stat #oplus syst)" , "f")
 				else: pullLegend.AddEntry(pullUncBandTot , "Bkg uncert (stat)" , "f")
@@ -585,6 +643,7 @@ for tag in tagList:
 		if yLog: savePrefix+='_logy'
 		if blind: savePrefix+='_blind'
 		if compareShapes: savePrefix+='_shp'
+		if plotPostFit: savePrefix+='_postfit'
 
 		if doOneBand:
 			c1.SaveAs(savePrefix+"totBand.pdf")
@@ -610,12 +669,25 @@ for tag in tagList:
 		try: 
 			bkghistsmerged[proc+'isL'+tagStr] = RFile1.Get(histPrefixE+'__'+proc).Clone()
 			bkghistsmerged[proc+'isL'+tagStr].Add(RFile1.Get(histPrefixM+'__'+proc))
+			if plotPostFit: 
+				postFitHist = RPostFile.Get(histPrefixE+'__'+proc).Clone()
+				postFitHist.Add(RPostFile.Get(histPrefixM+'__'+proc))
+				for ibin in range(1,bkghistsmerged[proc+'isL'+tagStr].GetNbinsX()+1):
+					bkghistsmerged[proc+'isL'+tagStr].SetBinContent(ibin,postFitHist.GetBinContent(ibin))
+					bkghistsmerged[proc+'isL'+tagStr].SetBinError(ibin,postFitHist.GetBinError(ibin))
 			totBkgMerged += bkghistsmerged[proc+'isL'+tagStr].Integral()
 		except:pass
 	hDatamerged = RFile1.Get(histPrefixE+'__DATA').Clone()
+	hDatamerged.Add(RFile1.Get(histPrefixM+'__DATA').Clone())
+	hDatamerged_test = RFile1.Get(histPrefixE+'__DATA').Clone()
+	hDatamerged_test.Add(RFile1.Get(histPrefixM+'__DATA').Clone())
+	bkgHTmerged_test = bkghistsmerged[bkgProcList[0]+'isL'+tagStr].Clone()
+	for proc in bkgProcList:
+		if proc==bkgProcList[0]: continue
+		try: bkgHTmerged_test.Add(bkghistsmerged[proc+'isL'+tagStr])
+		except: pass
 	hsig1merged = RFile1.Get(histPrefixE+'__sig').Clone(histPrefixE+'__sig1merged')
 	hsig2merged = RFile2.Get(histPrefixE+'__sig').Clone(histPrefixE+'__sig2merged')
-	hDatamerged.Add(RFile1.Get(histPrefixM+'__DATA').Clone())
 	hsig1merged.Add(RFile1.Get(histPrefixM+'__sig').Clone())
 	hsig2merged.Add(RFile2.Get(histPrefixM+'__sig').Clone())
 	hsig1merged.Scale(xsec[sig1])
@@ -672,13 +744,24 @@ for tag in tagList:
 						else: errorUp += errorMinus**2
 					except: pass
 
-		totBkgTemp1['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp))
-		totBkgTemp1['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorDn))
-		totBkgTemp2['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp+errorNorm))
-		totBkgTemp2['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorDn+errorNorm))
+		totBkgTemp1['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatOnly))
+		totBkgTemp1['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorStatOnly))
+		totBkgTemp2['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatOnly+errorNorm))
+		totBkgTemp2['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorStatOnly+errorNorm))
 		totBkgTemp3['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp+errorNorm+errorStatOnly))
 		totBkgTemp3['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorDn+errorNorm+errorStatOnly))
+
+	for ibin in range(1, bkgHTmerged_test.GetNbinsX()+1):
+		bkgHTmerged_test.SetBinError(ibin,(totBkgTemp3['isL'+tagStr].GetErrorYlow(ibin-1) + totBkgTemp3['isL'+tagStr].GetErrorYhigh(ibin-1))/2 )
 	
+	print '/'*80,'\n','*'*80
+	print histPrefixE.replace('isE','isL')+'_KS =',bkgHTmerged_test.KolmogorovTest(hDatamerged_test)
+	print 'WARNING: KS test works on unbinned distributions. For binned histograms, see NOTE3 at https://root.cern.ch/doc/master/classTH1.html#a2747cabe9ebe61c2fdfd74ff307cef3a'
+	print '*'*80,'\n','/'*80,'\n','*'*80
+	print histPrefixE.replace('isE','isL')+'_Chi2Test:'
+	hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW P")
+	print '*'*80,'\n','/'*80
+
 	bkgHTgerrmerged = totBkgTemp3['isL'+tagStr].Clone()
 
 	scaleFact1merged = int(bkgHTmerged.GetMaximum()/hsig1merged.GetMaximum()) - int(bkgHTmerged.GetMaximum()/hsig1merged.GetMaximum()) % 10
@@ -715,6 +798,10 @@ for tag in tagList:
 			bkghistsmerged[proc+'isL'+tagStr].SetFillColor(bkgHistColors[proc])
 			bkghistsmerged[proc+'isL'+tagStr].SetLineWidth(2)
 		except: pass
+	if drawYields: 
+		bkgHTmerged.SetMarkerSize(4)
+		bkgHTmerged.SetMarkerColor(rt.kRed)
+	
 	hsig1merged.SetLineColor(sig1Color)
 	hsig1merged.SetFillStyle(0)
 	hsig1merged.SetLineWidth(3)
@@ -723,11 +810,12 @@ for tag in tagList:
 	hsig2merged.SetFillStyle(0)
 	hsig2merged.SetLineWidth(3)
 	
-	hDatamerged.SetMarkerStyle(20)
+	if not drawYields: hDatamerged.SetMarkerStyle(20)
 	hDatamerged.SetMarkerSize(1.2)
 	hDatamerged.SetMarkerColor(rt.kBlack)
 	hDatamerged.SetLineWidth(2)
 	hDatamerged.SetLineColor(rt.kBlack)
+	if drawYields: hDatamerged.SetMarkerSize(4)
 
 	bkgHTgerrmerged.SetFillStyle(3004)
 	bkgHTgerrmerged.SetFillColor(rt.kBlack)
@@ -796,9 +884,14 @@ for tag in tagList:
 		hsig1merged.SetMaximum(hDatamerged.GetMaximum())
 		hsig1merged.Draw("HIST")
 	stackbkgHTmerged.Draw("SAME HIST")
+	if drawYields: 
+		rt.gStyle.SetPaintTextFormat("1.0f")
+		bkgHTmerged.Draw("SAME TEXT90")
 	hsig1merged.Draw("SAME HIST")
 	hsig2merged.Draw("SAME HIST")
-	if not blind: hDatamerged.Draw("esamex0") #redraw data so its not hidden
+	if not blind: 
+		hDatamerged.Draw("esamex0") #redraw data so its not hidden
+		if drawYields: hDatamerged.Draw("SAME TEXT00") 
 	uPad.RedrawAxis()
 	bkgHTgerrmerged.Draw("SAME E2")
 
@@ -846,9 +939,19 @@ for tag in tagList:
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
 		try: legmerged.AddEntry(bkghistsmerged['ewkisL'+tagStr],"EWK","f")
 		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['WJetsisL'+tagStr],"W+jets","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['ZJetsisL'+tagStr],"Z+jets","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['VVisL'+tagStr],"VV","f")
+		except: pass
 		if not blind: 
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
 			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['TTJetsisL'+tagStr],"t#bar{t}","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['TisL'+tagStr],"Single t","f")
 			except: pass
 			legmerged.AddEntry(0, "", "")
 			legmerged.AddEntry(hDatamerged,"Data","ep")
@@ -856,12 +959,26 @@ for tag in tagList:
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
 			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
 			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['TTJetsisL'+tagStr],"t#bar{t}","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['TisL'+tagStr],"Single t","f")
+			except: pass
 	if not drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
 		try: legmerged.AddEntry(bkghistsmerged['ewkisL'+tagStr],"EWK","f")
 		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['WJetsisL'+tagStr],"W+jets","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['ZJetsisL'+tagStr],"Z+jets","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['VVisL'+tagStr],"VV","f")
+		except: pass
 		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
 		try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['TTJetsisL'+tagStr],"t#bar{t}","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['TisL'+tagStr],"Single t","f")
 		except: pass
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
 		if not blind: legmerged.AddEntry(hDatamerged,"Data","ep")
@@ -896,8 +1013,7 @@ for tag in tagList:
 			if bkgHTmerged.GetBinContent(binNo)!=0:
 				pullUncBandTotmerged.SetPointEYhigh(binNo-1,totBkgTemp3['isL'+tagStr].GetErrorYhigh(binNo-1)/bkgHTmerged.GetBinContent(binNo))
 				pullUncBandTotmerged.SetPointEYlow(binNo-1, totBkgTemp3['isL'+tagStr].GetErrorYlow(binNo-1)/bkgHTmerged.GetBinContent(binNo))			
-		if not doOneBand: pullUncBandTotmerged.SetFillStyle(3001)
-		else: pullUncBandTotmerged.SetFillStyle(3344)
+		pullUncBandTotmerged.SetFillStyle(3001)
 		pullUncBandTotmerged.SetFillColor(1)
 		pullUncBandTotmerged.SetLineColor(1)
 		pullUncBandTotmerged.SetMarkerSize(0)
@@ -938,9 +1054,10 @@ for tag in tagList:
 		pullLegendmerged.SetLineStyle(0)
 		pullLegendmerged.SetBorderSize(0)
 		pullLegendmerged.SetTextFont(42)
-		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandStat , "Bkg uncert (shape syst)" , "f")
-		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandNorm , "Bkg uncert (shape #oplus norm. syst)" , "f")
-		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert (stat #oplus all syst)" , "f")
+		if not doOneBand: 
+			pullLegendmerged.AddEntry(pullUncBandStat , "Bkg uncert (stat)" , "f")
+			pullLegendmerged.AddEntry(pullUncBandNorm , "Bkg uncert (stat #oplus norm. syst)" , "f")
+			pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert (stat #oplus all syst)" , "f")
 		else: 
 			if doAllSys: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert (stat #oplus syst)" , "f")
 			else: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg uncert (stat)" , "f")
@@ -986,6 +1103,7 @@ for tag in tagList:
 	if yLog: savePrefixmerged+='_logy'
 	if blind: savePrefixmerged+='_blind'
 	if compareShapes: savePrefixmerged+='_shp'
+	if plotPostFit: savePrefixmerged+='_postfit'
 
 	if doOneBand: 
 		c1merged.SaveAs(savePrefixmerged+"totBand.pdf")
@@ -1005,6 +1123,7 @@ for tag in tagList:
 			
 RFile1.Close()
 RFile2.Close()
+RPostFile.Close()
 
 print("--- %s minutes ---" % (round(time.time() - start_time, 2)/60))
 

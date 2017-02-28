@@ -21,35 +21,40 @@ if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='woRwt_2017_2_12'
+pfix+='test_2017_2_27'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 36200./36459.
-doAllSys = True
+doAllSys = False
 doQ2sys = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
 systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','muR','muF','muRFcorrd','trigeff','btag','mistag']#,'jsf'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
+rebinHists = True #performs a regular rebinning, current setup doubles the bin width if used.
 
 doJetRwt= 0
 bkgGrupList = ['top','ewk','qcd']
 bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
+#bkgGrupList = bkgProcList
 bkgProcs = {}
 bkgProcs['WJets']  = ['WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
-#bkgProcs['WJets']  = ['WJetsMGPt250','WJetsMGPt400','WJetsMGPt600']
+#bkgProcs['WJets']  = ['WJetsMGPt100','WJetsMGPt250','WJetsMGPt400','WJetsMGPt600']
 if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']] 
-bkgProcs['ZJets']  = ['DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500'] 
+bkgProcs['ZJets']  = ['DYMG']
+#bkgProcs['ZJets']  = ['DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500'] 
 bkgProcs['VV']     = ['WW','WZ','ZZ']
+#bkgProcs['TTJets'] = ['TTJetsPH']
 bkgProcs['TTJets'] = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 bkgProcs['T']      = ['Tt','Tbt','Ts','TtW','TbtW']
 bkgProcs['qcd'] = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']] 
 bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV'] 
-dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
+#dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
+dataList = ['DataERRB2H','DataMRRB2H']
 
 htProcs = ['ewk','WJets','ZJets']
 topptProcs = ['top','TTJets']
@@ -80,7 +85,7 @@ else: nttaglist = ['0p']
 if region=='TTCR': nWtaglist = ['0p']
 else: nWtaglist=['0','1p']
 if region=='WJCR': nbtaglist = ['0']
-else: nbtaglist=['1','2p']
+else: nbtaglist=['1','2p']#,'2','3p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
@@ -91,7 +96,7 @@ if region=='PS': njetslist=['3p']
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))]
 
-lumiSys = 0.062 #lumi uncertainty
+lumiSys = 0.026 #lumi uncertainty
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
 elIdSys = 0.02 #electron id uncertainty
@@ -568,7 +573,7 @@ for iPlot in iPlotList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	#if iPlot!='nTrueInt': continue
+	#if iPlot!='minMlb': continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]
@@ -578,6 +583,21 @@ for iPlot in iPlotList:
 	if scaleLumi:
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
+	
+# 	for key in bkghists.keys(): 
+# 		if 'TTJetsPH700to1000inc' in key: bkghists[key].Scale(weight['TTJetsPH']/weight['TTJetsPH700to1000inc'])
+# 		if 'TTJetsPH1000toINFinc' in key: bkghists[key].Scale(weight['TTJetsPH']/weight['TTJetsPH1000toINFinc'])
+	
+	#Rebin
+	if rebinHists:
+		xBins = []
+		for iBin in range(1,bkghists[bkghists.keys()[0]].GetNbinsX()+1,2):
+			xBins.append(bkghists[bkghists.keys()[0]].GetXaxis().GetBinLowEdge(iBin))
+		xBins.append(bkghists[bkghists.keys()[0]].GetXaxis().GetBinUpEdge(bkghists[bkghists.keys()[0]].GetNbinsX()))
+		xbinsArray = array('d', xBins)
+		for data in datahists.keys(): datahists[data] = datahists[data].Rebin(len(xbinsArray)-1,data,xbinsArray)
+		for bkg in bkghists.keys():   bkghists[bkg] = bkghists[bkg].Rebin(len(xbinsArray)-1,bkg,xbinsArray)
+		for sig in sighists.keys():   sighists[sig] = sighists[sig].Rebin(len(xbinsArray)-1,sig,xbinsArray)
 
  	#Negative Bin Correction
  	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
@@ -590,51 +610,6 @@ for iPlot in iPlotList:
 
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
 	makeThetaCats(datahists,sighists,bkghists,iPlot)
-
-# print "WORKING DIR:",outDir
-# print iPlotList
-# for iPlot in iPlotList:
-# 	datahists0 = {}
-# 	bkghists0  = {}
-# 	sighists0  = {}
-# 	#if iPlot!='nTrueInt': continue
-# 	print "LOADING DISTRIBUTION: "+iPlot
-# 	for cat in catList:
-# 		print "         ",cat[2:]
-# 		datahists0.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
-# 		bkghists0.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists_'+iPlot+'.p','rb')))
-# 		sighists0.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))
-# 	if scaleLumi:
-# 		for key in bkghists0.keys(): bkghists0[key].Scale(lumiScaleCoeff)
-# 		for key in sighists0.keys(): sighists0[key].Scale(lumiScaleCoeff)
-# 	xBins = []
-# 	for iBin in range(1,bkghists0[bkghists0.keys()[0]].GetNbinsX()+1,2):
-# 		xBins.append(bkghists0[bkghists0.keys()[0]].GetXaxis().GetBinLowEdge(iBin))
-# 	xBins.append(bkghists0[bkghists0.keys()[0]].GetXaxis().GetBinUpEdge(bkghists0[bkghists0.keys()[0]].GetNbinsX()))
-# 	xbinsArray = array('d', xBins)
-# 
-#  	#Rebin
-# 	datahists = {}
-# 	bkghists  = {}
-# 	sighists  = {}
-#  	for data in datahists0.keys(): datahists[data] = datahists0[data].Rebin(len(xbinsArray)-1,data,xbinsArray)
-#  	for bkg in bkghists0.keys():   bkghists[bkg] = bkghists0[bkg].Rebin(len(xbinsArray)-1,bkg,xbinsArray)
-#  	for sig in sighists0.keys():   sighists[sig] = sighists0[sig].Rebin(len(xbinsArray)-1,sig,xbinsArray)
-# 	datahists0 = {}
-# 	bkghists0  = {}
-# 	sighists0  = {}
-# 
-#  	#Negative Bin Correction
-#  	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
-#  	for sig in sighists.keys(): negBinCorrection(sighists[sig])
-# 
-#  	#OverFlow Correction
-#  	for data in datahists.keys(): overflow(datahists[data])
-#  	for bkg in bkghists.keys():   overflow(bkghists[bkg])
-#  	for sig in sighists.keys():   overflow(sighists[sig])
-# 
-# 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
-# 	makeThetaCats(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 

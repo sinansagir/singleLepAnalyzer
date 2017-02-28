@@ -11,14 +11,14 @@ lumi = 35.9
 discriminant = 'minMlb'
 lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_2017_2_12/'
+tempVersion = 'templates_2017_2_12_PtBin/'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/bkgs'): os.system('mkdir '+outDir+tempVersion+'/bkgs')
 
 saveKey = ''
-bkgList = ['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
+bkgList = ['ewk']#'top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
 isEMlist = ['E','M']
 nttaglist = ['0','1p']
 nWtaglist = ['0','1p']

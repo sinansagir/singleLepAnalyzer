@@ -22,22 +22,19 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'deltaRjet2',
 # 			'deltaRjet3',
 # 			'NPV',
-			'JetEta',
+# 			'JetEta',
 			'JetPt',
 			'Jet1Pt',
 			'Jet2Pt',
 			'Jet3Pt',
 			'Jet4Pt',
-# 			'Jet5Pt',
-# 			'Jet6Pt',
-# 			'MET',
-# 			'NJets',
-# 			'NBJetsNoSF',
-# 			'NBJets',
-# 			'NWJets',
-# 			'NTJets',
-# 			'NJetsAK8',
-# 			'JetPtAK8',
+			'MET',
+			'NJets',
+			'NBJets',
+			'NWJets',
+			'NTJets',
+			'NJetsAK8',
+			'JetPtAK8',
 # 			'JetEtaAK8',
 # 			'Tau21',
 # 			'Tau21Nm1',
@@ -48,14 +45,16 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'SoftDropMass', 
 # 			'SoftDropMassNm1', 
 			'topPt',
-# 			'nTrueInt',
-# 			
+			
 			'HT',
 			'ST',
 			'minMlb',
+# 			'minMlbSBins',
 
 # 			'NJets_vs_NBJets',
 
+# 			'NBJetsNoSF',
+# 			'nTrueInt',
 # 	        'MTlmet',
 # 			'mindeltaR',
 # 			'PtRel',
@@ -66,6 +65,8 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'Wjet1Pt',
 # 			'Tjet1Pt',
 # 			'deltaPhiLMET',	
+# 			'Jet5Pt',
+# 			'Jet6Pt',
 # 			'JetPtBins',
 # 			'Jet1PtBins',
 # 			'Jet2PtBins',
@@ -98,7 +99,7 @@ else: nttaglist = ['0p']
 if region=='TTCR': nWtaglist = ['0p']
 else: nWtaglist=['0','1p']
 if region=='WJCR': nbtaglist = ['0']
-else: nbtaglist = ['1','2p']
+else: nbtaglist = ['1','2p','2','3p']
 if not categorize: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']

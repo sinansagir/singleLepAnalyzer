@@ -66,18 +66,18 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 
 	weightStr = '1'
 	HTweightStr = '1'
-	if ('WJetsMG' in process and process!='WJetsMG' and 'WJetsMGPt' not in process) or ('DYMG' in process and process!='DYMG'): 
+	if 'WJetsMG' in process and process!='WJetsMG' and 'WJetsMGPt' not in process: 
 		HTweightStr = str(genHTweight[process])
 	weightStr += ' * '+HTweightStr
 	
 	topPt13TeVstr = '1'
 	if 'TTJets' in process: topPt13TeVstr = 'topPtWeight13TeV'
-	weightStr = '1'
-	topPt13TeVstr = '1'
+	#weightStr = '1'
+	#topPt13TeVstr = '1'
 	if 'Data' not in process: 
 		weightStr          += ' * '+topPt13TeVstr+' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
-		weightTrigEffUpStr  = weightStr.replace(TrigEff,'(TrigEffWeight+TrigEffWeightUncert)')
-		weightTrigEffDownStr= weightStr.replace(TrigEff,'(TrigEffWeight-TrigEffWeightUncert)')
+		weightTrigEffUpStr  = weightStr.replace(TrigEff,'('+TrigEff+'+'+TrigEff+'Uncert)')
+		weightTrigEffDownStr= weightStr.replace(TrigEff,'('+TrigEff+'-'+TrigEff+'Uncert)')
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
@@ -86,12 +86,9 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		weightmuRDownStr    = 'renormWeights[2] * '+weightStr
 		weightmuFUpStr      = 'renormWeights[1] * '+weightStr
 		weightmuFDownStr    = 'renormWeights[0] * '+weightStr
-		weighttopptUpStr    = weightStr.replace(topPt13TeVstr+' *','')
+		if 'TTJets' in process: weighttopptUpStr = weightStr+' * (1/'+topPt13TeVstr+')'
+		else: weighttopptUpStr = weightStr
 		weighttopptDownStr  = weightStr
-		weighthtUpStr       = weightStr.replace(' * '+HTweightStr,'')
-		weighthtDownStr     = weightStr
-		weighttauptUpStr    = 'TauPtWeightUp * '+weightStr
-		weighttauptDownStr  = 'TauPtWeightDown * '+weightStr
 		#weightjsfUpStr      = weightStr.replace('JetSF_80X','1')
 		#weightjsfDownStr    = weightStr.replace('JetSF_80X','JetSF_80X*JetSF_80X')
 
@@ -157,6 +154,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	cut_jmsDn = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[3]')
 	cut_jmrUp = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[4]')
 	cut_jmrDn = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[5]')
+	cut_tauptUp = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[6]')
+	cut_tauptDn = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[7]')
 	
 	cut_topsfUp = fullcut.replace(nttagLJMETname,nttagLJMETname+'_shifts[0]')
 	cut_topsfDn = fullcut.replace(nttagLJMETname,nttagLJMETname+'_shifts[1]')
@@ -171,7 +170,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	if isPlot2D: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process]  = TH2D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['trigeff','pileup','muRFcorrd','muR','muF','toppt','topsf','jms','jmr','tau21','taupt','btag','mistag','jec','jer','ht']
+		systList = ['trigeff','pileup','muRFcorrd','muR','muF','toppt','topsf','jms','jmr','tau21','taupt','btag','mistag','jec','jer']
 		for syst in systList:
 			for ud in ['Up','Down']:
 				if isPlot2D: hists[iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process] = TH2D(iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
@@ -196,10 +195,6 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muFDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightmuFDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptUp_'      +lumiStr+'fb_'+catStr+'_'+process, weighttopptUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptDown_'    +lumiStr+'fb_'+catStr+'_'+process, weighttopptDownStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'htUp_'         +lumiStr+'fb_'+catStr+'_'+process, weighthtUpStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'htDown_'       +lumiStr+'fb_'+catStr+'_'+process, weighthtDownStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'tauptUp_'      +lumiStr+'fb_'+catStr+'_'+process, weighttauptUpStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'tauptDown_'    +lumiStr+'fb_'+catStr+'_'+process, weighttauptDownStr+'*('+fullcut+')', 'GOFF')
 		#tTree[process].Draw(plotTreeName+' >> '+iPlot+'jsfUp_'        +lumiStr+'fb_'+catStr+'_'+process, weightjsfUpStr+'*('+fullcut+')', 'GOFF')
 		#tTree[process].Draw(plotTreeName+' >> '+iPlot+'jsfDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightjsfDownStr+'*('+fullcut+')', 'GOFF')
 
@@ -219,6 +214,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		JMSdnName = plotTreeName
 		JMRupName = plotTreeName
 		JMRdnName = plotTreeName
+		TAUPTupName = plotTreeName
+		TAUPTdnName = plotTreeName
 		if 'Wtagged' in TAUupName or 'Wjet' in TAUupName or 'WJet' in TAUupName: 
 			TAUupName = TAUupName+'_shifts[0]'
 			TAUdnName = TAUdnName+'_shifts[1]'
@@ -226,13 +223,17 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 			JMSdnName = JMSdnName+'_shifts[3]'
 			JMRupName = JMRupName+'_shifts[4]'
 			JMRdnName = JMRdnName+'_shifts[5]'
-		print 'WTAG SHIFT LJMET NAMES',TAUupName,TAUdnName,JMSupName,JMSdnName,JMRupName,JMRdnName
+			TAUPTupName = TAUPTupName+'_shifts[6]'
+			TAUPTdnName = TAUPTdnName+'_shifts[7]'
+		print 'WTAG SHIFT LJMET NAMES',TAUupName,TAUdnName,JMSupName,JMSdnName,JMRupName,JMRdnName,TAUPTupName,TAUPTdnName
 		tTree[process].Draw(TAUupName+' >> '+iPlot+'tau21Up_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_tauUp+')', 'GOFF')
 		tTree[process].Draw(TAUdnName+' >> '+iPlot+'tau21Down_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_tauDn+')', 'GOFF')		
 		tTree[process].Draw(JMSupName+' >> '+iPlot+'jmsUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_jmsUp+')', 'GOFF')
 		tTree[process].Draw(JMSdnName+' >> '+iPlot+'jmsDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_jmsDn+')', 'GOFF')		
 		tTree[process].Draw(JMRupName+' >> '+iPlot+'jmrUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_jmrUp+')', 'GOFF')
 		tTree[process].Draw(JMRdnName+' >> '+iPlot+'jmrDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_jmrDn+')', 'GOFF')		
+		tTree[process].Draw(TAUupName+' >> '+iPlot+'tauptUp_'  +lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_tauptUp+')', 'GOFF')
+		tTree[process].Draw(TAUdnName+' >> '+iPlot+'tauptDown_'+lumiStr+'fb_'+catStr+'_'+process, weightStr+'*('+cut_tauptDn+')', 'GOFF')		
 
 		BTAGupName = plotTreeName.replace('_lepBJets','_bSFup_lepBJets')
 		BTAGdnName = plotTreeName.replace('_lepBJets','_bSFdn_lepBJets')
