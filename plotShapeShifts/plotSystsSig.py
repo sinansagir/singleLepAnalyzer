@@ -11,7 +11,7 @@ lumi = 35.9
 discriminant = 'minMlb'
 lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_2017_2_12'
+tempVersion = 'templates_2017_3_5'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
@@ -27,8 +27,8 @@ systematics = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','muRFcor
 
 signameList = [
 # 		   'X53X53M700left',
-		   'X53X53M800left',
-# 		   'X53X53M900left',
+# 		   'X53X53M800left',
+		   'X53X53M900left',
 # 		   'X53X53M1000left',
 # 		   'X53X53M1100left',
 # 		   'X53X53M1200left',

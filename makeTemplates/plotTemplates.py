@@ -15,8 +15,8 @@ start_time = time.time()
 lumi=35.9 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='PS' #PS,SR,TTCR,WJCR
-isCategorized=0
+region='SR' #PS,SR,TTCR,WJCR
+isCategorized=1
 iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
@@ -24,19 +24,19 @@ if region=='SR': pfix='templates_'
 elif region=='WJCR': pfix='wjets_'
 elif region=='TTCR': pfix='ttbar_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-templateDir=os.getcwd()+'/'+pfix+'test_2017_2_27/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'2017_3_5/'+cutString+'/'
 postFitFile=os.getcwd()+'/../thetaLimits/chi2test_2017_2_12/histos-mle.root'
-plotPostFit = False
+plotPostFit = False #this is not working yet!!
 
-isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
-saveKey = '' # tag for plot names
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
+saveKey = ''#'_noQ2' # tag for plot names
 
-sig1='X53X53M800left' #  choose the 1st signal to plot
-sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.8 TeV)'
-sig2='X53X53M1100right' #  choose the 2nd signal to plot
-sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.1 TeV)'
-scaleSignals = False
-sigScaleFact = 30 #put -1 if auto-scaling wanted
+sig1='X53X53M900left' #  choose the 1st signal to plot
+sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.9 TeV)'
+sig2='X53X53M1200right' #  choose the 2nd signal to plot
+sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.2 TeV)'
+scaleSignals = True
+sigScaleFact = 25 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 bkgProcList = ['top','ewk','qcd']
@@ -45,8 +45,10 @@ if '53' in sig1: bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOra
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','toppt','topsf','pdfNew','trigeff','btag','mistag','muRFcorrdNew']#,'muRFcorrdNew','jsf'
-doAllSys = False
+systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','trigeff','ht',
+				  'btag','mistag','pdfNew','muRFcorrdNew','toppt']
+if 'muRFcorrdNew' not in systematicList: saveKey='_noQ2'
+doAllSys = True
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
@@ -54,7 +56,7 @@ doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
-yLog  = True
+yLog  = False
 doRealPull = False
 if doRealPull: doOneBand=False
 compareShapes = False
@@ -67,7 +69,8 @@ else: nttaglist = ['0p']
 if region=='TTCR': nWtaglist = ['0p']
 else: nWtaglist=['0','1p']
 if region=='WJCR': nbtaglist = ['0']
-else: nbtaglist=['1','2p']#,'2','3p']
+elif region=='TTCR': nbtaglist=['1','2p']#,'2','3p']
+else: nbtaglist=['1','2p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
@@ -85,10 +88,9 @@ tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
 
 lumiSys = 0.026 # lumi uncertainty
 trigSys = 0.0 # trigger uncertainty
-lepIdSys = 0.02 # lepton id uncertainty
+lepIdSys = 0.03 # lepton id uncertainty
 lepIsoSys = 0.01 # lepton isolation uncertainty
-htRwtSys = 0.#15
-corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2+htRwtSys**2) #cheating while total e/m values are close
+corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total e/m values are close
 
 for tag in tagList:
 	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]+'_nJ'+tag[3]
@@ -106,6 +108,10 @@ def getNormUnc(hist,ibin,modelingUnc):
 
 def formatUpperHist(histogram):
 	histogram.GetXaxis().SetLabelSize(0)
+	if 'NTJets' in histogram.GetName(): histogram.GetXaxis().SetNdivisions(5)
+	elif 'NWJets' in histogram.GetName(): histogram.GetXaxis().SetNdivisions(5)
+	elif 'NBJets' in histogram.GetName(): histogram.GetXaxis().SetNdivisions(6,rt.kFALSE)
+	else: histogram.GetXaxis().SetNdivisions(506)
 
 	if blind == True:
 		histogram.GetXaxis().SetLabelSize(0.045)
@@ -113,14 +119,14 @@ def formatUpperHist(histogram):
 		histogram.GetYaxis().SetLabelSize(0.045)
 		histogram.GetYaxis().SetTitleSize(0.055)
 		histogram.GetYaxis().SetTitleOffset(1.15)
-		histogram.GetXaxis().SetNdivisions(506)
-		if 'YLD' in iPlot: histogram.GetXaxis().LabelsOption("u")
 	else:
 		histogram.GetYaxis().SetLabelSize(0.07)
 		histogram.GetYaxis().SetTitleSize(0.08)
 		histogram.GetYaxis().SetTitleOffset(.71)
+	if 'YLD' in iPlot: histogram.GetXaxis().LabelsOption("u")
 
 	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,j)], j#neqb [GeV]")
+	if 'JetPt' in histogram.GetName() or 'JetEta' in histogram.GetName() or 'JetPhi' in histogram.GetName() or 'Pruned' in histogram.GetName() or 'Tau' in histogram.GetName() or 'SoftDropMass' in histogram.GetName(): histogram.GetYaxis().SetTitle(histogram.GetYaxis().GetTitle().replace("Events","Jets"))
 	histogram.GetYaxis().CenterTitle()
 	histogram.SetMinimum(0.000101)
 	if region=='PS': histogram.SetMinimum(0.0101)
@@ -128,14 +134,23 @@ def formatUpperHist(histogram):
 		histogram.SetMinimum(0.25)
 	if yLog:
 		uPad.SetLogy()
-		if not doNormByBinWidth: histogram.SetMaximum(200*histogram.GetMaximum())
-		else: histogram.SetMaximum(200*histogram.GetMaximum())
+		if 'nB1' in histogram.GetName(): histogram.SetMaximum(1e4*histogram.GetMaximum())
+		else: histogram.SetMaximum(2e2*histogram.GetMaximum())
+	else: 
+		if 'YLD' in iPlot: histogram.SetMaximum(1.3*histogram.GetMaximum())
+		else: histogram.SetMaximum(1.3*histogram.GetMaximum())
 		
 def formatLowerHist(histogram):
 	histogram.GetXaxis().SetLabelSize(.12)
 	histogram.GetXaxis().SetTitleSize(0.15)
 	histogram.GetXaxis().SetTitleOffset(0.95)
 	histogram.GetXaxis().SetNdivisions(506)
+
+	if 'NTJets' in disc: histogram.GetXaxis().SetNdivisions(5)
+	elif 'NWJets' in disc: histogram.GetXaxis().SetNdivisions(5)
+	elif 'NBJets' in disc: histogram.GetXaxis().SetNdivisions(6,rt.kFALSE)
+	else: histogram.GetXaxis().SetNdivisions(506)
+	if 'NTJets' in disc or 'NWJets' in disc or 'NBJets' in disc or 'NJets' in disc: histogram.GetXaxis().SetLabelSize(0.15)
 
 	histogram.GetYaxis().SetLabelSize(0.12)
 	histogram.GetYaxis().SetTitleSize(0.14)
@@ -192,6 +207,15 @@ if blind == True: B = 0.12*H_ref
 L = 0.12*W_ref
 R = 0.04*W_ref
 
+tagPosX = 0.76
+tagPosY = 0.62
+if 'Tau32' in iPlot: tagPosX = 0.58
+if not blind: tagPosY-=0.1
+
+table = []
+table.append(['break'])
+table.append(['Categories','prob_KS','prob_KS_X','prob_chi2','chi2','ndof'])
+table.append(['break'])
 bkghists = {}
 bkghistsmerged = {}
 systHists = {}
@@ -226,6 +250,7 @@ for tag in tagList:
 			if proc==bkgProcList[0]: continue
 			try: bkgHT_test.Add(bkghists[proc+catStr])
 			except: pass
+		print hData_test.Integral(),bkgHT_test.Integral()
 		hsig1 = RFile1.Get(histPrefix+'__sig').Clone(histPrefix+'__sig1')
 		hsig2 = RFile2.Get(histPrefix+'__sig').Clone(histPrefix+'__sig2')
 		hsig1.Scale(xsec[sig1])
@@ -294,13 +319,20 @@ for tag in tagList:
 		for ibin in range(1, bkgHT_test.GetNbinsX()+1):
 			bkgHT_test.SetBinError(ibin,(totBkgTemp3[catStr].GetErrorYlow(ibin-1) + totBkgTemp3[catStr].GetErrorYhigh(ibin-1))/2 )
 
+		prob_KS = bkgHT_test.KolmogorovTest(hData_test)
+		prob_KS_X = bkgHT_test.KolmogorovTest(hData_test,"X")
+		prob_chi2 = hData_test.Chi2Test(bkgHT_test,"UW")
+		chi2 = hData_test.Chi2Test(bkgHT_test,"UW CHI2")
+		if hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")!=0: ndof = int(hData_test.Chi2Test(bkgHT_test,"UW CHI2")/hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF"))
+		else: ndof = 0
 		print '/'*80,'\n','*'*80
-		print histPrefix+'_KS =',bkgHT_test.KolmogorovTest(hData_test)
+		print histPrefix+'_KS =',prob_KS
 		print 'WARNING: KS test works on unbinned distributions. For binned histograms, see NOTE3 at https://root.cern.ch/doc/master/classTH1.html#a2747cabe9ebe61c2fdfd74ff307cef3a'
 		print '*'*80,'\n','/'*80,'\n','*'*80
 		print histPrefix+'_Chi2Test:'
-		hData_test.Chi2Test(bkgHT_test,"UW P")
+		print "p-value =",prob_chi2,"CHI2/NDF",chi2,"/",ndof
 		print '*'*80,'\n','/'*80
+		table.append([catStr,prob_KS,prob_KS_X,prob_chi2,chi2,ndof])
 		
 		bkgHTgerr = totBkgTemp3[catStr].Clone()
 
@@ -465,8 +497,8 @@ for tag in tagList:
 			if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' j'
 			else: tagString+=tag[3]+' j'
 		if tagString.endswith(', '): tagString = tagString[:-2]
-		chLatex.DrawLatex(0.78, 0.58, flvString)
-		chLatex.DrawLatex(0.78, 0.52, tagString)
+		chLatex.DrawLatex(tagPosX, tagPosY, flvString)
+		chLatex.DrawLatex(tagPosX, tagPosY-0.06, tagString)
 
 		if drawQCD: leg = rt.TLegend(0.45,0.52,0.95,0.87)
 		if not drawQCD or blind: leg = rt.TLegend(0.45,0.64,0.95,0.89)
@@ -540,6 +572,13 @@ for tag in tagList:
 			pull=hData.Clone("pull")
 			pull.Divide(hData, bkgHT)
 			for binNo in range(0,hData.GetNbinsX()+2):
+				if 'NJets' in discriminant: 
+					#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+					if binNo%2 == 0: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+					else: pull.GetXaxis().SetBinLabel(binNo,'')
+				if 'NTJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NWJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NBJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
 				if bkgHT.GetBinContent(binNo)!=0:
 					pull.SetBinError(binNo,hData.GetBinError(binNo)/bkgHT.GetBinContent(binNo))
 			pull.SetMaximum(3)
@@ -614,6 +653,13 @@ for tag in tagList:
 			lPad.cd()
 			pull=hData.Clone("pull")
 			for binNo in range(0,hData.GetNbinsX()+2):
+				if 'NJets' in discriminant: 
+					#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+					if binNo%2 == 0: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+					else: pull.GetXaxis().SetBinLabel(binNo,'')
+				if 'NTJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NWJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NBJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
 				if hData.GetBinContent(binNo)!=0:
 					MCerror = 0.5*(totBkgTemp3[catStr].GetErrorYhigh(binNo-1)+totBkgTemp3[catStr].GetErrorYlow(binNo-1))
 					pull.SetBinContent(binNo,(hData.GetBinContent(binNo)-bkgHT.GetBinContent(binNo))/math.sqrt(MCerror**2+hData.GetBinError(binNo)**2))
@@ -754,13 +800,20 @@ for tag in tagList:
 	for ibin in range(1, bkgHTmerged_test.GetNbinsX()+1):
 		bkgHTmerged_test.SetBinError(ibin,(totBkgTemp3['isL'+tagStr].GetErrorYlow(ibin-1) + totBkgTemp3['isL'+tagStr].GetErrorYhigh(ibin-1))/2 )
 	
+	prob_KS = bkgHTmerged_test.KolmogorovTest(hDatamerged_test)
+	prob_KS_X = bkgHTmerged_test.KolmogorovTest(hDatamerged_test,"X")
+	prob_chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW")
+	chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")
+	if hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")!=0: ndof = int(hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")/hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF"))
+	else: ndof = 0
 	print '/'*80,'\n','*'*80
-	print histPrefixE.replace('isE','isL')+'_KS =',bkgHTmerged_test.KolmogorovTest(hDatamerged_test)
+	print histPrefixE.replace('isE','isL')+'_KS =',prob_KS
 	print 'WARNING: KS test works on unbinned distributions. For binned histograms, see NOTE3 at https://root.cern.ch/doc/master/classTH1.html#a2747cabe9ebe61c2fdfd74ff307cef3a'
 	print '*'*80,'\n','/'*80,'\n','*'*80
 	print histPrefixE.replace('isE','isL')+'_Chi2Test:'
-	hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW P")
+	print "p-value =",prob_chi2,"CHI2/NDF",chi2,"/",ndof
 	print '*'*80,'\n','/'*80
+	table.append(['isL_'+tagStr,prob_KS,prob_KS_X,prob_chi2,chi2,ndof])
 
 	bkgHTgerrmerged = totBkgTemp3['isL'+tagStr].Clone()
 
@@ -904,7 +957,7 @@ for tag in tagList:
 	tagString = ''
 	if tag[0]!='0p':
 		if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
-		else: tagString+=tag[0]+' t,  '
+		else: tagString+=tag[0]+' t, '
 	if tag[1]!='0p':
 		if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
 		else: tagString+=tag[1]+' W, '
@@ -915,11 +968,12 @@ for tag in tagList:
 		if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' j'
 		else: tagString+=tag[3]+' j'
 	if tagString.endswith(', '): tagString = tagString[:-2]
-	chLatexmerged.DrawLatex(0.78, 0.58, flvString)
-	chLatexmerged.DrawLatex(0.78, 0.52, tagString)
+	chLatexmerged.DrawLatex(tagPosX, tagPosY, flvString)
+	chLatexmerged.DrawLatex(tagPosX, tagPosY-0.06, tagString)
 
 	if drawQCDmerged: legmerged = rt.TLegend(0.45,0.52,0.95,0.87)
 	if not drawQCDmerged or blind: legmerged = rt.TLegend(0.45,0.64,0.95,0.89)
+	#if 'Tau32' in iPlot: legmerged = rt.TLegend(0.3,0.52,0.8,0.87)
 	legmerged.SetShadowColor(0)
 	legmerged.SetFillColor(0)
 	legmerged.SetFillStyle(0)
@@ -997,6 +1051,13 @@ for tag in tagList:
 		pullmerged=hDatamerged.Clone("pullmerged")
 		pullmerged.Divide(hDatamerged, bkgHTmerged)
 		for binNo in range(0,hDatamerged.GetNbinsX()+2):
+			if 'NJets' in discriminant: 
+				#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if binNo%2 == 0: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+				else: pullmerged.GetXaxis().SetBinLabel(binNo,'')
+			if 'NTJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NWJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NBJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
 			if bkgHTmerged.GetBinContent(binNo)!=0:
 				pull.SetBinError(binNo,hDatamerged.GetBinError(binNo)/bkgHTmerged.GetBinContent(binNo))
 		pullmerged.SetMaximum(3)
@@ -1069,6 +1130,13 @@ for tag in tagList:
 		lPad.cd()
 		pullmerged=hDatamerged.Clone("pullmerged")
 		for binNo in range(0,hDatamerged.GetNbinsX()+2):
+			if 'NJets' in discriminant: 
+				#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if binNo%2 == 0: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+				else: pullmerged.GetXaxis().SetBinLabel(binNo,'')
+			if 'NTJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NWJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NBJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
 			if hDatamerged.GetBinContent(binNo)!=0:
 				MCerror = 0.5*(totBkgTemp3['isL'+tagStr].GetErrorYhigh(binNo-1)+totBkgTemp3['isL'+tagStr].GetErrorYlow(binNo-1))
 				pullmerged.SetBinContent(binNo,(hDatamerged.GetBinContent(binNo)-bkgHTmerged.GetBinContent(binNo))/math.sqrt(MCerror**2+hDatamerged.GetBinError(binNo)**2))
@@ -1120,6 +1188,10 @@ for tag in tagList:
 	for proc in bkgProcList:
 		try: del bkghistsmerged[proc+'isL'+tagStr]
 		except: pass
+
+if not doNormByBinWidth: 
+	out=open(templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'+tempsig.replace('templates','GOFtests').replace('.root','').replace(sig1+'_','')+saveKey+'.txt','w')
+	printTable(table,out)
 			
 RFile1.Close()
 RFile2.Close()

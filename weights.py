@@ -57,17 +57,19 @@ nRun['TtW'] = 6952830.
 nRun['TbtW'] = 6933094.
 nRun['WJets'] = 6776900. # from 9908534.
 nRun['WJetsMG'] = 86731806. 
-nRun['WJetsMG100'] = 79356685.
-nRun['WJetsMG200'] = 39680891.
-nRun['WJetsMG400'] = 7759701.
-nRun['WJetsMG600'] = 18687480.
-nRun['WJetsMG800'] = 7745467.
-nRun['WJetsMG1200']= 6872441.
-nRun['WJetsMG2500']= 2637821.
-nRun['WJetsMGPt100'] = 99945850.*(1.-2.*0.32) #from 99945850, missing 3 jobs in negative weight count. Do NGen*[1-2X], where X is the neg event fraction calculated from the jobs completed!
-nRun['WJetsMGPt250'] = 3696780. #from 10021205
-nRun['WJetsMGPt400'] = 376470. #from 988234
-nRun['WJetsMGPt600'] = 396491. #from 985127
+nRun['WJetsHT100'] = 79356685.
+nRun['WJetsHT200'] = 39680891.
+nRun['WJetsHT400'] = 7759701.
+nRun['WJetsHT600'] = 18687480.
+nRun['WJetsHT800'] = 7745467.
+nRun['WJetsHT1200']= 6872441.
+nRun['WJetsHT2500']= 2637821.
+#Do NGen*[1-2X], where X is the neg event fraction calculated from the jobs completed! 
+#A = P - N = F - 2*N   A/F = 1 - 2*(N/F)  N/F = (1 - A/F)/2
+nRun['WJetsPt100'] = 120124110.*(1.-2.*0.32) #Full =120124110, neg frac 0.32
+nRun['WJetsPt250'] = 12022587.*(1.-2.*0.31555) #Full = 12022587, neg frac 0.31555 
+nRun['WJetsPt400'] = 1939947.*(1.-2.*0.30952) #Full = 1939947, neg frac 0.30952
+nRun['WJetsPt600'] = 1974619.*(1.-2.*0.29876) #Full = 1974619, neg frac 0.29876
 nRun['DY'] = 19223750. # from 28696958
 nRun['DYMG'] = 96658943.
 nRun['DYMG100'] = 10607207.
@@ -299,17 +301,17 @@ xsec['TTJetsPH700to1000inc'] = 831.76*0.0921 #(xsec*filtering coeff.)
 xsec['TTJetsPH1000toINFinc'] = 831.76*0.02474 #(xsec*filtering coeff.)
 xsec['TTJetsPH700mtt'] = xsec['TTJetsPH700to1000inc']
 xsec['TTJetsPH1000mtt'] = xsec['TTJetsPH1000toINFinc']
-xsec['WJetsMG100'] = 1345.*1.21 # (1.21 = k-factor )# https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
-xsec['WJetsMG200'] = 359.7*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
-xsec['WJetsMG400'] = 48.91*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
-xsec['WJetsMG600'] = 12.05*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
-xsec['WJetsMG800'] = 5.501*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
-xsec['WJetsMG1200'] = 1.329*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
-xsec['WJetsMG2500'] = 0.03216*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
-xsec['WJetsMGPt100'] = 676.3 #B2G-17-010 / AN2016_480_v5
-xsec['WJetsMGPt250'] = 23.94 #B2G-17-010 / AN2016_480_v5
-xsec['WJetsMGPt400'] = 3.031 #B2G-17-010 / AN2016_480_v5
-xsec['WJetsMGPt600'] = 0.4524 #B2G-17-010 / AN2016_480_v5
+xsec['WJetsHT100'] = 1345.*1.21 # (1.21 = k-factor )# https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
+xsec['WJetsHT200'] = 359.7*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
+xsec['WJetsHT400'] = 48.91*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
+xsec['WJetsHT600'] = 12.05*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
+xsec['WJetsHT800'] = 5.501*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
+xsec['WJetsHT1200']= 1.329*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
+xsec['WJetsHT2500']= 0.03216*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
+xsec['WJetsPt100'] = 676.3 #B2G-17-010 / AN2016_480_v5
+xsec['WJetsPt250'] = 23.94 #B2G-17-010 / AN2016_480_v5
+xsec['WJetsPt400'] = 3.031 #B2G-17-010 / AN2016_480_v5
+xsec['WJetsPt600'] = 0.4524 #B2G-17-010 / AN2016_480_v5
 xsec['WW'] = 118.7 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeVInclusive
 xsec['WZ'] = 47.13 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson
 xsec['ZZ'] = 16.523 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson
@@ -406,4 +408,8 @@ for sample in sorted(nRun.keys()):
 	else: weight[sample] = (targetlumi*BR[sample[:2]+sample[-4:]]*xsec[sample[:-4]]) / (nRun[sample])
 # Samples for Jet reweighting (to be able to run w/ and w/o JSF together!):
 for sample in sorted(nRun.keys()):
-	if 'QCDht' in sample or 'WJetsMG' in sample: weight[sample+'JSF'] = weight[sample]
+	if 'QCDht' in sample or 'WJetsHT' in sample: weight[sample+'JSF'] = weight[sample]
+
+# for sample in sorted(weight.keys()): 
+# 	if 'BBM' in sample or 'TTM' in sample or 'X53' in sample or 'JSF' in sample: continue
+# 	print sample,xsec[sample] / nRun[sample]

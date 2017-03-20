@@ -11,20 +11,21 @@ lumi = 35.9
 discriminant = 'minMlb'
 lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_2017_2_12_PtBin/'
+tempVersion = 'templates_2017_3_5/'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/bkgs'): os.system('mkdir '+outDir+tempVersion+'/bkgs')
 
 saveKey = ''
-bkgList = ['ewk']#'top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
+bkgList = ['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
+#bkgList = ['ewk']
 isEMlist = ['E','M']
 nttaglist = ['0','1p']
 nWtaglist = ['0','1p']
 nbtaglist = ['1','2p']
 njetslist = ['4p']
-systematics = ['pileup','jec','jer','jms','jmr','tau21','taupt','toppt','topsf','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
+systematics = ['pileup','jec','jer','jms','jmr','tau21','taupt','toppt','ht','topsf','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
 
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 RFile = R.TFile(templateFile)

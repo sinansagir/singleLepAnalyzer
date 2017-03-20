@@ -26,6 +26,19 @@ samples = {
 'HTBM450':'ChargedHiggs_HplusTB_HplusToTB_M-450_13TeV_amcatnlo_pythia8',
 'HTBM500':'ChargedHiggs_HplusTB_HplusToTB_M-500_13TeV_amcatnlo_pythia8',
 
+'TTM700':'TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM800':'TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM900':'TprimeTprime_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1000':'TprimeTprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1100':'TprimeTprime_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1200':'TprimeTprime_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1300':'TprimeTprime_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1400':'TprimeTprime_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1500':'TprimeTprime_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1600':'TprimeTprime_M-1600_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1700':'TprimeTprime_M-1700_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1800':'TprimeTprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8',
+
 'TTM700BWBW':'TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8_BWBW',
 'TTM800BWBW':'TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8_BWBW',
 'TTM900BWBW':'TprimeTprime_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8_BWBW',
@@ -137,17 +150,17 @@ samples = {
 'DYMG2500':'DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
 
 'WJetsMG':'WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG100':'WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG200':'WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG400':'WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG600':'WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG800':'WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG1200':'WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG2500':'WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMGPt100':'WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-'WJetsMGPt250':'WJetsToLNu_Pt-250To400_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-'WJetsMGPt400':'WJetsToLNu_Pt-400To600_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-'WJetsMGPt600':'WJetsToLNu_Pt-600ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+'WJetsHT100':'WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT200':'WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT400':'WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT600':'WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT800':'WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT1200':'WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT2500':'WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsPt100':'WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+'WJetsPt250':'WJetsToLNu_Pt-250To400_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+'WJetsPt400':'WJetsToLNu_Pt-400To600_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+'WJetsPt600':'WJetsToLNu_Pt-600ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
 
 'WW':'WW_TuneCUETP8M1_13TeV-pythia8',
 'WZ':'WZ_TuneCUETP8M1_13TeV-pythia8',
@@ -192,13 +205,13 @@ samples = {
 'QCDht1500':'QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
 'QCDht2000':'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
 }
-samples['WJetsMG100JSF']  = samples['WJetsMG100']
-samples['WJetsMG200JSF']  = samples['WJetsMG200']
-samples['WJetsMG400JSF']  = samples['WJetsMG400']
-samples['WJetsMG600JSF']  = samples['WJetsMG600']
-samples['WJetsMG800JSF']  = samples['WJetsMG800']
-samples['WJetsMG1200JSF'] = samples['WJetsMG1200']
-samples['WJetsMG2500JSF'] = samples['WJetsMG2500']
+samples['WJetsHT100JSF']  = samples['WJetsHT100']
+samples['WJetsHT200JSF']  = samples['WJetsHT200']
+samples['WJetsHT400JSF']  = samples['WJetsHT400']
+samples['WJetsHT600JSF']  = samples['WJetsHT600']
+samples['WJetsHT800JSF']  = samples['WJetsHT800']
+samples['WJetsHT1200JSF'] = samples['WJetsHT1200']
+samples['WJetsHT2500JSF'] = samples['WJetsHT2500']
 samples['QCDht100JSF']  = samples['QCDht100']
 samples['QCDht200JSF']  = samples['QCDht200']
 samples['QCDht300JSF']  = samples['QCDht300']
@@ -207,6 +220,4 @@ samples['QCDht700JSF']  = samples['QCDht700']
 samples['QCDht1000JSF'] = samples['QCDht1000']
 samples['QCDht1500JSF'] = samples['QCDht1500']
 samples['QCDht2000JSF'] = samples['QCDht2000']
-
-
 

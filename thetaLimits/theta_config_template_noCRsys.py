@@ -19,9 +19,11 @@ def get_model():
 			model.add_lognormal_uncertainty('elIsoSys', math.log(1.01), '*', obs)
 		elif 'isM' in obs:
 			#model.add_lognormal_uncertainty('muTrigSys', math.log(1.01), '*', obs)
-			model.add_lognormal_uncertainty('muIdSys', math.log(1.01), '*', obs)
+			model.add_lognormal_uncertainty('muIdSys', math.log(1.03), '*', obs)
 			model.add_lognormal_uncertainty('muIsoSys', math.log(1.01), '*', obs)
     model.add_lognormal_uncertainty('lumiSys', math.log(1.026), '*', '*')
+    try: model.add_lognormal_uncertainty('qcdScale', math.log(1.35), 'qcd', '*')
+    except: pass
     
     #additional uncertainties for missing systs: btag,mistag, and trigEff
 #     try: model.add_lognormal_uncertainty('topSys', math.log(1.30), 'top', '*')

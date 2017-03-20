@@ -3,11 +3,11 @@ import os,sys,fnmatch
 templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/x53x53_2016/makeTemplates/'
 #templateDir+='templates_minMlb_2016_10_29' #Total number of jobs submitted: 3402
 #templateDir+='templates_ST_2016_10_29' #Total number of jobs submitted: 4374
-templateDir+='templates_2017_2_12'
+templateDir+='templates_2017_3_5'
 thetaConfigTemp = os.getcwd()+'/theta_config_template_noCRsys.py'
 lumiInFile = '35p867fb'
 
-toFilter0 = ['pdf','muRFdecorrdNew','muRFenv','muR','muF','muRFcorrd'] #always remove in case they are in templates
+toFilter0 = ['pdf','muR','muF','muRFcorrd','muRFcorrdNew','trigeff','qcdmuRFcorrdNew'] #always remove in case they are in templates
 #toFilter0+= ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
 toFilter0 = ['__'+item+'__' for item in toFilter0]
 
@@ -23,7 +23,7 @@ limitConfs = {#'<limit type>':[filter list]
 			  'nB2p':['nB1'], #only 2p b tag category
 			  }
 
-limitType = ''#'_noCRuncerts'
+limitType = '_flatQCDmuRF'
 outputDir = '/user_data/ssagir/x53x53_limits_2016/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 # outputDir+= '/'+limitType+'/'
@@ -38,10 +38,10 @@ def findfiles(path, filtre):
 rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if 'rebinned_stat0p3' not in rootfile: continue
+    if 'rebinned_stat0p3.' not in rootfile: continue
     #if 'right' in rootfile: continue
     if 'plots' in rootfile: continue
-    #if 'YLD' in rootfile: continue
+    if 'YLD' in rootfile: continue
     #if 'X53X53M1300' in rootfile: continue
     #if 'X53X53M1400' in rootfile: continue
     #if 'X53X53M1500' in rootfile: continue

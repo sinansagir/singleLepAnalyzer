@@ -3,8 +3,8 @@ import os,sys,datetime,itertools
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-region='PS' #PS,SR,TTCR,WJCR
-categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
+region='WJCR' #PS,SR,TTCR,WJCR
+categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
@@ -13,7 +13,7 @@ if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_woRwt_'+date#+'_'+time
+pfix+='_M17WtSF_'+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 # 			'lepPt',
@@ -23,18 +23,18 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'deltaRjet3',
 # 			'NPV',
 # 			'JetEta',
-			'JetPt',
-			'Jet1Pt',
-			'Jet2Pt',
-			'Jet3Pt',
-			'Jet4Pt',
-			'MET',
-			'NJets',
-			'NBJets',
-			'NWJets',
-			'NTJets',
-			'NJetsAK8',
-			'JetPtAK8',
+# 			'JetPt',
+# 			'Jet1Pt',
+# 			'Jet2Pt',
+# 			'Jet3Pt',
+# 			'Jet4Pt',
+# 			'MET',
+# 			'NJets',
+# 			'NBJets',
+# 			'NWJets',
+# 			'NTJets',
+# 			'NJetsAK8',
+# 			'JetPtAK8',
 # 			'JetEtaAK8',
 # 			'Tau21',
 # 			'Tau21Nm1',
@@ -44,8 +44,8 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'PrunedSmearedNm1',
 # 			'SoftDropMass', 
 # 			'SoftDropMassNm1', 
-			'topPt',
-			
+# 			'topPt',
+# 			
 			'HT',
 			'ST',
 			'minMlb',
@@ -99,7 +99,7 @@ else: nttaglist = ['0p']
 if region=='TTCR': nWtaglist = ['0p']
 else: nWtaglist=['0','1p']
 if region=='WJCR': nbtaglist = ['0']
-else: nbtaglist = ['1','2p','2','3p']
+else: nbtaglist = ['1','2p']#,'2','3p']
 if not categorize: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']

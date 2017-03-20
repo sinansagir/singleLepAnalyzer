@@ -11,7 +11,7 @@ lumi = 35.9
 discriminant = 'minMlb'
 lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat0p3'
-tempVersion = 'templates_2017_2_12'
+tempVersion = 'templates_2017_3_5'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
@@ -24,7 +24,7 @@ nWtaglist = ['0','1p']
 nbtaglist = ['1','2p']
 njetslist = ['4p']
 
-systematics = ['pileup','jec','jer','jms','jmr','tau21','taupt','toppt','topsf','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
+systematics = ['pileup','jec','jer','jms','jmr','tau21','taupt','toppt','ht','topsf','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
 
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 RFile = R.TFile(templateFile)

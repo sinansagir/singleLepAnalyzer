@@ -21,49 +21,46 @@ if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='test_2017_2_27'
+pfix+='woRwt_2017_3_5'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 36200./36459.
-doAllSys = False
+doAllSys = True
 doQ2sys = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','muR','muF','muRFcorrd','trigeff','btag','mistag']#,'jsf'
+systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','ht','muR','muF','muRFcorrd','trigeff','btag','mistag']#,'jsf'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
-rebinHists = True #performs a regular rebinning, current setup doubles the bin width if used.
+rebinHists = False #performs a regular rebinning, current setup doubles the bin width if used.
 
 doJetRwt= 0
 bkgGrupList = ['top','ewk','qcd']
 bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
-#bkgGrupList = bkgProcList
 bkgProcs = {}
-bkgProcs['WJets']  = ['WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
-#bkgProcs['WJets']  = ['WJetsMGPt100','WJetsMGPt250','WJetsMGPt400','WJetsMGPt600']
+bkgProcs['WJets']  = ['WJetsHT100','WJetsHT200','WJetsHT400','WJetsHT600','WJetsHT800','WJetsHT1200','WJetsHT2500']
+#bkgProcs['WJets']  = ['WJetsPt100','WJetsPt250','WJetsPt400','WJetsPt600']
 if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']] 
 bkgProcs['ZJets']  = ['DYMG']
-#bkgProcs['ZJets']  = ['DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500'] 
 bkgProcs['VV']     = ['WW','WZ','ZZ']
 #bkgProcs['TTJets'] = ['TTJetsPH']
 bkgProcs['TTJets'] = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 bkgProcs['T']      = ['Tt','Tbt','Ts','TtW','TbtW']
-bkgProcs['qcd'] = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+bkgProcs['qcd'] = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']] 
 bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV'] 
-#dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
 dataList = ['DataERRB2H','DataMRRB2H']
 
-htProcs = ['ewk','WJets','ZJets']
+htProcs = ['ewk','WJets']
 topptProcs = ['top','TTJets']
 bkgProcs['top_q2up'] = bkgProcs['T']+['TTJetsPHQ2U']#'TtWQ2U','TbtWQ2U']
 bkgProcs['top_q2dn'] = bkgProcs['T']+['TTJetsPHQ2D']#'TtWQ2D','TbtWQ2D']
 
 whichSignal = 'X53X53' #HTB, TT, BB, or X53X53
-massList = range(700,1600+1,100)
-if region=='PS': massList = [800,1100]
+massList = range(800,1600+1,100)
+if region=='PS': massList = [900,1200]
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -85,7 +82,8 @@ else: nttaglist = ['0p']
 if region=='TTCR': nWtaglist = ['0p']
 else: nWtaglist=['0','1p']
 if region=='WJCR': nbtaglist = ['0']
-else: nbtaglist=['1','2p']#,'2','3p']
+elif region=='TTCR': nbtaglist=['1','2p']#,'2','3p']
+else: nbtaglist=['1','2p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
@@ -100,7 +98,7 @@ lumiSys = 0.026 #lumi uncertainty
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
 elIdSys = 0.02 #electron id uncertainty
-muIdSys = 0.01 #muon id uncertainty
+muIdSys = 0.03 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
 muIsoSys = 0.01 #muon isolation uncertainty
 
@@ -248,6 +246,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					if doAllSys:
 						for syst in systematicList:
 							if syst=='toppt': continue
+							if syst=='ht' and proc not in htProcs: continue
 							hists[signal+i+syst+'Up'].Scale(1./xsec[signal])
 							hists[signal+i+syst+'Down'].Scale(1./xsec[signal])
 							if normalizeRENORM_PDF and (syst.startswith('mu') or syst=='pdf'):
@@ -573,7 +572,7 @@ for iPlot in iPlotList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	#if iPlot!='minMlb': continue
+	#if iPlot!='minMlbSBins': continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]
@@ -590,14 +589,9 @@ for iPlot in iPlotList:
 	
 	#Rebin
 	if rebinHists:
-		xBins = []
-		for iBin in range(1,bkghists[bkghists.keys()[0]].GetNbinsX()+1,2):
-			xBins.append(bkghists[bkghists.keys()[0]].GetXaxis().GetBinLowEdge(iBin))
-		xBins.append(bkghists[bkghists.keys()[0]].GetXaxis().GetBinUpEdge(bkghists[bkghists.keys()[0]].GetNbinsX()))
-		xbinsArray = array('d', xBins)
-		for data in datahists.keys(): datahists[data] = datahists[data].Rebin(len(xbinsArray)-1,data,xbinsArray)
-		for bkg in bkghists.keys():   bkghists[bkg] = bkghists[bkg].Rebin(len(xbinsArray)-1,bkg,xbinsArray)
-		for sig in sighists.keys():   sighists[sig] = sighists[sig].Rebin(len(xbinsArray)-1,sig,xbinsArray)
+		for data in datahists.keys(): datahists[data] = datahists[data].Rebin(2)
+		for bkg in bkghists.keys():   bkghists[bkg] = bkghists[bkg].Rebin(2)
+		for sig in sighists.keys():   sighists[sig] = sighists[sig].Rebin(2)
 
  	#Negative Bin Correction
  	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])

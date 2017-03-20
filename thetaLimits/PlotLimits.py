@@ -15,10 +15,10 @@ blind=False
 saveKey=''#'_test'
 signal = 'X53'
 lumiPlot = '35.9'
-lumiStr = '35p867'#'36p814'#
+lumiStr = '35p867'
 
-mass_str = ['700','800','900','1000','1100','1200','1300','1400','1500','1600']
-theory_xsec = [0.455,0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391][:len(mass_str)]#pb
+mass_str = ['800','900','1000','1100','1200','1300','1400','1500','1600']
+theory_xsec = [0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391][:len(mass_str)]#pb
 scale_up = [1.9,1.9,1.9,1.8,1.8,1.8,1.7,1.8,1.7,1.6,1.7,1.7][:len(mass_str)]#%
 scale_dn = [1.9,1.8,1.7,1.6,1.6,1.5,1.5,1.5,1.5,1.5,1.5,1.5][:len(mass_str)]#%
 pdf_up   = [3.7,3.9,4.1,4.4,4.7,5.1,5.6,6.1,6.7,7.0,8.0,9.0][:len(mass_str)]#%
@@ -204,10 +204,10 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
 
     if signal=='X53':
     	XaxisTitle = "X_{5/3} mass [GeV]"
-    	YaxisTitle = "#sigma(_{}X_{5/3}#bar{X}_{5/3})[pb] - "+chiral.replace('left','LH').replace('right','RH')
+    	YaxisTitle = "#sigma(_{}X_{5/3}#bar{X}_{5/3}) [pb] - "+chiral.replace('left','LH').replace('right','RH')
     else:
 		XaxisTitle = signal+" mass [GeV]"
-		YaxisTitle = "#sigma("+signal+"#bar{"+signal+"})[pb]"
+		YaxisTitle = "#sigma("+signal+"#bar{"+signal+"}) [pb]"
 
     expected95.Draw("a3")
     expected95.GetYaxis().SetRangeUser(.001+.00001,1.45)
@@ -240,7 +240,7 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     legend.AddEntry(expected, "95% CL expected", "l")
     #legend.AddEntry(expected95, "#pm 2 std. deviation", "f")
     legend.AddEntry(expected95, "#pm 2 s.d.", "f")
-    legend.AddEntry(theory_xsec_gr, "Signal Cross Section", "lf")
+    legend.AddEntry(theory_xsec_gr, "Signal cross section", "lf")
 
     legend.SetShadowColor(0)
     legend.SetFillStyle(0)
@@ -274,14 +274,18 @@ BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-iPlotList=['minMlb','ST']#,'YLD']#
+iPlotList=['minMlb']#,'ST','YLD']
 tempKeys = ['all']#,'isE','isM','nW0','nW1p','nB1','nB2p','nT0','nT1p']
-cutString=''#'templates_2016_11_18_wJSF_STselect'
+cutString=''
 dirs = {
-		'STsel':'templates_2016_11_18_wJSF_STselect',
-		'minMlbsel':'templates_2017_2_12',#'templates_2016_11_18_wJSF_minMlbselect',
+		'HTBin':'templates_2017_2_12',
+		'PtBin':'templates_2017_2_12_PtBin',
+		'SymWin':'templates_60Wmass100_2017_2_12',
+		'limit1':'templates_2017_3_5',
+		'limit2':'templates_2017_3_5_SRpCR',
+		'limit3':'templates_2017_3_5_flatQCDmuRF',
 		}
-dirKeyList = ['minMlbsel']#,'STsel']
+dirKeyList = ['limit3']#,'limit3']#,'HTBin','PtBin','SymWin']
 binnings = ['0p3']
 
 expLimsL = {}
