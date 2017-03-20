@@ -562,8 +562,8 @@ def findfiles(path, filtre):
 iPlotList = []
 for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
     if 'bkghists' not in file: continue
-    #if not os.path.exists(file.replace('bkghists','datahists')): continue
-    #if not os.path.exists(file.replace('bkghists','sighists')): continue
+    if not os.path.exists(file.replace('bkghists','datahists')): continue
+    if not os.path.exists(file.replace('bkghists','sighists')): continue
     iPlotList.append(file.split('/')[-1].replace('bkghists_','')[:-2])
 
 print "WORKING DIR:",outDir
@@ -576,8 +576,6 @@ for iPlot in iPlotList:
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]
-		os.system('cp '+outDir.replace('M17WtSF_2017_3_19','M17WtSF_SD_2017_3_20')+'/'+cat[2:]+'/datahists_'+iPlot+'.p '+outDir+'/'+cat[2:]+'/')
-		os.system('cp '+outDir.replace('M17WtSF_2017_3_19','M17WtSF_SD_2017_3_20')+'/'+cat[2:]+'/sighists_'+iPlot+'.p '+outDir+'/'+cat[2:]+'/')
 		datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
 		bkghists.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists_'+iPlot+'.p','rb')))
 		sighists.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))

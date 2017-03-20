@@ -68,7 +68,7 @@ q2List  = [#energy scale sample to be processed
 	       #'TtWQ2D','TbtWQ2D',
 	       ]
 runData = True
-runBkgs = False
+runBkgs = True
 runSigs = True
 
 cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
