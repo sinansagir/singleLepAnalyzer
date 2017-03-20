@@ -14,14 +14,14 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='PS' #PS,SR,TTCR,WJCR
-isCategorized=0
+region='WJCR' #PS,SR,TTCR,WJCR
+isCategorized=1
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='woRwt_2017_3_5'
+pfix+='M17WtSF_2017_3_19'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -543,7 +543,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							shpHist = histoPrefix+syst+ud
 							try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
 							except:
-								if not ((syst=='toppt' and proc not in topptProcs) or (syst=='ht' and proc not in htProcs) or (proc+'_q2up' not in bkgProcs.keys())):
+								if not ((syst=='toppt' and proc not in topptProcs) or (syst=='ht' and proc not in htProcs) or (syst=='q2' and (proc+'_q2up' not in bkgProcs.keys() or not doQ2sys))):
 									print "Missing",proc,"for channel:",cat,"and systematic:",syst
 								pass
 						row.append('\\\\')
@@ -562,8 +562,8 @@ def findfiles(path, filtre):
 iPlotList = []
 for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
     if 'bkghists' not in file: continue
-    if not os.path.exists(file.replace('bkghists','datahists')): continue
-    if not os.path.exists(file.replace('bkghists','sighists')): continue
+    #if not os.path.exists(file.replace('bkghists','datahists')): continue
+    #if not os.path.exists(file.replace('bkghists','sighists')): continue
     iPlotList.append(file.split('/')[-1].replace('bkghists_','')[:-2])
 
 print "WORKING DIR:",outDir
@@ -576,6 +576,8 @@ for iPlot in iPlotList:
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]
+		os.system('cp '+outDir.replace('M17WtSF_2017_3_19','M17WtSF_SD_2017_3_20')+'/'+cat[2:]+'/datahists_'+iPlot+'.p '+outDir+'/'+cat[2:]+'/')
+		os.system('cp '+outDir.replace('M17WtSF_2017_3_19','M17WtSF_SD_2017_3_20')+'/'+cat[2:]+'/sighists_'+iPlot+'.p '+outDir+'/'+cat[2:]+'/')
 		datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
 		bkghists.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists_'+iPlot+'.p','rb')))
 		sighists.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))

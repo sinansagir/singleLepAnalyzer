@@ -67,9 +67,9 @@ q2List  = [#energy scale sample to be processed
 	       #'TtWQ2U','TbtWQ2U',
 	       #'TtWQ2D','TbtWQ2D',
 	       ]
-runData = False
-runBkgs = True
-runSigs = False
+runData = True
+runBkgs = False
+runSigs = True
 
 cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
 if region=='PS': cutList = {'lepPtCut':80,'metCut':100,'njetsCut':3,'drCut':0,'jet1PtCut':250,'jet2PtCut':150, 'jet3PtCut':0}
@@ -312,7 +312,6 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
  	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
  	for bkg in bkgList: 
- 		if 'WJetsHT' not in bkg: continue
  		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if catInd==nCats: del tFileBkg[bkg]
  		if doAllSys and catInd==nCats:

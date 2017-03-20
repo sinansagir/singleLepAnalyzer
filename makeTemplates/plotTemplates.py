@@ -15,7 +15,7 @@ start_time = time.time()
 lumi=35.9 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='SR' #PS,SR,TTCR,WJCR
+region='WJCR' #PS,SR,TTCR,WJCR
 isCategorized=1
 iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
@@ -24,7 +24,7 @@ if region=='SR': pfix='templates_'
 elif region=='WJCR': pfix='wjets_'
 elif region=='TTCR': pfix='ttbar_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-templateDir=os.getcwd()+'/'+pfix+'2017_3_5/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'M17WtSF_2017_3_19/'+cutString+'/'
 postFitFile=os.getcwd()+'/../thetaLimits/chi2test_2017_2_12/histos-mle.root'
 plotPostFit = False #this is not working yet!!
 
@@ -35,7 +35,7 @@ sig1='X53X53M900left' #  choose the 1st signal to plot
 sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.9 TeV)'
 sig2='X53X53M1200right' #  choose the 2nd signal to plot
 sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.2 TeV)'
-scaleSignals = True
+scaleSignals = False
 sigScaleFact = 25 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
@@ -52,11 +52,11 @@ doAllSys = True
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-doNormByBinWidth=False
+doNormByBinWidth=True
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
-yLog  = False
+yLog  = True
 doRealPull = False
 if doRealPull: doOneBand=False
 compareShapes = False
@@ -140,7 +140,7 @@ def formatUpperHist(histogram):
 		if 'YLD' in iPlot: histogram.SetMaximum(1.3*histogram.GetMaximum())
 		else: histogram.SetMaximum(1.3*histogram.GetMaximum())
 		
-def formatLowerHist(histogram):
+def formatLowerHist(histogram,disc):
 	histogram.GetXaxis().SetLabelSize(.12)
 	histogram.GetXaxis().SetTitleSize(0.15)
 	histogram.GetXaxis().SetTitleOffset(0.95)
@@ -572,20 +572,20 @@ for tag in tagList:
 			pull=hData.Clone("pull")
 			pull.Divide(hData, bkgHT)
 			for binNo in range(0,hData.GetNbinsX()+2):
-				if 'NJets' in discriminant: 
+				if 'NJets' in iPlot: 
 					#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
 					if binNo%2 == 0: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
 					else: pull.GetXaxis().SetBinLabel(binNo,'')
-				if 'NTJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
-				if 'NWJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
-				if 'NBJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NTJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NWJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NBJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
 				if bkgHT.GetBinContent(binNo)!=0:
 					pull.SetBinError(binNo,hData.GetBinError(binNo)/bkgHT.GetBinContent(binNo))
 			pull.SetMaximum(3)
 			pull.SetMinimum(0)
 			pull.SetFillColor(1)
 			pull.SetLineColor(1)
-			formatLowerHist(pull)
+			formatLowerHist(pull,iPlot)
 			pull.Draw("E0")#"E1")
 			
 			BkgOverBkg = pull.Clone("bkgOverbkg")
@@ -653,13 +653,13 @@ for tag in tagList:
 			lPad.cd()
 			pull=hData.Clone("pull")
 			for binNo in range(0,hData.GetNbinsX()+2):
-				if 'NJets' in discriminant: 
+				if 'NJets' in iPlot: 
 					#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
 					if binNo%2 == 0: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
 					else: pull.GetXaxis().SetBinLabel(binNo,'')
-				if 'NTJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
-				if 'NWJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
-				if 'NBJets' in discriminant: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NTJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NWJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
+				if 'NBJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
 				if hData.GetBinContent(binNo)!=0:
 					MCerror = 0.5*(totBkgTemp3[catStr].GetErrorYhigh(binNo-1)+totBkgTemp3[catStr].GetErrorYlow(binNo-1))
 					pull.SetBinContent(binNo,(hData.GetBinContent(binNo)-bkgHT.GetBinContent(binNo))/math.sqrt(MCerror**2+hData.GetBinError(binNo)**2))
@@ -672,7 +672,7 @@ for tag in tagList:
 			else:
 				pull.SetFillColor(kGray+2)
 				pull.SetLineColor(kGray+2)
-			formatLowerHist(pull)
+			formatLowerHist(pull,iPlot)
 			pull.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
 			pull.Draw("HIST")
 
@@ -1051,20 +1051,20 @@ for tag in tagList:
 		pullmerged=hDatamerged.Clone("pullmerged")
 		pullmerged.Divide(hDatamerged, bkgHTmerged)
 		for binNo in range(0,hDatamerged.GetNbinsX()+2):
-			if 'NJets' in discriminant: 
+			if 'NJets' in iPlot: 
 				#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
 				if binNo%2 == 0: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
 				else: pullmerged.GetXaxis().SetBinLabel(binNo,'')
-			if 'NTJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
-			if 'NWJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
-			if 'NBJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NTJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NWJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NBJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
 			if bkgHTmerged.GetBinContent(binNo)!=0:
 				pull.SetBinError(binNo,hDatamerged.GetBinError(binNo)/bkgHTmerged.GetBinContent(binNo))
 		pullmerged.SetMaximum(3)
 		pullmerged.SetMinimum(0)
 		pullmerged.SetFillColor(1)
 		pullmerged.SetLineColor(1)
-		formatLowerHist(pullmerged)
+		formatLowerHist(pullmerged,iPlot)
 		pullmerged.Draw("E0")#"E1")
 		
 		BkgOverBkgmerged = pullmerged.Clone("bkgOverbkgmerged")
@@ -1130,13 +1130,13 @@ for tag in tagList:
 		lPad.cd()
 		pullmerged=hDatamerged.Clone("pullmerged")
 		for binNo in range(0,hDatamerged.GetNbinsX()+2):
-			if 'NJets' in discriminant: 
+			if 'NJets' in iPlot: 
 				#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
 				if binNo%2 == 0: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
 				else: pullmerged.GetXaxis().SetBinLabel(binNo,'')
-			if 'NTJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
-			if 'NWJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
-			if 'NBJets' in discriminant: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NTJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NWJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
+			if 'NBJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
 			if hDatamerged.GetBinContent(binNo)!=0:
 				MCerror = 0.5*(totBkgTemp3['isL'+tagStr].GetErrorYhigh(binNo-1)+totBkgTemp3['isL'+tagStr].GetErrorYlow(binNo-1))
 				pullmerged.SetBinContent(binNo,(hDatamerged.GetBinContent(binNo)-bkgHTmerged.GetBinContent(binNo))/math.sqrt(MCerror**2+hDatamerged.GetBinError(binNo)**2))
@@ -1149,7 +1149,7 @@ for tag in tagList:
 		else:
 			pullmerged.SetFillColor(kGray+2)
 			pullmerged.SetLineColor(kGray+2)
-		formatLowerHist(pullmerged)
+		formatLowerHist(pullmerged,iPlot)
 		pullmerged.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
 		pullmerged.Draw("HIST")
 

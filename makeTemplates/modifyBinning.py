@@ -32,7 +32,7 @@ start_time = time.time()
 iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_2017_3_5/'+cutString
+templateDir = os.getcwd()+'/wjets_M17WtSF_2017_3_19/'+cutString
 combinefile = 'templates_'+iPlot+'_35p867fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
@@ -118,8 +118,8 @@ for hist in datahists:
 xbinsListTemp = {}
 for chn in totBkgHists.keys():
 	if 'isE' not in chn: continue
-	xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
-	Nbins = tfile.Get(datahists[0]).GetNbinsX()
+	xbinsListTemp[chn]=[totBkgHists[chn].GetXaxis().GetBinUpEdge(totBkgHists[chn].GetXaxis().GetNbins())]
+	Nbins = totBkgHists[chn].GetNbinsX()
 	totTempBinContent_E = 0.
 	totTempBinContent_M = 0.
 	totTempBinErrSquared_E = 0.
@@ -150,14 +150,14 @@ for chn in totBkgHists.keys():
 				totDataTempBinErrSquared_E = 0.
 				totDataTempBinErrSquared_M = 0.
 				xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
-	if xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
+	if xbinsListTemp[chn][-1]!=totBkgHists[chn].GetXaxis().GetBinLowEdge(1): xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(1))
 	if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
 		if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
 	elif totBkgHists[chn].GetBinError(1)/totBkgHists[chn].GetBinContent(1)>stat or totBkgHists[chn.replace('isE','isM')].GetBinError(1)/totBkgHists[chn.replace('isE','isM')].GetBinContent(1)>stat: 
 		if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
 	xbinsListTemp[chn.replace('isE','isM')]=xbinsListTemp[chn]
 	if stat>1.0:
-		xbinsListTemp[chn] = [tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
+		xbinsListTemp[chn] = [totBkgHists[chn].GetXaxis().GetBinUpEdge(totBkgHists[chn].GetXaxis().GetNbins())]
 		for iBin in range(1,Nbins+1): 
 			xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
 		xbinsListTemp[chn.replace('isE','isM')] = xbinsListTemp[chn]

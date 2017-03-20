@@ -13,7 +13,7 @@ if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_M17WtSF_'+date#+'_'+time
+pfix+='_M17WtSF_SD_'+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 # 			'lepPt',
