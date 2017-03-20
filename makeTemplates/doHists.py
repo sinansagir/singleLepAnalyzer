@@ -20,11 +20,7 @@ start_time = time.time()
 # args = parser.parse_args()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-#step1Dir = '/user_data/bhardwaj/LJMet_1lepCHiggs_110716_step2hadds_FullData2016_Fixed_JetsCut3_BJetsCut1/nominal'
-#step1Dir = '/user_data/jlee/chargedHiggs/LJMet_1lep_111816_step2preSel_aveBBdr_fixed/STEP2/nominal'
-#step1Dir = '/user_data/jlee/chargedHiggs/atLeast3B/newSample/normal/500'#BDT
-#step1Dir = '/user_data/ssagir/LJMet_1lep_120916_step2preSel/nominal'
-step1Dir = '/user_data/jlee/chargedHiggs/LJMet_1lep_120916_step2preSel_BDT/Condor/WeightAppliedOnFULL500/nominal'
+step1Dir = '/user_data/jlee/chargedHiggs/LHCP2017/TTbar/BDTGhalfTT_Brown_16vars_MLowMedHigh/nominal'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -33,34 +29,26 @@ The uncertainty shape shifted files will be taken from <step1Dir>/../<shape>/<pr
 where <shape> is for example "JECUp". hadder.py can be used to prepare input files this way! 
 --Each process given in the lists below must have a definition in "samples.py"
 --Check the set of cuts in "analyze.py"
-"""
-
+"""	
 bkgList = [
-		  'DY',
-		  'WJetsMG',
-# 		  'WJetsMG_bflv',
-# 		  'WJetsMG_cflv',
-# 		  'WJetsMG_lflv',
-		  'WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
-# 		  'WJetsMG100_bflv','WJetsMG200_bflv','WJetsMG400_bflv','WJetsMG600_bflv','WJetsMG800_bflv','WJetsMG1200_bflv','WJetsMG2500_bflv',
-# 		  'WJetsMG100_cflv','WJetsMG200_cflv','WJetsMG400_cflv','WJetsMG600_cflv','WJetsMG800_cflv','WJetsMG1200_cflv','WJetsMG2500_cflv',
-# 		  'WJetsMG100_lflv','WJetsMG200_lflv','WJetsMG400_lflv','WJetsMG600_lflv','WJetsMG800_lflv','WJetsMG1200_lflv','WJetsMG2500_lflv',
-		  'WW','WZ','ZZ',
-		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
-		  'TTJetsPH700mtt','TTJetsPH1000mtt',
-# 		  'TTJetsPH0to700inc_bbflv','TTJetsPH700to1000inc_bbflv','TTJetsPH1000toINFinc_bbflv',
-# 		  'TTJetsPH700mtt_bbflv','TTJetsPH1000mtt_bbflv',
-# 		  'TTJetsPH0to700inc_llflv','TTJetsPH700to1000inc_llflv','TTJetsPH1000toINFinc_llflv',
-# 		  'TTJetsPH700mtt_llflv','TTJetsPH1000mtt_llflv',
+		  'DYMG',
+		  #'WJetsMG',
+		  'WJetsHT100','WJetsHT200','WJetsHT400','WJetsHT600','WJetsHT800','WJetsHT1200','WJetsHT2500',
+          #'WJetsMGPt100','WJetsMGPt250','WJetsMGPt400','WJetsMGPt600',
+		  #'WW','WZ','ZZ',
+		  'TTJetsPH700to1000inc', 'TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt',
 		  'TTWl','TTWq','TTZl','TTZq',
 		  'Tt','Tbt','Ts','TtW','TbtW',
 		  'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
-
-dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']#'DataEPRC','DataEPRB','DataEPRD','DataMPRC','DataMPRB','DataMPRD']
+for ind in range(1,12): bkgList.append('TTJetsPH0to700inc_'+str(ind))
+#for ind in range(1,14): bkgList.append('TTJetsPHSL_'+str(ind))
+ttFlvs = ['_ttflv','_ttbbflv','_ttbjflv','_ttccflv','_ttcjflv','_ttllflv','_ttlfflv']
+dataList = ['DataERRB2H','DataMRRB2H']
 
 whichSignal = 'HTB' #HTB, TT, BB, or X53X53
-massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
+#massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
+massList = [180,200,220,250,300,400,500,800,1000,2000,3000]
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -68,14 +56,15 @@ if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' d
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 if whichSignal=='HTB': decays = ['']
 
-iPlot = 'HT' #choose a discriminant from plotList below!
+sigTrained = 'Low'
+if len(sys.argv)>10: sigTrained=sys.argv[10]
+iPlot = 'minMlbpBDT' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
 region = 'SR'
 if len(sys.argv)>3: region=sys.argv[3]
 isCategorized = 1
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
-isotrig = 0
-doJetRwt= 1
+doJetRwt= 0
 doAllSys= False
 doQ2sys = False
 q2List  = [#energy scale sample to be processed
@@ -84,7 +73,7 @@ q2List  = [#energy scale sample to be processed
 	       #'TtWQ2D','TbtWQ2D',
 	       ]
 
-cutList = {'lepPtCut':50,'metCut':30,'drCut':0,'jet1PtCut':50,'jet2PtCut':40,'jet3PtCut':0}
+cutList = {'lepPtCut':35,'metCut':30,'drCut':0,'jet1PtCut':40,'jet2PtCut':40,'jet3PtCut':0}
 
 cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
 #cutString += '_NJets'+str(int(cutList['njetsCut']))
@@ -100,7 +89,7 @@ datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix='templates'
 if not isCategorized: pfix='kinematics_'+region
-pfix+='_noWeight_'+datestr#+'_'+timestr
+pfix+='_'+datestr#+'_'+timestr
 		
 if len(sys.argv)>5: isEMlist=[str(sys.argv[5])]
 else: isEMlist = ['E','M']
@@ -111,11 +100,11 @@ else: nWtaglist = ['0p']
 if len(sys.argv)>8: nbtaglist=[str(sys.argv[8])]
 else: 
 	if not isCategorized: nbtaglist = ['2p']
-	else: nbtaglist = ['1','2','2p','3','3p','4p']#['2','3','3p','4p']
+	else: nbtaglist = ['1','2','2p','3p']
 if len(sys.argv)>9: njetslist=[str(sys.argv[9])]
 else:
 	if not isCategorized: njetslist = ['2p']
-	else: njetslist = ['3','4','5','6p']#['4','5','6p']
+	else: njetslist = ['3','4','5','6p']
 
 catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 
@@ -197,7 +186,6 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'NJets':('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity'),
 	'NBJetsNoSF':('NJetsCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity'),
 	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity'),
-	'BDT':('BDT',linspace(-1, 1, 37).tolist(),';BDT'),
 	'PtRel':('ptRel_lepJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
 	'LeadJetPt':('theJetLeadPt',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}) [GeV]'),
 	'aveBBdr':('aveBBdr',linspace(0, 6, 51).tolist(),';#bar{#DeltaR(b,b)}'),
@@ -214,10 +202,15 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
     'HT':('AK4HT',linspace(0, 3000, 51).tolist(),';H_{T} [GeV]'),
  	'ST':('AK4HTpMETpLepPt',linspace(0, 3000, 51).tolist(),';S_{T} [GeV]'),
 	'minMlb':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]'),
+	'BDT':('BDT'+sigTrained,linspace(-1, 1, 37).tolist(),';BDT'),
+	
+	'STpBDT':('AK4HTpMETpLepPt',linspace(0, 3000, 51).tolist(),';S_{T} [GeV]','BDT'+sigTrained,linspace(-1, 1, 37).tolist(),';BDT'),
+	'HTpBDT':('AK4HT',linspace(0, 3000, 51).tolist(),';H_{T} [GeV]','BDT'+sigTrained,linspace(-1, 1, 37).tolist(),';BDT'),
+	'minMlbpBDT':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]','BDT'+sigTrained,linspace(-1, 1, 37).tolist(),';BDT'),
 
 	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity',linspace(0, 10, 11).tolist(),';b tag multiplicity'),
 	}
-
+#plotList[iPlot][0] = plotList[iPlot][0]+str(massList[0])
 print "PLOTTING:",iPlot
 print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
@@ -231,7 +224,7 @@ nCats  = len(catList)
 catInd = 1
 for cat in catList:
  	if not runData: break
- 	if skip(cat[4],cat[3]): continue #DO YOU WANT TO HAVE THIS??
+ 	if skip(cat[4],cat[3]) and isCategorized: continue #DO YOU WANT TO HAVE THIS??
  	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
  	datahists = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
@@ -245,7 +238,7 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
  	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
  	for data in dataList: 
- 		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 		datahists.update(analyze(tTreeData,data,data,cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if catInd==nCats: del tFileData[data]
  	pickle.dump(datahists,open(outDir+'/datahists_'+iPlot+'.p','wb'))
  	catInd+=1
@@ -253,7 +246,7 @@ for cat in catList:
 catInd = 1
 for cat in catList:
  	if not runBkgs: break
- 	if skip(cat[4],cat[3]): continue #DO YOU WANT TO HAVE THIS??
+ 	if skip(cat[4],cat[3]) and isCategorized: continue #DO YOU WANT TO HAVE THIS??
  	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
  	bkghists  = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
@@ -267,14 +260,16 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
  	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
  	for bkg in bkgList: 
- 		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 		bkghists.update(analyze(tTreeBkg,bkg,bkg,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 		if 'TTJets' in bkg and len(ttFlvs)!=0:
+ 			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,bkg+flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if catInd==nCats: del tFileBkg[bkg]
  		if doAllSys and catInd==nCats:
  			for syst in shapesFiles:
  				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
  	if doQ2sys: 
  		for q2 in q2List: 
- 			bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 			bkghists.update(analyze(tTreeBkg,q2,q2,cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  			if catInd==nCats: del tFileBkg[q2]
 	pickle.dump(bkghists,open(outDir+'/bkghists_'+iPlot+'.p','wb'))
  	catInd+=1
@@ -282,7 +277,7 @@ for cat in catList:
 catInd = 1
 for cat in catList:
  	if not runSigs: break
- 	if skip(cat[4],cat[3]): continue #DO YOU WANT TO HAVE THIS??
+ 	if skip(cat[4],cat[3]) and isCategorized: continue #DO YOU WANT TO HAVE THIS??
  	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
  	sighists  = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
@@ -297,7 +292,7 @@ for cat in catList:
  	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
  	for sig in sigList: 
  		for decay in decays: 
- 			sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 			sighists.update(analyze(tTreeSig,sig+decay,sig+decay,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  			if catInd==nCats: del tFileSig[sig+decay]
  			if doAllSys and catInd==nCats:
  				for syst in shapesFiles:

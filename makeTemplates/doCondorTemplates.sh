@@ -10,10 +10,11 @@ nttag=$6
 nWtag=$7
 nbtag=$8
 njets=$9
+sigTrained=${10}
 
 source /cvmfs/cms.cern.ch/cmsset_default.sh
 
 cd $theDir
 eval `scramv1 runtime -sh`
 
-python doHists.py $condorDir $iPlot $region $isCategorized $isEM $nttag $nWtag $nbtag $njets
+python doHists.py $condorDir $iPlot $region $isCategorized $isEM $nttag $nWtag $nbtag $njets $sigTrained

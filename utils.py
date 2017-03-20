@@ -11,18 +11,19 @@ def skip_atlas(njets,nbjets): # function to skip certain categories in atlas cat
  	return False
 
 def skip(njets,nbjets): # function to skip certain categories in final categorization
- 	#return False #use if you want this function to do nothing!
- 	if nbjets=='2':
- 		if njets=='3': return True
- 	if nbjets=='2p':
- 		if njets!='3': return True
- 	if nbjets=='3':
- 		if njets=='3' or njets=='4': return True
- 	if nbjets=='3p':
- 		if njets=='3': return True
- 	if nbjets=='4p':
- 		if njets=='3' or njets=='4': return True
- 	return False
+ 	#return False
+ 	CRcats = [nbjets=='1' and njets=='4',
+ 			  nbjets=='1' and njets=='5',
+ 			  nbjets=='1' and njets=='6p',
+ 			  nbjets=='2p' and njets=='3',
+ 			  nbjets=='2' and njets=='4']
+ 	SRcats = [nbjets=='2' and njets=='5',
+ 			  nbjets=='2' and njets=='6p',
+ 			  nbjets=='3p' and njets=='4',
+ 			  nbjets=='3p' and njets=='5',
+ 			  nbjets=='3p' and njets=='6p']
+ 	if any(CRcats) or any(SRcats): return False
+ 	else: return True
 
 def isEqual(a, b):
     try:

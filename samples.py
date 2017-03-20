@@ -13,6 +13,9 @@ samples = {
 'DataERRBCDEFG':'SingleElectron_RRBCDEFG',
 'DataMRRBCDEFG':'SingleMuon_RRBCDEFG',
 
+'DataERRB2H':'SingleElectron_RRBCDEFGH',
+'DataMRRB2H':'SingleMuon_RRBCDEFGH',
+
 'HTBM180':'ChargedHiggs_HplusTB_HplusToTB_M-180_13TeV_amcatnlo_pythia8',
 'HTBM200':'ChargedHiggs_HplusTB_HplusToTB_M-200_13TeV_amcatnlo_pythia8',
 'HTBM220':'ChargedHiggs_HplusTB_HplusToTB_M-220_13TeV_amcatnlo_pythia8',
@@ -27,6 +30,19 @@ samples = {
 'HTBM1000':'ChargedHiggs_HplusTB_HplusToTB_M-1000_13TeV_amcatnlo_pythia8',
 'HTBM2000':'ChargedHiggs_HplusTB_HplusToTB_M-2000_13TeV_amcatnlo_pythia8',
 'HTBM3000':'ChargedHiggs_HplusTB_HplusToTB_M-3000_13TeV_amcatnlo_pythia8',
+
+'TTM700':'TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM800':'TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM900':'TprimeTprime_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1000':'TprimeTprime_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1100':'TprimeTprime_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1200':'TprimeTprime_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1300':'TprimeTprime_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1400':'TprimeTprime_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1500':'TprimeTprime_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1600':'TprimeTprime_M-1600_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1700':'TprimeTprime_M-1700_TuneCUETP8M1_13TeV-madgraph-pythia8',
+'TTM1800':'TprimeTprime_M-1800_TuneCUETP8M1_13TeV-madgraph-pythia8',
 
 'TTM700BWBW':'TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8_BWBW',
 'TTM800BWBW':'TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8_BWBW',
@@ -130,15 +146,26 @@ samples = {
 
 'DY':'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
 'DYMG':'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'DYMG100':'DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'DYMG200':'DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'DYMG400':'DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'DYMG600':'DYJetsToLL_M-50_HT-600to800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'DYMG800':'DYJetsToLL_M-50_HT-800to1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'DYMG1200':'DYJetsToLL_M-50_HT-1200to2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'DYMG2500':'DYJetsToLL_M-50_HT-2500toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
 
 'WJetsMG':'WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG100':'WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG200':'WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG400':'WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG600':'WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG800':'WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG1200':'WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'WJetsMG2500':'WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT100':'WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT200':'WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT400':'WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT600':'WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT800':'WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT1200':'WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsHT2500':'WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+'WJetsPt100':'WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+'WJetsPt250':'WJetsToLNu_Pt-250To400_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+'WJetsPt400':'WJetsToLNu_Pt-400To600_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+'WJetsPt600':'WJetsToLNu_Pt-600ToInf_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
 
 'WW':'WW_TuneCUETP8M1_13TeV-pythia8',
 'WZ':'WZ_TuneCUETP8M1_13TeV-pythia8',
@@ -148,21 +175,22 @@ samples = {
 'WJets':'WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
 
 'TTJetsMG':'TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
-'TTJetsPH':'TT_TuneCUETP8M1_13TeV-powheg-pythia8',
+'TTJetsPH':'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8',
+'TTJetsPHSL':'TTToSemilepton_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8',
 'TTJetsPHQ2U':'TT_TuneCUETP8M1_13TeV-powheg-scaleup-pythia8',
 'TTJetsPHQ2D':'TT_TuneCUETP8M1_13TeV-powheg-scaledown-pythia8',
-'TTJetsPH0to700inc':'TT_TuneCUETP8M1_13TeV-powheg-pythia8_Mtt0to700',
-'TTJetsPH700to1000inc':'TT_TuneCUETP8M1_13TeV-powheg-pythia8_Mtt700to1000',
-'TTJetsPH1000toINFinc':'TT_TuneCUETP8M1_13TeV-powheg-pythia8_Mtt1000toInf',
-'TTJetsPH700mtt':'TT_Mtt-700to1000_TuneCUETP8M1_13TeV-powheg-pythia8',
-'TTJetsPH1000mtt':'TT_Mtt-1000toInf_TuneCUETP8M1_13TeV-powheg-pythia8',
+'TTJetsPH0to700inc':'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_Mtt0to700',
+'TTJetsPH700to1000inc':'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_Mtt700to1000',
+'TTJetsPH1000toINFinc':'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_Mtt1000toInf',
+'TTJetsPH700mtt':'TT_Mtt-700to1000_TuneCUETP8M2T4_13TeV-powheg-pythia8',
+'TTJetsPH1000mtt':'TT_Mtt-1000toInf_TuneCUETP8M2T4_13TeV-powheg-pythia8',
 
 'TTWl':'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
 'TTWq':'TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
 'TTZl':'TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
 'TTZq':'TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
-'Tt':'ST_t-channel_top_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1', 
-'Tbt':'ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1', 
+'Tt':'ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1', 
+'Tbt':'ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1', 
 'TtQ2U':'ST_t-channel_4f_scaleup_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1',
 'TtQ2D':'ST_t-channel_4f_scaledown_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1',
 'Ts':'ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1',
@@ -183,12 +211,22 @@ samples = {
 'QCDht2000':'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
 }
 
-for smp in samples.keys():
-	if 'WJetsMG' in smp:
-		samples[smp+'_bflv']=samples[smp]
-		samples[smp+'_cflv']=samples[smp]
-		samples[smp+'_lflv']=samples[smp]
-	if 'TTJets' in smp:
-		samples[smp+'_bbflv']=samples[smp]
-		samples[smp+'_llflv']=samples[smp]
+for ind in range(1,14): samples['TTJetsPHSL_'+str(ind)]='TTToSemilepton_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_'+str(ind)
+for ind in range(1,12): samples['TTJetsPH0to700inc_'+str(ind)]='TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_Mtt0to700_'+str(ind)
+
+samples['WJetsHT100JSF']  = samples['WJetsHT100']
+samples['WJetsHT200JSF']  = samples['WJetsHT200']
+samples['WJetsHT400JSF']  = samples['WJetsHT400']
+samples['WJetsHT600JSF']  = samples['WJetsHT600']
+samples['WJetsHT800JSF']  = samples['WJetsHT800']
+samples['WJetsHT1200JSF'] = samples['WJetsHT1200']
+samples['WJetsHT2500JSF'] = samples['WJetsHT2500']
+samples['QCDht100JSF']  = samples['QCDht100']
+samples['QCDht200JSF']  = samples['QCDht200']
+samples['QCDht300JSF']  = samples['QCDht300']
+samples['QCDht500JSF']  = samples['QCDht500']
+samples['QCDht700JSF']  = samples['QCDht700']
+samples['QCDht1000JSF'] = samples['QCDht1000']
+samples['QCDht1500JSF'] = samples['QCDht1500']
+samples['QCDht2000JSF'] = samples['QCDht2000']
 

@@ -29,28 +29,35 @@ start_time = time.time()
 # -- Use "removalKeys" to remove specific systematics from the output file.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-iPlot='HT'
+iPlot='BDT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
+massPt='180'
+if len(sys.argv)>2: massPt=str(sys.argv[2])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_bkgSplit_wRwt_cats_2016_12_10/'+cutString
-combinefile = 'templates_'+iPlot+'_36p4fb_WJsplit_TTsplit.root'
-lumiStr = '36p4fb'
+templateDir = os.getcwd()+'/templates_BDTGfullTT_Brown_25vars_M'+massPt+'_2017_3_14/'+cutString
+# templateDir = '/user_data/jlee/PlotDirectory/ChargedHiggs/Templates/TemplatesForAllMassTrainedwithSys/'
+# templateDir+= 'templates_2017_1_1withSysTESTHaddFixed_3000/'
+# templateDir = '/user_data/jlee/PlotDirectory/ChargedHiggs/Templates/FOR_MORIOND2017/Templates_wo_sys_lep35_BDTG/'
+#templateDir+= 'templates_2017_3_12withnoSys_BDTG_lep35'+massPt+'/'
+outDir = templateDir#os.getcwd()+'/templates_BDTGfullTT_Comb_28vars_M'+massPt+'_2017_3_14/'
+combinefile = 'templates_'+iPlot+'_35p867fb.root'
+lumiStr = '35p867fb'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
-rebinCombine = False #else rebins theta templates
-doStatShapes = True
+rebinCombine = True #else rebins theta templates
+doStatShapes = False
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 sigName = 'HTB' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
-massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
+#massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
+massList = [180,200,220,250,300,350,400,500,800,1000,2000,3000]
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
 	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 #bkgProcList = ['ttbar','wjets','top','ewk','qcd'] #put the most dominant process first
-bkgProcList = ['ttbb','ttll','wjetsb','wjetsc','wjetsl','top','ewk','qcd'] #put the most dominant process first
-#bkgProcList = ['ttbar','wjetsb','wjetsc','wjetsl','top','ewk','qcd'] #put the most dominant process first
+bkgProcList = ['ttbb','ttcc','ttlf','wjets','top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
@@ -68,15 +75,16 @@ else: #theta
 
 addCRsys = False
 addShapes = True
-lumiSys = 0.062 #lumi uncertainty
-eltrigSys = 0.03 #electron trigger uncertainty
-mutrigSys = 0.011 #muon trigger uncertainty
-elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.011 #muon id uncertainty
+lumiSys = 0.027 #lumi uncertainty
+eltrigSys = 0.05 #electron trigger uncertainty
+mutrigSys = 0.05 #muon trigger uncertainty
+elIdSys = 0.02 #electron id uncertainty
+muIdSys = 0.03 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.03 #muon isolation uncertainty
-elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
-mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
+muIsoSys = 0.01 #muon isolation uncertainty
+htRwtSys = 0.#15
+elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**2)
+mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2)
 
 removalKeys = {} # True == keep, False == remove
 removalKeys['__btag']    = False
@@ -89,7 +97,7 @@ def findfiles(path, filtre):
             yield os.path.join(root, f)
 
 #Setup the selection of the files to be rebinned:          
-rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1] and 'WJsplit_TTsplit' in file.split('/')[-1]]
+rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]# and 'TTsplit' in file.split('/')[-1]]
 if rebinCombine: rfiles = [templateDir+'/'+combinefile]
 
 tfile = TFile(rfiles[0])
@@ -102,6 +110,7 @@ for hist in datahists:
 	channel = hist[hist.find('fb_')+3:hist.find('__')]
 	totBkgHists[channel]=tfile.Get(hist.replace('__'+dataName,'__'+bkgProcList[0])).Clone()
 	for proc in bkgProcList:
+		if proc==bkgProcList[0]: continue
 		try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__'+proc)))
 		except: 
 			print "Missing",proc,"for category:",hist
@@ -111,8 +120,8 @@ for hist in datahists:
 xbinsListTemp = {}
 for chn in totBkgHists.keys():
 	if 'isE' not in chn: continue
-	xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
-	Nbins = tfile.Get(datahists[0]).GetNbinsX()
+	xbinsListTemp[chn]=[totBkgHists[chn].GetXaxis().GetBinUpEdge(totBkgHists[chn].GetXaxis().GetNbins())]
+	Nbins = totBkgHists[chn].GetNbinsX()
 	totTempBinContent_E = 0.
 	totTempBinContent_M = 0.
 	totTempBinErrSquared_E = 0.
@@ -129,14 +138,14 @@ for chn in totBkgHists.keys():
 				totTempBinErrSquared_E = 0.
 				totTempBinErrSquared_M = 0.
 				xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
-	if xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
+	if xbinsListTemp[chn][-1]!=totBkgHists[chn].GetXaxis().GetBinLowEdge(1): xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(1))
 	if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
 		if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
 	elif totBkgHists[chn].GetBinError(1)/totBkgHists[chn].GetBinContent(1)>stat or totBkgHists[chn.replace('isE','isM')].GetBinError(1)/totBkgHists[chn.replace('isE','isM')].GetBinContent(1)>stat: 
 		if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
 	xbinsListTemp[chn.replace('isE','isM')]=xbinsListTemp[chn]
 	if stat>1.0:
-		xbinsListTemp[chn] = [tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
+		xbinsListTemp[chn] = [totBkgHists[chn].GetXaxis().GetBinUpEdge(totBkgHists[chn].GetXaxis().GetNbins())]
 		for iBin in range(1,Nbins+1): 
 			xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
 		xbinsListTemp[chn.replace('isE','isM')] = xbinsListTemp[chn]
@@ -164,9 +173,10 @@ for rfile in rfiles:
 	print "REBINNING FILE:",rfile
 	tfiles = {}
 	outputRfiles = {}
-	tfiles[iRfile] = TFile(rfile)	
-	outputRfiles[iRfile] = TFile(rfile.replace('.root','_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
-
+	tfiles[iRfile] = TFile(rfile)
+	if iPlot=='BDT' and rebinCombine:
+		outputRfiles[iRfile] = TFile(outDir+rfile.split('/')[-1].replace('_'+lumiStr+'.root','_HTBM'+str(massList[0])+'_'+lumiStr+'_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
+	else: outputRfiles[iRfile] = TFile(outDir+rfile.split('/')[-1].replace('.root','_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
 	print "PROGRESS:"
 	for chn in channels:
 		print "         ",chn
@@ -322,7 +332,7 @@ for rfile in rfiles:
 	iRfile+=1
 tfile.Close()
 print ">> Rebinning Done!"
-
+#os._exit(1)
 for chn in channels:
 	modTag = chn[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
@@ -417,8 +427,8 @@ for isEM in isEMlist:
 			row.append('\\\\')
 			table.append(row)
 
-channelsE= ['isE_nT0p_nW0p_nB1_nJ3', 
-			'isE_nT0p_nW0p_nB1_nJ4', 
+#redefine channels manually if the automatic order is not wanted!
+channelsE= ['isE_nT0p_nW0p_nB1_nJ4', 
 			'isE_nT0p_nW0p_nB1_nJ5', 
 			'isE_nT0p_nW0p_nB1_nJ6p', 
 			'isE_nT0p_nW0p_nB2p_nJ3', 
@@ -426,38 +436,27 @@ channelsE= ['isE_nT0p_nW0p_nB1_nJ3',
 			'isE_nT0p_nW0p_nB2_nJ5', 
 			'isE_nT0p_nW0p_nB2_nJ6p', 
 			'isE_nT0p_nW0p_nB3p_nJ4', 
-			'isE_nT0p_nW0p_nB3_nJ5', 
-			'isE_nT0p_nW0p_nB3_nJ6p', 
-			'isE_nT0p_nW0p_nB4p_nJ5', 
-			'isE_nT0p_nW0p_nB4p_nJ6p',
 			'isE_nT0p_nW0p_nB3p_nJ5', 
 			'isE_nT0p_nW0p_nB3p_nJ6p', 
 			]
+
 channels = channelsE[:]
 for chn in channelsE: channels.append(chn.replace('isE','isM'))
 
-chnGroups= [['isE_nT0p_nW0p_nB1_nJ3', 
-			 'isE_nT0p_nW0p_nB1_nJ4', 
+chnGroups= [['isE_nT0p_nW0p_nB1_nJ4', 
 			 'isE_nT0p_nW0p_nB1_nJ5', 
-			 'isE_nT0p_nW0p_nB1_nJ6p'
-			 ],
-			['isE_nT0p_nW0p_nB2p_nJ3', 
-			 'isE_nT0p_nW0p_nB2_nJ4'
+			 'isE_nT0p_nW0p_nB1_nJ6p',
+			 'isE_nT0p_nW0p_nB2p_nJ3', 
+			 'isE_nT0p_nW0p_nB2_nJ4',
 			 ], 
 			['isE_nT0p_nW0p_nB2_nJ5', 
 		     'isE_nT0p_nW0p_nB2_nJ6p', 
-			 'isE_nT0p_nW0p_nB3p_nJ4', 
-			 'isE_nT0p_nW0p_nB3_nJ5'
-			 ], 
-			['isE_nT0p_nW0p_nB3_nJ6p', 
-			 'isE_nT0p_nW0p_nB4p_nJ5', 
-			 'isE_nT0p_nW0p_nB4p_nJ6p'
-			 ],
-			['isE_nT0p_nW0p_nB3p_nJ5', 
-			 'isE_nT0p_nW0p_nB3p_nJ6p'
+			 'isE_nT0p_nW0p_nB3p_nJ4',
+			 'isE_nT0p_nW0p_nB3p_nJ5', 
+			 'isE_nT0p_nW0p_nB3p_nJ6p',
 			 ]
 			]
-
+			
 grInd = 0			
 for chngr in chnGroups:
 	table.append(['break'])
@@ -565,27 +564,6 @@ if not addCRsys: postFix+='_noCRunc'
 out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
 printTable(table,out)
 
-#redefine channels manually if the automatic order is not wanted!
-#channels = [chn for chn in channels if 'nB1_nJ6p' not in chn and 'nB2_nJ6p' not in chn and 'nB4p_nJ5' not in chn and 'nB4p_nJ6p' not in chn]
-channelsE= ['isE_nT0p_nW0p_nB1_nJ3', 
-			'isE_nT0p_nW0p_nB1_nJ4', 
-			'isE_nT0p_nW0p_nB1_nJ5', 
-			'isE_nT0p_nW0p_nB1_nJ6p', 
-			'isE_nT0p_nW0p_nB2p_nJ3', 
-			'isE_nT0p_nW0p_nB2_nJ4', 
-			'isE_nT0p_nW0p_nB2_nJ5', 
-			'isE_nT0p_nW0p_nB2_nJ6p', 
-			'isE_nT0p_nW0p_nB3p_nJ4', 
-			'isE_nT0p_nW0p_nB3_nJ5', 
-			'isE_nT0p_nW0p_nB3_nJ6p', 
-			'isE_nT0p_nW0p_nB4p_nJ5', 
-			'isE_nT0p_nW0p_nB4p_nJ6p',
-			'isE_nT0p_nW0p_nB3p_nJ5', 
-			'isE_nT0p_nW0p_nB3p_nJ6p', 
-			]
-channels = channelsE[:]
-for chn in channelsE: channels.append(chn.replace('isE','isM'))
-
 print "       WRITING SUMMARY TEMPLATES: "
 fileTag = combinefile[combinefile.find(lumiStr):-5]
 for signal in sigProcList:
@@ -637,7 +615,7 @@ for signal in sigProcList:
 				if proc==dataName:
 					yldTempDataBlind = yldTemp
 					yldErrTempDataBlind = yldErrTemp
-					if ibin>6:
+					if ibin>5:
 						yldTempDataBlind = 0
 						yldErrTempDataBlind = 0
 					yldHists[isEM+proc+'blind'].SetBinContent(ibin,yldTempDataBlind)

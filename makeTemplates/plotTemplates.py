@@ -11,26 +11,20 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=36 #for plots
+lumi=35.9 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #SR,PS
 isCategorized=True
-iPlot='BDT'
+iPlot='minMlbpBDT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
 if not isCategorized: pfix='kinematics_'+region
-templateDir=os.getcwd()+'/'+pfix+'_BDT_2016_12_19/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_BDTGfullTT_Comb_28vars_MLow_2017_3_14/'+cutString+'/'
 
-useHTbinned = True
-splitWJets = False
-splitTTbar = False
-isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
-if not useHTbinned: isRebinned+='_incWjets'
-if splitWJets: isRebinned+='_WJsplit'
-if splitTTbar: isRebinned+='_TTsplit'
-isRebinned+=''#'_rebinned_stat0p3'
+splitTTbar = True
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig1='HTBM200' # choose the 1st signal to plot
@@ -41,13 +35,11 @@ scaleSignals = True
 scaleFact1 = 100
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-if splitWJets and not splitTTbar: bkgProcList = ['wjetsb','wjetsc','wjetsl','ttbar','top','ewk','qcd']
-elif not splitWJets and splitTTbar: bkgProcList = ['wjets','ttbb','ttll','top','ewk','qcd']
-elif splitWJets and splitTTbar: bkgProcList = ['wjetsb','wjetsc','wjetsl','ttbb','ttll','top','ewk','qcd']
+if splitTTbar: bkgProcList = ['ttbb','ttcc','ttlf','wjets','top','ewk','qcd']
 else: bkgProcList = ['ttbar','wjets','top','ewk','qcd']
 
 if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X53X53
-elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'ttbb':kGreen-3,'ttll':kGreen+3,'wjetsb':kRed-9,'wjetsc':kPink-4,'wjetsl':kBlue-7,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
+elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'ttbb':kGreen-3,'ttcc':kGreen,'ttlf':kGreen+3,'wjetsb':kRed-9,'wjetsc':kPink-4,'wjetsl':kBlue-7,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
 systematicList = ['pileup','jec','jer','toppt','pdfNew','muRFcorrdNew']#,'TrigEff','btag','mistag']
@@ -55,7 +47,7 @@ doAllSys = False
 doQ2sys  = True
 if not doAllSys: doQ2sys = False
 addCRsys = False
-doNormByBinWidth=False
+doNormByBinWidth=True
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
@@ -63,13 +55,12 @@ blindYLD = False
 yLog  = False
 doRealPull = False
 if doRealPull: doOneBand=False
+drawYields = False
 
 isEMlist =['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-# nbtaglist = ['2','3','3p','4p']
-# njetslist = ['4','5','6p']
-nbtaglist = ['1','2','2p','3','3p','4p']
+nbtaglist = ['1','2','2p','3p']
 njetslist = ['3','4','5','6p']
 # nbtaglist = ['1','2','3p']
 # njetslist = ['4p']
@@ -85,9 +76,9 @@ if iPlot=='YLD':
 	njetslist = ['0p']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
 
-lumiSys = 0.062 # lumi uncertainty
-trigSys = 0.03 # trigger uncertainty
-lepIdSys = 0.011 # lepton id uncertainty
+lumiSys = 0.027 # lumi uncertainty
+trigSys = 0.05 # trigger uncertainty
+lepIdSys = 0.03 # lepton id uncertainty
 lepIsoSys = 0.01 # lepton isolation uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total e/m values are close
 
@@ -278,6 +269,11 @@ for tag in tagList:
 				bkghists[proc+catStr].SetFillColor(bkgHistColors[proc])
 				bkghists[proc+catStr].SetLineWidth(2)
 			except: pass
+			
+		if drawYields: 
+			bkgHT.SetMarkerSize(4)
+			bkgHT.SetMarkerColor(rt.kRed)
+
 		hsig1.SetLineColor(sig1Color)
 		hsig1.SetFillStyle(0)
 		hsig1.SetLineWidth(3)
@@ -286,9 +282,11 @@ for tag in tagList:
 		hsig2.SetFillStyle(0)
 		hsig2.SetLineWidth(3)
 		
+		if not drawYields: hData.SetMarkerStyle(20)
 		hData.SetMarkerStyle(20)
 		hData.SetMarkerSize(1.2)
 		hData.SetLineWidth(2)
+		if drawYields: hData.SetMarkerSize(4)
 
 		bkgHTgerr.SetFillStyle(3004)
 		bkgHTgerr.SetFillColor(kBlack)
@@ -332,9 +330,14 @@ for tag in tagList:
 			hsig1.SetMaximum(hData.GetMaximum())
 			hsig1.Draw("HIST")
 		stackbkgHT.Draw("SAME HIST")
+		if drawYields: 
+			rt.gStyle.SetPaintTextFormat("1.0f")
+			bkgHT.Draw("SAME TEXT90")
 		hsig1.Draw("SAME HIST")
 		hsig2.Draw("SAME HIST")
-		if not blind: hData.Draw("SAME E1 X0") #redraw data so its not hidden
+		if not blind: 
+			hData.Draw("SAME E1 X0") #redraw data so its not hidden
+			if drawYields: hData.Draw("SAME TEXT00") 
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
 		
@@ -363,15 +366,15 @@ for tag in tagList:
 		chLatex.DrawLatex(0.26, 0.84, flvString)
 		chLatex.DrawLatex(0.26, 0.78, tagString)
 
-		if drawQCD: leg = TLegend(0.45,0.52,0.95,0.87)
-		if not drawQCD or blind: leg = TLegend(0.45,0.64,0.95,0.89)
+		if drawQCD: leg = TLegend(0.65,0.22,0.95,0.87)
+		if not drawQCD or blind: leg = TLegend(0.65,0.24,0.95,0.89)
 		leg.SetShadowColor(0)
 		leg.SetFillColor(0)
 		leg.SetFillStyle(0)
 		leg.SetLineColor(0)
 		leg.SetLineStyle(0)
 		leg.SetBorderSize(0) 
-		leg.SetNColumns(2)
+		leg.SetNColumns(1)
 		leg.SetTextFont(62)#42)
 		scaleFact1Str = ' x'+str(scaleFact1)
 		scaleFact2Str = ' x'+str(scaleFact2)
@@ -400,9 +403,11 @@ for tag in tagList:
 					leg.AddEntry(bkghists['ttbar'+catStr],"t#bar{t}","f")
 					leg.AddEntry(0, "", "")
 				except: pass
-				try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}bb","f")
+				try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b(b)","f")
 				except: pass
-				try: leg.AddEntry(bkghists['ttll'+catStr],"t#bar{t}ll","f")
+				try: leg.AddEntry(bkghists['ttcc'+catStr],"t#bar{t}+c(c)","f")
+				except: pass
+				try: leg.AddEntry(bkghists['ttlf'+catStr],"t#bar{t}+lf","f")
 				except: pass
 				leg.AddEntry(hData,"DATA")
 			else:
@@ -691,6 +696,10 @@ for tag in tagList:
 			bkghistsmerged[proc+'isL'+tagStr].SetFillColor(bkgHistColors[proc])
 			bkghistsmerged[proc+'isL'+tagStr].SetLineWidth(2)
 		except: pass
+	if drawYields: 
+		bkgHTmerged.SetMarkerSize(4)
+		bkgHTmerged.SetMarkerColor(rt.kRed)
+
 	hsig1merged.SetLineColor(sig1Color)
 	hsig1merged.SetFillStyle(0)
 	hsig1merged.SetLineWidth(3)
@@ -699,9 +708,11 @@ for tag in tagList:
 	hsig2merged.SetFillStyle(0)
 	hsig2merged.SetLineWidth(3)
 	
+	if not drawYields: hDatamerged.SetMarkerStyle(20)
 	hDatamerged.SetMarkerStyle(20)
 	hDatamerged.SetMarkerSize(1.2)
 	hDatamerged.SetLineWidth(2)
+	if drawYields: hDatamerged.SetMarkerSize(4)
 
 	bkgHTgerrmerged.SetFillStyle(3004)
 	bkgHTgerrmerged.SetFillColor(kBlack)
@@ -745,9 +756,14 @@ for tag in tagList:
 		hsig1merged.SetMaximum(hDatamerged.GetMaximum())
 		hsig1merged.Draw("HIST")
 	stackbkgHTmerged.Draw("SAME HIST")
+	if drawYields: 
+		rt.gStyle.SetPaintTextFormat("1.0f")
+		bkgHTmerged.Draw("SAME TEXT90")
 	hsig1merged.Draw("SAME HIST")
 	hsig2merged.Draw("SAME HIST")
-	if not blind: hDatamerged.Draw("SAME E1 X0") #redraw data so its not hidden
+	if not blind: 
+		hDatamerged.Draw("SAME E1 X0") #redraw data so its not hidden
+		if drawYields: hDatamerged.Draw("SAME TEXT00") 
 	uPad.RedrawAxis()
 	bkgHTgerrmerged.Draw("SAME E2")
 
@@ -774,15 +790,15 @@ for tag in tagList:
 	chLatexmerged.DrawLatex(0.26, 0.85, flvString)
 	chLatexmerged.DrawLatex(0.26, 0.78, tagString)
 
-	if drawQCDmerged: legmerged = TLegend(0.45,0.52,0.95,0.87)
-	if not drawQCDmerged or blind: legmerged = TLegend(0.45,0.64,0.95,0.89)
+	if drawQCDmerged: legmerged = TLegend(0.65,0.22,0.95,0.87)
+	if not drawQCDmerged or blind: legmerged = TLegend(0.65,0.24,0.95,0.89)
 	legmerged.SetShadowColor(0)
 	legmerged.SetFillColor(0)
 	legmerged.SetFillStyle(0)
 	legmerged.SetLineColor(0)
 	legmerged.SetLineStyle(0)
 	legmerged.SetBorderSize(0) 
-	legmerged.SetNColumns(2)
+	legmerged.SetNColumns(1)
 	legmerged.SetTextFont(62)#42)
 	scaleFact1Str = ' x'+str(scaleFact1)
 	scaleFact2Str = ' x'+str(scaleFact2)
@@ -811,9 +827,11 @@ for tag in tagList:
 				legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
 				legmerged.AddEntry(0, "", "")
 			except: pass
-			try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}bb","f")
+			try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}+b(b)","f")
 			except: pass
-			try: legmerged.AddEntry(bkghistsmerged['ttllisL'+tagStr],"t#bar{t}ll","f")
+			try: legmerged.AddEntry(bkghistsmerged['ttccisL'+tagStr],"t#bar{t}+c(c)","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['ttlfisL'+tagStr],"t#bar{t}+lf","f")
 			except: pass
 			legmerged.AddEntry(hDatamerged,"DATA")
 		else:
@@ -830,9 +848,11 @@ for tag in tagList:
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 			try: legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
 			except: pass
-			try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}bb","f")
+			try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}+b(b)","f")
 			except: pass
-			try: legmerged.AddEntry(bkghistsmerged['ttllisL'+tagStr],"t#bar{t}ll","f")
+			try: legmerged.AddEntry(bkghistsmerged['ttccisL'+tagStr],"t#bar{t}+c(c)","f")
+			except: pass
+			try: legmerged.AddEntry(bkghistsmerged['ttlfisL'+tagStr],"t#bar{t}+lf","f")
 			except: pass
 	if not drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
@@ -852,9 +872,11 @@ for tag in tagList:
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert.","f")
 		try: legmerged.AddEntry(bkghistsmerged['ttbarisL'+tagStr],"t#bar{t}","f")
 		except: pass
-		try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}bb","f")
+		try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}+b(b)","f")
 		except: pass
-		try: legmerged.AddEntry(bkghistsmerged['ttllisL'+tagStr],"t#bar{t}ll","f")
+		try: legmerged.AddEntry(bkghistsmerged['ttccisL'+tagStr],"t#bar{t}+c(c)","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['ttlfisL'+tagStr],"t#bar{t}+lf","f")
 		except: pass
 		if not blind: legmerged.AddEntry(hDatamerged,"DATA")
 	legmerged.Draw("same")
