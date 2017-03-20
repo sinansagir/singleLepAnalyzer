@@ -92,10 +92,31 @@ nRun['QCDht700'] = 45412780.
 nRun['QCDht1000'] = 15127293.
 nRun['QCDht1500'] = 11826702.
 nRun['QCDht2000'] = 6039005.
-nRun['TTWl'] = 130275. #from 252673
+nRun['TTWl'] = 2716249. #from 5280565
 nRun['TTWq'] = 430310. #from 833298
-nRun['TTZl'] = 185232. #from 398600
+nRun['TTZl'] = 927976. #from 1992438
 nRun['TTZq'] = 351164. #from 749400
+nRun['TTG']  = 4777013. #from 14756259
+
+nRun['TTTT'] = 1023172. #from 2456040
+nRun['VHnonbb'] = 461452. #from 1007898
+nRun['WHbb'] = 1279827. #from 2179687
+nRun['WWW'] = 210538. #from 240000
+nRun['WWZ'] = 221468. #from 250000
+nRun['WZZ'] = 216366. #from 246800
+nRun['ZZZ'] = 213197. #from 249237
+nRun['WWllnn'] = 1999000. 
+nRun['WWlnqq'] = 1999200.+6998600. 
+nRun['WZlnqq'] = 14057875. #from 24221923
+nRun['WZlnnn'] = 942046. #from 1703772
+nRun['WZllqq'] = 15879472. #from 26517272
+nRun['WZllln'] = 1993200.
+nRun['ZZllnn'] = 8842475.
+nRun['ZZllqq'] = 9688612. #from 15345572
+nRun['ZZllll'] = 6669988.
+nRun['tZq'] = 3846170. #from 14509520
+nRun['ttHbb'] = 2910760. #from 9794226
+nRun['ttHnonbb'] = 3905798. #from 3981250
 
 nRun['HTBM180'] = 404688. #Ngen=1499270
 nRun['HTBM200'] = 400501. #Ngen=1473805
@@ -104,12 +125,12 @@ nRun['HTBM250'] = 395891. #Ngen=1491475
 nRun['HTBM300'] = 390646. #Ngen=1497522
 nRun['HTBM350'] = 390221. #Ngen=1496373
 nRun['HTBM400'] = 387746. #Ngen=1496088
-nRun['HTBM450'] = 379926. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!!
+nRun['HTBM450'] = 379926. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!! Sample not available yet
 nRun['HTBM500'] = 400004. #Ngen=1500000
-nRun['HTBM750'] = 377320. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!!
+nRun['HTBM750'] = 377320. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!! Sample not available yet
 nRun['HTBM800'] = 376326. #Ngen=1494646
-nRun['HTBM1000'] = (376326./1494646.)*1491600. #Ngen=1491600 CHECK NEG COUNT in MORIOND17!!!!! (estimating from 800GeV)
-nRun['HTBM2000'] = (376326./1494646.)*1500000. #Ngen=1500000 CHECK NEG COUNT in MORIOND17!!!!! (estimating from 800GeV)
+nRun['HTBM1000'] = 376708. #Ngen=1491600
+nRun['HTBM2000'] = 373174. #Ngen=1500000
 nRun['HTBM3000'] = 377717. #Ngen=1497017
 
 nRun['TTM700BWBW'] = 798600.0*0.333*0.333 #not used
@@ -330,11 +351,32 @@ xsec['TTZl'] = 0.2529 # from McM
 xsec['TTZq'] = 0.5297 # from McM
 xsec['TTWl'] = 0.2043 # from McM
 xsec['TTWq'] = 0.4062 # from McM
+xsec['TTG'] = 3.697
 xsec['Tt'] = 136.02 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['Tbt'] = 80.95 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['Ts'] = 11.36/3 #(1/3 was suggested by Thomas Peiffer to account for the leptonic branching ratio)# https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['TtW'] = 35.85 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['TbtW'] = 35.85 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
+
+xsec['TTTT'] = 0.009103
+xsec['VHnonbb'] = 0.952
+xsec['WHbb'] = 0.419
+xsec['WWW'] = 0.2086
+xsec['WWZ'] = 0.1651
+xsec['WZZ'] = 0.05565
+xsec['ZZZ'] = 0.01398
+xsec['WWllnn'] = 12.178
+xsec['WWlnqq'] = 49.997
+xsec['WZlnqq'] = 10.71
+xsec['WZlnnn'] = 3.033
+xsec['WZllqq'] = 5.595
+xsec['WZllln'] = 4.42965
+xsec['ZZllnn'] = 0.564
+xsec['ZZllqq'] = 3.22
+xsec['ZZllll'] = 1.256
+xsec['tZq'] = 0.0758
+xsec['ttHbb'] = 0.2934045
+xsec['ttHnonbb'] = 0.215
 
 #Scaling all HTB signal x-secs to 1pb as agreed with POM, 
 #so we have the signal yields scaled to 1pb

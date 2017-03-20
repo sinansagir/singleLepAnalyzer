@@ -34,11 +34,13 @@ bkgList = [
 		  'DYMG',
 		  #'WJetsMG',
 		  'WJetsHT100','WJetsHT200','WJetsHT400','WJetsHT600','WJetsHT800','WJetsHT1200','WJetsHT2500',
-          #'WJetsMGPt100','WJetsMGPt250','WJetsMGPt400','WJetsMGPt600',
-		  #'WW','WZ','ZZ',
+		  'VHnonbb','WHbb',
+		  'WWW','WWZ','WZZ','ZZZ',
+		  'WWllnn','WWlnqq','WZlnqq','WZlnnn','WZllqq','WZllln','ZZllnn','ZZllqq','ZZllll',
 		  'TTJetsPH700to1000inc', 'TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt',
-		  'TTWl','TTWq','TTZl','TTZq',
 		  'Tt','Tbt','Ts','TtW','TbtW',
+		  'TTWl','TTWq','TTZl','TTZq','TTG',
+		  'TTTT','tZq','ttHbb','ttHnonbb',
 		  'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
 for ind in range(1,12): bkgList.append('TTJetsPH0to700inc_'+str(ind))

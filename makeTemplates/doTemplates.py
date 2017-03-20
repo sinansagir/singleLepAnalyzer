@@ -13,12 +13,15 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
+massPt='180'
+if len(sys.argv)>1: massPt=str(sys.argv[1])
 region='SR' #PS,SR
 isCategorized=True
-cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
-pfix='templates_'
+cutString=''#'lep35_MET30_DR0_1jet40_2jet40'
+pfix='templates_BDTGfullTT_Brown_25vars_M'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='BDT_2016_12_19'
+pfix+=massPt+'_2017_3_14'
+#pfix = 'Templates_wo_sys_lep35_BDTG/templates_2017_3_10withnoSys_BDTG_lep35'+str(massPt)
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -31,59 +34,49 @@ addCRsys = False
 systematicList = ['pileup','jec','jer','toppt','muR','muF','muRFcorrd','jsf','btag','mistag','trigeff']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 
-useHTbinned = True
-if not useHTbinned: saveKey = '_incWjets'
-else: saveKey = ''
-splitWJets = False
-splitTTbar = False		       
-if splitWJets and not splitTTbar: 
-	bkgGrupList = ['ttbar','wjetsb','wjetsc','wjetsl','top','ewk','qcd']
-	bkgProcList = ['TTJets','T','TTV','WJetsB','WJetsC','WJetsL','ZJets','VV','qcd']
-elif not splitWJets and splitTTbar: 
-	bkgGrupList = ['ttbb','ttll','wjets','top','ewk','qcd']
-	bkgProcList = ['TTBB','TTLL','T','TTV','WJets','ZJets','VV','qcd']
-elif splitWJets and splitTTbar: 
-	bkgGrupList = ['ttbb','ttll','wjetsb','wjetsc','wjetsl','top','ewk','qcd']
-	bkgProcList = ['TTBB','TTLL','T','TTV','WJetsB','WJetsC','WJetsL','ZJets','VV','qcd']
+saveKey = ''
+splitTTbar = True
+if splitTTbar: 
+	bkgGrupList = ['ttbb','ttcc','ttlf','top','ewk','qcd']
+	bkgProcList = ['TTBB','TTCC','TTLF','T','TTV','WJets','ZJets','qcd']#,'VV'
 else:
-	bkgGrupList = ['ttbar','wjets','top','ewk','qcd']
+	bkgGrupList = ['ttbar','top','ewk','qcd']
 	bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
 bkgProcs = {}
-if useHTbinned:
-	bkgProcs['WJetsB'] = ['WJetsMG100_bflv','WJetsMG200_bflv','WJetsMG400_bflv','WJetsMG600_bflv','WJetsMG800_bflv','WJetsMG1200_bflv','WJetsMG2500_bflv']
-	bkgProcs['WJetsC'] = ['WJetsMG100_cflv','WJetsMG200_cflv','WJetsMG400_cflv','WJetsMG600_cflv','WJetsMG800_cflv','WJetsMG1200_cflv','WJetsMG2500_cflv']
-	bkgProcs['WJetsL'] = ['WJetsMG100_lflv','WJetsMG200_lflv','WJetsMG400_lflv','WJetsMG600_lflv','WJetsMG800_lflv','WJetsMG1200_lflv','WJetsMG2500_lflv']
-	bkgProcs['WJets']  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']
-else:
-	bkgProcs['WJetsB'] = ['WJetsMG_bflv']
-	bkgProcs['WJetsC'] = ['WJetsMG_cflv']
-	bkgProcs['WJetsL'] = ['WJetsMG_lflv']
-	bkgProcs['WJets']  = ['WJetsMG']
-bkgProcs['ZJets'] = ['DY']
-bkgProcs['VV']    = ['WW','WZ','ZZ']
-bkgProcs['TTV']   = ['TTWl','TTWq','TTZl','TTZq']
-bkgProcs['TTBB']  = ['TTJetsPH0to700inc_bbflv','TTJetsPH700to1000inc_bbflv','TTJetsPH1000toINFinc_bbflv','TTJetsPH700mtt_bbflv','TTJetsPH1000mtt_bbflv']
-bkgProcs['TTLL']  = ['TTJetsPH0to700inc_llflv','TTJetsPH700to1000inc_llflv','TTJetsPH1000toINFinc_llflv','TTJetsPH700mtt_llflv','TTJetsPH1000mtt_llflv']
-bkgProcs['TTJets']= ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
+bkgProcs['WJets']  = ['WJetsHT100','WJetsHT200','WJetsHT400','WJetsHT600','WJetsHT800','WJetsHT1200','WJetsHT2500']
+bkgProcs['ZJets'] = ['DYMG']
+bkgProcs['VV']    = ['WWllnn','WWlnqq','WZlnqq','WZlnnn','WZllqq','WZllln','ZZllnn','ZZllqq','ZZllll']
+bkgProcs['VVV']   = ['WWW','WWZ','WZZ','ZZZ']
+bkgProcs['TTV']   = ['TTWl','TTWq','TTZl','TTZq','TTG']
+bkgProcs['OtherT']= ['TTTT','tZq','ttHbb','ttHnonbb']
+bkgProcs['OtherV']= ['VHnonbb','WHbb']
+#bkgProcs['TTJets']= ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
+#bkgProcs['TTJets'] = ['TTJetsPH0to700inc_'+str(i) for i in range(1,12)]
+#bkgProcs['TTJets']+= ['TTJetsPH700to1000inc', 'TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
+bkgProcs['TTJets'] = ['TTJetsPHSL_'+str(i) for i in range(1,14)]
+bkgProcs['TTBB']  = [tt+'_ttbbflv' for tt in bkgProcs['TTJets']]+[tt+'_ttbjflv' for tt in bkgProcs['TTJets']]
+bkgProcs['TTCC']  = [tt+'_ttccflv' for tt in bkgProcs['TTJets']]+[tt+'_ttcjflv' for tt in bkgProcs['TTJets']]
+bkgProcs['TTLF']  = [tt+'_ttllflv' for tt in bkgProcs['TTJets']]+[tt+'_ttlfflv' for tt in bkgProcs['TTJets']]+[tt+'_ttflv' for tt in bkgProcs['TTJets']]
 bkgProcs['T']     = ['Tt','Tbt','Ts','TtW','TbtW']
 bkgProcs['qcd']   = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
-bkgProcs['top']   = bkgProcs['TTV']+bkgProcs['T']
-bkgProcs['ewk']   = bkgProcs['ZJets']+bkgProcs['VV']
+bkgProcs['top']   = bkgProcs['TTV']+bkgProcs['T']+bkgProcs['OtherT']
+bkgProcs['ewk']   = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV']+bkgProcs['VVV']+bkgProcs['OtherV']
 bkgProcs['ttbb']  = bkgProcs['TTBB']
-bkgProcs['ttll']  = bkgProcs['TTLL']
-bkgProcs['wjetsb']= bkgProcs['WJetsB']
-bkgProcs['wjetsc']= bkgProcs['WJetsC']
-bkgProcs['wjetsl']= bkgProcs['WJetsL']
+bkgProcs['ttcc']  = bkgProcs['TTCC']
+bkgProcs['ttlf']  = bkgProcs['TTLF']
 bkgProcs['ttbar'] = bkgProcs['TTJets']
 bkgProcs['wjets'] = bkgProcs['WJets']
-dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
+#dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
+dataList = ['DataERRB2H','DataMRRB2H']
 
 topptProcs = ['ttbar','TTJets']
 bkgProcs['ttbar_q2up'] = ['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
 bkgProcs['ttbar_q2dn'] = ['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
 
 whichSignal = 'HTB' #HTB, TT, BB, or X53X53
-massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
+#massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
+massList = [massPt]#180,200,220,250,300,350,400,500,800,3000]
+massList = [180,200,220,250,300,350,400,500,800,1000,2000,3000]
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -102,9 +95,7 @@ if not doBRScan: nBRconf=1
 isEMlist =['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-# nbtaglist = ['2','3','3p','4p']
-# njetslist = ['4','5','6p']
-nbtaglist = ['1','2','2p','3','3p','4p']
+nbtaglist = ['1','2','2p','3p']
 njetslist = ['3','4','5','6p']
 # nbtaglist = ['1','2','3p']
 # njetslist = ['4p']
@@ -116,13 +107,13 @@ if not isCategorized:
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[4] ,item[3])]
 tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[3] ,item[2])]
 
-lumiSys = 0.062 #lumi uncertainty
-eltrigSys = 0.03 #electron trigger uncertainty
-mutrigSys = 0.011 #muon trigger uncertainty
-elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.011 #muon id uncertainty
+lumiSys = 0.027 #lumi uncertainty
+eltrigSys = 0.05 #electron trigger uncertainty
+mutrigSys = 0.05 #muon trigger uncertainty
+elIdSys = 0.02 #electron id uncertainty
+muIdSys = 0.03 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.03 #muon isolation uncertainty
+muIsoSys = 0.01 #muon isolation uncertainty
 
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
@@ -135,11 +126,6 @@ for tag in tagList:
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
 
-if splitWJets: saveKey += '_WJsplit'
-if splitTTbar: saveKey += '_TTsplit'
-	
-# if 'CR' in region: postTag = 'isCR_'
-# else: postTag = 'isSR_'
 ###########################################################
 #################### CATEGORIZATION #######################
 ###########################################################
@@ -601,7 +587,7 @@ for iPlot in iPlotList:
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
 
-	if iPlot=='BDTTT':
+	if iPlot=='BDTdontscale':
 		for key in bkghists.keys(): 
 			if key.startswith(iPlot+'jecUp') or key.startswith(iPlot+'jecDown'): continue
 			if key.startswith(iPlot+'jerUp') or key.startswith(iPlot+'jerDown'): continue
@@ -614,7 +600,7 @@ for iPlot in iPlotList:
 
  	#Negative Bin Correction
  	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
- 	#for sig in sighists.keys(): negBinCorrection(sighists[sig]) #should we do the correction after rebinning? -- SS
+ 	for sig in sighists.keys(): negBinCorrection(sighists[sig]) #should we do the correction after rebinning? -- SS
 
  	#OverFlow Correction
  	for data in datahists.keys(): overflow(datahists[data])
