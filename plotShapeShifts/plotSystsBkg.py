@@ -10,68 +10,84 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 36.4
-discriminant = 'HT'
-lumiStr = '36p4fb'
+lumi = 35.9
+discriminant = 'HTpBDT'
+lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_2016_12_21withSysTESTHaddFixed_500'
+tempVersion = 'templates_BDT_33vars_mD3_M2000_2017_4_18'
 cutString = ''
-#templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBM200_'+lumiStr+rfilePostFix+'.root'
-templateFile = '/user_data/jlee/PlotDirectory/ChargedHiggs/Templates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBM200_'+lumiStr+rfilePostFix+'.root'
+templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-if not os.path.exists(outDir+tempVersion+'/bkg'): os.system('mkdir '+outDir+tempVersion+'/bkg')
+saveDir = 'bkg_isSR'
+if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
-bkgList = ['ttbar','wjets','top','ewk','qcd']
+bkgList = ['ttbb','ttcc','ttlf','top','ewk','qcd']
 isEMlist = ['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['1','2','2p','3','3p','4p']
+nbtaglist = ['1','2','2p','3p']
 njetslist = ['3','4','5','6p']
 
-systematics = ['pileup','jec','jer','muRFcorrdNew','pdfNew','toppt','q2']#,'jsf','btag','mistag']
+systematics = ['pileup','jec','jer','scale','toppt','btag','mistag','trigeff','ht']#,'pdfNew']
 
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[4] ,item[3])]
+if 'isCR' in saveDir: catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if isCR(item[4],item[3])]
+else: catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if isSR(item[4],item[3])]
+print templateFile
 RFile = R.TFile(templateFile)
 
+useCombine=True
+if useCombine:
+	dataName = 'data_obs'
+	upTag = 'Up'
+	downTag = 'Down'
+else: #theta
+	dataName = 'DATA'
+	upTag = '__plus'
+	downTag = '__minus'
+
 for syst in systematics:
-	Prefix = discriminant+'_'+lumiStr+'_'+catList[0]+'__'+bkgList[0]
+	if 'isCR' in saveDir: postTag = 'isCR_'
+	else: postTag = 'isSR_'
+	if not useCombine: postTag=''
+	Prefix = discriminant+'_'+lumiStr+'_'+postTag+catList[0]+'__'+bkgList[0]
 	print Prefix+'__'+syst
 	hNm = RFile.Get(Prefix).Clone()
 	try:
-		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
-		hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+		hUp = RFile.Get(Prefix+'__'+syst+upTag).Clone()
+		hDn = RFile.Get(Prefix+'__'+syst+downTag).Clone()
 	except:
 		print "No shape for",bkgList[0],catList[0],syst
 		hUp = RFile.Get(Prefix).Clone()
 		hDn = RFile.Get(Prefix).Clone()
-	for cat in catList:
+	for cat_ in catList:
+		cat = postTag+cat_
 		for bkg in bkgList:
-			if cat==catList[0] and bkg==bkgList[0]: continue
+			if cat_==catList[0] and bkg==bkgList[0]: continue
 			try: 
-				htemp = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat)).Clone()
+				htemp = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat_)).Clone()
 				hNm.Add(htemp)
 			except: 
 				print "No nominal for",bkg,cat,syst
 				pass
 			try:
-				htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat)+'__'+syst+'__plus').Clone()
+				htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat_)+'__'+syst+upTag).Clone()
 				hUp.Add(htempUp)
 			except:
 				print "No shape for",bkg,cat,syst
 				try:
-					htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat)).Clone()
+					htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat_)).Clone()
 					hUp.Add(htempUp)
 				except: 
 					print "No nominal for",bkg,cat,syst
 					pass
 			
 			try:
-				htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat)+'__'+syst+'__minus').Clone()
+				htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat_)+'__'+syst+downTag).Clone()
 				hDn.Add(htempDown)
 			except:
 				print "No shape for",bkg,cat,syst
 				try:
-					htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat)).Clone()
+					htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg).replace(catList[0],cat_)).Clone()
 					hDn.Add(htempDown)
 				except: 
 					print "No nominal for",bkg,cat,syst
@@ -131,9 +147,9 @@ for syst in systematics:
 	#hUp.SetMaximum(1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 	hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 
-	hUp.Draw()
-	hNm.Draw('same')
-	hDn.Draw('same')
+	hUp.Draw('hist')
+	hNm.Draw('same hist')
+	hDn.Draw('same hist')
 	#uPad.RedrawAxis()
 
 	lPad.cd()
@@ -144,7 +160,7 @@ for syst in systematics:
 		pullUp.SetBinError(iBin,math.sqrt(pullUp.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 	pullUp.Divide(hNm)
 	pullUp.SetTitle('')
-	pullUp.SetFillColor(2)
+	#pullUp.SetFillColor(2)
 	pullUp.SetLineColor(2)
 
 	#pullUp.GetXaxis().SetTitle(histName)
@@ -167,7 +183,7 @@ for syst in systematics:
 		pullDown.SetBinError(iBin,math.sqrt(pullDown.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 	pullDown.Divide(hNm)
 	pullDown.SetTitle('')
-	pullDown.SetFillColor(4)
+	#pullDown.SetFillColor(4)
 	pullDown.SetLineColor(4)
 
 	#pullDown.GetXaxis().SetTitle(histName)
@@ -185,8 +201,8 @@ for syst in systematics:
 	pullUp.SetMaximum(0.8)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
 	#pullDown.SetMinimum(pullDown.GetMinimum())
 	#pullDown.SetMaximum(pullDown.GetMaximum())
-	pullUp.Draw()
-	pullDown.Draw('same')
+	pullUp.Draw('hist')
+	pullDown.Draw('same hist')
 	lPad.RedrawAxis()
 
 	uPad.cd()
@@ -223,9 +239,9 @@ for syst in systematics:
 	prelimTex3.SetLineWidth(2)
 	prelimTex3.DrawLatex(0.37675,0.9364,"Preliminary")
 
-	canv.SaveAs(tempVersion+'/bkg/'+syst+'.pdf')
-	canv.SaveAs(tempVersion+'/bkg/'+syst+'.png')
-	canv.SaveAs(tempVersion+'/bkg/'+syst+'.eps')
+	canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'.pdf')
+	canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'.png')
+	canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'.eps')
 
 RFile.Close()
 

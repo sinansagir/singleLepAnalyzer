@@ -8,8 +8,8 @@ outputDir = thisDir+'/'
 
 region='SR' #SR,CR --> matters only when plotting kinematics
 categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
-#sigTrained='180' #Low/Med/High 
-sigTrainedList=[str(item) for item in ['Low','Med','High']]#,180,200,220,250,300,350,400,500,800,1000,2000,3000]]
+sigTrainedList=['Low','Med','High','800','1000','2000','3000']
+#sigTrainedList=['JetKin']
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
@@ -41,7 +41,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 			
 # 			'STpBDT',
 			'HTpBDT',
-			'minMlbpBDT',
+# 			'minMlbpBDT',
 			
 # 			'deltaPhilepJets0',
 # 			'deltaPhilepJets1',
@@ -73,19 +73,17 @@ nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['1','2','2p','3p']
 njetslist = ['3','4','5','6p']
-# nbtaglist = ['1','2','3p']
-# njetslist = ['4p']
-# nbtaglist = ['1','1p','2p']
-# njetslist = ['3p']
 if not categorize: 
 	nbtaglist = ['1p']
 	njetslist = ['3p']
 catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 
+count=0
 for sigTrained in sigTrainedList:
 	pfix='templates'
 	if not categorize: pfix='kinematics_'+region
-	pfix+='_BDTGhalfTT_Brown_16vars_M'+sigTrained+'_'+date#+'_'+time
+	pfix+='_BDT_33vars_mD3_M'+sigTrained+'_'+date#+'_'+time
+	#pfix+='_'+sigTrained+'_'+date
 
 	outDir = outputDir+pfix
 	if not os.path.exists(outDir): os.system('mkdir '+outDir)
@@ -93,22 +91,23 @@ for sigTrained in sigTrainedList:
 	os.system('cp ../analyze.py doHists.py ../weights.py ../samples.py doCondorTemplates.py doCondorTemplates.sh '+outDir+'/')
 	os.chdir(outDir)
 
-	count=0
 	for iplot in iPlotList:
 		for cat in catList:
 			if skip(cat[4],cat[3]) and categorize: continue #DO YOU WANT TO HAVE THIS??
 			catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
 			print "Training: "+sigTrained+", iPlot: "+iplot+", cat: "+catDir
 			if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+catDir)
-			os.chdir(catDir)			
+			os.chdir(catDir)
+			os.system('cp '+outputDir+'/doCondorTemplates.sh '+outDir+'/'+catDir+'/'+cat[0]+'T'+cat[1]+'W'+cat[2]+'B'+cat[3]+'J'+cat[4]+iplot+'.sh')						
 	
-			dict={'dir':outputDir,'iPlot':iplot,'region':region,'isCategorized':categorize,'sigTrained':sigTrained,
-				  'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
+			dict={'dir':outputDir,'iPlot':iplot,'region':region,'isCategorized':categorize,
+			      'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4],
+			      'exeDir':outDir+'/'+catDir,'sigTrained':sigTrained}
 	
 			jdf=open('condor.job','w')
 			jdf.write(
 """universe = vanilla
-Executable = %(dir)s/doCondorTemplates.sh
+Executable = %(exeDir)s/%(isEM)sT%(nttag)sW%(nWtag)sB%(nbtag)sJ%(njets)s%(iPlot)s.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 request_memory = 3072

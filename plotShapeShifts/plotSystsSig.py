@@ -1,73 +1,95 @@
 import ROOT as R
-import os,sys,math
+import os,sys,math,itertools
 from array import array
-
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
+from utils import *
 from tdrStyle import *
+
 setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 2.3
-discriminant = 'minMlb'
-rfilePostFix = '_modified'
-tempVersion = 'templates_minMlb_69mbNoTops'
-cutString = 'SelectionFile'
-templateFile = '../makeThetaTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_TTM900_12p892fb'+rfilePostFix+'.root'
+lumi = 35.9
+discriminant = 'HTpBDT'
+lumiStr = '35p867fb'
+rfilePostFix = '_rebinned_stat1p1'
+tempVersion = 'templates_BDT_3fold_30vars_wSys_2017_3_26'
+cutString = ''
+templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBM500_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-if not os.path.exists(outDir+tempVersion+'/signals'): os.system('mkdir '+outDir+tempVersion+'/signals')
+saveDir = 'signals_isCR'
+if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
-bkgList = ['ttbar','wjets','top','ewk','qcd']
-channels = ['isE','isM']
-ttags = ['nT0p']
-wtags = ['nW0p']
-btags = ['nB1','nB2','nB2p','nB3','nB3p','nB4p']
-njets = ['nJ3','nJ4','nJ5','nJ6p']
-systematics = ['pileup','jec','jer','muRFcorrdNew','pdfNew']#,'btag','mistag','trigeff']
+bkgList = ['ttbb','ttcc','ttlf','top','ewk','qcd']
+isEMlist = ['E','M']
+nttaglist = ['0p']
+nWtaglist = ['0p']
+nbtaglist = ['1','2','2p','3p']
+njetslist = ['3','4','5','6p']
+catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if isCR(item[4],item[3])]
 
-signameList = ['HTBM180',
+systematics = ['pileup','jec','jer','muRFcorrdNew','btag','mistag','trigeff']#,'pdfNew']
+
+signameList = [
+#                'HTBM180',
 			   'HTBM200',
-			   'HTBM250',
-			   'HTBM300',
-			   'HTBM350',
-			   'HTBM400',
-			   'HTBM450',
+# 			   'HTBM220',
+# 			   'HTBM250',
+# 			   'HTBM300',
+# 			   'HTBM350',
+# 			   'HTBM400',
+# 			   'HTBM450',
 			   'HTBM500',
+# 			   'HTBM800',
+# 			   'HTBM1000',
+# 			   'HTBM2000',
+			   'HTBM3000',
 			   ]
 
 for signal in signameList:
-	RFile = R.TFile(templateFile.replace('HTBM200',signal))
+	RFile = R.TFile(templateFile.replace('HTBM500',signal))
 	for syst in systematics:
-		Prefix = discriminant+'_36p0fb_'+channels[0]+'_'+ttags[0]+'_'+wtags[0]+'_'+btags[0]+'__sig'
-		print Prefix
+		if (syst=='q2' or syst=='toppt'):
+			print "Do you expect to have "+syst+" for your signal? FIX ME IF SO! I'll skip this systematic"
+			continue
+		Prefix = discriminant+'_'+lumiStr+'_'+catList[0]+'__sig'
+		print Prefix+'__'+syst
 		hNm = RFile.Get(Prefix).Clone()
 		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
 		hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
-		for ch in channels:
-			for ttag in ttags:
-				for wtag in wtags:
-					for btag in btags:
-						if ch==channels[0] and btag==btags[0] and ttag==ttags[0] and wtag==wtags[0]: continue
-						try: 
-							print Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)
-							htemp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
-							hNm.Add(htemp)
-						except: pass
-						try:
-							if (syst=='q2' or syst=='toppt'):
-								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
-								hUp.Add(htempUp)
-							else:
-								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__plus').Clone()
-								hUp.Add(htempUp)
-						except:pass
-						try: 
-							if (syst=='q2' or syst=='toppt'):
-								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
-								hDn.Add(htempDown)
-							else:
-								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__minus').Clone()
-								hDn.Add(htempDown)
-						except:pass
+		for cat in catList:
+			if cat==catList[0]: continue
+			try: 
+				htemp = RFile.Get(Prefix.replace(catList[0],cat)).Clone()
+				hNm.Add(htemp)
+			except: 
+				print "No nominal for",signal,cat,syst
+				pass
+				
+			try:
+				htempUp = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+'__plus').Clone()
+				hUp.Add(htempUp)
+			except:
+				print "No shape for",signal,cat,syst
+				try:
+					htempUp = RFile.Get(Prefix.replace(catList[0],cat)).Clone()
+					hUp.Add(htempUp)
+				except: 
+					print "No nominal for",signal,cat,syst
+					pass
+		
+			try:
+				htempDown = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+'__minus').Clone()
+				hDn.Add(htempDown)
+			except:
+				print "No shape for",signal,cat,syst
+				try:
+					htempDown = RFile.Get(Prefix.replace(catList[0],cat)).Clone()
+					hDn.Add(htempDown)
+				except: 
+					print "No nominal for",signal,cat,syst
+					pass
 		hNm.Draw()
 		hUp.Draw()
 		hDn.Draw()
@@ -119,9 +141,9 @@ for signal in signameList:
 		
 		hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 
-		hUp.Draw()
-		hNm.Draw('same')
-		hDn.Draw('same')
+		hUp.Draw('hist')
+		hNm.Draw('same hist')
+		hDn.Draw('same hist')
 
 		lPad.cd()
 		R.gStyle.SetOptTitle(0)
@@ -131,7 +153,7 @@ for signal in signameList:
 			pullUp.SetBinError(iBin,math.sqrt(pullUp.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 		pullUp.Divide(hNm)
 		pullUp.SetTitle('')
-		pullUp.SetFillColor(2)
+		#pullUp.SetFillColor(2)
 		pullUp.SetLineColor(2)
 
 		pullUp.GetXaxis().SetLabelSize(.15)
@@ -151,7 +173,7 @@ for signal in signameList:
 			pullDown.SetBinError(iBin,math.sqrt(pullDown.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 		pullDown.Divide(hNm)
 		pullDown.SetTitle('')
-		pullDown.SetFillColor(4)
+		#pullDown.SetFillColor(4)
 		pullDown.SetLineColor(4)
 
 		pullDown.GetXaxis().SetLabelSize(.15)
@@ -166,8 +188,8 @@ for signal in signameList:
 		pullDown.GetYaxis().SetNdivisions(506)
 		pullUp.SetMinimum(-0.5)#-1.4)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
 		pullUp.SetMaximum(0.5)#1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
-		pullUp.Draw()
-		pullDown.Draw('same')
+		pullUp.Draw('hist')
+		pullDown.Draw('same hist')
 		lPad.RedrawAxis()
 
 		uPad.cd()
@@ -216,8 +238,8 @@ for signal in signameList:
 		Tex2.SetTextSize(0.05)
 		Tex2.SetTextAlign(31)
 
-		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.pdf')
-		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.png')
-		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.root')
+		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+signal+'.pdf')
+		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+signal+'.png')
+		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+signal+'.eps')
 	RFile.Close()
 

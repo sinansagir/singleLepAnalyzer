@@ -25,6 +25,26 @@ def skip(njets,nbjets): # function to skip certain categories in final categoriz
  	if any(CRcats) or any(SRcats): return False
  	else: return True
 
+def isCR(njets,nbjets): # definition of CR categories
+ 	CRcats = [nbjets=='1' and njets=='4',
+ 			  nbjets=='1' and njets=='5',
+ 			  nbjets=='1' and njets=='6p',
+ 			  nbjets=='2p' and njets=='3',
+ 			  nbjets=='2' and njets=='4']
+ 	if any(CRcats): return True
+ 	else: return False
+
+def isSR(njets,nbjets): # definition of SR categories
+ 	SRcats = [nbjets=='2' and njets=='5',
+ 			  nbjets=='2' and njets=='6p',
+ 			  nbjets=='3p' and njets=='4',
+ 			  nbjets=='3p' and njets=='5',
+ 			  nbjets=='3p' and njets=='6p']
+ 	if any(SRcats): return True
+ 	else: return False
+
+##############################################################################
+
 def isEqual(a, b):
     try:
         return a.upper() == b.upper()

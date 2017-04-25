@@ -10,37 +10,52 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 36.4
-discriminant = 'BDT'
-lumiStr = '36p4fb'
+lumi = 35.9
+discriminant = 'HTpBDT'
+lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat0p3'
-tempVersion = 'templates_2016_12_19withSysFULLHaddFixed_500'
+tempVersion = 'templates_BDT_33vars_mD3_M2000_2017_4_18'
 cutString = ''
-#templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBM200_'+lumiStr+rfilePostFix+'.root'
-templateFile = '/user_data/jlee/PlotDirectory/ChargedHiggs/Templates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBM200_'+lumiStr+rfilePostFix+'.root'
+templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-if not os.path.exists(outDir+tempVersion+'/bkgIndChannels'): os.system('mkdir '+outDir+tempVersion+'/bkgIndChannels')
+saveDir = 'bkgIndChannels'
+if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
-bkgList = ['ttbar','wjets','top','ewk','qcd']
+bkgList = ['ttbb','ttcc','ttlf','top','ewk','qcd']
 isEMlist = ['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['1','2','2p','3','3p','4p']
+nbtaglist = ['1','2','2p','3p']
 njetslist = ['3','4','5','6p']
 
-systematics = ['pileup','jec','jer','muRFcorrdNew','pdfNew','toppt','q2']#,'jsf','btag','mistag']
+systematics = ['pileup','jec','jer','scale','toppt','btag','mistag','trigeff','ht']#,'pdfNew']
 
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[4] ,item[3])]
+catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[4],item[3])]
+print templateFile
 RFile = R.TFile(templateFile)
 
+useCombine=True
+if useCombine:
+	dataName = 'data_obs'
+	upTag = 'Up'
+	downTag = 'Down'
+else: #theta
+	dataName = 'DATA'
+	upTag = '__plus'
+	downTag = '__minus'
+
 for syst in systematics:
-	for cat in catList:
+	for cat_ in catList:
+		if isCR(cat_.split('_')[-1][2:],cat_.split('_')[-2][2:]): postTag = 'isCR_'
+		else: postTag = 'isSR_'
+		if not useCombine: postTag=''
+		cat = postTag+cat_
 		Prefix = discriminant+'_'+lumiStr+'_'+cat+'__'+bkgList[0]
 		print Prefix+'__'+syst
 		hNm = RFile.Get(Prefix).Clone()
 		try:
-			hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
-			hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+			hUp = RFile.Get(Prefix+'__'+syst+upTag).Clone()
+			hDn = RFile.Get(Prefix+'__'+syst+downTag).Clone()
 		except:
 			print "No shape for",bkgList[0],cat,syst
 			hUp = RFile.Get(Prefix).Clone()
@@ -54,7 +69,7 @@ for syst in systematics:
 				print "No nominal for",bkg,cat,syst
 				pass
 			try:
-				htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+'__plus').Clone()
+				htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+upTag).Clone()
 				hUp.Add(htempUp)
 			except:
 				print "No shape for",bkg,cat,syst
@@ -66,7 +81,7 @@ for syst in systematics:
 					pass
 			
 			try:
-				htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
+				htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+downTag).Clone()
 				hDn.Add(htempDown)
 			except:
 				print "No shape for",bkg,cat,syst
@@ -131,9 +146,9 @@ for syst in systematics:
 		#hUp.SetMaximum(1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 		hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 
-		hUp.Draw()
-		hNm.Draw('same')
-		hDn.Draw('same')
+		hUp.Draw('hist')
+		hNm.Draw('same hist')
+		hDn.Draw('same hist')
 		#uPad.RedrawAxis()
 
 		lPad.cd()
@@ -144,7 +159,7 @@ for syst in systematics:
 			pullUp.SetBinError(iBin,math.sqrt(pullUp.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 		pullUp.Divide(hNm)
 		pullUp.SetTitle('')
-		pullUp.SetFillColor(2)
+		#pullUp.SetFillColor(2)
 		pullUp.SetLineColor(2)
 
 		#pullUp.GetXaxis().SetTitle(histName)
@@ -167,7 +182,7 @@ for syst in systematics:
 			pullDown.SetBinError(iBin,math.sqrt(pullDown.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 		pullDown.Divide(hNm)
 		pullDown.SetTitle('')
-		pullDown.SetFillColor(4)
+		#pullDown.SetFillColor(4)
 		pullDown.SetLineColor(4)
 
 		#pullDown.GetXaxis().SetTitle(histName)
@@ -181,12 +196,12 @@ for syst in systematics:
 		pullDown.GetYaxis().SetTitleSize(0.1)
 		pullDown.GetYaxis().SetTitleOffset(.55)
 		pullDown.GetYaxis().SetNdivisions(506)
-		pullUp.SetMinimum(-1.4)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
-		pullUp.SetMaximum(1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
+		pullUp.SetMinimum(-0.5)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
+		pullUp.SetMaximum(0.5)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
 		#pullDown.SetMinimum(pullDown.GetMinimum())
 		#pullDown.SetMaximum(pullDown.GetMaximum())
-		pullUp.Draw()
-		pullDown.Draw('same')
+		pullUp.Draw('hist')
+		pullDown.Draw('same hist')
 		lPad.RedrawAxis()
 
 		uPad.cd()
@@ -227,11 +242,11 @@ for syst in systematics:
 		chLatex.SetNDC()
 		chLatex.SetTextSize(0.05)
 		chLatex.SetTextAlign(21)
-		flv = cat.split('_')[0]
-		ttag = cat.split('_')[1][2:]
-		wtag = cat.split('_')[2][2:]
-		btag = cat.split('_')[3][2:]
-		njet = cat.split('_')[4][2:]
+		flv = cat.split('_')[-5]
+		ttag = cat.split('_')[-4][2:]
+		wtag = cat.split('_')[-3][2:]
+		btag = cat.split('_')[-2][2:]
+		njet = cat.split('_')[-1][2:]
 		flvString = ''
 		tagString = ''
 		if flv=='isE': flvString+='e+jets'
@@ -252,9 +267,9 @@ for syst in systematics:
 		chLatex.DrawLatex(0.45, 0.84, flvString)
 		chLatex.DrawLatex(0.45, 0.78, tagString)
 
-		canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+cat+'.pdf')
-		canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+cat+'.png')
-		canv.SaveAs(tempVersion+'/bkgIndChannels/'+syst+'_'+cat+'.eps')
+		#canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+cat+'.pdf')
+		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+cat+'.png')
+		#canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+cat+'.eps')
 
 RFile.Close()
 

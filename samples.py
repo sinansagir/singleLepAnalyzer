@@ -16,20 +16,20 @@ samples = {
 'DataERRB2H':'SingleElectron_RRBCDEFGH',
 'DataMRRB2H':'SingleMuon_RRBCDEFGH',
 
-'HTBM180':'ChargedHiggs_HplusTB_HplusToTB_M-180_13TeV_amcatnlo_pythia8',
-'HTBM200':'ChargedHiggs_HplusTB_HplusToTB_M-200_13TeV_amcatnlo_pythia8',
-'HTBM220':'ChargedHiggs_HplusTB_HplusToTB_M-220_13TeV_amcatnlo_pythia8',
-'HTBM250':'ChargedHiggs_HplusTB_HplusToTB_M-250_13TeV_amcatnlo_pythia8',
-'HTBM300':'ChargedHiggs_HplusTB_HplusToTB_M-300_13TeV_amcatnlo_pythia8',
-'HTBM350':'ChargedHiggs_HplusTB_HplusToTB_M-350_13TeV_amcatnlo_pythia8',
-'HTBM400':'ChargedHiggs_HplusTB_HplusToTB_M-400_13TeV_amcatnlo_pythia8',
-'HTBM450':'ChargedHiggs_HplusTB_HplusToTB_M-450_13TeV_amcatnlo_pythia8',
-'HTBM500':'ChargedHiggs_HplusTB_HplusToTB_M-500_13TeV_amcatnlo_pythia8',
-'HTBM750':'ChargedHiggs_HplusTB_HplusToTB_M-750_13TeV_amcatnlo_pythia8',
-'HTBM800':'ChargedHiggs_HplusTB_HplusToTB_M-800_13TeV_amcatnlo_pythia8',
-'HTBM1000':'ChargedHiggs_HplusTB_HplusToTB_M-1000_13TeV_amcatnlo_pythia8',
-'HTBM2000':'ChargedHiggs_HplusTB_HplusToTB_M-2000_13TeV_amcatnlo_pythia8',
-'HTBM3000':'ChargedHiggs_HplusTB_HplusToTB_M-3000_13TeV_amcatnlo_pythia8',
+'Hptb180':'ChargedHiggs_HplusTB_HplusToTB_M-180_13TeV_amcatnlo_pythia8',
+'Hptb200':'ChargedHiggs_HplusTB_HplusToTB_M-200_13TeV_amcatnlo_pythia8',
+'Hptb220':'ChargedHiggs_HplusTB_HplusToTB_M-220_13TeV_amcatnlo_pythia8',
+'Hptb250':'ChargedHiggs_HplusTB_HplusToTB_M-250_13TeV_amcatnlo_pythia8',
+'Hptb300':'ChargedHiggs_HplusTB_HplusToTB_M-300_13TeV_amcatnlo_pythia8',
+'Hptb350':'ChargedHiggs_HplusTB_HplusToTB_M-350_13TeV_amcatnlo_pythia8',
+'Hptb400':'ChargedHiggs_HplusTB_HplusToTB_M-400_13TeV_amcatnlo_pythia8',
+'Hptb450':'ChargedHiggs_HplusTB_HplusToTB_M-450_13TeV_amcatnlo_pythia8',
+'Hptb500':'ChargedHiggs_HplusTB_HplusToTB_M-500_13TeV_amcatnlo_pythia8',
+'Hptb750':'ChargedHiggs_HplusTB_HplusToTB_M-750_13TeV_amcatnlo_pythia8',
+'Hptb800':'ChargedHiggs_HplusTB_HplusToTB_M-800_13TeV_amcatnlo_pythia8',
+'Hptb1000':'ChargedHiggs_HplusTB_HplusToTB_M-1000_13TeV_amcatnlo_pythia8',
+'Hptb2000':'ChargedHiggs_HplusTB_HplusToTB_M-2000_13TeV_amcatnlo_pythia8',
+'Hptb3000':'ChargedHiggs_HplusTB_HplusToTB_M-3000_13TeV_amcatnlo_pythia8',
 
 'TTM700':'TprimeTprime_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8',
 'TTM800':'TprimeTprime_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8',
@@ -184,6 +184,7 @@ samples = {
 'TTJetsPH1000toINFinc':'TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_Mtt1000toInf',
 'TTJetsPH700mtt':'TT_Mtt-700to1000_TuneCUETP8M2T4_13TeV-powheg-pythia8',
 'TTJetsPH1000mtt':'TT_Mtt-1000toInf_TuneCUETP8M2T4_13TeV-powheg-pythia8',
+'TTJetsPH2L':'TTTo2L2Nu_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8',
 
 'TTWl':'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
 'TTWq':'TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
@@ -234,6 +235,7 @@ samples = {
 
 for ind in range(1,14): samples['TTJetsPHSL_'+str(ind)]='TTToSemilepton_TuneCUETP8M2_ttHtranche3_13TeV-powheg-pythia8_'+str(ind)
 for ind in range(1,12): samples['TTJetsPH0to700inc_'+str(ind)]='TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_Mtt0to700_'+str(ind)
+for ind in range(1,12): samples['TTJetsPH_'+str(ind)]='TT_TuneCUETP8M2T4_13TeV-powheg-pythia8_'+str(ind)
 
 samples['WJetsHT100JSF']  = samples['WJetsHT100']
 samples['WJetsHT200JSF']  = samples['WJetsHT200']

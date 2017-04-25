@@ -44,6 +44,7 @@ BR['BBBHBH'] = BR['BH']*BR['BH']
 nRun={}
 nRun['TTJets'] = 14188545. #need negative counts
 nRun['TTJetsPH'] = 77229341.+78006311. #original+backup
+for ind in range(1,12): nRun['TTJetsPH_'+str(ind)]=nRun['TTJetsPH']
 nRun['TTJetsPHSL'] = 152720952.
 for ind in range(1,14): nRun['TTJetsPHSL_'+str(ind)] = nRun['TTJetsPHSL']
 nRun['TTJetsPH0to700inc'] = nRun['TTJetsPH']
@@ -52,6 +53,7 @@ nRun['TTJetsPH700to1000inc'] = nRun['TTJetsPH']*0.0921 + 38578334.
 nRun['TTJetsPH1000toINFinc'] = nRun['TTJetsPH']*0.02474 + 24561633.
 nRun['TTJetsPH700mtt'] = nRun['TTJetsPH700to1000inc']
 nRun['TTJetsPH1000mtt'] = nRun['TTJetsPH1000toINFinc']
+nRun['TTJetsPH2L'] = 79092400.
 nRun['Ts'] = 622990. #from 1000000
 nRun['Tt'] = 67240808.
 nRun['Tbt']= 38811017.
@@ -118,20 +120,20 @@ nRun['tZq'] = 3846170. #from 14509520
 nRun['ttHbb'] = 2910760. #from 9794226
 nRun['ttHnonbb'] = 3905798. #from 3981250
 
-nRun['HTBM180'] = 404688. #Ngen=1499270
-nRun['HTBM200'] = 400501. #Ngen=1473805
-nRun['HTBM220'] = 402569. #Ngen=1499361 
-nRun['HTBM250'] = 395891. #Ngen=1491475
-nRun['HTBM300'] = 390646. #Ngen=1497522
-nRun['HTBM350'] = 390221. #Ngen=1496373
-nRun['HTBM400'] = 387746. #Ngen=1496088
-nRun['HTBM450'] = 379926. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!! Sample not available yet
-nRun['HTBM500'] = 400004. #Ngen=1500000
-nRun['HTBM750'] = 377320. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!! Sample not available yet
-nRun['HTBM800'] = 376326. #Ngen=1494646
-nRun['HTBM1000'] = 376708. #Ngen=1491600
-nRun['HTBM2000'] = 373174. #Ngen=1500000
-nRun['HTBM3000'] = 377717. #Ngen=1497017
+nRun['Hptb180'] = 404688. #Ngen=1499270
+nRun['Hptb200'] = 400501. #Ngen=1473805
+nRun['Hptb220'] = 402569. #Ngen=1499361 
+nRun['Hptb250'] = 395891. #Ngen=1491475
+nRun['Hptb300'] = 390646. #Ngen=1497522
+nRun['Hptb350'] = 390221. #Ngen=1496373
+nRun['Hptb400'] = 387746. #Ngen=1496088
+nRun['Hptb450'] = 379926. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!! Sample not available yet
+nRun['Hptb500'] = 400004. #Ngen=1500000
+nRun['Hptb750'] = 377320. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!! Sample not available yet
+nRun['Hptb800'] = 376326. #Ngen=1494646
+nRun['Hptb1000'] = 376708. #Ngen=1491600
+nRun['Hptb2000'] = 373174. #Ngen=1500000
+nRun['Hptb3000'] = 377717. #Ngen=1497017
 
 nRun['TTM700BWBW'] = 798600.0*0.333*0.333 #not used
 nRun['TTM800BWBW'] = 766000.0*0.333*0.333
@@ -325,6 +327,7 @@ xsec['TTJets'] = 831.76
 xsec['WJets'] = 61526.7
 xsec['WJetsMG'] = 61526.7
 xsec['TTJetsPH'] = 831.76 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
+for ind in range(1,12): xsec['TTJetsPH_'+str(ind)]=xsec['TTJetsPH']
 xsec['TTJetsPHSL'] = 831.76*2.*(3.*0.108)*(1.-3.*0.108)
 for ind in range(1,14): xsec['TTJetsPHSL_'+str(ind)] = xsec['TTJetsPHSL'] 
 xsec['TTJetsPH0to700inc'] = 831.76
@@ -333,6 +336,7 @@ xsec['TTJetsPH700to1000inc'] = 831.76*0.0921 #(xsec*filtering coeff.)
 xsec['TTJetsPH1000toINFinc'] = 831.76*0.02474 #(xsec*filtering coeff.)
 xsec['TTJetsPH700mtt'] = xsec['TTJetsPH700to1000inc']
 xsec['TTJetsPH1000mtt'] = xsec['TTJetsPH1000toINFinc']
+xsec['TTJetsPH2L'] = 831.76*((3.*0.108)**2)
 xsec['WJetsHT100'] = 1345.*1.21 # (1.21 = k-factor )# https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 xsec['WJetsHT200'] = 359.7*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 xsec['WJetsHT400'] = 48.91*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
@@ -380,6 +384,21 @@ xsec['ttHnonbb'] = 0.215
 
 #Scaling all HTB signal x-secs to 1pb as agreed with POM, 
 #so we have the signal yields scaled to 1pb
+xsec['Hptb180'] = 1.#((0.824531)**2/0.683584)*0.75 #interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb200'] = 1.#0.824531*0.75 #was 0.783951 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb220'] = 1.#0.683584*0.75 #was 0.648629 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb250'] = 1.#0.524247*0.75 #was 0.4982015 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb300'] = 1.#0.343796*0.75 #was 0.324766 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb350'] = 1.#0.2312180*0.75 #was 0.2184385 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb400'] = 1.#0.158142*0.75 #was 0.148574 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb450'] = 1.#0.1106674*0.75 #was 0.104141 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb500'] = 1.#0.0785572*0.75 #was 0.0735225 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb750'] = 1.#0.0172205*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb800'] = 1.#0.0130645*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb1000'] = 1.#0.00474564*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb2000'] = 1.#(8.70916e-05)*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+xsec['Hptb3000'] = 1.#((8.70916e-05)**2/0.00474564)*0.75 #interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
+
 xsec['HTBM180'] = 1.#((0.824531)**2/0.683584)*0.75 #interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
 xsec['HTBM200'] = 1.#0.824531*0.75 #was 0.783951 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
 xsec['HTBM220'] = 1.#0.683584*0.75 #was 0.648629 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
@@ -472,7 +491,7 @@ for sample in sorted(nRun.keys()):
 
 for smp in weight.keys():
 	if 'TTJets' in smp:
-	    for hf in ['_ttflv','_ttbbflv','_ttbjflv','_ttccflv','_ttcjflv','_ttllflv','_ttlfflv']: 
+	    for hf in ['_tt2b','_ttbb','_ttb','_ttcc','_ttlf']: 
 	    	weight[smp+hf]=weight[smp]
 
 # for sample in sorted(weight.keys()): 

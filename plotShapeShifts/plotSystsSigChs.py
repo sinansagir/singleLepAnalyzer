@@ -10,49 +10,75 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 36.4
-discriminant = 'BDT'
-lumiStr = '36p4fb'
+lumi = 35.9
+useCombine=True
+discriminant = 'HTpBDT'
+lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat0p3'
-tempVersion = 'templates_2016_12_21withSysTESTHaddFixed_500'
+tempVersion = 'templates_BDT_APR9_mD3_M2000_2017_4_12'
 cutString = ''
-#templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBM200_'+lumiStr+rfilePostFix+'.root'
-templateFile = '/user_data/jlee/PlotDirectory/ChargedHiggs/Templates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBM200_'+lumiStr+rfilePostFix+'.root'
+if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_'+lumiStr+rfilePostFix+'.root'
+else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBMKutle_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-if not os.path.exists(outDir+tempVersion+'/signalIndChannels'): os.system('mkdir '+outDir+tempVersion+'/signalIndChannels')
+saveDir = 'signalIndChannels'
+if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
+bkgList = ['ttbb','ttcc','ttlf','top','ewk','qcd']
 isEMlist = ['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['1','2','2p','3','3p','4p']
+nbtaglist = ['1','2','2p','3p']
 njetslist = ['3','4','5','6p']
 
-systematics = ['pileup','jec','jer','muRFcorrdNew','pdfNew']#,'btag','mistag','trigeff']
+systematics = ['pileup','jec','jer','scale','btag','mistag','trigeff']#,'pdfNew']
+
+catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[4],item[3])]
+
 signameList = [
-			   #'HTBM180',
-			   #'HTBM200',
-			   #'HTBM250',
-			   #'HTBM300',
-			   #'HTBM350',
-			   'HTBM400',
-			   #'HTBM450',
-			   #'HTBM500',
+#                'HTBM180',
+# 			   'HTBM200',
+# 			   'HTBM220',
+# 			   'HTBM250',
+# 			   'HTBM300',
+# 			   'HTBM350',
+# 			   'HTBM400',
+# 			   'HTBM450',
+# 			   'HTBM500',
+# 			   'HTBM800',
+# 			   'HTBM1000',
+			   'Hptb2000',
+# 			   'HTBM3000',
 			   ]
 
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item[4] ,item[3])]
-
+if useCombine:
+	dataName = 'data_obs'
+	upTag = 'Up'
+	downTag = 'Down'
+else: #theta
+	dataName = 'DATA'
+	upTag = '__plus'
+	downTag = '__minus'
+	
 for signal in signameList:
-	RFile = R.TFile(templateFile.replace('HTBM200',signal))
+	RFile = R.TFile(templateFile.replace('HTBMKutle',signal))
+	print templateFile.replace('HTBMKutle',signal)
 	for syst in systematics:
-		for cat in catList:
+		for cat_ in catList:
+			if isCR(cat_.split('_')[-1][2:],cat_.split('_')[-2][2:]): postTag = 'isCR_'
+			else: postTag = 'isSR_'
+			sigName=signal
+			if not useCombine: 
+				postTag=''
+				sigName='sig'
+			cat = postTag+cat_
 			if (syst=='q2' or syst=='toppt'):
 				print "Do you expect to have "+syst+" for your signal? FIX ME IF SO! I'll skip this systematic"
 				continue
-			Prefix = discriminant+'_'+lumiStr+'_'+cat+'__sig'
-			print Prefix+'__'+syst
+			Prefix = discriminant+'_'+lumiStr+'_'+cat+'__'+sigName
+			print Prefix#+'__'+syst
 			hNm = RFile.Get(Prefix).Clone()
-			hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
-			hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+			hUp = RFile.Get(Prefix+'__'+syst+upTag).Clone()
+			hDn = RFile.Get(Prefix+'__'+syst+downTag).Clone()
 			try: 
 				print Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)
 				htemp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
@@ -63,7 +89,7 @@ for signal in signameList:
 					htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
 					hUp.Add(htempUp)
 				else:
-					htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__plus').Clone()
+					htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+upTag).Clone()
 					hUp.Add(htempUp)
 			except:pass
 			try: 
@@ -71,7 +97,7 @@ for signal in signameList:
 					htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
 					hDn.Add(htempDown)
 				else:
-					htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__minus').Clone()
+					htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+downTag).Clone()
 					hDn.Add(htempDown)
 			except:pass
 			hNm.Draw()
@@ -128,9 +154,9 @@ for signal in signameList:
 			#hUp.SetMaximum(1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 			hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 
-			hUp.Draw()
-			hNm.Draw('same')
-			hDn.Draw('same')
+			hUp.Draw('hist')
+			hNm.Draw('same hist')
+			hDn.Draw('same hist')
 			#uPad.RedrawAxis()
 
 			lPad.cd()
@@ -141,7 +167,7 @@ for signal in signameList:
 				pullUp.SetBinError(iBin,math.sqrt(pullUp.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 			pullUp.Divide(hNm)
 			pullUp.SetTitle('')
-			pullUp.SetFillColor(2)
+			#pullUp.SetFillColor(2)
 			pullUp.SetLineColor(2)
 
 			#pullUp.GetXaxis().SetTitle(histName)
@@ -164,7 +190,7 @@ for signal in signameList:
 				pullDown.SetBinError(iBin,math.sqrt(pullDown.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 			pullDown.Divide(hNm)
 			pullDown.SetTitle('')
-			pullDown.SetFillColor(4)
+			#pullDown.SetFillColor(4)
 			pullDown.SetLineColor(4)
 
 			#pullDown.GetXaxis().SetTitle(histName)
@@ -178,12 +204,12 @@ for signal in signameList:
 			pullDown.GetYaxis().SetTitleSize(0.1)
 			pullDown.GetYaxis().SetTitleOffset(.55)
 			pullDown.GetYaxis().SetNdivisions(506)
-			pullUp.SetMinimum(-1.4)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
-			pullUp.SetMaximum(1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
+			pullUp.SetMinimum(-0.5)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
+			pullUp.SetMaximum(0.5)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
 			#pullDown.SetMinimum(pullDown.GetMinimum())
 			#pullDown.SetMaximum(pullDown.GetMaximum())
-			pullUp.Draw()
-			pullDown.Draw('same')
+			pullUp.Draw('hist')
+			pullDown.Draw('same hist')
 			lPad.RedrawAxis()
 
 			uPad.cd()
@@ -225,11 +251,11 @@ for signal in signameList:
 			chLatex.SetNDC()
 			chLatex.SetTextSize(0.05)
 			chLatex.SetTextAlign(21)
-			flv = cat.split('_')[0]
-			ttag = cat.split('_')[1][2:]
-			wtag = cat.split('_')[2][2:]
-			btag = cat.split('_')[3][2:]
-			njet = cat.split('_')[4][2:]
+			flv = cat.split('_')[-5]
+			ttag = cat.split('_')[-4][2:]
+			wtag = cat.split('_')[-3][2:]
+			btag = cat.split('_')[-2][2:]
+			njet = cat.split('_')[-1][2:]
 			flvString = ''
 			tagString = ''
 			if flv=='isE': flvString+='e+jets'
@@ -250,8 +276,8 @@ for signal in signameList:
 			chLatex.DrawLatex(0.45, 0.84, flvString)
 			chLatex.DrawLatex(0.45, 0.78, tagString)
 		
-			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.pdf')
+			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.pdf')
 			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.png')
-			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.eps')
+			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.eps')
 	RFile.Close()
 

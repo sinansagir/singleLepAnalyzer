@@ -34,33 +34,36 @@ if len(sys.argv)>1: iPlot=str(sys.argv[1])
 massPt='180'
 if len(sys.argv)>2: massPt=str(sys.argv[2])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_BDTGfullTT_Brown_25vars_M'+massPt+'_2017_3_14/'+cutString
-# templateDir = '/user_data/jlee/PlotDirectory/ChargedHiggs/Templates/TemplatesForAllMassTrainedwithSys/'
-# templateDir+= 'templates_2017_1_1withSysTESTHaddFixed_3000/'
-# templateDir = '/user_data/jlee/PlotDirectory/ChargedHiggs/Templates/FOR_MORIOND2017/Templates_wo_sys_lep35_BDTG/'
-#templateDir+= 'templates_2017_3_12withnoSys_BDTG_lep35'+massPt+'/'
+templateDir = os.getcwd()+'/templates_BDT_33vars_mD3_M'+massPt+'_2017_4_18/'+cutString
 outDir = templateDir#os.getcwd()+'/templates_BDTGfullTT_Comb_28vars_M'+massPt+'_2017_3_14/'
 combinefile = 'templates_'+iPlot+'_35p867fb.root'
 lumiStr = '35p867fb'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = True #else rebins theta templates
-doStatShapes = False
+doStatShapes = True
+#0.00:1190,0.01:1089,0.05:514,0.10:244
+doPDFsys = False
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
-sigName = 'HTB' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
-#massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
+sigName = 'Hptb'#'Hptb' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
 massList = [180,200,220,250,300,350,400,500,800,1000,2000,3000]
-sigProcList = [sigName+'M'+str(mass) for mass in massList]
+if massPt=='Low': massList = [180,200,220,250,300]
+elif massPt=='Med': massList = [350,400,500]
+elif massPt=='High': massList = [800,1000,2000,3000]
+else: massList = [int(massPt)]
+sigProcList = [sigName+str(mass) for mass in massList]
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
 	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
-#bkgProcList = ['ttbar','wjets','top','ewk','qcd'] #put the most dominant process first
-bkgProcList = ['ttbb','ttcc','ttlf','wjets','top','ewk','qcd'] #put the most dominant process first
+bkgProcList = ['ttlf','ttcc','tt2b','ttbb','ttb','top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
+minNbinsCR=2 #min number of bins to be merged
+minNbinsSR=1 #min number of bins to be merged
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+statThres = 0.1 #statistical uncertainty threshold on total background to assign BB nuisances -- enter 0.0 to assign BB for all bins
 singleBinCR = False
 #if len(sys.argv)>1: stat=float(sys.argv[1])
 
@@ -75,9 +78,9 @@ else: #theta
 
 addCRsys = False
 addShapes = True
-lumiSys = 0.027 #lumi uncertainty
-eltrigSys = 0.05 #electron trigger uncertainty
-mutrigSys = 0.05 #muon trigger uncertainty
+lumiSys = 0.025 #lumi uncertainty
+eltrigSys = 0.#05 #electron trigger uncertainty
+mutrigSys = 0.#05 #muon trigger uncertainty
 elIdSys = 0.02 #electron id uncertainty
 muIdSys = 0.03 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
@@ -87,17 +90,20 @@ elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2)
 
 removalKeys = {} # True == keep, False == remove
-removalKeys['__btag']    = False
-removalKeys['__mistag']  = False
-removalKeys['__TrigEff'] = False
+removalKeys['__ht'] = True
+if 'qcd' not in bkgProcList: removalKeys['__qcd'] = False
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
         for f in fnmatch.filter(files, filtre):
             yield os.path.join(root, f)
 
-#Setup the selection of the files to be rebinned:          
-rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]# and 'TTsplit' in file.split('/')[-1]]
+#Setup the selection of the files to be rebinned: 
+rfiles = []         
+for file in findfiles(templateDir, '*.root'):
+	if 'rebinned' in file or combinefile in file or '_'+iPlot+'_' not in file.split('/')[-1]: continue
+	if not any(['_'+signal+'_' in file for signal in sigProcList]): continue
+	rfiles.append(file)
 if rebinCombine: rfiles = [templateDir+'/'+combinefile]
 
 tfile = TFile(rfiles[0])
@@ -110,7 +116,7 @@ for hist in datahists:
 	channel = hist[hist.find('fb_')+3:hist.find('__')]
 	totBkgHists[channel]=tfile.Get(hist.replace('__'+dataName,'__'+bkgProcList[0])).Clone()
 	for proc in bkgProcList:
-		if proc==bkgProcList[0]: continue
+		if proc==bkgProcList[0] or proc=='qcd': continue #EXCLUDING QCD FROM STAT THRESHOLD CHECK!!!
 		try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__'+proc)))
 		except: 
 			print "Missing",proc,"for category:",hist
@@ -126,17 +132,22 @@ for chn in totBkgHists.keys():
 	totTempBinContent_M = 0.
 	totTempBinErrSquared_E = 0.
 	totTempBinErrSquared_M = 0.
+	nBinsMerged = 0
 	for iBin in range(1,Nbins+1):
 		totTempBinContent_E += totBkgHists[chn].GetBinContent(Nbins+1-iBin)
 		totTempBinContent_M += totBkgHists[chn.replace('isE','isM')].GetBinContent(Nbins+1-iBin)
 		totTempBinErrSquared_E += totBkgHists[chn].GetBinError(Nbins+1-iBin)**2
 		totTempBinErrSquared_M += totBkgHists[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
+		nBinsMerged+=1
+		if nBinsMerged<minNbinsSR and isSR(chn.split('_')[-1][2:],chn.split('_')[-2][2:]): continue
+		if nBinsMerged<minNbinsCR and isCR(chn.split('_')[-1][2:],chn.split('_')[-2][2:]): continue
 		if totTempBinContent_E>0. and totTempBinContent_M>0.:
 			if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
 				totTempBinContent_E = 0.
 				totTempBinContent_M = 0.
 				totTempBinErrSquared_E = 0.
 				totTempBinErrSquared_M = 0.
+				nBinsMerged=0
 				xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
 	if xbinsListTemp[chn][-1]!=totBkgHists[chn].GetXaxis().GetBinLowEdge(1): xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(1))
 	if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
@@ -169,6 +180,9 @@ iRfile=0
 yieldsAll = {}
 yieldsErrsAll = {}
 yieldsSystErrsAll = {}
+nBBnuis = {}
+nBBnuis['bkg'] = 0
+for sig in sigProcList: nBBnuis[sig] = 0
 for rfile in rfiles: 
 	print "REBINNING FILE:",rfile
 	tfiles = {}
@@ -197,10 +211,21 @@ for rfile in rfiles:
 				if 'Up' not in hist or 'Down' not in hist: continue
 			if '__mu' in hist: continue
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
+			if '__toppt'+downTag in hist:
+				for ibin in range(1, rebinnedHists[hist].GetNbinsX()+1):
+					rebinnedHists[hist].SetBinContent(ibin, 2.*rebinnedHists[hist.replace('__toppt'+downTag,'')].GetBinContent(ibin)-rebinnedHists[hist.replace('__toppt'+downTag,'__toppt'+upTag)].GetBinContent(ibin))
 			rebinnedHists[hist].Write()
+			if '__trigeff' in hist:
+				if 'isE' in hist: 
+					newEname = rebinnedHists[hist].GetName().replace('__trigeff','__eltrigeff')
+					rebinnedHists[newEname] = rebinnedHists[hist].Clone(newEname)
+					rebinnedHists[newEname].Write()
+				if 'isM' in hist:
+					newMname = rebinnedHists[hist].GetName().replace('__trigeff','__mutrigeff')
+					rebinnedHists[newMname] = rebinnedHists[hist].Clone(newMname)
+					rebinnedHists[newMname].Write()
 			yieldHistName = hist
 			if not rebinCombine: yieldHistName = hist.replace('_sig','_'+rfile.split('/')[-1].split('_')[2])
-			#print hist,yieldHistName
 			yieldsAll[yieldHistName] = rebinnedHists[hist].Integral()
 			yieldsErrsAll[yieldHistName] = 0.
 			for ibin in range(1,rebinnedHists[hist].GetXaxis().GetNbins()+1):
@@ -211,9 +236,17 @@ for rfile in rfiles:
 		if rebinCombine and doStatShapes:
 			chnHistName = [hist for hist in datahists if chn in hist][0]
 			rebinnedHists['chnTotBkgHist'] = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].Clone()
+			nStatNuis = 0
+			totYield = 0
+			totStatErr = 0
 			for bkg in bkgProcList:
 				if bkg!=bkgProcList[0]:rebinnedHists['chnTotBkgHist'].Add(rebinnedHists[chnHistName.replace(dataName,bkg)])
 			for ibin in range(1, rebinnedHists['chnTotBkgHist'].GetNbinsX()+1):
+				if rebinnedHists['chnTotBkgHist'].GetBinContent(ibin)==0: continue
+				totYield+=rebinnedHists['chnTotBkgHist'].GetBinContent(ibin)
+				totStatErr+=rebinnedHists['chnTotBkgHist'].GetBinError(ibin)**2
+				if rebinnedHists['chnTotBkgHist'].GetBinError(ibin)/rebinnedHists['chnTotBkgHist'].GetBinContent(ibin)<=statThres: continue
+				nStatNuis+=1
 				if rebinnedHists['chnTotBkgHist'].GetNbinsX()==1:
 					for bkg in bkgProcList:
 						val = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)
@@ -233,6 +266,7 @@ for rfile in rfiles:
 							rebinnedHists[err_dn_name].SetBinContent(ibin, val*0.001)
 						rebinnedHists[err_up_name].Write()
 						rebinnedHists[err_dn_name].Write()
+						nBBnuis['bkg']+=1
 				else:
 					dominantBkgProc = bkgProcList[0]
 					val = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetBinContent(ibin)
@@ -251,6 +285,8 @@ for rfile in rfiles:
 					if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
 					rebinnedHists[err_up_name].Write()
 					rebinnedHists[err_dn_name].Write()
+					nBBnuis['bkg']+=1
+				continue
 				for sig in sigProcList:
 					sigNameNoMass = sigName
 					if 'left' in sig: sigNameNoMass = sigName+'left'
@@ -269,11 +305,13 @@ for rfile in rfiles:
 					if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
 					rebinnedHists[err_up_name].Write()
 					rebinnedHists[err_dn_name].Write()
+					nBBnuis[sig]+=1
 								
 		#Constructing muRF shapes
 		muRUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'muR'+upTag in k.GetName() and chn in k.GetName()]
-		newMuRFName = 'muRFcorrdNew'
+		newMuRFName = 'scale'
 		for hist in muRUphists:
+			proc_ = hist.split('__')[1]
 			muRFcorrdNewUpHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+upTag))
 			muRFcorrdNewDnHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+downTag))
 			histList = [
@@ -299,39 +337,50 @@ for rfile in rfiles:
 				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__mu')]).Clone()
 				muRFcorrdNewUpHist.Scale(renormNomHist.Integral()/muRFcorrdNewUpHist.Integral())
 				muRFcorrdNewDnHist.Scale(renormNomHist.Integral()/muRFcorrdNewDnHist.Integral())
+			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
 			muRFcorrdNewUpHist.Write()
 			muRFcorrdNewDnHist.Write()
 			yieldsAll[muRFcorrdNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewUpHist.Integral()
 			yieldsAll[muRFcorrdNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewDnHist.Integral()
+			#Decorrelate muRF systematic ("muRFcorrdNew" still need to be removed in doThetaLimits.py!):
+			muRFcorrdNewUpHist2 = muRFcorrdNewUpHist.Clone(hist.replace('muR'+upTag,proc_+newMuRFName+upTag))
+			muRFcorrdNewDnHist2 = muRFcorrdNewDnHist.Clone(hist.replace('muR'+upTag,proc_+newMuRFName+downTag))
+			muRFcorrdNewUpHist2.Write()
+			muRFcorrdNewDnHist2.Write()
 
 		#Constructing PDF shapes
-		pdfUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'pdf0' in k.GetName() and chn in k.GetName()]
-		newPDFName = 'pdfNew'
-		for hist in pdfUphists:
-			pdfNewUpHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+upTag))
-			pdfNewDnHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+downTag))
-			for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
-				weightList = [rebinnedHists[hist.replace('pdf0','pdf'+str(pdfInd))].GetBinContent(ibin) for pdfInd in range(100)]
-				indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
-				indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
-				pdfNewUpHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinContent(ibin))
-				pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
-				pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
-				pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
-			if ('sig__pdf' in hist and normalizePDF) or (rebinCombine and '__'+sigName in hist and '__pdf' in hist and normalizePDF): #normalize the renorm/fact shapes to nominal
-				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__pdf')]).Clone()
-				pdfNewUpHist.Scale(renormNomHist.Integral()/pdfNewUpHist.Integral())
-				pdfNewDnHist.Scale(renormNomHist.Integral()/pdfNewDnHist.Integral())
-			pdfNewUpHist.Write()
-			pdfNewDnHist.Write()
-			yieldsAll[pdfNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewUpHist.Integral()
-			yieldsAll[pdfNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewDnHist.Integral()
+		if doPDFsys:
+			pdfUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'pdf0' in k.GetName() and chn in k.GetName()]
+			newPDFName = 'pdfNew'
+			for hist in pdfUphists:
+				pdfNewUpHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+upTag))
+				pdfNewDnHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+downTag))
+				for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
+					weightList = [rebinnedHists[hist.replace('pdf0','pdf'+str(pdfInd))].GetBinContent(ibin) for pdfInd in range(100)]
+					indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
+					indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
+					pdfNewUpHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinContent(ibin))
+					pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
+					pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
+					pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
+				if ('sig__pdf' in hist and normalizePDF) or (rebinCombine and '__'+sigName in hist and '__pdf' in hist and normalizePDF): #normalize the renorm/fact shapes to nominal
+					renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__pdf')]).Clone()
+					pdfNewUpHist.Scale(renormNomHist.Integral()/pdfNewUpHist.Integral())
+					pdfNewDnHist.Scale(renormNomHist.Integral()/pdfNewDnHist.Integral())
+				if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
+				pdfNewUpHist.Write()
+				pdfNewDnHist.Write()
+				yieldsAll[pdfNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewUpHist.Integral()
+				yieldsAll[pdfNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewDnHist.Integral()
 			
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()
 	iRfile+=1
 tfile.Close()
 print ">> Rebinning Done!"
+print "===>>> Number of BB nuisances added:"
+print "                                    bkg:",nBBnuis['bkg']
+for sig in sigProcList: print "                                    "+sig+":",nBBnuis[sig]
 #os._exit(1)
 for chn in channels:
 	modTag = chn[chn.find('nW'):]
@@ -372,19 +421,73 @@ def getShapeSystUnc(proc,chn):
 	shpSystUncPrctg = (math.sqrt(totUpShiftPrctg)+math.sqrt(totDnShiftPrctg))/2 #symmetrize the total shape uncertainty up/down shifts
 	return shpSystUncPrctg	
 
+procNames={'tt2b':'$\\ttbar+\\mathrm{2b}$',
+           'ttbb':'$\\ttbar+\\mathrm{bb}$',
+           'ttb': '$\\ttbar+\\mathrm{b}$',
+           'ttcc':'$\\ttbar+\\mathrm{c(c)}$',
+           'ttlf':'$\\ttbar+\\mathrm{lf}$',
+           'ttbar':'$\\ttbar$',
+           'top':'TOP',
+           'ewk':'EWK',
+           'qcd':'QCD',
+           'DATA':'Data',
+           'data_obs':'Data',
+           'totBkg':'Total bkg',
+           'dataOverBkg':'Data/Bkg',
+           }
+for sig in sigProcList: procNames[sig]=sig
+
+#redefine channels manually if the automatic order is not wanted!
+CRstr = ''
+SRstr = ''
+if rebinCombine:
+	CRstr = 'isCR_'
+	SRstr = 'isSR_'
+channelsE= [CRstr+'isE_nT0p_nW0p_nB1_nJ4', 
+			CRstr+'isE_nT0p_nW0p_nB1_nJ5', 
+			CRstr+'isE_nT0p_nW0p_nB1_nJ6p', 
+			CRstr+'isE_nT0p_nW0p_nB2p_nJ3', 
+			CRstr+'isE_nT0p_nW0p_nB2_nJ4', 
+			SRstr+'isE_nT0p_nW0p_nB2_nJ5', 
+			SRstr+'isE_nT0p_nW0p_nB2_nJ6p', 
+			SRstr+'isE_nT0p_nW0p_nB3p_nJ4', 
+			SRstr+'isE_nT0p_nW0p_nB3p_nJ5', 
+			SRstr+'isE_nT0p_nW0p_nB3p_nJ6p', 
+			]
+
+channels = channelsE[:]
+for chn in channelsE: channels.append(chn.replace('isE','isM'))
+
+chnGroups= [[CRstr+'isE_nT0p_nW0p_nB1_nJ4', 
+			 CRstr+'isE_nT0p_nW0p_nB1_nJ5', 
+			 CRstr+'isE_nT0p_nW0p_nB1_nJ6p',
+			 CRstr+'isE_nT0p_nW0p_nB2p_nJ3', 
+			 CRstr+'isE_nT0p_nW0p_nB2_nJ4',
+			 ], 
+			[SRstr+'isE_nT0p_nW0p_nB2_nJ5', 
+		     SRstr+'isE_nT0p_nW0p_nB2_nJ6p', 
+			 SRstr+'isE_nT0p_nW0p_nB3p_nJ4',
+			 SRstr+'isE_nT0p_nW0p_nB3p_nJ5', 
+			 SRstr+'isE_nT0p_nW0p_nB3p_nJ6p',
+			 ]
+			]
+
 table = []
 for isEM in isEMlist:
+	grInd = 0
 	if isEM=='isE': corrdSys = elcorrdSys
 	if isEM=='isM': corrdSys = mucorrdSys
-	for nttag in nttaglist:
+	for chngrE in chnGroups:
+		chngr = [chn.replace('isE',isEM) for chn in chngrE]
 		table.append(['break'])
-		table.append(['',isEM+'_'+nttag+'_yields'])
+		table.append([isEM+'_group'+str(grInd)+'_yields'])
 		table.append(['break'])
-		table.append(['YIELDS']+[chn for chn in channels if isEM in chn and nttag in chn]+['\\\\'])
+		table.append(['YIELDS']+[chn for chn in channels if isEM in chn and chn in chngr]+['\\\\'])
+		grInd+=1
 		for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList:
-			row = [proc]
-			for chn in channels:
-				if not (isEM in chn and nttag in chn): continue
+			row = [procNames[proc]]
+			for chn in chngr:
+				#if not (isEM in chn and nttag in chn): continue
 				modTag = chn[chn.find('nW'):]
 				histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
 				yieldtemp = 0.
@@ -423,39 +526,9 @@ for isEM in isEMlist:
 					yielderrtemp += (corrdSys*yieldtemp)**2
 				yielderrtemp = math.sqrt(yielderrtemp)
 				if proc==dataName: row.append(' & '+str(int(yieldsAll[histoPrefix+proc])))
-				else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
+				else: row.append(' & '+str(round_sig(yieldtemp,2))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 			row.append('\\\\')
 			table.append(row)
-
-#redefine channels manually if the automatic order is not wanted!
-channelsE= ['isE_nT0p_nW0p_nB1_nJ4', 
-			'isE_nT0p_nW0p_nB1_nJ5', 
-			'isE_nT0p_nW0p_nB1_nJ6p', 
-			'isE_nT0p_nW0p_nB2p_nJ3', 
-			'isE_nT0p_nW0p_nB2_nJ4', 
-			'isE_nT0p_nW0p_nB2_nJ5', 
-			'isE_nT0p_nW0p_nB2_nJ6p', 
-			'isE_nT0p_nW0p_nB3p_nJ4', 
-			'isE_nT0p_nW0p_nB3p_nJ5', 
-			'isE_nT0p_nW0p_nB3p_nJ6p', 
-			]
-
-channels = channelsE[:]
-for chn in channelsE: channels.append(chn.replace('isE','isM'))
-
-chnGroups= [['isE_nT0p_nW0p_nB1_nJ4', 
-			 'isE_nT0p_nW0p_nB1_nJ5', 
-			 'isE_nT0p_nW0p_nB1_nJ6p',
-			 'isE_nT0p_nW0p_nB2p_nJ3', 
-			 'isE_nT0p_nW0p_nB2_nJ4',
-			 ], 
-			['isE_nT0p_nW0p_nB2_nJ5', 
-		     'isE_nT0p_nW0p_nB2_nJ6p', 
-			 'isE_nT0p_nW0p_nB3p_nJ4',
-			 'isE_nT0p_nW0p_nB3p_nJ5', 
-			 'isE_nT0p_nW0p_nB3p_nJ6p',
-			 ]
-			]
 			
 grInd = 0			
 for chngr in chnGroups:
@@ -465,7 +538,7 @@ for chngr in chnGroups:
 	table.append(['YIELDS']+[chn.replace('isE','isL') for chn in channels if 'isE' in chn and chn in chngr]+['\\\\'])
 	grInd+=1
 	for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList:
-		row = [proc]
+		row = [procNames[proc]]
 		for chn in chngr:
 			#if not ('isE' in chn and nttag in chn): continue
 			modTag = chn[chn.find('nW'):]
@@ -532,7 +605,7 @@ for chngr in chnGroups:
 				yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 			yielderrtemp = math.sqrt(yielderrtemp)
 			if proc==dataName: row.append(' & '+str(int(yieldsAll[histoPrefixE+proc]+yieldsAll[histoPrefixM+proc])))
-			else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
+			else: row.append(' & '+str(round_sig(yieldtemp,2))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 		row.append('\\\\')
 		table.append(row)
 

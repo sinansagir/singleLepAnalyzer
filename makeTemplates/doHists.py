@@ -14,13 +14,9 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-# parser = argparse.ArgumentParser(description='Welcome to singleLepAnalyzer!')
-# parser.add_argument('-i','--input', help='Input file name',required=True)
-# parser.add_argument('-o','--output',help='Output file name', required=True)
-# args = parser.parse_args()
-
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jlee/chargedHiggs/LHCP2017/TTbar/BDTGhalfTT_Brown_16vars_MLowMedHigh/nominal'
+#step1Dir = '/user_data/jlee/chargedHiggs/EPS2017/LJMet80X_1lep_040317_step2/nominal'
+step1Dir = '/user_data/ssagir/LJMet80X_1lep_040317_step2_BDT_33vars/nominal'
 """
 Note: 
 --Each process in step1 (or step2) directories should have the root files hadded! 
@@ -38,25 +34,26 @@ bkgList = [
 		  'WWW','WWZ','WZZ','ZZZ',
 		  'WWllnn','WWlnqq','WZlnqq','WZlnnn','WZllqq','WZllln','ZZllnn','ZZllqq','ZZllll',
 		  'TTJetsPH700to1000inc', 'TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt',
+		  'TTJetsPH2L',
 		  'Tt','Tbt','Ts','TtW','TbtW',
 		  'TTWl','TTWq','TTZl','TTZq','TTG',
 		  'TTTT','tZq','ttHbb','ttHnonbb',
 		  'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
 for ind in range(1,12): bkgList.append('TTJetsPH0to700inc_'+str(ind))
+#for ind in range(1,12): bkgList.append('TTJetsPH_'+str(ind))
 #for ind in range(1,14): bkgList.append('TTJetsPHSL_'+str(ind))
-ttFlvs = ['_ttflv','_ttbbflv','_ttbjflv','_ttccflv','_ttcjflv','_ttllflv','_ttlfflv']
+ttFlvs = ['_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 dataList = ['DataERRB2H','DataMRRB2H']
 
-whichSignal = 'HTB' #HTB, TT, BB, or X53X53
-#massList = range(180,200+1,20)+range(250,500+1,50)+[750,800,1000,2000,3000]
-massList = [180,200,220,250,300,400,500,800,1000,2000,3000]
-sigList = [whichSignal+'M'+str(mass) for mass in massList]
-if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
+whichSignal = 'Hptb' #Hptb,HTB, TTM, BBM, or X53X53M
+massList = [180,200,220,250,300,350,400,500,800,1000,2000,3000]
+sigList = [whichSignal+str(mass) for mass in massList]
+if whichSignal=='X53X53': sigList = [whichSignal+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
-if whichSignal=='HTB': decays = ['']
+if whichSignal=='Hptb': decays = ['']
 
 sigTrained = 'Low'
 if len(sys.argv)>10: sigTrained=sys.argv[10]
@@ -64,33 +61,25 @@ iPlot = 'minMlbpBDT' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
 region = 'SR'
 if len(sys.argv)>3: region=sys.argv[3]
-isCategorized = 1
+isCategorized = 0
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 doJetRwt= 0
-doAllSys= False
+doAllSys= True
 doQ2sys = False
 q2List  = [#energy scale sample to be processed
 	       'TTJetsPHQ2U','TTJetsPHQ2D',
-	       #'TtWQ2U','TbtWQ2U',
-	       #'TtWQ2D','TbtWQ2D',
 	       ]
 
-cutList = {'lepPtCut':35,'metCut':30,'drCut':0,'jet1PtCut':40,'jet2PtCut':40,'jet3PtCut':0}
+cutList = {'lepPtCut':35,'metCut':30,'jet1PtCut':40,'jet2PtCut':40}
 
 cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
-#cutString += '_NJets'+str(int(cutList['njetsCut']))
-#cutString += '_NBJets'+str(int(cutList['nbjetsCut']))
-cutString += '_DR'+str(cutList['drCut'])+'_1jet'+str(int(cutList['jet1PtCut']))
-cutString += '_2jet'+str(int(cutList['jet2PtCut']))#+'_3jet'+str(int(cutList['jet3PtCut']))
-# cutString += '_4jet'+str(int(cutList['jet4PtCut']))+'_5jet'+str(int(cutList['jet5PtCut']))
-# cutString += '_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])
-# cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
+cutString += '_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))
 
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates'
-if not isCategorized: pfix='kinematics_'+region
+pfix='templates_TEST'
+if not isCategorized: pfix='kinematics_TEST'+region
 pfix+='_'+datestr#+'_'+timestr
 		
 if len(sys.argv)>5: isEMlist=[str(sys.argv[5])]
@@ -166,11 +155,11 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'Bjet1Pt':('BJetLeadPt',linspace(0,1500,51).tolist(),';p_{T}(b_{1}) [GeV]'),
 	'lepPt':('leptonPt_singleLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV]'),
 	'lepEta':('leptonEta_singleLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta'),
-	'JetEta':('theJetEta_JetSubCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK4 Jet #eta'),
-	'JetPt' :('theJetPt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';jet p_{T} [GeV]'),
-	'Jet1Pt':('theJetPt_JetSubCalc_PtOrdered[0]',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}), AK4 [GeV]'),
-	'Jet2Pt':('theJetPt_JetSubCalc_PtOrdered[1]',linspace(0, 1500, 51).tolist(),';p_{T}(j_{2}), AK4 [GeV]'),
-	'Jet3Pt':('theJetPt_JetSubCalc_PtOrdered[2]',linspace(0, 800, 51).tolist(),';p_{T}(j_{3}), AK4 [GeV]'),
+	'JetEta':('AK4JetEta_singleLepCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK4 Jet #eta'),
+	'JetPt' :('AK4JetPt_singleLepCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';jet p_{T} [GeV]'),
+	'Jet1Pt':('AK4JetPt_singleLepCalc_PtOrdered[0]',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}), AK4 [GeV]'),
+	'Jet2Pt':('AK4JetPt_singleLepCalc_PtOrdered[1]',linspace(0, 1500, 51).tolist(),';p_{T}(j_{2}), AK4 [GeV]'),
+	'Jet3Pt':('AK4JetPt_singleLepCalc_PtOrdered[2]',linspace(0, 800, 51).tolist(),';p_{T}(j_{3}), AK4 [GeV]'),
 	'deltaPhilepJets0':('deltaPhi_lepJets0',linspace(0,3.2,51).tolist(),';#Delta#phi(l,j_{1})'),
 	'deltaPhilepJets1':('deltaPhi_lepJets1',linspace(0,3.2,51).tolist(),';#Delta#phi(l,j_{2})'),
 	'deltaPhilepJets2':('deltaPhi_lepJets2',linspace(0,3.2,51).tolist(),';#Delta#phi(l,j_{3})'),
@@ -204,15 +193,15 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
     'HT':('AK4HT',linspace(0, 3000, 51).tolist(),';H_{T} [GeV]'),
  	'ST':('AK4HTpMETpLepPt',linspace(0, 3000, 51).tolist(),';S_{T} [GeV]'),
 	'minMlb':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]'),
-	'BDT':('BDT'+sigTrained,linspace(-1, 1, 37).tolist(),';BDT'),
+	'BDT':('BDT'+sigTrained,linspace(-1, 1, 201).tolist(),';BDT'),
 	
-	'STpBDT':('AK4HTpMETpLepPt',linspace(0, 3000, 51).tolist(),';S_{T} [GeV]','BDT'+sigTrained,linspace(-1, 1, 37).tolist(),';BDT'),
-	'HTpBDT':('AK4HT',linspace(0, 3000, 51).tolist(),';H_{T} [GeV]','BDT'+sigTrained,linspace(-1, 1, 37).tolist(),';BDT'),
-	'minMlbpBDT':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]','BDT'+sigTrained,linspace(-1, 1, 37).tolist(),';BDT'),
+	'STpBDT':('AK4HTpMETpLepPt',linspace(0, 3000, 51).tolist(),';S_{T} [GeV]','BDT'+sigTrained,linspace(-1, 1, 201).tolist(),';BDT'),
+	'HTpBDT':('AK4HT',linspace(0, 5000, 501).tolist(),';H_{T} [GeV]','BDT'+sigTrained,linspace(-1, 1, 201).tolist(),';BDT'),
+	'minMlbpBDT':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]','BDT'+sigTrained,linspace(-1, 1, 201).tolist(),';BDT'),
 
 	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity',linspace(0, 10, 11).tolist(),';b tag multiplicity'),
 	}
-#plotList[iPlot][0] = plotList[iPlot][0]+str(massList[0])
+
 print "PLOTTING:",iPlot
 print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
