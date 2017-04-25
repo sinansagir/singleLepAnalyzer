@@ -34,7 +34,7 @@ if len(sys.argv)>1: iPlot=str(sys.argv[1])
 massPt='180'
 if len(sys.argv)>2: massPt=str(sys.argv[2])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_BDT_33vars_mD3_M'+massPt+'_2017_4_18/'+cutString
+templateDir = os.getcwd()+'/templates_BDTG_33vars_mD3_M'+massPt+'_2017_4_25/'+cutString
 outDir = templateDir#os.getcwd()+'/templates_BDTGfullTT_Comb_28vars_M'+massPt+'_2017_3_14/'
 combinefile = 'templates_'+iPlot+'_35p867fb.root'
 lumiStr = '35p867fb'
@@ -65,7 +65,7 @@ minNbinsSR=1 #min number of bins to be merged
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 statThres = 0.1 #statistical uncertainty threshold on total background to assign BB nuisances -- enter 0.0 to assign BB for all bins
 singleBinCR = False
-#if len(sys.argv)>1: stat=float(sys.argv[1])
+if len(sys.argv)>3: stat=float(sys.argv[3])
 
 if rebinCombine:
 	dataName = 'data_obs'

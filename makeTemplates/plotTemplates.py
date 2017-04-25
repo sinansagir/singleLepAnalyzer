@@ -21,16 +21,16 @@ if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
 if not isCategorized: pfix='kinematics_'+region
-templateDir=os.getcwd()+'/'+pfix+'_JetKin_2017_4_24/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_BDT_33vars_mD3_M2000_2017_4_25/'+cutString+'/'
 
 splitTTbar = True
-isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
 
-sig1='Hptb200' # choose the 1st signal to plot
-sig1leg='H^{#pm} (0.2 TeV)'
-sig2='Hptb300'
-sig2leg='H^{#pm} (0.3 TeV)'
+sig1='Hptb2000' # choose the 1st signal to plot
+sig1leg='H^{#pm} (2 TeV)'
+sig2='Hptb3000'
+sig2leg='H^{#pm} (3 TeV)'
 plotCombine = True
 scaleSignals = True
 scaleFact1 = 100
