@@ -11,81 +11,102 @@ R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
 lumi = 35.9
+useCombine=True
 discriminant = 'HTpBDT'
 lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_BDT_3fold_30vars_wSys_2017_3_26'
+tempVersion = 'templates_BDT_33vars_mD3_M2000_2017_4_25'
 cutString = ''
-templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBM500_'+lumiStr+rfilePostFix+'.root'
+if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_'+lumiStr+rfilePostFix+'.root'
+else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBMKutle_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-saveDir = 'signals_isCR'
+saveDir = 'signals_isSR'
 if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
-bkgList = ['ttbb','ttcc','ttlf','top','ewk','qcd']
+bkgList = ['tt2b','ttbb','ttb','ttcc','ttlf','top','ewk','qcd']
 isEMlist = ['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['1','2','2p','3p']
 njetslist = ['3','4','5','6p']
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if isCR(item[4],item[3])]
 
-systematics = ['pileup','jec','jer','muRFcorrdNew','btag','mistag','trigeff']#,'pdfNew']
+systematics = ['pileup','jec','jer','scale','btag','mistag','trigeff']#,'pdfNew']
+
+if 'isCR' in saveDir: catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if isCR(item[4],item[3])]
+else: catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if isSR(item[4],item[3])]
 
 signameList = [
 #                'HTBM180',
-			   'HTBM200',
+# 			   'HTBM200',
 # 			   'HTBM220',
 # 			   'HTBM250',
 # 			   'HTBM300',
 # 			   'HTBM350',
 # 			   'HTBM400',
 # 			   'HTBM450',
-			   'HTBM500',
+# 			   'HTBM500',
 # 			   'HTBM800',
 # 			   'HTBM1000',
-# 			   'HTBM2000',
-			   'HTBM3000',
+			   'Hptb2000',
+# 			   'HTBM3000',
 			   ]
 
+if useCombine:
+	dataName = 'data_obs'
+	upTag = 'Up'
+	downTag = 'Down'
+else: #theta
+	dataName = 'DATA'
+	upTag = '__plus'
+	downTag = '__minus'
+	
 for signal in signameList:
-	RFile = R.TFile(templateFile.replace('HTBM500',signal))
+	RFile = R.TFile(templateFile.replace('HTBMKutle',signal))
+	print templateFile.replace('HTBMKutle',signal)
 	for syst in systematics:
 		if (syst=='q2' or syst=='toppt'):
 			print "Do you expect to have "+syst+" for your signal? FIX ME IF SO! I'll skip this systematic"
 			continue
-		Prefix = discriminant+'_'+lumiStr+'_'+catList[0]+'__sig'
+		if 'isCR' in saveDir: postTag = 'isCR_'
+		else: postTag = 'isSR_'
+		sigName=signal
+		if not useCombine: 
+			postTag=''
+			sigName='sig'
+		Prefix = discriminant+'_'+lumiStr+'_'+postTag+catList[0]+'__'+sigName
 		print Prefix+'__'+syst
 		hNm = RFile.Get(Prefix).Clone()
-		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
-		hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
-		for cat in catList:
-			if cat==catList[0]: continue
+		hUp = RFile.Get(Prefix+'__'+syst+upTag).Clone()
+		hDn = RFile.Get(Prefix+'__'+syst+downTag).Clone()
+		for cat_ in catList:
+			if cat_==catList[0]: continue
+			cat = postTag+cat_
 			try: 
-				htemp = RFile.Get(Prefix.replace(catList[0],cat)).Clone()
+				htemp = RFile.Get(Prefix.replace(catList[0],cat_)).Clone()
 				hNm.Add(htemp)
 			except: 
 				print "No nominal for",signal,cat,syst
 				pass
 				
 			try:
-				htempUp = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+'__plus').Clone()
+				htempUp = RFile.Get(Prefix.replace(catList[0],cat_)+'__'+syst+upTag).Clone()
 				hUp.Add(htempUp)
 			except:
 				print "No shape for",signal,cat,syst
 				try:
-					htempUp = RFile.Get(Prefix.replace(catList[0],cat)).Clone()
+					htempUp = RFile.Get(Prefix.replace(catList[0],cat_)).Clone()
 					hUp.Add(htempUp)
 				except: 
 					print "No nominal for",signal,cat,syst
 					pass
 		
 			try:
-				htempDown = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+'__minus').Clone()
+				htempDown = RFile.Get(Prefix.replace(catList[0],cat_)+'__'+syst+downTag).Clone()
 				hDn.Add(htempDown)
 			except:
 				print "No shape for",signal,cat,syst
 				try:
-					htempDown = RFile.Get(Prefix.replace(catList[0],cat)).Clone()
+					htempDown = RFile.Get(Prefix.replace(catList[0],cat_)).Clone()
 					hDn.Add(htempDown)
 				except: 
 					print "No nominal for",signal,cat,syst
@@ -238,8 +259,8 @@ for signal in signameList:
 		Tex2.SetTextSize(0.05)
 		Tex2.SetTextAlign(31)
 
-		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+signal+'.pdf')
+		#canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+signal+'.pdf')
 		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+signal+'.png')
-		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+signal+'.eps')
+		#canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+signal+'.eps')
 	RFile.Close()
 

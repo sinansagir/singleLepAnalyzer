@@ -14,14 +14,14 @@ lumi = 35.9
 discriminant = 'HTpBDT'
 lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_BDT_33vars_mD3_M2000_2017_4_18'
+tempVersion = 'templates_BDT_33vars_mD3_M2000_2017_4_25'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-saveDir = 'bkg_isSR'
+saveDir = 'bkg_isCR'
 if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
-bkgList = ['ttbb','ttcc','ttlf','top','ewk','qcd']
+bkgList = ['tt2b','ttbb','ttb','ttcc','ttlf','top','ewk','qcd']
 isEMlist = ['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']

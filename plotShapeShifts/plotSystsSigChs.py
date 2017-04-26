@@ -15,7 +15,7 @@ useCombine=True
 discriminant = 'HTpBDT'
 lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat0p3'
-tempVersion = 'templates_BDT_APR9_mD3_M2000_2017_4_12'
+tempVersion = 'templates_BDT_33vars_mD3_M2000_2017_4_25'
 cutString = ''
 if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_'+lumiStr+rfilePostFix+'.root'
 else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_HTBMKutle_'+lumiStr+rfilePostFix+'.root'
@@ -23,7 +23,7 @@ if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion
 saveDir = 'signalIndChannels'
 if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
-bkgList = ['ttbb','ttcc','ttlf','top','ewk','qcd']
+bkgList = ['tt2b','ttbb','ttb','ttcc','ttlf','top','ewk','qcd']
 isEMlist = ['E','M']
 nttaglist = ['0p']
 nWtaglist = ['0p']
@@ -79,27 +79,6 @@ for signal in signameList:
 			hNm = RFile.Get(Prefix).Clone()
 			hUp = RFile.Get(Prefix+'__'+syst+upTag).Clone()
 			hDn = RFile.Get(Prefix+'__'+syst+downTag).Clone()
-			try: 
-				print Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)
-				htemp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
-				hNm.Add(htemp)
-			except: pass
-			try:
-				if (syst=='q2' or syst=='toppt'):
-					htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
-					hUp.Add(htempUp)
-				else:
-					htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+upTag).Clone()
-					hUp.Add(htempUp)
-			except:pass
-			try: 
-				if (syst=='q2' or syst=='toppt'):
-					htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)).Clone()
-					hDn.Add(htempDown)
-				else:
-					htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(ttags[0],ttag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+downTag).Clone()
-					hDn.Add(htempDown)
-			except:pass
 			hNm.Draw()
 			hUp.Draw()
 			hDn.Draw()

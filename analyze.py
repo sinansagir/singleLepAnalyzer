@@ -107,8 +107,6 @@ def analyze(tTree,tTreePkey,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,
 		weighttopptDownStr  = weightStr
 		weighthtUpStr       = weightStr.replace(HTweightStr,HTweightStrUp)
 		weighthtDownStr     = weightStr.replace(HTweightStr,HTweightStrDn)
-		#weightjsfUpStr      = weightStr.replace(jetSFstr,'1')
-		#weightjsfDownStr    = weightStr.replace(jetSFstr,'('jetSFstr+'*'+jetSFstr+')')
 	#weightStr = '1'
 	#cut += ' && MCWeight_singleLepCalc < 0'
 
