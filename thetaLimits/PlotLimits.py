@@ -12,7 +12,7 @@ from tdrStyle import *
 setTDRStyle()
 
 blind=False
-saveKey=''#'_test'
+saveKey=''
 signal = 'X53'
 lumiPlot = '35.9'
 lumiStr = '35p867'
@@ -125,20 +125,20 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
         	print "SKIPPING SIGNAL: "+mass_str[i]
         	continue
         
-        lims[-1] = float(linesObs[1].strip().split()[1])
+        lims[-1] = float(linesObs[1].strip().split()[1])*1e3
         obs[i] = float(linesObs[1].strip().split()[1])
         obserr[i] = 0
         
-        lims[.5] = float(linesExp[1].strip().split()[1])
+        lims[.5] = float(linesExp[1].strip().split()[1])*1e3
         exp[i] = float(linesExp[1].strip().split()[1])
         experr[i] = 0
-        lims[.16] = float(linesExp[1].strip().split()[4])
+        lims[.16] = float(linesExp[1].strip().split()[4])*1e3
         exp68L[i] = float(linesExp[1].strip().split()[4])
-        lims[.84] = float(linesExp[1].strip().split()[5])
+        lims[.84] = float(linesExp[1].strip().split()[5])*1e3
         exp68H[i] = float(linesExp[1].strip().split()[5])
-        lims[.025] = float(linesExp[1].strip().split()[2])
+        lims[.025] = float(linesExp[1].strip().split()[2])*1e3
         exp95L[i] = float(linesExp[1].strip().split()[2])
-        lims[.975] = float(linesExp[1].strip().split()[3])
+        lims[.975] = float(linesExp[1].strip().split()[3])*1e3
         exp95H[i] = float(linesExp[1].strip().split()[3])
     
         if i!=0:
@@ -152,8 +152,8 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
         exp68L[i]=(exp[i]-exp68L[i])
         exp68H[i]=abs(exp[i]-exp68H[i])
 
-        round_i = 5
-        print str(mass[i]).ljust(ljust_i), str(round(lims[-1],round_i)).ljust(ljust_i), str(round(lims[.5],round_i)).ljust(ljust_i), str(round(lims[.025],round_i)).ljust(ljust_i), str(round(lims[.16],round_i)).ljust(ljust_i), str(round(lims[.84],round_i)).ljust(ljust_i), str(round(lims[.975],round_i)).ljust(ljust_i)
+        round_i = 2
+        print str(int(mass[i])).ljust(ljust_i), '& '+str(round(lims[-1],round_i)).ljust(ljust_i), '& '+str(round(lims[.5],round_i)).ljust(ljust_i), '& '+str(round(lims[.025],round_i)).ljust(ljust_i), '& '+str(round(lims[.16],round_i)).ljust(ljust_i), '& '+str(round(lims[.84],round_i)).ljust(ljust_i), '& '+str(round(lims[.975],round_i)).ljust(ljust_i)+' \\\\'
     print
     signExp = "="
     signObs = "="
@@ -204,7 +204,8 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
 
     if signal=='X53':
     	XaxisTitle = "X_{5/3} mass [GeV]"
-    	YaxisTitle = "#sigma(_{}X_{5/3}#bar{X}_{5/3}) [pb] - "+chiral.replace('left','LH').replace('right','RH')
+    	#YaxisTitle = "#sigma(_{}X_{5/3}#bar{X}_{5/3}) [pb] - "+chiral.replace('left','LH').replace('right','RH')
+    	YaxisTitle = "#sigma(_{}X_{5/3}#bar{X}_{5/3}) [pb]"
     else:
 		XaxisTitle = signal+" mass [GeV]"
 		YaxisTitle = "#sigma("+signal+"#bar{"+signal+"}) [pb]"
@@ -235,11 +236,9 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     legend = rt.TLegend(.37,.69,.94,.89) # top right
     if tempKey=='nB0': legend = rt.TLegend(.32,.42,.92,.62)
     if not blind: legend.AddEntry(observed, "95% CL observed", "lp")
-    #legend.AddEntry(expected68, "#pm 1 std. deviation", "f")
-    legend.AddEntry(expected68, "#pm 1 s.d.", "f")
-    legend.AddEntry(expected, "95% CL expected", "l")
-    #legend.AddEntry(expected95, "#pm 2 std. deviation", "f")
-    legend.AddEntry(expected95, "#pm 2 s.d.", "f")
+    legend.AddEntry(expected68, "68% expected", "f")
+    legend.AddEntry(expected, "Median expected", "l")
+    legend.AddEntry(expected95, "95% expected", "f")
     legend.AddEntry(theory_xsec_gr, "Signal cross section", "lf")
 
     legend.SetShadowColor(0)
@@ -249,6 +248,13 @@ def PlotLimits(limitDir,limitFile,chiral,tempKey):
     legend.SetLineColor(0)
     legend.SetNColumns(2)
     legend.Draw()
+    
+    chiralText = rt.TLatex()
+    chiralText.SetNDC()
+    chiralText.SetTextSize(0.06)
+    chiralText.SetTextAlign(21) # align center
+    thetext = "X_{5/3}#bar{X}_{5/3} - "+chiral.replace('left','LH').replace('right','RH')
+    chiralText.DrawLatex(0.76, 0.56, thetext)
     
     canvas.cd()
     canvas.Update()
@@ -274,18 +280,16 @@ BRs['TZ']=[0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-iPlotList=['minMlb']#,'ST','YLD']
+iPlotList=['minMlb']#,'ST','HT','YLD']
 tempKeys = ['all']#,'isE','isM','nW0','nW1p','nB1','nB2p','nT0','nT1p']
 cutString=''
 dirs = {
-		'HTBin':'templates_2017_2_12',
-		'PtBin':'templates_2017_2_12_PtBin',
 		'SymWin':'templates_60Wmass100_2017_2_12',
-		'limit1':'templates_2017_3_5',
-		'limit2':'templates_2017_3_5_SRpCR',
-		'limit3':'templates_2017_3_5_flatQCDmuRF',
+		'M17WtSF':'templates_M17WtSF_2017_3_31',
+		'M17WtSF_SRpCR':'templates_M17WtSF_2017_3_31_SRpCR',
+		'M17WtSF_SRpCRsimul':'templates_M17WtSF_2017_3_31_SRpCR_simulfit',
 		}
-dirKeyList = ['limit3']#,'limit3']#,'HTBin','PtBin','SymWin']
+dirKeyList = ['M17WtSF_SRpCR']#,'M17WtSF','M17WtSF_SRpCRsimul']
 binnings = ['0p3']
 
 expLimsL = {}

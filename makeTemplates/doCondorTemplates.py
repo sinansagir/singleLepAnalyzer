@@ -3,8 +3,8 @@ import os,sys,datetime,itertools
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-region='WJCR' #PS,SR,TTCR,WJCR
-categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
+region='PS' #PS,SR,TTCR,WJCR
+categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
@@ -13,7 +13,7 @@ if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_M17WtSF_SD_'+date#+'_'+time
+pfix+='_'+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 # 			'lepPt',
@@ -45,10 +45,12 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'SoftDropMass', 
 # 			'SoftDropMassNm1', 
 # 			'topPt',
-# 			
-			'HT',
-			'ST',
-			'minMlb',
+# 			'mindeltaR',
+# 			'PtRel',
+			
+# 			'HT',
+# 			'ST',
+# 			'minMlb',
 # 			'minMlbSBins',
 
 # 			'NJets_vs_NBJets',
@@ -56,8 +58,6 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'NBJetsNoSF',
 # 			'nTrueInt',
 # 	        'MTlmet',
-# 			'mindeltaR',
-# 			'PtRel',
 # 			'minMlj',
 # 			'lepIso',
 # 			'deltaRAK8',
@@ -79,7 +79,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'minMljDPhi',
 # 			'minMlbDR',
 # 			'minMlbDPhi',
-# 			'topMass',
+			'topMass',
 # 			'nLepGen',
 # 			'METphi',
 # 			'lepPhi',
@@ -107,6 +107,7 @@ if not categorize:
 	if region=='CR': nbtaglist = ['0','0p','1p']
 njetslist = ['4p']
 if region=='PS': njetslist = ['3p']
+catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
@@ -115,9 +116,9 @@ os.chdir(outDir)
 
 count=0
 for iplot in iPlotList:
-	for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)):
+	for cat in catList:
 		catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
-		print catDir
+		print "iPlot: "+iplot+", cat: "+catDir
 		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+catDir)
 		os.chdir(catDir)
 		os.system('cp '+outputDir+'/doCondorTemplates.sh '+outDir+'/'+catDir+'/'+cat[0]+'T'+cat[1]+'W'+cat[2]+'B'+cat[3]+'J'+cat[4]+iplot+'.sh')			

@@ -15,8 +15,8 @@ start_time = time.time()
 lumi=35.9 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
+region='PS' #PS,SR,TTCR,WJCR
+isCategorized=0
 iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
@@ -28,15 +28,15 @@ templateDir=os.getcwd()+'/'+pfix+'M17WtSF_2017_3_31/'+cutString+'/'
 postFitFile=os.getcwd()+'/../thetaLimits/chi2test_2017_2_12/histos-mle.root'
 plotPostFit = False #this is not working yet!!
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
-saveKey = ''#'_noQ2' # tag for plot names
+isRebinned='_rebinned_stat1p1' #post for ROOT file names
+saveKey = '_poisson'#'_noQ2' # tag for plot names
 
 sig1='X53X53M900left' #  choose the 1st signal to plot
 sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.9 TeV)'
 sig2='X53X53M1200right' #  choose the 2nd signal to plot
 sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.2 TeV)'
-scaleSignals = False
-sigScaleFact = 40 #put -1 if auto-scaling wanted
+scaleSignals = True
+sigScaleFact = 80 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 bkgProcList = ['top','ewk','qcd']
@@ -52,11 +52,11 @@ doAllSys = True
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-doNormByBinWidth=True
+doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
-yLog  = True
+yLog  = False
 doRealPull = True
 if doRealPull: doOneBand=False
 compareShapes = False
@@ -119,24 +119,25 @@ def formatUpperHist(histogram):
 		histogram.GetYaxis().SetLabelSize(0.045)
 		histogram.GetYaxis().SetTitleSize(0.055)
 		histogram.GetYaxis().SetTitleOffset(1.15)
-		histogram.GetXaxis().SetNdivisions(506)
 	else:
 		histogram.GetYaxis().SetLabelSize(0.07)
 		histogram.GetYaxis().SetTitleSize(0.08)
 		histogram.GetYaxis().SetTitleOffset(.71)
+		if 'NTJets' in histogram.GetName() or 'NWJets' in histogram.GetName() or 'NBJets' in histogram.GetName(): histogram.GetYaxis().SetTitleOffset(0.81)
 	if 'YLD' in iPlot: histogram.GetXaxis().LabelsOption("u")
 
 	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName() and 'YLD' not in iPlot: histogram.GetXaxis().SetTitle("min[M(l,j)], j#neqb [GeV]")
 	if 'JetPt' in histogram.GetName() or 'JetEta' in histogram.GetName() or 'JetPhi' in histogram.GetName() or 'Pruned' in histogram.GetName() or 'Tau' in histogram.GetName() or 'SoftDropMass' in histogram.GetName(): histogram.GetYaxis().SetTitle(histogram.GetYaxis().GetTitle().replace("Events","Jets"))
 	histogram.GetYaxis().CenterTitle()
 	histogram.SetMinimum(0.000101)
+	if region=='WJCR': histogram.SetMinimum(0.0000101)
 	if region=='PS': histogram.SetMinimum(0.0101)
 	if not yLog: 
-		histogram.SetMinimum(0.015)
+		histogram.SetMinimum(0.25)
 	if yLog:
+		if 'nB1' in histogram.GetName(): histogram.SetMaximum(1e4*rt.TMath.MaxElement(histogram.GetN(),histogram.GetY()))
+		else: histogram.SetMaximum(2e2*rt.TMath.MaxElement(histogram.GetN(),histogram.GetY()))
 		uPad.SetLogy()
-		if 'nB1' in histogram.GetName(): histogram.SetMaximum(1e4*histogram.GetMaximum())
-		else: histogram.SetMaximum(2e2*histogram.GetMaximum())
 	else: 
 		if 'YLD' in iPlot: histogram.SetMaximum(1.3*histogram.GetMaximum())
 		else: histogram.SetMaximum(1.3*histogram.GetMaximum())
@@ -249,6 +250,7 @@ for tag in tagList:
 				print "There is no "+proc+"!!! Skipping it....."
 				pass
 		hData = RFile1.Get(histPrefix+'__DATA').Clone()
+		gaeData = rt.TGraphAsymmErrors(hData.Clone(hData.GetName().replace("DATA","gaeData")))
 		hData_test = RFile1.Get(histPrefix+'__DATA').Clone()
 		bkgHT_test = bkghists[bkgProcList[0]+catStr].Clone()
 		for proc in bkgProcList:
@@ -266,7 +268,11 @@ for tag in tagList:
 				except: pass
 			normByBinWidth(hsig1)
 			normByBinWidth(hsig2)
+			poissonNormByBinWidth(gaeData,hData)
 			normByBinWidth(hData)
+		else: poissonErrors(gaeData)
+		# Yes, there are easier ways using the TH1's but
+		# it would be rough to swap objects lower down
 
 		if doAllSys:
 			q2list = []
@@ -286,7 +292,13 @@ for tag in tagList:
 			if proc==bkgProcList[0]: continue
 			try: bkgHT.Add(bkghists[proc+catStr])
 			except: pass
+		gaeBkgHT = rt.TGraphAsymmErrors(bkgHT.Clone("gaeBkgHT"))
 
+		if doNormByBinWidth: poissonNormByBinWidth(gaeBkgHT,bkgHT)
+		else: poissonErrors(gaeBkgHT)
+
+		# we only use the bin contents from this cloning
+		# if stat uncert is going to come from the cloning, clone the gaeBkgHT I think
 		totBkgTemp1[catStr] = rt.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapeOnly'))
 		totBkgTemp2[catStr] = rt.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'shapePlusNorm'))
 		totBkgTemp3[catStr] = rt.TGraphAsymmErrors(bkgHT.Clone(bkgHT.GetName()+'All'))
@@ -294,7 +306,8 @@ for tag in tagList:
 		for ibin in range(1,bkghists[bkgProcList[0]+catStr].GetNbinsX()+1):
 			errorUp = 0.
 			errorDn = 0.
-			errorStatOnly = bkgHT.GetBinError(ibin)**2
+			errorStatUp = gaeBkgHT.GetErrorYhigh(ibin-1)**2
+			errorStatDn = gaeBkgHT.GetErrorYlow(ibin-1)**2
 			errorNorm = 0.
 			for proc in bkgProcList:
 				try: errorNorm += getNormUnc(bkghists[proc+catStr],ibin,modelingSys[proc+'_'+modTag])
@@ -314,12 +327,12 @@ for tag in tagList:
 							else: errorUp += errorMinus**2
 						except: pass
 
-			totBkgTemp1[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatOnly))
-			totBkgTemp1[catStr].SetPointEYlow(ibin-1, math.sqrt(errorStatOnly))
-			totBkgTemp2[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatOnly+errorNorm))
-			totBkgTemp2[catStr].SetPointEYlow(ibin-1, math.sqrt(errorStatOnly+errorNorm))
-			totBkgTemp3[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp+errorNorm+errorStatOnly))
-			totBkgTemp3[catStr].SetPointEYlow(ibin-1, math.sqrt(errorDn+errorNorm+errorStatOnly))
+			totBkgTemp1[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatUp))
+			totBkgTemp1[catStr].SetPointEYlow(ibin-1, math.sqrt(errorStatDn))
+			totBkgTemp2[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatUp+errorNorm))
+			totBkgTemp2[catStr].SetPointEYlow(ibin-1, math.sqrt(errorStatDn+errorNorm))
+			totBkgTemp3[catStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp+errorNorm+errorStatUp))
+			totBkgTemp3[catStr].SetPointEYlow(ibin-1, math.sqrt(errorDn+errorNorm+errorStatDn))
 			
 		for ibin in range(1, bkgHT_test.GetNbinsX()+1):
 			bkgHT_test.SetBinError(ibin,(totBkgTemp3[catStr].GetErrorYlow(ibin-1) + totBkgTemp3[catStr].GetErrorYhigh(ibin-1))/2 )
@@ -397,12 +410,12 @@ for tag in tagList:
 		hsig2.SetFillStyle(0)
 		hsig2.SetLineWidth(3)
 		
-		if not drawYields: hData.SetMarkerStyle(20)
-		hData.SetMarkerSize(1.2)
-		hData.SetMarkerColor(rt.kBlack)
-		hData.SetLineWidth(2)
-		hData.SetLineColor(rt.kBlack)
-		if drawYields: hData.SetMarkerSize(4)
+		if not drawYields: gaeData.SetMarkerStyle(20)
+		gaeData.SetMarkerSize(1.2)
+		gaeData.SetLineWidth(2)
+		gaeData.SetMarkerColor(rt.kBlack)
+		gaeData.SetLineColor(rt.kBlack)
+		if drawYields: gaeData.SetMarkerSize(4)
 
 		bkgHTgerr.SetFillStyle(3004)
 		bkgHTgerr.SetFillColor(rt.kBlack)
@@ -418,7 +431,8 @@ for tag in tagList:
 	
 		yDiv=0.35
 		if blind == True: yDiv=0.0
-		uPad=rt.TPad("uPad","",0,yDiv,1,1) #for actual plots
+		# overlap the pads a little to hide the error bar gap:
+		uPad=rt.TPad("uPad","",0,yDiv-0.009,1,1) #for actual plots
 	
 		uPad.SetLeftMargin( L/W )
 		uPad.SetRightMargin( R/W )
@@ -449,28 +463,29 @@ for tag in tagList:
 			#lPad.SetTickx(0)
 			#lPad.SetTicky(0)
 			lPad.Draw()
-		if not doNormByBinWidth: hData.SetMaximum(1.2*max(hData.GetMaximum(),bkgHT.GetMaximum()))
-		#hData.SetMinimum(0.015)
-		hData.SetTitle("")
-		if doNormByBinWidth: hData.GetYaxis().SetTitle("< Events / GeV >")
-		elif isRebinned!='': hData.GetYaxis().SetTitle("Events / bin")
-		else: hData.GetYaxis().SetTitle("Events / bin")
-		formatUpperHist(hData)
+		# this is super important now!! gaeData has badly defined (negative) maximum
+		#if not doNormByBinWidth: 
+		if not doNormByBinWidth: gaeData.SetMaximum(1.2*max(gaeData.GetMaximum(),bkgHT.GetMaximum()))
+		#gaeData.SetMinimum(0.015)
+		gaeData.SetTitle("")
+		if doNormByBinWidth: gaeData.GetYaxis().SetTitle("< Events / GeV >")
+		else: gaeData.GetYaxis().SetTitle("Events / bin")
+		formatUpperHist(gaeData)
+		gaeData.GetXaxis().SetRangeUser(hData.GetBinLowEdge(1),hData.GetBinLowEdge(gaeData.GetN()+1))
 		uPad.cd()
-		hData.SetTitle("")
+		gaeData.SetTitle("")
 		if compareShapes: 
 			hsig1.Scale(totBkg/hsig1.Integral())
 			hsig2.Scale(totBkg/hsig2.Integral())
 		if not blind: 
-			if 'rebinned_stat0p' in isRebinned: hData.Draw("esamex1")
-			else: hData.Draw("esamex0")
+			if 'rebinned_stat0p' in isRebinned: gaeData.Draw("pz1")
+			else: gaeData.Draw("pz0")
 		if blind: 
 			#hsig1.SetMinimum(0.015)
 			if doNormByBinWidth: hsig1.GetYaxis().SetTitle("< Events / GeV >")
-			elif isRebinned!='': hsig1.GetYaxis().SetTitle("Events / bin")
 			else: hsig1.GetYaxis().SetTitle("Events / bin")
 			formatUpperHist(hsig1)
-			hsig1.SetMaximum(hData.GetMaximum())
+			hsig1.SetMaximum(gaeData.GetMaximum())
 			hsig1.Draw("HIST")
 		stackbkgHT.Draw("SAME HIST")
 		if drawYields: 
@@ -479,9 +494,9 @@ for tag in tagList:
 		hsig1.Draw("SAME HIST")
 		hsig2.Draw("SAME HIST")
 		if not blind: 
-			if 'rebinned_stat0p' in isRebinned: hData.Draw("esamex1")
-			else: hData.Draw("esamex0") #redraw data so its not hidden
-			if drawYields: hData.Draw("SAME TEXT00") 
+			if 'rebinned_stat0p' in isRebinned: gaeData.Draw("pz1")
+			else: gaeData.Draw("pz0") #redraw data so its not hidden
+			if drawYields: gaeData.Draw("SAME TEXT00") 
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
 		
@@ -546,7 +561,7 @@ for tag in tagList:
 			except: pass
 			if not blind: 
 				leg.AddEntry(0, "", "")
-				leg.AddEntry(hData,"Data","ep")
+				leg.AddEntry(gaeData,"Data","ep")
 				
 		if not drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
@@ -566,7 +581,7 @@ for tag in tagList:
 			try: leg.AddEntry(bkghists['T'+catStr],"Single t","f")
 			except: pass
 			leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
-			if not blind: leg.AddEntry(hData,"Data","ep")
+			if not blind: leg.AddEntry(gaeData,"Data","ep")
 		leg.Draw("same")
 
 		#draw the lumi text on the canvas
@@ -581,6 +596,7 @@ for tag in tagList:
 			lPad.cd()
 			pull=hData.Clone("pull")
 			pull.Divide(hData, bkgHT)
+			pullData=rt.TGraphAsymmErrors(pull.Clone("pullData"))
 			for binNo in range(1,hData.GetNbinsX()+1):
 				binLbl = binNo-1
 				if 'NJets' in iPlot: 
@@ -591,7 +607,8 @@ for tag in tagList:
 				if 'NWJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
 				if 'NBJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
 				if bkgHT.GetBinContent(binNo)!=0:
-					pull.SetBinError(binNo,hData.GetBinError(binNo)/bkgHT.GetBinContent(binNo))
+					pullData.SetPointEYhigh(binNo-1,gaeData.GetErrorYhigh(binNo-1)/bkgHT.GetBinContent(binNo))
+					pullData.SetPointEYlow(binNo-1,gaeData.GetErrorYlow(binNo-1)/bkgHT.GetBinContent(binNo))
 			pull.SetMaximum(3)
 			pull.SetMinimum(0)
 			pull.SetFillColor(1)
@@ -672,10 +689,14 @@ for tag in tagList:
 				if 'NTJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
 				if 'NWJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
 				if 'NBJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
-				if hData.GetBinContent(binNo)!=0:
-					MCerror = 0.5*(totBkgTemp3[catStr].GetErrorYhigh(binNo-1)+totBkgTemp3[catStr].GetErrorYlow(binNo-1))
-					pull.SetBinContent(binNo,(hData.GetBinContent(binNo)-bkgHT.GetBinContent(binNo))/math.sqrt(MCerror**2+hData.GetBinError(binNo)**2))
-				else: pull.SetBinContent(binNo,0.)
+				# case for data < MC:
+				dataerror = gaeData.GetErrorYhigh(binNo-1)
+				MCerror = totBkgTemp3[catStr].GetErrorYlow(binNo-1)
+				# case for data > MC: 
+				if(hData.GetBinContent(binNo) > bkgHT.GetBinContent(binNo)):
+					dataerror = gaeData.GetErrorYlow(binNo-1)
+					MCerror = totBkgTemp3[catStr].GetErrorYhigh(binNo-1)
+				pull.SetBinContent(binNo,(hData.GetBinContent(binNo)-bkgHT.GetBinContent(binNo))/math.sqrt(MCerror**2+dataerror**2))
 			pull.SetMaximum(3)
 			pull.SetMinimum(-3)
 			if '53' in sig1:
@@ -737,6 +758,7 @@ for tag in tagList:
 		except:pass
 	hDatamerged = RFile1.Get(histPrefixE+'__DATA').Clone()
 	hDatamerged.Add(RFile1.Get(histPrefixM+'__DATA').Clone())
+	gaeDatamerged = rt.TGraphAsymmErrors(hDatamerged.Clone(hDatamerged.GetName().replace("DATA","gaeData")))
 	hDatamerged_test = RFile1.Get(histPrefixE+'__DATA').Clone()
 	hDatamerged_test.Add(RFile1.Get(histPrefixM+'__DATA').Clone())
 	bkgHTmerged_test = bkghistsmerged[bkgProcList[0]+'isL'+tagStr].Clone()
@@ -756,7 +778,11 @@ for tag in tagList:
 			except: pass
 		normByBinWidth(hsig1merged)
 		normByBinWidth(hsig2merged)
+		poissonNormByBinWidth(gaeDatamerged,hDatamerged)
 		normByBinWidth(hDatamerged)
+	else: poissonErrors(gaeDatamerged)
+	# Yes, there are easier ways using the TH1's but
+	# it would be rough to swap objects lower down	
 
 	if doAllSys:
 		q2list=[]
@@ -774,6 +800,10 @@ for tag in tagList:
 		if proc==bkgProcList[0]: continue
 		try: bkgHTmerged.Add(bkghistsmerged[proc+'isL'+tagStr])
 		except: pass
+	gaeBkgHTmerged = rt.TGraphAsymmErrors(bkgHTmerged.Clone("gaeBkgHTmerged"))
+
+	if doNormByBinWidth: poissonNormByBinWidth(gaeBkgHTmerged,bkgHTmerged)
+	else: poissonErrors(gaeBkgHTmerged)
 
 	totBkgTemp1['isL'+tagStr] = rt.TGraphAsymmErrors(bkgHTmerged.Clone(bkgHTmerged.GetName()+'shapeOnly'))
 	totBkgTemp2['isL'+tagStr] = rt.TGraphAsymmErrors(bkgHTmerged.Clone(bkgHTmerged.GetName()+'shapePlusNorm'))
@@ -782,7 +812,8 @@ for tag in tagList:
 	for ibin in range(1,bkghistsmerged[bkgProcList[0]+'isL'+tagStr].GetNbinsX()+1):
 		errorUp = 0.
 		errorDn = 0.
-		errorStatOnly = bkgHTmerged.GetBinError(ibin)**2
+		errorStatUp = gaeBkgHTmerged.GetErrorYhigh(ibin-1)**2
+		errorStatDn = gaeBkgHTmerged.GetErrorYlow(ibin-1)**2
 		errorNorm = 0.
 		for proc in bkgProcList:
 			try: errorNorm += getNormUnc(bkghistsmerged[proc+'isL'+tagStr],ibin,modelingSys[proc+'_'+modTag])
@@ -802,12 +833,12 @@ for tag in tagList:
 						else: errorUp += errorMinus**2
 					except: pass
 
-		totBkgTemp1['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatOnly))
-		totBkgTemp1['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorStatOnly))
-		totBkgTemp2['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatOnly+errorNorm))
-		totBkgTemp2['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorStatOnly+errorNorm))
-		totBkgTemp3['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp+errorNorm+errorStatOnly))
-		totBkgTemp3['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorDn+errorNorm+errorStatOnly))
+		totBkgTemp1['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatUp))
+		totBkgTemp1['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorStatDn))
+		totBkgTemp2['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorStatUp+errorNorm))
+		totBkgTemp2['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorStatDn+errorNorm))
+		totBkgTemp3['isL'+tagStr].SetPointEYhigh(ibin-1,math.sqrt(errorUp+errorNorm+errorStatUp))
+		totBkgTemp3['isL'+tagStr].SetPointEYlow(ibin-1, math.sqrt(errorDn+errorNorm+errorStatDn))
 
 	for ibin in range(1, bkgHTmerged_test.GetNbinsX()+1):
 		bkgHTmerged_test.SetBinError(ibin,(totBkgTemp3['isL'+tagStr].GetErrorYlow(ibin-1) + totBkgTemp3['isL'+tagStr].GetErrorYhigh(ibin-1))/2 )
@@ -875,12 +906,12 @@ for tag in tagList:
 	hsig2merged.SetFillStyle(0)
 	hsig2merged.SetLineWidth(3)
 	
-	if not drawYields: hDatamerged.SetMarkerStyle(20)
-	hDatamerged.SetMarkerSize(1.2)
-	hDatamerged.SetMarkerColor(rt.kBlack)
-	hDatamerged.SetLineWidth(2)
-	hDatamerged.SetLineColor(rt.kBlack)
-	if drawYields: hDatamerged.SetMarkerSize(4)
+	if not drawYields: gaeDatamerged.SetMarkerStyle(20)
+	gaeDatamerged.SetMarkerSize(1.2)
+	gaeDatamerged.SetMarkerColor(rt.kBlack)
+	gaeDatamerged.SetLineWidth(2)
+	gaeDatamerged.SetLineColor(rt.kBlack)
+	if drawYields: gaeDatamerged.SetMarkerSize(4)
 
 	bkgHTgerrmerged.SetFillStyle(3004)
 	bkgHTgerrmerged.SetFillColor(rt.kBlack)
@@ -896,7 +927,8 @@ for tag in tagList:
 	
 	yDiv=0.35
 	if blind == True: yDiv=0.0
-	uPad=rt.TPad("uPad","",0,yDiv,1,1) #for actual plots
+	# overlap the pads a little to hide the error bar gap:
+	uPad=rt.TPad("uPad","",0,yDiv-0.009,1,1) #for actual plots
 	
 	uPad.SetLeftMargin( L/W )
 	uPad.SetRightMargin( R/W )
@@ -927,21 +959,22 @@ for tag in tagList:
 		#lPad.SetTickx(0)
 		#lPad.SetTicky(0)
 		lPad.Draw()
-	if not doNormByBinWidth: hDatamerged.SetMaximum(1.2*max(hDatamerged.GetMaximum(),bkgHTmerged.GetMaximum()))
-	#hDatamerged.SetMinimum(0.015)
-	if doNormByBinWidth: hDatamerged.GetYaxis().SetTitle("< Events / GeV >")
-	elif isRebinned!='': hDatamerged.GetYaxis().SetTitle("Events / bin")
-	else: hDatamerged.GetYaxis().SetTitle("Events / bin")
-	formatUpperHist(hDatamerged)
+	if not doNormByBinWidth: gaeDatamerged.SetMaximum(1.2*max(gaeDatamerged.GetMaximum(),bkgHTmerged.GetMaximum()))
+	#gaeDatamerged.SetMinimum(0.015)
+	if doNormByBinWidth: gaeDatamerged.GetYaxis().SetTitle("< Events / GeV >")
+	elif isRebinned!='': gaeDatamerged.GetYaxis().SetTitle("Events / bin")
+	else: gaeDatamerged.GetYaxis().SetTitle("Events / bin")
+	formatUpperHist(gaeDatamerged)
+	gaeDatamerged.GetXaxis().SetRangeUser(hDatamerged.GetBinLowEdge(1),hDatamerged.GetBinLowEdge(gaeDatamerged.GetN()+1))
 	uPad.cd()
-	hDatamerged.SetTitle("")
+	gaeDatamerged.SetTitle("")
 	stackbkgHTmerged.SetTitle("")
 	if compareShapes: 
 		hsig1merged.Scale(totBkgMerged/hsig1merged.Integral())
 		hsig2merged.Scale(totBkgMerged/hsig2merged.Integral())
 	if not blind: 
-		if 'rebinned_stat0p' in isRebinned: hDatamerged.Draw("esamex1")
-		else: hDatamerged.Draw("esamex0")
+		if 'rebinned_stat0p' in isRebinned: gaeDatamerged.Draw("pz1")
+		else: gaeDatamerged.Draw("apz0")
 	if blind: 
 		#hsig1merged.SetMinimum(0.015)
 		if doNormByBinWidth: hsig1merged.GetYaxis().SetTitle("< Events / GeV >")
@@ -957,8 +990,8 @@ for tag in tagList:
 	hsig1merged.Draw("SAME HIST")
 	hsig2merged.Draw("SAME HIST")
 	if not blind: 
-		if 'rebinned_stat0p' in isRebinned: hDatamerged.Draw("esamex1")
-		else: hDatamerged.Draw("esamex0") #redraw data so its not hidden
+		if 'rebinned_stat0p' in isRebinned: gaeDatamerged.Draw("pz1")
+		else: gaeDatamerged.Draw("pz0") #redraw data so its not hidden
 		if drawYields: hDatamerged.Draw("SAME TEXT00") 
 	uPad.RedrawAxis()
 	bkgHTgerrmerged.Draw("SAME E2")
@@ -1023,7 +1056,7 @@ for tag in tagList:
 			try: legmerged.AddEntry(bkghistsmerged['TisL'+tagStr],"Single t","f")
 			except: pass
 			legmerged.AddEntry(0, "", "")
-			legmerged.AddEntry(hDatamerged,"Data","ep")
+			legmerged.AddEntry(gaeDatamerged,"Data","ep")
 		else:
 			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
 			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
@@ -1050,7 +1083,7 @@ for tag in tagList:
 		try: legmerged.AddEntry(bkghistsmerged['TisL'+tagStr],"Single t","f")
 		except: pass
 		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
-		if not blind: legmerged.AddEntry(hDatamerged,"Data","ep")
+		if not blind: legmerged.AddEntry(gaeDatamerged,"Data","ep")
 	legmerged.Draw("same")
 
 	#draw the lumi text on the canvas
@@ -1065,6 +1098,7 @@ for tag in tagList:
 		lPad.cd()
 		pullmerged=hDatamerged.Clone("pullmerged")
 		pullmerged.Divide(hDatamerged, bkgHTmerged)
+		pullmergedData=TGraphAsymmErrors(pullmerged.Clone("pullmergedData"))
 		for binNo in range(1,hDatamerged.GetNbinsX()+1):
 			binLbl = binNo-1
 			if 'NJets' in iPlot: 
@@ -1075,7 +1109,8 @@ for tag in tagList:
 			if 'NWJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binLbl))
 			if 'NBJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binLbl))
 			if bkgHTmerged.GetBinContent(binNo)!=0:
-				pull.SetBinError(binNo,hDatamerged.GetBinError(binNo)/bkgHTmerged.GetBinContent(binNo))
+				pullmergedData.SetPointEYhigh(binNo-1,gaeDatamerged.GetErrorYhigh(binNo-1)/bkgHTmerged.GetBinContent(binNo))
+				pullmergedData.SetPointEYlow(binNo-1,gaeDatamerged.GetErrorYlow(binNo-1)/bkgHTmerged.GetBinContent(binNo))
 		pullmerged.SetMaximum(3)
 		pullmerged.SetMinimum(0)
 		pullmerged.SetFillColor(1)
@@ -1158,6 +1193,14 @@ for tag in tagList:
 				MCerror = 0.5*(totBkgTemp3['isL'+tagStr].GetErrorYhigh(binNo-1)+totBkgTemp3['isL'+tagStr].GetErrorYlow(binNo-1))
 				pullmerged.SetBinContent(binNo,(hDatamerged.GetBinContent(binNo)-bkgHTmerged.GetBinContent(binNo))/math.sqrt(MCerror**2+hDatamerged.GetBinError(binNo)**2))
 			else: pullmerged.SetBinContent(binNo,0.)
+			# case for data < MC:
+			dataerror = gaeDatamerged.GetErrorYhigh(binNo-1)
+			MCerror = totBkgTemp3['isL'+tagStr].GetErrorYlow(binNo-1)
+			# case for data > MC: 
+			if(hDatamerged.GetBinContent(binNo) > bkgHTmerged.GetBinContent(binNo)):
+				dataerror = gaeDatamerged.GetErrorYlow(binNo-1)
+				MCerror = totBkgTemp3['isL'+tagStr].GetErrorYhigh(binNo-1)
+			pullmerged.SetBinContent(binNo,(hDatamerged.GetBinContent(binNo)-bkgHTmerged.GetBinContent(binNo))/math.sqrt(MCerror**2+dataerror**2))
 		pullmerged.SetMaximum(3)
 		pullmerged.SetMinimum(-3)
 		if '53' in sig1:

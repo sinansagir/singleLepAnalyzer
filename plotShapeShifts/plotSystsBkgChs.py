@@ -11,7 +11,7 @@ lumi = 35.9
 discriminant = 'minMlb'
 lumiStr = '35p867fb'
 rfilePostFix = '_rebinned_stat0p3'
-tempVersion = 'templates_2017_3_5'
+tempVersion = 'templates_M17WtSF_2017_3_31_SRpCR'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
@@ -26,7 +26,22 @@ njetslist = ['4p']
 
 systematics = ['pileup','jec','jer','jms','jmr','tau21','taupt','toppt','ht','topsf','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
 
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
+catList=[
+		 'isE_nT0_nW0_nB1_nJ4p',
+		 'isE_nT0_nW0_nB2p_nJ4p',
+		 'isE_nT0_nW1p_nB1_nJ4p',
+		 'isE_nT0_nW1p_nB2p_nJ4p',
+		 'isE_nT1p_nW0_nB1_nJ4p',
+		 'isE_nT1p_nW0_nB2p_nJ4p',
+		 'isE_nT1p_nW1p_nB1_nJ4p',
+		 'isE_nT1p_nW1p_nB2p_nJ4p',
+		 'isE_nT0p_nW0p_nB1_nJ4p',
+		 'isE_nT0p_nW0p_nB2p_nJ4p',
+		 'isE_nT0p_nW0_nB0_nJ4p',
+		 'isE_nT0p_nW1p_nB0_nJ4p',
+		 ]
+catList = catList + [item.replace('isE','isM') for item in catList]
+#catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 RFile = R.TFile(templateFile)
 
 for syst in systematics:

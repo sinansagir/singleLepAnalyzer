@@ -14,14 +14,14 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='WJCR' #PS,SR,TTCR,WJCR
+region='SR' #PS,SR,TTCR,WJCR
 isCategorized=1
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='M17WtSF_2017_3_19'
+pfix+='M17WtSF_2017_3_31'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -31,9 +31,9 @@ doAllSys = True
 doQ2sys = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','ht','muR','muF','muRFcorrd','trigeff','btag','mistag']#,'jsf'
+systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','ht','muR','muF','muRFcorrd','trigeff','btag','mistag']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
-rebinHists = False #performs a regular rebinning, current setup doubles the bin width if used.
+rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 
 doJetRwt= 0
 bkgGrupList = ['top','ewk','qcd']
@@ -245,8 +245,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 					hists[signal+i].Scale(1./xsec[signal])
 					if doAllSys:
 						for syst in systematicList:
-							if syst=='toppt': continue
-							if syst=='ht' and proc not in htProcs: continue
+							if syst=='toppt' or syst=='ht': continue
 							hists[signal+i+syst+'Up'].Scale(1./xsec[signal])
 							hists[signal+i+syst+'Down'].Scale(1./xsec[signal])
 							if normalizeRENORM_PDF and (syst.startswith('mu') or syst=='pdf'):
@@ -255,6 +254,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						for pdfInd in range(100): 
 							hists[signal+i+'pdf'+str(pdfInd)].Scale(1./xsec[signal])
 
+		nbins = str(int(hists['data'+i].GetXaxis().GetNbins()))
 		#Theta templates:
 		print "       WRITING THETA TEMPLATES: "
 		for signal in sigList:
@@ -277,6 +277,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							if proc+'_q2up' not in bkgProcs.keys(): continue
 							hists[proc+i+'q2Up'].Write()
 							hists[proc+i+'q2Down'].Write()
+					else: print proc+i,"IS EMPTY! SKIPPING ..."
 				hists['data'+i].Write()
 			thetaRfile.Close()
 
@@ -567,40 +568,47 @@ for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
     iPlotList.append(file.split('/')[-1].replace('bkghists_','')[:-2])
 
 print "WORKING DIR:",outDir
-print iPlotList
+print "Templates:",iPlotList
 for iPlot in iPlotList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	#if iPlot!='minMlbSBins': continue
+	if len(sys.argv)>1 and iPlot!=sys.argv[1]: continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]
 		datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
 		bkghists.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists_'+iPlot+'.p','rb')))
 		sighists.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))
+	
+	#Re-scale lumi
 	if scaleLumi:
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
 	
-# 	for key in bkghists.keys(): 
-# 		if 'TTJetsPH700to1000inc' in key: bkghists[key].Scale(weight['TTJetsPH']/weight['TTJetsPH700to1000inc'])
-# 		if 'TTJetsPH1000toINFinc' in key: bkghists[key].Scale(weight['TTJetsPH']/weight['TTJetsPH1000toINFinc'])
-	
 	#Rebin
-	if rebinHists:
-		for data in datahists.keys(): datahists[data] = datahists[data].Rebin(2)
-		for bkg in bkghists.keys():   bkghists[bkg] = bkghists[bkg].Rebin(2)
-		for sig in sighists.keys():   sighists[sig] = sighists[sig].Rebin(2)
+	if rebinBy>0:
+		print "       REBINNING HISTOGRAMS: MERGING",rebinBy,"BINS ..."
+		for data in datahists.keys(): datahists[data] = datahists[data].Rebin(rebinBy)
+		for bkg in bkghists.keys():   bkghists[bkg] = bkghists[bkg].Rebin(rebinBy)
+		for sig in sighists.keys():   sighists[sig] = sighists[sig].Rebin(rebinBy)
 
  	#Negative Bin Correction
+ 	print "       CORRECTING NEGATIVE BINS ..."
  	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
  	for sig in sighists.keys(): negBinCorrection(sighists[sig])
 
  	#OverFlow Correction
- 	for data in datahists.keys(): overflow(datahists[data])
- 	for bkg in bkghists.keys():   overflow(bkghists[bkg])
- 	for sig in sighists.keys():   overflow(sighists[sig])
+ 	print "       CORRECTING OVER(UNDER)FLOW BINS ..."
+ 	for data in datahists.keys(): 
+ 		overflow(datahists[data])
+ 		underflow(datahists[data])
+ 	for bkg in bkghists.keys():
+ 		overflow(bkghists[bkg])
+ 		underflow(bkghists[bkg])
+ 	for sig in sighists.keys():
+ 		overflow(sighists[sig])
+ 		underflow(sighists[sig])
 
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
 	makeThetaCats(datahists,sighists,bkghists,iPlot)

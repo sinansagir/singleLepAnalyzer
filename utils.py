@@ -17,6 +17,29 @@ def contains(a, b):
 
 ##############################################################################
 
+def poissonNormByBinWidth(tgae,hist):
+	alpha = 1. - 0.6827
+	for ibin in range(0,tgae.GetN()):
+		width = float(hist.GetBinWidth(ibin+1))
+		X = tgae.GetX()[ibin]
+		N = tgae.GetY()[ibin]
+		L = 0
+		if N != 0: L = Math.gamma_quantile(alpha/2.,N,1.)
+		U = Math.gamma_quantile_c(alpha/2.,N+1,1)
+		tgae.SetPoint(ibin,X,N/width)
+		tgae.SetPointEYlow(ibin,(N-L)/width)
+		tgae.SetPointEYhigh(ibin,(U-N)/width)
+
+def poissonErrors(tgae):
+	alpha = 1. - 0.6827
+	for ibin in range(0,tgae.GetN()):
+		N = tgae.GetY()[ibin]
+		L = 0
+		if N != 0: L = Math.gamma_quantile(alpha/2.,N,1.)
+		U = Math.gamma_quantile_c(alpha/2.,N+1,1)
+		tgae.SetPointEYlow(ibin,N-L)
+		tgae.SetPointEYhigh(ibin,U-N)
+
 def normByBinWidth(h):
 	h.SetBinContent(0,0)
 	h.SetBinContent(h.GetNbinsX()+1,0)
@@ -47,6 +70,14 @@ def overflow(h):
 	h.SetBinError(nBinsX,error)
 	h.SetBinContent(nBinsX+1,0)
 	h.SetBinError(nBinsX+1,0)
+
+def underflow(h):
+	content=h.GetBinContent(1)+h.GetBinContent(0)
+	error=math.sqrt(h.GetBinError(1)**2+h.GetBinError(0)**2)
+	h.SetBinContent(1,content)
+	h.SetBinError(1,error)
+	h.SetBinContent(0,0)
+	h.SetBinError(0,0)
 	    
 ##############################################################################
 #Printing tables

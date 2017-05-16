@@ -14,7 +14,6 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-#step1Dir = '/user_data/ssagir/LJMet80X_1lep_012817_step2_022717/nominal'
 step1Dir = '/user_data/ssagir/LJMet80X_1lep_022317_step2_M17tW/nominal'
 
 """
@@ -31,7 +30,7 @@ bkgList = [
 		  'DYMG',
 		  #'WJetsMG',
 		  'WJetsHT100','WJetsHT200','WJetsHT400','WJetsHT600','WJetsHT800','WJetsHT1200','WJetsHT2500',
-		  'WJetsPt100','WJetsPt250','WJetsPt400','WJetsPt600',
+		  #'WJetsPt100','WJetsPt250','WJetsPt400','WJetsPt600',
 		  'WW','WZ','ZZ',
 		  #'TTJetsPH',
 		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
@@ -80,13 +79,8 @@ if (region=='SR' or 'CR' in region) and (iPlot=='ST' or iPlot=='HT'):
 #'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet50_3jet0', #ST change to 'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet150_3jet0' for trigger HT400
 
 cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
-#cutString += '_NJets'+str(int(cutList['njetsCut']))
-#cutString += '_NBJets'+str(int(cutList['nbjetsCut']))
 cutString += '_DR'+str(cutList['drCut'])+'_1jet'+str(int(cutList['jet1PtCut']))
-cutString += '_2jet'+str(int(cutList['jet2PtCut']))#+'_3jet'+str(int(cutList['jet3PtCut']))
-# cutString += '_4jet'+str(int(cutList['jet4PtCut']))+'_5jet'+str(int(cutList['jet5PtCut']))
-# cutString += '_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])
-# cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
+cutString += '_2jet'+str(int(cutList['jet2PtCut']))
 
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
@@ -215,7 +209,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'PrunedSmearedNm1' :('theJetAK8PrunedMassWtagUncerts_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet pruned mass [GeV]'),
 	'SoftDropMass' :('theJetAK8SoftDropMass_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet soft-drop mass [GeV]'),
 	'SoftDropMassNm1' :('theJetAK8SoftDropMass_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet soft-drop mass [GeV]'),
-	'mindeltaR':('minDR_lepJet',linspace(0, 5, 51).tolist(),';min #DeltaR(l, jet)'),
+	'mindeltaR':('minDR_lepJet',linspace(0, 5, 51).tolist(),';#DeltaR(l, closest jet)'),
 	'deltaRjet1':('deltaR_lepJets[0]',linspace(0, 5, 51).tolist(),';#DeltaR(l,j_{1})'),
 	'deltaRjet2':('deltaR_lepJets[1]',linspace(0, 5, 51).tolist(),';#DeltaR(l,j_{2})'),
 	'deltaRjet3':('deltaR_lepJets[2]',linspace(0, 5, 51).tolist(),';#DeltaR(l,j_{3})'),
@@ -261,9 +255,12 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	
 	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 jet multiplicity',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
 
-	'HT':('AK4HT',linspace(0, 5000, 51).tolist(),';H_{T} [GeV]'),
-	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 51).tolist(),';S_{T} [GeV]'),
+	'HT':('AK4HT',linspace(0, 4000, 101).tolist(),';H_{T} [GeV]'),
+	'ST':('AK4HTpMETpLepPt',linspace(0, 4000, 101).tolist(),';S_{T} [GeV]'),
 	'minMlb':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]'),
+# 	'HT':('AK4HT',linspace(450, 4000, 711).tolist(),';H_{T} [GeV]'),
+# 	'ST':('AK4HTpMETpLepPt',linspace(650, 4000, 671).tolist(),';S_{T} [GeV]'),
+# 	'minMlb':('minMleppBjet',linspace(0, 1000, 201).tolist(),';min[M(l,b)] [GeV]'),
 	'minMlbSBins':('minMleppBjet',linspace(0, 1000, 1001).tolist(),';min[M(l,b)] [GeV]'),
 	}
 

@@ -3,31 +3,29 @@ import os,sys,fnmatch
 templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/x53x53_2016/makeTemplates/'
 #templateDir+='templates_minMlb_2016_10_29' #Total number of jobs submitted: 3402
 #templateDir+='templates_ST_2016_10_29' #Total number of jobs submitted: 4374
-templateDir+='templates_2017_3_5'
+templateDir+='templates_M17WtSF_2017_3_31'
 thetaConfigTemp = os.getcwd()+'/theta_config_template_noCRsys.py'
 lumiInFile = '35p867fb'
 
-toFilter0 = ['pdf','muR','muF','muRFcorrd','muRFcorrdNew','trigeff','qcdmuRFcorrdNew'] #always remove in case they are in templates
+toFilter0 = ['pdf','muR','muF','muRFcorrd','muRFcorrdNew','trigeff'] #always remove in case they are in templates
 #toFilter0+= ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
 toFilter0 = ['__'+item+'__' for item in toFilter0]
 
 limitConfs = {#'<limit type>':[filter list]
 			  'all':[],
-			  'isE':['isM'], #only electron channel
-			  'isM':['isE'], #only muon channel
-			  'nT0':['nT1p'], #only 0 t tag category
-			  'nT1p':['nT0'], #only 1p t tag category
-			  'nW0':['nW1p'], #only 0 W tag category
-			  'nW1p':['nW0'], #only 1p W tag category
-			  'nB1':['nB2p'], #only 1 b tag category
-			  'nB2p':['nB1'], #only 2p b tag category
+# 			  'isE':['isM'], #only electron channel
+# 			  'isM':['isE'], #only muon channel
+# 			  'nT0':['nT1p'], #only 0 t tag category
+# 			  'nT1p':['nT0'], #only 1p t tag category
+# 			  'nW0':['nW1p'], #only 0 W tag category
+# 			  'nW1p':['nW0'], #only 1p W tag category
+# 			  'nB1':['nB2p'], #only 1 b tag category
+# 			  'nB2p':['nB1'], #only 2p b tag category
 			  }
 
-limitType = '_flatQCDmuRF'
+limitType = ''#'_simulfit'
 outputDir = '/user_data/ssagir/x53x53_limits_2016/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
-# outputDir+= '/'+limitType+'/'
-# if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 print outputDir
 
 def findfiles(path, filtre):
@@ -42,6 +40,7 @@ for rootfile in findfiles(templateDir, '*.root'):
     #if 'right' in rootfile: continue
     if 'plots' in rootfile: continue
     if 'YLD' in rootfile: continue
+    #if 'minMlb' not in rootfile: continue
     #if 'X53X53M1300' in rootfile: continue
     #if 'X53X53M1400' in rootfile: continue
     #if 'X53X53M1500' in rootfile: continue

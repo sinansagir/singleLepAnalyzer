@@ -2,6 +2,11 @@
 input = 'dummy.root'
 
 rFileName = input.split('/')[-1][:-5]
+
+flatpars = {'mean': 0.0,
+            'range': [float('-inf'), float('inf')],
+            'typ': 'gauss',
+            'width': float('inf')}
                                                                                                                                           
 def get_model():
     model = build_model_from_rootfile(input,include_mc_uncertainties=True)#,histogram_filter = (lambda s: s.count('jec')==0 and s.count('jer')==0)
@@ -14,12 +19,23 @@ def get_model():
 
     for obs in obsvs:
 		if 'isE' in obs:
+			#model.add_lognormal_uncertainty('elTrigSys', math.log(1.01), '*', obs)
 			model.add_lognormal_uncertainty('elIdSys', math.log(1.02), '*', obs)
 			model.add_lognormal_uncertainty('elIsoSys', math.log(1.01), '*', obs)
 		elif 'isM' in obs:
+			#model.add_lognormal_uncertainty('muTrigSys', math.log(1.01), '*', obs)
 			model.add_lognormal_uncertainty('muIdSys', math.log(1.03), '*', obs)
 			model.add_lognormal_uncertainty('muIsoSys', math.log(1.01), '*', obs)
     model.add_lognormal_uncertainty('lumiSys', math.log(1.026), '*', '*')
+    #try: model.add_lognormal_uncertainty('qcdScale', math.log(1.50), 'qcd', '*')
+    #except: pass
+    
+    #nuisance parameters to be floated in simultaneous fit:
+    try: model.add_lognormal_uncertainty('top_rate', math.log(1.50), 'top','*')
+    except: pass
+    try: model.add_lognormal_uncertainty('ewk_rate', math.log(1.50), 'ewk','*')
+    except: pass
+    model.distribution.distributions.update({'top_rate': flatpars,'ewk_rate': flatpars})
     			
     return model
 

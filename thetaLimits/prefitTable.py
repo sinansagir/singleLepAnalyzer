@@ -2,7 +2,7 @@
 
 import os,sys,time,math
 
-prefitFile = 'templates_2017_2_12plots/prefit800left.txt' # replace "plusminus" sign with "pm" in the file
+prefitFile = 'templates_M17WtSF_2017_3_31_SRpCRplots/prefit900left.txt' # replace "plusminus" sign with "pm" in the file
 
 fprefit = open(prefitFile, 'rU')
 prefitlines = fprefit.readlines()
@@ -18,38 +18,20 @@ for ind in range(len(prefitlines)):
 nuisNam = [
 			'pdfNew',
 			'muRFcorrdNew',
-# 			'q2',
 			'toppt',
 			'tau21',
 			'jms',
 			'jmr',
 			'taupt',
-# 			'jsf',
 			'topsf',
 			'btag',
 			'mistag',
 			'jer',
 			'jec',
 			'pileup',
-# 			'top0T0W1BSys',
-# 			'top0T0W2pBSys',
-# 			'top0T1pW1BSys',
-# 			'top0T1pW2pBSys',
-# 			'top1pT0W1BSys',
-# 			'top1pT0W2pBSys',
-# 			'top1pT1pW1BSys',
-# 			'top1pT1pW2pBSys',
-# 			'ewk0T0W1BSys',
-# 			'ewk0T0W2pBSys',
-# 			'ewk0T1pW1BSys',
-# 			'ewk0T1pW2pBSys',
-# 			'ewk1pT0W1BSys',
-# 			'ewk1pT0W2pBSys',
-# 			'ewk1pT1pW1BSys',
-# 			'ewk1pT1pW2pBSys',
-# 			'muTrigSys',
-# 			'elTrigSys',
-			'trigeff',
+			'ht',
+			'mutrigeff',
+			'eltrigeff',
 			'muIsoSys',
 			'elIsoSys',
 			'muIdSys',
@@ -57,47 +39,34 @@ nuisNam = [
 			'lumiSys',
 			]
 
-nuisNamPlot = [
-			'PDF',
-			'muRF',
-# 			'$Q^{2}$',
-			'top \\pt',
-			'$\\tau_{2}/\\tau_{1}$',
-			'JMS',
-			'JMR',
-			'$\\tau_{2}/\\tau_{1}$ $p_{T}$',
-# 			'JSF',
-			't-tag',
-			'b-tag',
-			'mis-tag',
-			'JER',
-			'JEC',
-			'pileup',
-# 			'top\_0t\_0W\_1b',
-# 			'top\_0t\_0W\_2+b',
-# 			'top\_0t\_1+W\_1b',
-# 			'top\_0t\_1+W\_2+b',
-# 			'top\_1+t\_0W\_1b',
-# 			'top\_1+t\_0W\_2+b',
-# 			'top\_1+t\_1+W\_1b',
-# 			'top\_1+t\_1+W\_2+b',
-# 			'ewk\_0t\_0W\_1b',
-# 			'ewk\_0t\_0W\_2+b',
-# 			'ewk\_0t\_1+W\_1b',
-# 			'ewk\_0t\_1+W\_2+b',
-# 			'ewk\_1+t\_0W\_1b',
-# 			'ewk\_1+t\_0W\_2+b',
-# 			'ewk\_1+t\_1+W\_1b',
-# 			'ewk\_1+t\_1+W\_2+b',
-# 			'muTrig',
-# 			'elTrig',
-			'Trigger', 
-			'muIso',
-			'elIso',
-			'muId',
-			'elId',
-			'lumi',
-			]
+nuisNamPlot = {
+		   'pdfNew':'PDF',
+		   'muRFcorrdNew':'muRF(TOP)',
+		   'ewkmuRFcorrdNew':'muRF(EWK)',
+		   'qcdmuRFcorrdNew':'muRF(QCD)',
+		   'qcdScale':'muRF(QCD)',
+		   'sigmuRFcorrdNew':'muRF(muRF(LH-900GeV))',
+		   'muRFcorrdNew':'muRF',
+		   'toppt':'top \\pt',
+		   'tau21':'$\\tau_{2}/\\tau_{1}$',
+		   'jms':'JMS',
+		   'jmr':'JMR',
+		   'taupt':'$\\tau_{2}/\\tau_{1}$ $p_{T}$',
+		   'topsf':'t-tag',
+		   'btag':'b/c-tag',
+		   'mistag':'udsg-mistag',
+		   'jer':'JER',
+		   'jec':'JEC',
+		   'pileup':'pileup',
+		   'eltrigeff':'elTrig',
+		   'mutrigeff':'muTrig',
+		   'ht':'\\HT',
+		   'muIsoSys':'muIso',
+		   'elIsoSys':'elIso',
+		   'muIdSys':'muId',
+		   'elIdSys':'elId',
+		   'lumiSys':'lumi',
+		   }
 
 ewkInd = 1
 qcdInd = 2
@@ -134,33 +103,85 @@ for ind in obsIndexes:
 		else: lowerBy+=1
 
 nCat = 1
+shifts = {}
+for nui in nuisNam: shifts[nui] = []
 for ind in obsIndexes:
 	print "\\begin{table}"
 	print "\\centering"
 	print "\\topcaption{Pre-fit uncertainties in the",
 	if "isE" in observables[obsIndexes.index(ind)]: print "electron channel with",
 	if "isM" in observables[obsIndexes.index(ind)]: print "muon channel with",
-	if "nT0" in observables[obsIndexes.index(ind)]: print "0 top tag,",
+	if "nT0p" in observables[obsIndexes.index(ind)]: print "0 or more top tag,",
+	elif "nT0" in observables[obsIndexes.index(ind)]: print "0 top tag,",
 	if "nT1p" in observables[obsIndexes.index(ind)]: print "1 or more top tag,",
-	if "nW0" in observables[obsIndexes.index(ind)]: print "0 W tag, and",
+	if "nW0p" in observables[obsIndexes.index(ind)]: print "0 or more W tag, and",
+	elif "nW0" in observables[obsIndexes.index(ind)]: print "0 W tag, and",
 	if "nW1p" in observables[obsIndexes.index(ind)]: print "1 or more W tag, and",
 	if "nB0" in observables[obsIndexes.index(ind)]: print "0 b tag.}"
 	if "nB1" in observables[obsIndexes.index(ind)]: print "1 b tag.}"
 	if "nB2p" in observables[obsIndexes.index(ind)]: print "2 or more b tag.}"
-	print "\\begin{tabular}{|c||c|c|c|c|}"
+	print "\\begin{tabular}{|c|c|c|c|c|}"
 	print "\\hline"
-	print "Nuisance Parameter & X53X53800LH & TOP & EWK & QCD \\\\"
+	print "Nuisance Parameter & X53X53900LH & TOP & EWK & QCD \\\\"
 	print "\\hline"
 	for nui in nuisNam:
+		if nui!='muRFcorrdNew':continue
+		print nuisNamPlot[nui]+' (gauss)'+' & ',
+		i = prefitUncs[ind]['main'].index(['sig'+nui,'(gauss)'])
+		print prefitUncs[ind]['sig'][i][0]+' '+prefitUncs[ind]['sig'][i][1]+' & ',
+		i = prefitUncs[ind]['main'].index(['top'+nui,'(gauss)'])
+		print prefitUncs[ind]['top'][i][0]+' '+prefitUncs[ind]['top'][i][1]+' & ',
+		shifts[nui].append(abs(float(prefitUncs[ind]['top'][i][0].split('}_{')[0][3:])))
+		shifts[nui].append(abs(float(prefitUncs[ind]['top'][i][0].split('}_{')[1][:-2])))
+		i = prefitUncs[ind]['main'].index(['ewk'+nui,'(gauss)'])
+		try: print prefitUncs[ind]['ewk'][i][0]+' '+prefitUncs[ind]['ewk'][i][1]+' & ',
+		except: print '-  & ',
+		i = prefitUncs[ind]['main'].index(['qcd'+nui,'(gauss)'])
+		try: print prefitUncs[ind]['qcd'][i][0]+' '+prefitUncs[ind]['qcd'][i][1]+' \\\\'
+		except: print '- \\\\'
+# 		try:
+# 			shifts[nui].append(abs(float(prefitUncs[ind]['sig'][i][0].split('}_{')[0][3:])))
+# 			shifts[nui].append(abs(float(prefitUncs[ind]['sig'][i][0].split('}_{')[1][:-2])))
+# 		except: pass
+		try:
+			shifts[nui].append(abs(float(prefitUncs[ind]['top'][i][0].split('}_{')[0][3:])))
+			shifts[nui].append(abs(float(prefitUncs[ind]['top'][i][0].split('}_{')[1][:-2])))
+		except: pass
+		try: 
+			shifts[nui].append(abs(float(prefitUncs[ind]['ewk'][i][0].split('}_{')[0][3:])))
+			shifts[nui].append(abs(float(prefitUncs[ind]['ewk'][i][0].split('}_{')[1][:-2])))
+		except: pass
+# 		try: 
+# 			shifts[nui].append(abs(float(prefitUncs[ind]['qcd'][i][0].split('}_{')[0][3:])))
+# 			shifts[nui].append(abs(float(prefitUncs[ind]['qcd'][i][0].split('}_{')[1][:-2])))
+# 		except: pass
+	for nui in nuisNam:
+		if nui=='muRFcorrdNew':continue
 		i = prefitUncs[ind]['main'].index([nui,'(gauss)'])
-		if prefitUncs[ind]['sig'][i][0]=='-' and prefitUncs[ind]['top'][i][0]=='-' and nui!='ewkSys' and nui!='qcdSys': continue
-		print nuisNamPlot[nuisNam.index(nui)]+' (gauss)'+' & ',
+		if prefitUncs[ind]['sig'][i][0]=='-' and prefitUncs[ind]['top'][i][0]=='-' and prefitUncs[ind]['ewk'][i][0]=='-': continue
+		print nuisNamPlot[nui]+' (gauss)'+' & ',
 		print prefitUncs[ind]['sig'][i][0]+' '+prefitUncs[ind]['sig'][i][1]+' & ',
 		print prefitUncs[ind]['top'][i][0]+' '+prefitUncs[ind]['top'][i][1]+' & ',
 		try: print prefitUncs[ind]['ewk'][i][0]+' '+prefitUncs[ind]['ewk'][i][1]+' & ',
 		except: print '-  & ',
 		try: print prefitUncs[ind]['qcd'][i][0]+' '+prefitUncs[ind]['qcd'][i][1]+' \\\\'
 		except: print '- \\\\'
+# 		try:
+# 			shifts[nui].append(abs(float(prefitUncs[ind]['sig'][i][0].split('}_{')[0][3:])))
+# 			shifts[nui].append(abs(float(prefitUncs[ind]['sig'][i][0].split('}_{')[1][:-2])))
+# 		except: pass
+		try:
+			shifts[nui].append(abs(float(prefitUncs[ind]['top'][i][0].split('}_{')[0][3:])))
+			shifts[nui].append(abs(float(prefitUncs[ind]['top'][i][0].split('}_{')[1][:-2])))
+		except: pass
+		try: 
+			shifts[nui].append(abs(float(prefitUncs[ind]['ewk'][i][0].split('}_{')[0][3:])))
+			shifts[nui].append(abs(float(prefitUncs[ind]['ewk'][i][0].split('}_{')[1][:-2])))
+		except: pass
+# 		try: 
+# 			shifts[nui].append(abs(float(prefitUncs[ind]['qcd'][i][0].split('}_{')[0][3:])))
+# 			shifts[nui].append(abs(float(prefitUncs[ind]['qcd'][i][0].split('}_{')[1][:-2])))
+# 		except: pass
 	print "\\hline"
 	print "\\end{tabular}"
 	print "\\label{tab:prefitCat"+str(nCat)+"}"
@@ -168,3 +189,8 @@ for ind in obsIndexes:
 	print "\\end{table}"
 	print
 
+preFitUncRanges = {}
+for nui in shifts.keys():
+	try: preFitUncRanges[nui]=[min(shifts[nui]),max(shifts[nui])]
+	except: preFitUncRanges[nui]=[]
+for nui in sorted(preFitUncRanges.keys()): print nui,preFitUncRanges[nui]

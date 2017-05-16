@@ -8,118 +8,78 @@ gROOT.SetBatch(1)
 from tdrStyle import *
 setTDRStyle()
 
-blind=False
+isBkgOnly = True
 saveKey=''
-lumiPlot = '2.3'
-lumiStr = '2p318'
+lumiPlot = '35.9'
+lumiStr = '35p867'
 spin='left'#'right'
-discriminant='minMlb'
+discriminant='ST'
+saveKey+=discriminant
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+spin
-stat='0p15'#0.75
+stat='0p3'
 isRebinned='_rebinned_stat'+str(stat).replace('.','p')
-tempKey='all_forPostFitNuis'
-limitDir='/user_data/ssagir/x53x53_limits_2015/templates_minMlb_noJSF_tau21Fix1_2016_10_8_noCRuncerts/'+tempKey+'/'
-cutString='lep80_MET100_NJets4_DR1_1jet200_2jet90'
-LH700file='/templates_'+discriminant+'_X53X53M800'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
+if isBkgOnly: isRebinned+='_bkgonly'
+tempKey='postfit'
+limitDir='templates_M17WtSF_2017_3_31_SRpCRplots/'+tempKey+'/'
+cutString=''#'lep80_MET100_NJets4_DR1_1jet200_2jet90'
+LH700file='/templates_'+discriminant+'_X53X53M900'+spin+'_'+str(lumiStr)+'fb'+isRebinned+'.p'
+print LH700file
 
 parVals=pickle.load(open(limitDir+cutString+LH700file,'rb'))
 
+sigproc = 'sig'
+if isBkgOnly: sigproc = ''
 nuisNam = []
 nuisVal = []
 nuisErr = []
-for nuis in parVals['sig'].keys():
-	if nuis=='__cov' or nuis=='__nll': continue
+for nuis in parVals[sigproc].keys():
+	if nuis=='__cov' or nuis=='__nll' or nuis=='beta_signal': continue
 	nuisNam.append(nuis)
-	nuisVal.append(parVals['sig'][nuis][0][0])
-	nuisErr.append(parVals['sig'][nuis][0][1])
-	print nuis,"=",parVals['sig'][nuis][0][0],"+/-",parVals['sig'][nuis][0][1]
+	nuisVal.append(parVals[sigproc][nuis][0][0])
+	nuisErr.append(parVals[sigproc][nuis][0][1])
+	print nuis,"=",parVals[sigproc][nuis][0][0],"+/-",parVals[sigproc][nuis][0][1]
 
-nuisNam = [
-			'pdfNew',
-			'muRFcorrdNew',
-			'q2',
-			'toppt',
-			'tau21',
-			'jms',
-			'jmr',
-			#'jsf',
-			'topsf',
-			'btag',
-			'mistag',
-			'jer',
-			'jec',
-			'pileup',
-# 			'top0T0W1BSys',
-# 			'top0T0W2pBSys',
-# 			'top0T1pW1BSys',
-# 			'top0T1pW2pBSys',
-# 			'top1pT0W1BSys',
-# 			'top1pT0W2pBSys',
-# 			'top1pT1pW1BSys',
-# 			'top1pT1pW2pBSys',
-# 			'ewk0T0W1BSys',
-# 			'ewk0T0W2pBSys',
-# 			'ewk0T1pW1BSys',
-# 			'ewk0T1pW2pBSys',
-# 			'ewk1pT0W1BSys',
-# 			'ewk1pT0W2pBSys',
-# 			'ewk1pT1pW1BSys',
-# 			'ewk1pT1pW2pBSys',
-			'muTrigSys',
-			'elTrigSys',
-			'muIsoSys',
-			'elIsoSys',
-			'muIdSys',
-			'elIdSys',
-			'lumiSys',
-			]
+nuisNamPlot = {
+		   'pdfNew':'PDF',
+		   'topmuRFcorrdNew':'muRF(TOP)',
+		   'ewkmuRFcorrdNew':'muRF(EWK)',
+		   'qcdmuRFcorrdNew':'muRF(QCD)',
+		   'qcdScale':'muRF(QCD)',
+		   'sigmuRFcorrdNew':'muRF(LH-900GeV)',
+		   'muRFcorrdNew':'muRF',
+		   'toppt':'top p_{T}',
+		   'tau21':'#tau_{2}/#tau_{1}',
+		   'jms':'JMS',
+		   'jmr':'JMR',
+		   'taupt':'#tau_{2}/#tau_{1} p_{T}',
+		   'topsf':'t-tag',
+		   'btag':'b/c-tag',
+		   'mistag':'udsg-mistag',
+		   'jer':'JER',
+		   'jec':'JEC',
+		   'pileup':'pileup',
+		   'eltrigeff':'elTrig',
+		   'mutrigeff':'muTrig',
+		   'ht':'HT',
+		   'muIsoSys':'muIso',
+		   'elIsoSys':'elIso',
+		   'muIdSys':'muId',
+		   'elIdSys':'elId',
+		   'lumiSys':'lumi',
+		   'top_rate':'top_rate',
+		   'ewk_rate':'ewk_rate',
+		   }
 
-nuisNamPlot = [
-			'PDF',
-			'muRF',
-			'Q^{2}',
-			'Top Pt',
-			'Tau21',
-			'JMS',
-			'JMR',
-			#'JSF',
-			't-tag',
-			'b-tag',
-			'mis-tag',
-			'JER',
-			'JEC',
-			'pileup',
-# 			'top_0t_0W_1b',
-# 			'top_0t_0W_2+b',
-# 			'top_0t_1+W_1b',
-# 			'top_0t_1+W_2+b',
-# 			'top_1+t_0W_1b',
-# 			'top_1+t_0W_2+b',
-# 			'top_1+t_1+W_1b',
-# 			'top_1+t_1+W_2+b',
-# 			'ewk_0t_0W_1b',
-# 			'ewk_0t_0W_2+b',
-# 			'ewk_0t_1+W_1b',
-# 			'ewk_0t_1+W_2+b',
-# 			'ewk_1+t_0W_1b',
-# 			'ewk_1+t_0W_2+b',
-# 			'ewk_1+t_1+W_1b',
-# 			'ewk_1+t_1+W_2+b',
-			'muTrig',
-			'elTrig',
-			'muIso',
-			'elIso',
-			'muId',
-			'elId',
-			'lumi',
-			]
+#if isBkgOnly: del nuisNam[4]
+#nuisNamPlot={}
+#for nui in nuisNam: nuisNamPlot[nui]=nui
 
 nuisVal = []
 nuisErr = []
 for i in range(len(nuisNam)):
 	nuis = nuisNam[i]
-	nuisVal.append(parVals['sig'][nuis][0][0])
-	nuisErr.append(parVals['sig'][nuis][0][1])
+	nuisVal.append(parVals[sigproc][nuis][0][0])
+	nuisErr.append(parVals[sigproc][nuis][0][1])
 nNuis = len(nuisNam)
 
 g   = TGraphAsymmErrors(nNuis)
@@ -174,17 +134,16 @@ ax_2.SetRangeUser(-2.2, 2.2)
 
 ax_1.Set(nNuis+2, 0, nNuis+2)
 ax_1.SetNdivisions(-414)
-#ax_2.SetNdivisions(-505)
+ax_2.SetNdivisions(5,kTRUE)
 for i in range(nNuis):
-	ax_1.SetBinLabel(i+2, nuisNamPlot[i])
+	ax_1.SetBinLabel(i+2, nuisNamPlot[nuisNam[i]])
 
 g95.GetHistogram().Draw('axis,same')
 c.Modified()
 c.Update()
 
-c.SaveAs('postFitNuis.root')
-c.SaveAs('postFitNuis.pdf')
-c.SaveAs('postFitNuis.png')
-c.SaveAs('postFitNuis.C')
+c.SaveAs(limitDir.replace(tempKey,'')+'postFitNuis'+isRebinned+saveKey+'.pdf')
+c.SaveAs(limitDir.replace(tempKey,'')+'postFitNuis'+isRebinned+saveKey+'.eps')
+c.SaveAs(limitDir.replace(tempKey,'')+'postFitNuis'+isRebinned+saveKey+'.png')
 
 

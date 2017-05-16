@@ -61,9 +61,6 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		TrigEff = 'TrigEffAltWeight'
 		cut += ' && DataPastTriggerAlt == 1'# && MCPastTriggerAlt == 1'
 
-	jetSFstr = '1'
-	#if doJetRwt and ('WJetsMG' in process or 'QCD' in process) and 'JSF' in process: jetSFstr= 'JetSF_80X'
-
 	weightStr = '1'
 	HTweightStr = '1'
 	HTweightStrUp = '1'
@@ -84,8 +81,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 # 	HTweightStrUp = '1'
 # 	HTweightStrDn = '1'
 	if 'Data' not in process:
-		weightStr          += ' * '+topPt13TeVstr+' * '+HTweightStr+' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * MuTrkSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
-		weightTrigEffUpStr  = weightStr.replace(TrigEff,'(max(1.0,'+TrigEff+'+'+TrigEff+'Uncert))')
+		weightStr          += ' * '+topPt13TeVstr+' * '+HTweightStr+' * '+TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * MuTrkSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
+		weightTrigEffUpStr  = weightStr.replace(TrigEff,'('+TrigEff+'+'+TrigEff+'Uncert)')
 		weightTrigEffDownStr= weightStr.replace(TrigEff,'('+TrigEff+'-'+TrigEff+'Uncert)')
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
@@ -99,8 +96,6 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		weighttopptDownStr  = weightStr
 		weighthtUpStr       = weightStr.replace(HTweightStr,HTweightStrUp)
 		weighthtDownStr     = weightStr.replace(HTweightStr,HTweightStrDn)
-		#weightjsfUpStr      = weightStr.replace(jetSFstr,'1')
-		#weightjsfDownStr    = weightStr.replace(jetSFstr,'('jetSFstr+'*'+jetSFstr+')')
 
 	# For N-1 tagging cuts
 	pruned_massvar = 'theJetAK8PrunedMassWtagUncerts_JetSubCalc_PtOrdered'
@@ -111,12 +106,6 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	if 'SoftDropMassNm1' in iPlot: cut+=  ' && ('+tau32var+' < 0.81)'
 	if 'Tau21Nm1' in iPlot:  cut += ' && ('+pruned_massvar+' > 65 && '+pruned_massvar+' < 105)'
 	if 'Tau32Nm1' in iPlot:  cut += ' && ('+soft_massvar+' > 105 && '+ soft_massvar+' < 220)'
-
-	#plot with a specific number of b tags
-# 	if not isCategorized:
-# 		if 'Bjet1' in iPlot or 'Mlb' in iPlot or 'b1' in iPlot: nbtag='1p'
-# 		if 'b2' in iPlot: nbtag='2p'
-# 		if 'Mlj' in iPlot: nbtag='0'
 
 	# Design the tagging cuts for categories
 	isEMCut=''
@@ -207,8 +196,6 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptDown_'    +lumiStr+'fb_'+catStr+'_'+process, weighttopptDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'htUp_'         +lumiStr+'fb_'+catStr+'_'+process, weighthtUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'htDown_'       +lumiStr+'fb_'+catStr+'_'+process, weighthtDownStr+'*('+fullcut+')', 'GOFF')
-		#tTree[process].Draw(plotTreeName+' >> '+iPlot+'jsfUp_'        +lumiStr+'fb_'+catStr+'_'+process, weightjsfUpStr+'*('+fullcut+')', 'GOFF')
-		#tTree[process].Draw(plotTreeName+' >> '+iPlot+'jsfDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightjsfDownStr+'*('+fullcut+')', 'GOFF')
 
 		# Change the plot name itself for shifts if needed
 		TTAGupName= plotTreeName

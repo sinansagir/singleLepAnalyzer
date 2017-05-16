@@ -32,7 +32,7 @@ start_time = time.time()
 iPlot='minMlb'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/wjets_M17WtSF_2017_3_19/'+cutString
+templateDir = os.getcwd()+'/templates_M17WtSF_2017_3_31/'+cutString
 combinefile = 'templates_'+iPlot+'_35p867fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
@@ -44,7 +44,7 @@ normalizePDF    = True #only for signals
 sigName = 'X53X53' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
 massList = range(800,1600+1,100)
 if 'kinematics_PS' in templateDir: massList = [900,1200]
-#massList = [900,1200]
+massList = [900,1200]
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
@@ -53,9 +53,14 @@ bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
 #bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
 era = "13TeV"
 
+minNbins=5 #min number of bins to be merged
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+statThres = 0.05 #statistical uncertainty threshold on total background to assign BB nuisances -- enter 0.0 to assign BB for all bins
 #if len(sys.argv)>1: stat=float(sys.argv[1])
 singleBinCR = False
+
+if iPlot=='minMlb': minNbins=3 #min 15GeV bin width
+if iPlot=='HT' or iPlot=='ST': minNbins=8 #min 40GeV bin width
 
 if rebinCombine:
 	dataName = 'data_obs'
@@ -128,6 +133,7 @@ for chn in totBkgHists.keys():
 	totDataTempBinContent_M = 0.
 	totDataTempBinErrSquared_E = 0.
 	totDataTempBinErrSquared_M = 0.
+	nBinsMerged = 0
 	for iBin in range(1,Nbins+1):
 		totTempBinContent_E += totBkgHists[chn].GetBinContent(Nbins+1-iBin)
 		totTempBinContent_M += totBkgHists[chn.replace('isE','isM')].GetBinContent(Nbins+1-iBin)
@@ -137,6 +143,8 @@ for chn in totBkgHists.keys():
 		totDataTempBinContent_M += dataHists_[chn.replace('isE','isM')].GetBinContent(Nbins+1-iBin)
 		totDataTempBinErrSquared_E += dataHists_[chn].GetBinError(Nbins+1-iBin)**2
 		totDataTempBinErrSquared_M += dataHists_[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
+		nBinsMerged+=1
+		if nBinsMerged<minNbins: continue
 		if totTempBinContent_E>0. and totTempBinContent_M>0.:
 			if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
 				#if totDataTempBinContent_E==0. or totDataTempBinContent_M==0.: continue
@@ -149,6 +157,7 @@ for chn in totBkgHists.keys():
 				totDataTempBinContent_M = 0.
 				totDataTempBinErrSquared_E = 0.
 				totDataTempBinErrSquared_M = 0.
+				nBinsMerged=0
 				xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
 	if xbinsListTemp[chn][-1]!=totBkgHists[chn].GetXaxis().GetBinLowEdge(1): xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(1))
 	if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
@@ -172,9 +181,12 @@ for chn in xbinsListTemp.keys():
 	print chn,"=",xbinsList[chn]
 print "//"*40
 
-# xbinsList['isE_nT0p_nW0_nB0_nJ4p']  = [0.0, 40.0, 80.0, 120.0, 160.0, 200.0, 240.0, 1000.0]
+#print xbinsList
+# xbinsList['isE_nT0_nW1p_nB2p_nJ4p'] = [0.0, 45.0, 60.0, 75.0, 90.0, 105.0, 120.0, 135.0, 150.0, 185.0, 195.0, 210.0, 225.0, 240.0, 300.0, 320.0, 335.0, 365.0, 405.0, 440.0, 480.0, 540.0, 640.0, 1000.0]
+# xbinsList['isM_nT0_nW1p_nB2p_nJ4p'] = xbinsList['isE_nT0_nW1p_nB2p_nJ4p']
+# xbinsList['isE_nT0p_nW0_nB0_nJ4p']  = [0.0, 35.0, 50.0, 65.0, 80.0, 95.0, 110.0, 125.0, 140.0, 155.0, 170.0, 185.0, 200.0, 215.0, 230.0, 245.0, 260.0, 275.0, 290.0, 305.0, 320.0, 335.0, 350.0, 380.0, 425.0, 440.0, 1000.0]
+# xbinsList['isE_nT0p_nW1p_nB0_nJ4p'] = [0.0, 40.0, 55.0, 70.0, 85.0, 100.0, 115.0, 130.0, 145.0, 160.0, 175.0, 190.0, 205.0, 220.0, 235.0, 250.0, 265.0, 280.0, 1000.0]
 # xbinsList['isM_nT0p_nW0_nB0_nJ4p']  = xbinsList['isE_nT0p_nW0_nB0_nJ4p']
-# xbinsList['isE_nT0p_nW1p_nB0_nJ4p'] = [0.0, 40.0, 80.0, 120.0, 160.0, 200.0, 1000.0]
 # xbinsList['isM_nT0p_nW1p_nB0_nJ4p'] = xbinsList['isE_nT0p_nW1p_nB0_nJ4p']
 
 xbins = {}
@@ -185,6 +197,9 @@ for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 iRfile=0
 yieldsAll = {}
 yieldsErrsAll = {}
+nBBnuis = {}
+nBBnuis['bkg'] = 0
+for sig in sigProcList: nBBnuis[sig] = 0
 for rfile in rfiles: 
 	print "REBINNING FILE:",rfile
 	tfiles = {}
@@ -213,6 +228,9 @@ for rfile in rfiles:
 				if upTag not in hist or downTag not in hist: continue
 			if '__mu' in hist: continue
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
+			if '__toppt'+downTag in hist:
+				for ibin in range(1, rebinnedHists[hist].GetNbinsX()+1):
+					rebinnedHists[hist].SetBinContent(ibin, 2.*rebinnedHists[hist.replace('__toppt'+downTag,'')].GetBinContent(ibin)-rebinnedHists[hist.replace('__toppt'+downTag,'__toppt'+upTag)].GetBinContent(ibin))
 			rebinnedHists[hist].Write()
 			if '__trigeff' in hist:
 				if 'isE' in hist: 
@@ -238,6 +256,7 @@ for rfile in rfiles:
 			for bkg in bkgProcList:
 				if bkg!=bkgProcList[0]:rebinnedHists['chnTotBkgHist'].Add(rebinnedHists[chnHistName.replace(dataName,bkg)])
 			for ibin in range(1, rebinnedHists['chnTotBkgHist'].GetNbinsX()+1):
+				if rebinnedHists['chnTotBkgHist'].GetBinError(ibin)/rebinnedHists['chnTotBkgHist'].GetBinContent(ibin)<=statThres: continue
 				if rebinnedHists['chnTotBkgHist'].GetNbinsX()==1:
 					for bkg in bkgProcList:
 						val = rebinnedHists[chnHistName.replace(dataName,bkg)].GetBinContent(ibin)
@@ -257,6 +276,7 @@ for rfile in rfiles:
 							rebinnedHists[err_dn_name].SetBinContent(ibin, val*0.001)
 						rebinnedHists[err_up_name].Write()
 						rebinnedHists[err_dn_name].Write()
+						nBBnuis['bkg']+=1
 				else:
 					dominantBkgProc = bkgProcList[0]
 					val = rebinnedHists[chnHistName.replace(dataName,bkgProcList[0])].GetBinContent(ibin)
@@ -275,6 +295,7 @@ for rfile in rfiles:
 					if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
 					rebinnedHists[err_up_name].Write()
 					rebinnedHists[err_dn_name].Write()
+					nBBnuis['bkg']+=1
 				for sig in sigProcList:
 					sigNameNoMass = sigName
 					if 'left' in sig: sigNameNoMass = sigName+'left'
@@ -284,6 +305,7 @@ for rfile in rfiles:
 						if not quiet: print "WARNING: "+sig+" has zero content in "+chn+" channel and bin#"+str(ibin)+". I won't assign shape shifts for this bin!!!"
 						continue
 					error = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinError(ibin)
+					if error/val<=statThres: continue
 					err_up_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iUp" % ibin
 					err_dn_name = rebinnedHists[chnHistName.replace(dataName,sig)].GetName()+'__CMS_'+sigName+'_'+chn+'_'+era+'_'+sigNameNoMass+"_bin_%iDown" % ibin
 					rebinnedHists[err_up_name] = rebinnedHists[chnHistName.replace(dataName,sig)].Clone(err_up_name)
@@ -293,6 +315,7 @@ for rfile in rfiles:
 					if val-error<0: negBinCorrection(rebinnedHists[err_dn_name])
 					rebinnedHists[err_up_name].Write()
 					rebinnedHists[err_dn_name].Write()
+					nBBnuis[sig]+=1
 								
 		#Constructing muRF shapes
 		muRUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'muR'+upTag in k.GetName() and chn in k.GetName()]
@@ -362,6 +385,9 @@ for rfile in rfiles:
 	iRfile+=1
 tfile.Close()
 print ">> Rebinning Done!"
+print "===>>> Number of BB nuisances added:"
+print "                                    bkg:",nBBnuis['bkg']
+for sig in sigProcList: print "                                    "+sig+":",nBBnuis[sig]
 
 for chn in channels:
 	modTag = chn[chn.find('nW'):]
@@ -383,12 +409,25 @@ for chn in channels:
 	if chn.split('_')[3+rebinCombine] not in nbtaglist: nbtaglist.append(chn.split('_')[3+rebinCombine])
 	if chn.split('_')[4+rebinCombine] not in njetslist: njetslist.append(chn.split('_')[4+rebinCombine])
 
+procNames={
+           'top':'TOP',
+           'ewk':'EWK',
+           'qcd':'QCD',
+           'DATA':'Data',
+           'data_obs':'Data',
+           'totBkg':'Total bkg',
+           'dataOverBkg':'Data/Bkg',
+           }
+for sig in sigProcList: 
+	if 'left' in sig:  procNames[sig]='LH \\xft ('+str(float(sig[7:-4])/1000)+' \\TeV)'
+	if 'right' in sig: procNames[sig]='RH \\xft ('+str(float(sig[7:-5])/1000)+' \\TeV)'
+
 print "List of systematics for "+bkgProcList[0]+" process and "+channels[0]+" channel:"
-print "        ",sorted([hist[hist.find(bkgProcList[0])+len(bkgProcList[0])+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+bkgProcList[0]+'__' in hist and upTag in hist])# and 'muRF' not in hist
+print "        ",sorted([hist[hist.find(bkgProcList[0]+'__')+len(bkgProcList[0])+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+bkgProcList[0]+'__' in hist and upTag in hist])# and 'muRF' not in hist
 
 def getShapeSystUnc(proc,chn):
 	if not addShapes: return 0
-	systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if chn in hist and '__'+proc+'__' in hist and upTag in hist])# and 'muRF' not in hist
+	systematicList = sorted([hist[hist.find(proc+'__')+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if chn in hist and '__'+proc+'__' in hist and upTag in hist])# and 'muRF' not in hist
 	totUpShiftPrctg=0
 	totDnShiftPrctg=0
 	histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
@@ -412,7 +451,7 @@ for isEM in isEMlist:
 		table.append(['break'])
 		table.append(['YIELDS']+[chn for chn in channels if isEM in chn and nttag in chn]+['\\\\'])
 		for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList:
-			row = [proc]
+			row = [procNames[proc]]
 			for chn in channels:
 				if not (isEM in chn and nttag in chn): continue
 				modTag = chn[chn.find('nW'):]
@@ -463,10 +502,10 @@ for isEM in isEMlist:
 			iChn = 1
 			for chn in channels: 
 				if not (isEM in chn and nttag in chn): continue
-				bkgYld_ = float([iList for iList in table[-27-iSig:] if iList[0] == 'totBkg'][0][iChn].strip().split()[1])
-				bkgYldErr_ = float([iList for iList in table[-27-iSig:] if iList[0] == 'totBkg'][0][iChn].strip().split()[3])
-				sigYld_ = float([iList for iList in table[-27-iSig:] if iList[0] == sig][0][iChn].strip().split()[1])
-				sigYldErr_ = float([iList for iList in table[-27-iSig:] if iList[0] == sig][0][iChn].strip().split()[3])
+				bkgYld_ = float([iList for iList in table[-27-iSig:] if iList[0] == procNames['totBkg']][0][iChn].strip().split()[1])
+				bkgYldErr_ = float([iList for iList in table[-27-iSig:] if iList[0] == procNames['totBkg']][0][iChn].strip().split()[3])
+				sigYld_ = float([iList for iList in table[-27-iSig:] if iList[0] == procNames[sig]][0][iChn].strip().split()[1])
+				sigYldErr_ = float([iList for iList in table[-27-iSig:] if iList[0] == procNames[sig]][0][iChn].strip().split()[3])
 				#row.append(' & '+str(sigYld_/math.sqrt(sigYld_+bkgYld_)))
 				row.append(' & '+str(round_sig(sigYld_/math.sqrt(bkgYldErr_),5)))
 				iChn+=1
@@ -480,7 +519,7 @@ for nttag in nttaglist:
 	table.append(['break'])
 	table.append(['YIELDS']+[chn.replace('isE','isL') for chn in channels if 'isE' in chn and nttag in chn]+['\\\\'])
 	for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList:
-		row = [proc]
+		row = [procNames[proc]]
 		for chn in channels:
 			if not ('isE' in chn and nttag in chn): continue
 			modTag = chn[chn.find('nW'):]
@@ -557,10 +596,10 @@ for nttag in nttaglist:
 		iChn = 1
 		for chn in channels: 
 			if not ('isE' in chn and nttag in chn): continue
-			bkgYld_ = float([iList for iList in table[-27-iSig:] if iList[0] == 'totBkg'][0][iChn].strip().split()[1])
-			bkgYldErr_ = float([iList for iList in table[-27-iSig:] if iList[0] == 'totBkg'][0][iChn].strip().split()[3])
-			sigYld_ = float([iList for iList in table[-27-iSig:] if iList[0] == sig][0][iChn].strip().split()[1])
-			sigYldErr_ = float([iList for iList in table[-27-iSig:] if iList[0] == sig][0][iChn].strip().split()[3])
+			bkgYld_ = float([iList for iList in table[-27-iSig:] if iList[0] == procNames['totBkg']][0][iChn].strip().split()[1])
+			bkgYldErr_ = float([iList for iList in table[-27-iSig:] if iList[0] == procNames['totBkg']][0][iChn].strip().split()[3])
+			sigYld_ = float([iList for iList in table[-27-iSig:] if iList[0] == procNames[sig]][0][iChn].strip().split()[1])
+			sigYldErr_ = float([iList for iList in table[-27-iSig:] if iList[0] == procNames[sig]][0][iChn].strip().split()[3])
 			#row.append(' & '+str(sigYld_/math.sqrt(sigYld_+bkgYld_)))
 			row.append(' & '+str(round_sig(sigYld_/math.sqrt(bkgYldErr_),5)))
 			iChn+=1
@@ -574,7 +613,7 @@ table.append(['','Systematics'])
 table.append(['break'])
 for proc in bkgProcList+sigProcList:
 	table.append([proc]+[chn for chn in channels]+['\\\\'])
-	systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
+	systematicList = sorted([hist[hist.find(proc+'__')+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
 	for syst in systematicList:
 		for ud in [upTag,downTag]:
 			row = [syst+ud]
@@ -611,15 +650,15 @@ print "       WRITING SUMMARY TEMPLATES: "
 lumiStr = combinefile.split('_')[-1][:-7]
 for signal in sigProcList:
 	print "              ... "+signal
-	yldRfileName = templateDir+'/templates_YLD_'+signal+'_'+lumiStr+'fb_rebinned_stat'+str(stat).replace('.','p')+'.root'
+	yldRfileName = templateDir+'/templates_'+iPlot+'YLD_'+signal+'_'+lumiStr+'fb_rebinned_stat'+str(stat).replace('.','p')+'.root'
 	yldRfile = TFile(yldRfileName,'RECREATE')
 	for isEM in isEMlist:		
 		for proc in bkgProcList+[dataName,signal]:
 			yldHists = {}
-			yldHists[isEM+proc]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA'),'',len(channels)/2,0,len(channels)/2)
+			yldHists[isEM+proc]=TH1F(iPlot+'YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA'),'',len(channels)/2,0,len(channels)/2)
 			systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
 			for syst in systematicList:
-				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
+				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud]=TH1F(iPlot+'YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
 			ibin = 1
 			for chn in channels:
 				if isEM not in chn: continue
