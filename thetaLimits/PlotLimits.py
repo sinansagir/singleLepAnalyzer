@@ -9,22 +9,25 @@ gROOT.SetBatch(1)
 from tdrStyle import *
 setTDRStyle()
 
-blind=True
+blind=False
 saveKey=''
 signal = 'T'
-lumiPlot = '36.4'#2.6/2.7'
-lumiStr = '36p0'
+lumiPlot = '35.9'
+lumiStr = '36p814'
 chiral=''#'right'
-discriminant='minMlb'
-histPrefix=discriminant+'_'+str(lumiStr)+'fb'+chiral
+discriminant='minMlbST'
+histPrefix=str(lumiStr)+'fb'+chiral
 stat='0.3'#0.75
-isRebinned='_rebinned_stat'+str(stat).replace('.','p')
+isRebinned='_BKGNORM_rebinned_stat'+str(stat).replace('.','p')#+'_renamed'
 #cutString='lep40_MET75_1jet300_2jet150_NJets3_NBJets0_3jet100_4jet0_5jet0_DR1_1Wjet0_1bjet0_HT0_ST0_minMlb0'
 cutString=''#split'
 
-mass = array('d', [800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800])
-masserr = array('d', [0,0,0,0,0,0,0,0,0,0,0])
-mass_str = ['800','900','1000','1100','1200','1300','1400','1500','1600','1700','1800']
+mass = array('d', [800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800])#
+masserr = array('d', [0,0,0,0,0,0,0,0,0,0,0])#
+mass_str = ['800','900','1000','1100','1200','1300','1400','1500','1600','1700','1800']#
+#mass = array('d', [900,1000,1100,1200,1300,1400,1500])#800,,1600,1700,1800
+#masserr = array('d', [0,0,0,0,0,0,0])#0,,0,0,0
+#mass_str = ['900','1000','1100','1200','1300','1400','1500']#'800','1600','1700','1800'
 
 exp   =array('d',[0 for i in range(len(mass))])
 experr=array('d',[0 for i in range(len(mass))])
@@ -39,9 +42,12 @@ xsec = array('d', [1,1,1,1,1,1,1,1,1,1,1])
 if chiral=='right':theory_xsec  = [0.190,0.0877,0.0427,0.0217,0.0114,0.00618,0.00342,0.00193,0.00111]
 elif chiral=='left':theory_xsec = [0.190,0.0877,0.0427,0.0217,0.0114,0.00618,0.00342,0.00193,0.00111]
 else: print "Using TT xsec, for XX enter left or right"
-theory_xsec = [0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb
-xsecErrUp = [8.5,4.0,2.1,1.1,0.64,0.37,0.22,0.14,0.087,0.056,0.037]#fb
-xsecErrDn = [8.1,3.8,1.9,1.0,0.56,0.32,0.19,0.12,0.072,0.045,0.029]#fb
+theory_xsec = [0.196,0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb#
+xsecErrUp = [8.5,4.0,2.1,1.1,0.64,0.37,0.22,0.14,0.087,0.056,0.037]#fb 
+xsecErrDn = [8.1,3.8,1.9,1.0,0.56,0.32,0.19,0.12,0.072,0.045,0.029]#fb 
+#theory_xsec = [0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200]#pb#0.196, ,0.001148,0.000666,0.000391
+#xsecErrUp = [4.0,2.1,1.1,0.64,0.37,0.22,0.14]#fb 8.5,,0.087,0.056,0.037
+#xsecErrDn = [3.8,1.9,1.0,0.56,0.32,0.19,0.12]#fb 8.1,,0.072,0.045,0.029
 theory_xsec_up = [item/1000 for item in xsecErrUp]
 theory_xsec_dn = [item/1000 for item in xsecErrDn]
 if signal=='X53':
@@ -150,21 +156,25 @@ def PlotLimits(limitDir,limitFile,tempKey):
     expected.SetLineWidth(2)
     expected.SetLineStyle(2)
     expected68 = TGraphAsymmErrors(massv,expv,masserrv,masserrv,exp68Lv,exp68Hv)
-    expected68.SetFillColor(ROOT.kGreen)
+    expected68.SetFillColor(ROOT.kGreen+1)
     expected95 = TGraphAsymmErrors(massv,expv,masserrv,masserrv,exp95Lv,exp95Hv)
-    expected95.SetFillColor(ROOT.kYellow)
-
-    c4 = TCanvas("c4","Limits", 1000, 800)
-    c4.SetBottomMargin(0.15)
-    c4.SetRightMargin(0.06)
+    expected95.SetFillColor(ROOT.kOrange)
+    #'''
+    c4 = TCanvas("c4","Limits", 600, 500)
+    c4.SetBottomMargin(0.12)
+    c4.SetRightMargin(0.04)
+    c4.SetLeftMargin(0.12)
+    c4.SetTopMargin(0.08)
     c4.SetLogy()
 
     expected95.Draw("a3")
-    expected95.GetYaxis().SetRangeUser(.005+.00001,10.45)
+    if signal == 'T': expected95.GetYaxis().SetRangeUser(.002+.00001,2.01)
+    else: expected95.GetYaxis().SetRangeUser(.002+.00001,80.1)
     expected95.GetXaxis().SetRangeUser(800,1800)
     if tempKey=='nB0': expected95.GetYaxis().SetRangeUser(.008+.00001,25.45)   
     expected95.GetXaxis().SetTitle(signal+" mass [GeV]")
     expected95.GetYaxis().SetTitle("#sigma ("+signal+"#bar{"+signal+"})[pb]")
+    expected95.GetYaxis().SetTitleOffset(0.9)
 
     expected68.Draw("3same")
     expected.Draw("same")
@@ -178,29 +188,72 @@ def PlotLimits(limitDir,limitFile,tempKey):
     theory.SetLineStyle(1)
     theory.SetLineWidth(2)
     theory.Draw("same")                                                             
+
+    chLatex = TLatex()
+    chLatex.SetNDC()
+    chLatex.SetTextSize(0.045)
+    chLatex.SetTextAlign(11) # align right
+    chString = ''
+    if signal == 'T':
+	    if 'bW1p0' in tempKey: chString = 'B(bW) = 1.0'
+	    #elif 'bW0p5' in tempKey: chString = 'B(bW) = 2B(tH) = 0.5'
+	    #elif 'tH0p5' in tempKey: chString = 'B(tH) = B(tZ) = 0.5'
+	    elif 'bW0p5' in tempKey: chString = '#bf{#it{#Beta}}(bW) = 2#bf{#it{#Beta}}(tH,tZ) = 0.5'
+	    elif 'tH0p5' in tempKey: chString = '#bf{#it{#Beta}}(tH) = #bf{#it{#Beta}}(tZ) = 0.5'
+	    elif 'tH1p0' in tempKey: chString = 'B(tH) = 1.0'
+	    elif 'tZ1p0' in tempKey: chString = 'B(tZ) = 1.0'
+    else:
+	    if 'tW1p0' in tempKey: chString = 'B(tW) = 1.0'
+	    #elif 'tW0p5' in tempKey: chString = 'B(tW) = 2B(bH) = 0.5'
+	    #elif 'bH0p5' in tempKey: chString = 'B(bH) = B(bZ) = 0.5'
+	    elif 'tW0p5' in tempKey: chString = '#bf{#it{#Beta}}(tW) = 2#bf{#it{#Beta}}(bH,bZ) = 0.5'
+	    elif 'bH0p5' in tempKey: chString = '#bf{#it{#Beta}}(bH) = #bf{#it{#Beta}}(bZ) = 0.5'
+	    elif 'bH1p0' in tempKey: chString = 'B(bH) = 1.0'
+	    elif 'bZ1p0' in tempKey: chString = 'B(bZ) = 1.0'
+    chLatex.DrawLatex(0.16, 0.74, chString)
+    if tempKey=='all' or 'minMlbST' in tempKey: chString = '1-lep'
+    elif 'dilep' in tempKey: chString = '2-lep'
+    elif 'ssdl' in tempKey: chString = 'SS 2-lep'
+    elif 'triL' in tempKey: chString = '3-lep'
+    elif 'comb123' in tempKey: chString = '1+2+3 lep'
+    else: chString = '1L + 3L'
+    chLatex.DrawLatex(0.16, 0.69, chString)
         
-    latex2 = TLatex()
-    latex2.SetNDC()
-    latex2.SetTextSize(0.03)
-    latex2.SetTextAlign(11) # align right
-    #latex2.DrawLatex(0.50, 0.96, "CMS Preliminary, " + str(lumiPlot) + " fb^{-1} (13 TeV)")
-    latex2.DrawLatex(0.58, 0.96, "CMS Preliminary, " + str(lumiPlot) + " fb^{-1} (13 TeV)")
+    #latex2 = TLatex()
+    #latex2.SetNDC()
+    #latex2.SetTextSize(0.04)
+    #latex2.SetTextAlign(11) # align right
+    #latex2.DrawLatex(0.17,0.96,"CMS "+str(lumiPlot)+" fb^{-1} (13 TeV)");
+    #latex2.DrawLatex(0.54, 0.96, "CMS " + str(lumiPlot) + " fb^{-1} (13 TeV)")
+    #latex2.DrawLatex(0.58, 0.96, "CMS " + str(lumiPlot) + " fb^{-1} (13 TeV)")
 
-    latex4 = TLatex()
-    latex4.SetNDC()
-    latex4.SetTextSize(0.06)
-    latex4.SetTextAlign(31) # align right
-    if chiral=='left': latex4.DrawLatex(0.40, 0.82, "LH")
-    if chiral=='right': latex4.DrawLatex(0.40, 0.82, "RH")
+    prelimTex=TLatex()
+    prelimTex.SetNDC()
+    prelimTex.SetTextAlign(31) # align right
+    prelimTex.SetTextFont(42)
+    prelimTex.SetTextSize(0.05)
+    prelimTex.SetLineWidth(2)
+    prelimTex.DrawLatex(0.95,0.94,str(lumiPlot)+" fb^{-1} (13 TeV)")
+    
+    prelimTex2=TLatex()
+    prelimTex2.SetNDC()
+    prelimTex2.SetTextFont(61)
+    prelimTex2.SetLineWidth(2)
+    prelimTex2.SetTextSize(0.08)
+    prelimTex2.DrawLatex(0.16,0.82,"CMS")
 
-    legend = TLegend(.62,.62,.92,.92) # top right
-    if tempKey=='nB0': legend = TLegend(.62,.32,.92,.62)
-    if not blind: legend.AddEntry(observed , '95% CL observed', "lp")
-    legend.AddEntry(expected, '95% CL expected', "l")
-    legend.AddEntry(expected68, '#pm 1#sigma expected', "f")
-    legend.AddEntry(expected95, '#pm 2#sigma expected', "f")
-    legend.AddEntry(theory_xsec_gr, 'Signal Cross Section', 'lf')
-
+    #legend = TLegend(.55,.5,.89,.89) # good for BR of 1
+    legend = TLegend(.62,.49,.99,.88,"95% CL upper limits") # mixes
+    if tempKey=='nB0': legend = TLegend(.62,.31,.99,.61,"95% CL upper limits")
+    if not blind: legend.AddEntry(observed , 'Observed', "lp")
+    legend.AddEntry(expected, 'Expected', "l")
+    legend.AddEntry(expected68, '68% expected', "f")
+    legend.AddEntry(expected95, '95% expected', "f")    
+    legend.AddEntry(theory_xsec_gr,'',"")
+    if signal == 'T': 
+	    legend.AddEntry(theory_xsec_gr, 'pp #rightarrow T#bar{T}', 'lf')
+    else: 
+	    legend.AddEntry(theory_xsec_gr, 'pp #rightarrow B#bar{B}', 'lf')
     legend.SetShadowColor(0)
     legend.SetFillStyle(0)
     legend.SetBorderSize(0)
@@ -209,36 +262,41 @@ def PlotLimits(limitDir,limitFile,tempKey):
     legend.Draw()
     
     c4.RedrawAxis()
-
+    
     folder = '.'
-    outDir=folder+'/'+limitDir.split('/')[-3]+'plots'
+    outDir=folder+'/plotsOct17/'+limitDir.split('/')[-4]+'plots/'
     if not os.path.exists(outDir): os.system('mkdir '+outDir)
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.root')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.pdf')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.png')
     c4.SaveAs(outDir+'/LimitPlot_'+histPrefix+isRebinned+saveKey+'_'+tempKey+'.C')
+    #'''
     return int(round(limExpected)), int(round(limObserved))
 
-doBRScan = False
+doBRScan = True
 BRs={}
-BRs['BW']=[0.0]#0.50,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]#
-BRs['TH']=[1.0]#0.25,0.5,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]#
-BRs['TZ']=[0.0]#0.25,0.5,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]#
+BRs['BW']=[0.50,0.0]#,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]#0.0,1.0,0.0]#,
+BRs['TH']=[0.25,0.5]#,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]#1.0,0.0,0.0]#,
+BRs['TZ']=[0.25,0.5]#,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]#0.0,0.0,1.0]#,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-tempKeys = ['all_minMlb']#'isE','isM','nW0','nW1p','nB0','nB1','nB2','nB3p']#
+tempKeys = ['comb123']#,'isE','isM','nW0','nW1p','nB0','nB1','nB2','nB3p']#
 
 expLims = []
 obsLims = []
 for tempKey in tempKeys:
 	for BRind in range(nBRconf):
 		BRconfStr=''
-		if doBRScan: BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
-		limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limits/templates_Wkshp/'+tempKey+BRconfStr+'/'
-		limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M800'+chiral+BRconfStr+'_'+str(lumiStr)+'fb'+isRebinned+'_expected.txt'	
-		print 'Dir = ',limitDir
-		print 'File = ',limitFile
+		if doBRScan: 
+			if signal=='T': BRconfStr='_bW'+str(BRs['BW'][BRind]).replace('.','p')+'_tZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_tH'+str(BRs['TH'][BRind]).replace('.','p')
+			else: BRconfStr='_tW'+str(BRs['BW'][BRind]).replace('.','p')+'_bZ'+str(BRs['TZ'][BRind]).replace('.','p')+'_bH'+str(BRs['TH'][BRind]).replace('.','p')
+		limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/templates4CRhtSR_NewEl/'+tempKey+BRconfStr+'/splitLess/'
+		if signal=='B': limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/templates4CRhtSR_BB_NewEl/'+tempKey+BRconfStr+'/splitLess/'
+		if tempKey=='ssdltest': limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/templates4CRhtSR_NewEl/'+tempKey+'_bW0p5_tZ0p25_tH0p25/splitLess/'
+		
+		limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M800'+chiral+BRconfStr+'_'+str(lumiStr)+'fb'+isRebinned+'_expected.txt'
+		if 'ssdl' in tempKey: limitFile='/limits_Limits_'+signal+signal+'M800'+chiral+BRconfStr+'_All_LL40_SL35_HT1200_nConst4_expected.txt'
 		#try: 
 		expTemp,obsTemp = PlotLimits(limitDir,limitFile,tempKey+BRconfStr)
 		expLims.append(expTemp)

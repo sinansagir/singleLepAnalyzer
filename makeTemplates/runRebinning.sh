@@ -1,7 +1,41 @@
-#for iPlot in MTlmet lepPt lepEta mindeltaR PtRel deltaRjet1 deltaRjet2 deltaRjet3 lepIso deltaRAK8 NPV JetEta JetPt Jet1Pt Jet2Pt Jet3Pt Jet4Pt Jet5Pt Jet6Pt MET NJets NBJets NBJetsNoSF NWJets NTJets NJetsAK8 JetPtAK8 JetEtaAK8 Tau21 Tau21Nm1 Tau32 Tau32Nm1 PrunedSmeared PrunedSmearedNm1 SoftDropMass SoftDropMassNm1 Bjet1Pt Wjet1Pt Tjet1Pt HT ST minMlb minMlj; do
-#for iPlot in Jet1Pt Jet2Pt NJets NBJets Tau21 Tau1 Tau2 Tau3 Tau32 PrunedSmeared SoftDropMass HT ST topPt; do
-#for iPlot in lepPt lepEta mindeltaR PtRel deltaRjet1 deltaRjet2 HT ST minMlb minMlj lepIso NPV JetEta JetPt Jet1Pt Jet2Pt Jet3Pt Jet4Pt MET NJets NBJets NWJets NH1bJets NH2bJets NJetsAK8 JetPtAK8 JetEtaAK8 topMass topPt Tau1 Tau2 Tau3 Tau21 Tau21Nm1 PrunedSmeared PrunedSmearedNm1 SoftDropMass Bjet1Pt Wjet1Pt; do
-for iPlot in minMlb; do
+#for iPlot in NBJetsNotH NBJetsNotPH lepPt lepEta mindeltaR deltaRAK8 PtRel deltaRjet1 deltaRjet2 HT ST minMlb minMlj lepIso NPV JetEta JetPt MET NJets NBJets NWJets PuppiNWJets NH1bJets NH2bJets PuppiNH1bJets PuppiNH2bJets NJetsAK8 JetPtAK8 JetEtaAK8 Tau21 Tau21Nm1 PuppiTau21 PuppiTau21Nm1 Pruned PrunedWNm1 PrunedHNm1 PrunedNsubBNm1 SoftDrop SoftDropHNm1 NsubBNm1 PuppiNsubBNm1 PuppiSD PuppiSDWNm1 PuppiSDHNm1; do
+#for iPlot in ST; do
+#    echo $iPlot
+#    python -u modifyBinning.py $iPlot kinematics_SRNoB0_NewEl 1.1
+#done
+
+for iPlot in HT; do
+#for iPlot in minMlb ST minMlj; do
+#for iPlot in deltaRAK8; do
+#for iPlot in minMlbST ST; do
     echo $iPlot
-    python modifyBinning.py $iPlot
+    # python -u modifyBinning.py $iPlot kinematics_PS_NewEl 1.1
+    # python -u modifyBinning.py $iPlot kinematics_SR_NewEl 1.1
+    # python -u modifyBinning.py $iPlot kinematics_SRnoDR_NewEl 1.1
+    # python -u modifyBinning.py $iPlot kinematics_SRnoDR_ARCpuppiW
+    # python -u modifyBinning.py $iPlot ttbar_ARC 0.3
+    # python -u modifyBinning.py $iPlot wjets_ARC 0.3
+    # python -u modifyBinning.py $iPlot higgs_ARC 0.3
+    # python -u modifyBinning.py $iPlot control_NewEl 0.3
+    #python -u modifyBinning.py $iPlot templates_NewEl 1.1
+    python -u modifyBinning.py $iPlot templatesCR_NewEl 1.1
+    # python -u modifyBinning.py $iPlot templatesCR_NewEl 0.3
+    # python -u modifyBinning.py $iPlot ttbar_ARCpuppiW
+    # python -u modifyBinning.py $iPlot wjets_ARCpuppiW
+    # python -u modifyBinning.py $iPlot higgs_ARCpuppiW
+    # python -u modifyBinning.py $iPlot templates_ARCpuppiW    
+    #python -u modifyBinning_splitLess.py $iPlot ttbar_ARC
+    #python -u modifyBinning_splitLess.py $iPlot wjets_ARC
+    #python -u modifyBinning_splitLess.py $iPlot higgs_ARC
+    #python -u modifyBinning_splitLess.py $iPlot templates_NewEl 1.1
+    #python -u modifyBinning_splitLess.py $iPlot templates_BB_NewEl 0.3 BB
+    #python -u modifyBinning_splitLess.py $iPlot templates_NewEl 0.15
+    #python -u modifyBinning_splitLess.py $iPlot control_NewEl
 done
+
+#for iPlot in HT; do
+#     echo $iPlot
+     #python -u modifyBinning_splitLess.py $iPlot templatesCR_NewEl 0.3
+#     python -u modifyBinning_splitLess.py $iPlot templatesCR_BB_NewEl 0.3 BB
+#     python -u modifyBinning_splitLess.py $iPlot templatesCR_NewEl 0.15
+#done

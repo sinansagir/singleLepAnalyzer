@@ -31,6 +31,29 @@ def normByBinWidth(h):
 		h.SetBinContent(bin, content/width)
 		h.SetBinError(bin, error/width)
 
+def poissonNormByBinWidth(tgae,hist):
+	alpha = 1. - 0.6827
+	for ibin in range(0,tgae.GetN()):
+		width = float(hist.GetBinWidth(ibin+1))
+		X = tgae.GetX()[ibin]
+		N = tgae.GetY()[ibin]
+		L = 0
+		if N != 0: L = Math.gamma_quantile(alpha/2.,N,1.)
+		U = Math.gamma_quantile_c(alpha/2.,N+1,1)
+		tgae.SetPoint(ibin,X,N/width)
+		tgae.SetPointEYlow(ibin,(N-L)/width)
+		tgae.SetPointEYhigh(ibin,(U-N)/width)
+
+def poissonErrors(tgae):
+	alpha = 1. - 0.6827
+	for ibin in range(0,tgae.GetN()):
+		N = tgae.GetY()[ibin]
+		L = 0
+		if N != 0: L = Math.gamma_quantile(alpha/2.,N,1.)
+		U = Math.gamma_quantile_c(alpha/2.,N+1,1)
+		tgae.SetPointEYlow(ibin,N-L)
+		tgae.SetPointEYhigh(ibin,U-N)
+
 def negBinCorrection(h): #set negative bin contents to zero and adjust the normalization
 	norm0=h.Integral()
 	for iBin in range(0,h.GetNbinsX()+2):

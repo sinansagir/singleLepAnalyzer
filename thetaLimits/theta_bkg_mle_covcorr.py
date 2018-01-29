@@ -5,10 +5,10 @@ input = '/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/makeTemplates/templates_Wk
 rFileName = input.split('/')[-1][:-5]
                                                                           
 def get_model():
-    model = build_model_from_rootfile(input,include_mc_uncertainties=True)#,histogram_filter = (lambda s: s.count('sig')==0))# and s.count('TTbar__ScaleVar')==0 and s.count('WJets__ScaleVar')==0 and s.count('TTbar__PDF')==0 and s.count('WJets__PDF')==0 ))
+    model = build_model_from_rootfile(input,include_mc_uncertainties=True,histogram_filter = (lambda s: s.count('sig')==0 and s.count('q2')==0))# and s.count('TTbar__ScaleVar')==0 and s.count('WJets__ScaleVar')==0 and s.count('TTbar__PDF')==0 and s.count('WJets__PDF')==0 ))
     model.fill_histogram_zerobins()
-    model.set_signal_processes('sig')
-    #model.set_signal_process_groups({'':[]})
+    #model.set_signal_processes('sig')
+    model.set_signal_process_groups({'':[]})
     
     procs = model.processes
     obsvs = model.observables.keys()
@@ -33,14 +33,14 @@ def get_model():
     except: pass
 
     # flat values for tests
-    try: model.add_lognormal_uncertainty('qcdsys', math.log(1.10), 'qcd', '*')
+    try: model.add_lognormal_uncertainty('btag', math.log(1.10), '*', '*')
     except: pass
-    try: model.add_lognormal_uncertainty('topsys', math.log(1.10), 'top', '*')
+    try: model.add_lognormal_uncertainty('topsys', math.log(1.15), 'top', '*')
     except: pass
-    try: model.add_lognormal_uncertainty('ewksys', math.log(1.10), 'ewk', '*')
+    try: model.add_lognormal_uncertainty('ewksys', math.log(1.20), 'ewk', '*')
     except: pass
-    try: model.add_lognormal_uncertainty('sigsys', math.log(1.10), 'sig', '*')
-    except: pass
+    #try: model.add_lognormal_uncertainty('sigsys', math.log(1.10), 'sig', '*')
+    #except: pass
     '''
     #modeling uncertainties -- TOP
     for obs in obsvs:
@@ -110,21 +110,21 @@ options.set('minimizer', 'minuit_tolerance_factor', '100')
 parVals = mle(model, input='data', n=1, with_error=True, with_covariance=True,options = options)#, with_covariance=True)
 
 parameter_values = {}
-for syst in parVals['sig'].keys():
+for syst in parVals[''].keys():
     if syst=='__nll' or syst=='__cov': continue
     else:
-        print syst,"=",parVals['sig'][syst][0][0],"+/-",parVals['sig'][syst][0][1]
-        parameter_values[syst] = parVals['sig'][syst][0][0]
+        print syst,"=",parVals[''][syst][0][0],"+/-",parVals[''][syst][0][1]
+        parameter_values[syst] = parVals[''][syst][0][0]
 
-pickle.dump(parVals,open(rFileName+'_withSIG.p','wb'))
+pickle.dump(parVals,open(rFileName+'_noQ2.p','wb'))
 
 histos = evaluate_prediction(model, parameter_values, include_signal=False)
-write_histograms_to_rootfile(histos, 'histos-mle_withSIG.root')
+write_histograms_to_rootfile(histos, 'histos-mle_noQ2.root')
 
 from numpy import linalg
 import numpy as np
 
-theta_res = parVals['sig']
+theta_res = parVals['']
 param_list = []
 for k, res in theta_res.iteritems():
     #print k,',',res
@@ -169,7 +169,7 @@ for i in xrange(corr_matrix.shape[0]):
         corr_hist.Fill(i,ii,entry_corr)
         cov_hist.Fill(i,ii,entry_cov)
 
-matrices = ROOT.TFile('mle_covcorr_withSIG.root','RECREATE')
+matrices = ROOT.TFile('mle_covcorr_noQ2.root','RECREATE')
 cov_hist.Write()
 corr_hist.Write()
 matrices.Close()

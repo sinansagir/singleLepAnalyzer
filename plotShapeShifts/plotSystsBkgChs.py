@@ -7,21 +7,22 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 36.0
-discriminant = 'HT'
+lumi = 35.9
+discriminant = 'minMlbST'
 rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_CR_2016_11_28/'
-cutString = ''#finalsel'
-templateFile = '../Rishika_makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_HTBM200_36p0fb'+rfilePostFix+'.root'
+tempVersion = 'templates_ARC/'
+cutString = ''#SelectionFile'
+templateFile = '../makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_TTM1000_36p814fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-if not os.path.exists(outDir+tempVersion+'/bkgIndChannels'): os.system('mkdir '+outDir+tempVersion+'/bkgIndChannels')
+if not os.path.exists(outDir+tempVersion+'/bkgs'): os.system('mkdir '+outDir+tempVersion+'/bkgs')
 
-bkgList = ['ttbar','wjets','top','ewk','qcd']#['top','ewk','qcd']
+saveKey = '_Htag'#
+bkgList = ['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
 channels = ['isE','isM']
-ttags = ['nT0p']
-wtags = ['nW0p']#,'nW1p']
-btags = ['nB0','nB1','nB2','nB3']
-systematics = ['pileup','jec','jer','q2','muRFcorrdNew','pdfNew']#'tau21','taupt','jsf','btag',
+htags = ['nH1b','nH2b']#'nH0']#
+wtags = ['nW0p']#'nW0','nW0p','nW1p']#
+btags = ['nB1p']#'nB0','nB1p','nB1','nB2','nB3p']#
+systematics = ['pileup','jec','jer','tau21','jmr','jms','muRFcorrdNew','pdfNew','toppt','taupt','trigeff','btag','mistag']#,,]
 		
 RFile = R.TFile(templateFile)
 

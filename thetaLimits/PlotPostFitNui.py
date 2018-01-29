@@ -8,19 +8,21 @@ gROOT.SetBatch(1)
 from tdrStyle import *
 setTDRStyle()
 
+post = sys.argv[1]
+
 blind=False
 saveKey=''
-lumiPlot = '36.4'
-lumiStr = '36p0'
+lumiPlot = '35.9'
+lumiStr = '36p814'
 spin=''#'right'
-discriminant='minMlb'
+discriminant='minMlbST'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+spin
 stat='0.3'#0.75
 isRebinned='_rebinned'
-tempKey='all_postfit'
-limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limits/templates_Wkshp/'+tempKey+'/'
+tempKey='templates4CRhtSR_postfit'
+limitDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/thetaLimits/limitsOct17/'+tempKey+'/'
 cutString=''#SelectionFile'
-LH700file='/templates_'+discriminant+'_TTM900_36p0fb_rebinned_stat0p3_noQ2.p' #
+LH700file='/templates_'+discriminant+'_TTM1000_bW0p5_tZ0p25_tH0p25_36p814fb_BKGNORM_rebinned_stat0p3_'+post+'.p' #
 
 print limitDir+cutString+LH700file
 
@@ -30,7 +32,7 @@ nuisNam = []
 nuisVal = []
 nuisErr = []
 for nuis in parVals[''].keys(): #TpTp_M-0800'].keys():
-	if nuis=='__cov' or nuis=='__nll': continue
+	if nuis=='__cov' or nuis=='__nll' or nuis=='__chi2' or nuis=='__ks': continue
 	nuisNam.append(nuis)
 	nuisVal.append(parVals[''][nuis][0][0])
 	nuisErr.append(parVals[''][nuis][0][1])
@@ -38,28 +40,62 @@ for nuis in parVals[''].keys(): #TpTp_M-0800'].keys():
 
 
 nuisNam = [
-	'ewksys',
-	'topsys',
-	'qcdsys',
-	'elIdSys',#
-	'muIdSys',#
-	'elIsoSys',#
-	'muIsoSys',#
-	'elTrigSys',#
-	'muTrigSys',#
-	'lumiSys',#
+	#'ewk_rate',
+	#'top_rate',
+	#'qcdsys',
+	'elIdSys', #'sfel_id',#
+	'muIdSys', #'sfmu_id',#
+	'elIsoSys', #'sfel_iso',#
+	'muIsoSys', #'sfmu_iso',#
+	'elRecoSys', #'sfel_gsf',#
+	'muRecoSys', #'sfmu_trk',#
+	'eeeTrigSys',
+	'eemTrigSys',
+	'emmTrigSys',
+	'mmmTrigSys',
+	'eeTrigSysBD',
+	'eeTrigSysEH',
+	'emTrigSysBD',
+	'emTrigSysEH',
+	'mmTrigSysBD',
+	'mmTrigSysEH',
+	'trigeffEl',
+	'trigeffMu',
+	'elPRsys',
+	'muPRsys',
+	'elFR',
+	'muFR',
+	'muFReta',
+	'FRsys',	
+	'ChargeMisIDUnc',
+	'FakeRate',
+	'elFakeRate',
+	'muFakeRate',
+	#'sfel_trig',#
+	#'sfmu_trig',#
+	'lumiSys', #'luminosity',#
 	'pileup',#
 	'jec',
 	'jer',
-	#'higgs_smear',
-	#'higgs_py2hw',
-	#'btag_udsg', #'mistag',#
-	#'btag_bc', #'btag',#
 	'jsf',
+	'htag_prop', #'higgs_prop',
+	'mistag',#
+	'btag',#
 	'tau21',
+	'taupt',
+	'jmr',
+	'jms',
 	'toppt',
-	#'q2',
-	'muRFcorrdNew',#
+	'muRFcorrdNewTop',
+	'muRFcorrdNewEwk',
+	'muRFcorrdNewQCD',#
+	'QCDscale',
+	'muRFcorrdNewEwk1L',#
+	'EWKscale',
+	'muRFcorrdNewSingleTop',#
+	'SingleTopscale',
+	'muRFcorrdNewTTbar',#
+	'TTbarscale',
 	'pdfNew',#
 	#'QCD_rate',
 	#'DYJets_rate',
@@ -70,31 +106,60 @@ nuisNam = [
 	]
 
 nuisNamPlot = [
-	'EWK flat',
-	'TOP flat',
-	'QCD flat',
+	#'EWK flat',
+	#'TOP flat',
+	#'QCD flat',
 	'ID: e',
 	'ID: #mu',
 	'Iso: e',
 	'Iso: #mu',
+	'Reco: e',
+	'Reco: #mu',
+	'Trigger: eee',
+	'Trigger: ee#mu',
+	'Trigger: e#mu#mu',
+	'Trigger: #mu#mu#mu',
+	'Trigger: ee (B-D)',
+	'Trigger: ee (E-H)',
+	'Trigger: e#mu (B-D)',
+	'Trigger: e#mu (E-H)',
+	'Trigger: #mu#mu (B-D)',
+	'Trigger: #mu#mu (E-H)',
 	'Trigger: e',
 	'Trigger: #mu',
+	'Prompt rate 3L: e',
+	'Prompt rate 3L: #mu',
+	'Fake rate 3L: e',
+	'Fake rate 3L: #mu',
+	'Fake rate 3L: #mu, #eta',
+	'Fake rate 3L: syst.',	
+	'Charge mis-ID 2L',
+	'Fake rate 2L',
+	'Fake rate 2L: e',
+	'Fake rate 2L: #mu',
 	'Lumi',
 	'Pileup',
 	'JES',
 	'JER',
-	#'H tag: smear',
-	#'H tag: py8/hw',
-	#'B tag: udsg',
-	#'B tag: bc',
-	'Jet pT weight',
-	#'W tag: res',
-	#'W tag: scale',
+	'HT scaling',
+	'H tag: py8/hw',
+	'B tag: udsg',
+	'B tag: bc',
 	'W tag: #tau_{2}/#tau_{1}',
-	#'W tag: #tau_{2}/#tau_{1} p_{T}-dep.',
+	'W tag: #tau_{2}/#tau_{1} p_T',
+	'W/H tag: smear',
+	'W/H tag: scale',
 	'Top p_{T}',
-	#'Top shower',
-	'ME Scale',
+	'ME Scale t#bar{t}+X',
+	'ME Scale VV(V)',
+	'ME Shape QCD',
+	'ME Rate QCD',
+	'ME Shape W/Z',
+	'ME Rate W/Z',
+	'ME Shape single t',
+	'ME Rate single t',
+	'ME Shape t#bar{t}',
+	'ME Rate t#bar{t}',
 	'PDF',
 	#'QCD rate',
 	#'DY+jets rate',
@@ -106,11 +171,26 @@ nuisNamPlot = [
 
 nuisVal = []
 nuisErr = []
-for i in range(len(nuisNam)):
-	nuis = nuisNam[i]
-	nuisVal.append(parVals[''][nuis][0][0])
-	nuisErr.append(parVals[''][nuis][0][1])
+delNam = []
+delPlot = []
+nsuccess=0
+print 'initial length',len(nuisNam)
+for inui in range(len(nuisNam)):
+	nuis = nuisNam[inui]
+	try:
+		nuisVal.append(parVals[''][nuis][0][0])
+		nuisErr.append(parVals[''][nuis][0][1])
+		nsuccess+=1
+	except:
+		delNam.append(nuisNam[inui])
+		delPlot.append(nuisNamPlot[inui])		 
+		print 'removing',nuisNam[inui]
+
+for nui in delNam: nuisNam.remove(nui)
+for nui in delPlot: nuisNamPlot.remove(nui)
+
 nNuis = len(nuisNam)
+print 'end length',nNuis
 
 g   = TGraphAsymmErrors(nNuis)
 g68 = TGraph(2*nNuis+7)
@@ -133,11 +213,11 @@ g.SetMarkerSize(1.25)
 g68.SetFillColor(ROOT.kGreen)
 g95.SetFillColor(ROOT.kYellow)
 
-c = TCanvas('PostFit', 'PostFit', 1000, 1400)
+c = TCanvas('PostFit', 'PostFit', 1000, 1600)
 c.SetTopMargin(0.04)
 c.SetRightMargin(0.04)
 c.SetBottomMargin(0.10)
-c.SetLeftMargin(0.25)
+c.SetLeftMargin(0.27)
 c.SetTickx()
 c.SetTicky()
 	
@@ -160,7 +240,7 @@ ax_2.SetTitleOffset(1.0)
 ax_1.SetLabelSize(0.05)
 #ax_2.SetLabelSize(0.05)
 ax_1.SetRangeUser(0, nNuis+2)
-ax_2.SetRangeUser(-2.2, 2.2)
+ax_2.SetRangeUser(-3.2, 3.2)
 
 ax_1.Set(nNuis+2, 0, nNuis+2)
 ax_1.SetNdivisions(-414)
@@ -172,9 +252,14 @@ g95.GetHistogram().Draw('axis,same')
 c.Modified()
 c.Update()
 
-c.SaveAs(limitDir+'postFitNuis_SLBO_noQ2.root')
-c.SaveAs(limitDir+'postFitNuis_SLBO_noQ2.pdf')
-c.SaveAs(limitDir+'postFitNuis_SLBO_noQ2.png')
-c.SaveAs(limitDir+'postFitNuis_SLBO_noQ2.C')
+type = 'SLBO'
+if post=='comb': type = 'CombBO'
+if 'comb123' in post: type = 'Comb123BO'
+if post=='ssdl': type = '2LBO'
+if 'asimov' in tempKey: type = 'SLBO_asimov'
 
+c.SaveAs(limitDir+'postFitNuis_'+type+'_'+post+'.root')
+c.SaveAs(limitDir+'postFitNuis_'+type+'_'+post+'.pdf')
+c.SaveAs(limitDir+'postFitNuis_'+type+'_'+post+'.png')
+c.SaveAs(limitDir+'postFitNuis_'+type+'_'+post+'.C')
 

@@ -7,33 +7,49 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 36.4
-discriminant = 'minMlb'
+lumi = 35.9
+discriminant = 'HT'#'minMlbST'
 rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_Wkshp/'
+tempVersion = 'templatesCR_NewEl/'
 cutString = ''#SelectionFile'
-templateFile = '../makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_TTM900_36p0fb'+rfilePostFix+'.root'
+templateFile = '../makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_TTM1000_36p814fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/bkgs'): os.system('mkdir '+outDir+tempVersion+'/bkgs')
 
-saveKey = ''
+saveKey = ''#'_Htag'
 bkgList = ['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
 channels = ['isE','isM']
-htags = ['nH0','nH1b','nH2b']
-wtags = ['nW0','nW0p','nW1p']
-btags = ['nB0','nB1p','nB1','nB2','nB3p']
-systematics = ['pileup','jec','jer','tau21','q2','jsf','muRFcorrdNew','pdfNew','toppt']#'btag','mistag',,'trigeff']
+htags = ['nH0','nH1p']#['nH0']#'nH1b','nH2b']#
+wtags = ['nW0p']#['nW0','nW0p','nW1p']#'nW0p']#
+btags = ['nB0','nB1p']#['nB1','nB2','nB3p']#'nB1p']#'nB0','nB1p',
+systematics = ['pileup','jec','jer','tau21','jmr','jms','muRFcorrdNew','pdfNew','toppt','taupt','trigeff','btag','mistag']#,,]
 		
 RFile = R.TFile(templateFile)
 
 for syst in systematics:
-	Prefix = discriminant+'_36p0fb_'+channels[0]+'_'+htags[0]+'_'+wtags[0]+'_'+btags[0]+'_nJ3p__'+bkgList[0]
 	if (syst=='q2' or syst=='toppt') and bkgList[0]!='top': continue
 	if (syst=='pdNewf' or syst=='muRFcorrdNew') and bkgList[0]=='qcd': continue
+	if 'b' not in htags[0]:	Prefix = discriminant+'_36p814fb_'+channels[0]+'_'+htags[0]+'_'+wtags[0]+'_'+btags[0]+'_nJ3p__'+bkgList[0]
+	else: 	Prefix = discriminant+'_36p814fb_'+channels[0]+'_'+htags[0]+'_nW0p_nB1p_nJ3p__'+bkgList[0]
+
 	print Prefix
 	hNm = RFile.Get(Prefix).Clone()
-	hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
-	hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+
+	if syst != 'muRFcorrdNew':
+		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
+		hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+	else:
+		hUp = RFile.Get(Prefix+'__'+syst+'Top__plus').Clone()
+		try: hUp.Add(RFile.Get(Prefix+'__'+syst+'Ewk__plus').Clone())
+		except: pass
+		try: hUp.Add(RFile.Get(Prefix+'__'+syst+'QCD__plus').Clone())
+		except: pass   
+		hDn = RFile.Get(Prefix+'__'+syst+'Top__minus').Clone()
+		try: hDn.Add(RFile.Get(Prefix+'__'+syst+'Ewk__minus').Clone())
+		except: pass
+		try: hDn.Add(RFile.Get(Prefix+'__'+syst+'QCD__minus').Clone())
+		except: pass   
+		
 	for ch in channels:
 		for htag in htags:
 			for wtag in wtags:
@@ -54,7 +70,16 @@ for syst in systematics:
 								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)).Clone()
 								hUp.Add(htempUp)
 							else:
-								htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__plus').Clone()
+								if syst != 'muRFcorrdNew':
+									htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__plus').Clone()
+								else: 
+									if bkg == 'top': htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'Top__plus').Clone()
+									elif bkg == 'ewk':
+										try: htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'Ewk__plus').Clone()
+										except: pass
+									elif bkg == 'qcd':
+										try: htempUp = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'QCD__plus').Clone()
+										except: pass
 								scaleHist = 1.
 
 								htempUp.Scale(scaleHist)
@@ -65,12 +90,25 @@ for syst in systematics:
 								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)).Clone()
 								hDn.Add(htempDown)
 							else:
-								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
+								if syst != 'muRFcorrdNew':
+									htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
+								else: 
+									if bkg == 'top': htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'Top__minus').Clone()
+									elif bkg == 'ewk':
+										try: htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'Ewk__minus').Clone()
+										except: pass
+									elif bkg == 'qcd':
+										try: htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag).replace(bkgList[0],bkg)+'__'+syst+'QCD__minus').Clone()
+										except: pass
+
 								scaleHist = 1.
 
 								htempDown.Scale(scaleHist)
 								hDn.Add(htempDown)
 						except:pass
+	hNm.Rebin(2)
+	hUp.Rebin(2)
+	hDn.Rebin(2)
 	hNm.Draw()
 	hUp.Draw()
 	hDn.Draw()
@@ -97,9 +135,6 @@ for syst in systematics:
 
 	R.gStyle.SetOptTitle(0)
 
-	hNm.SetFillColor(R.kWhite)
-	hUp.SetFillColor(R.kWhite)
-	hDn.SetFillColor(R.kWhite)
 	hNm.SetMarkerColor(R.kBlack)
 	hUp.SetMarkerColor(R.kRed)
 	hDn.SetMarkerColor(R.kBlue)
@@ -123,9 +158,9 @@ for syst in systematics:
 
 	hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 	
-	hUp.Draw()
-	hNm.Draw('same')
-	hDn.Draw('same')
+	hUp.Draw("hist")
+	hNm.Draw('hist same')
+	hDn.Draw('hist same')
 
 	lPad.cd()
 	R.gStyle.SetOptTitle(0)
@@ -135,7 +170,7 @@ for syst in systematics:
 		pullUp.SetBinError(iBin,math.sqrt(pullUp.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 	pullUp.Divide(hNm)
 	pullUp.SetTitle('')
-	pullUp.SetFillColor(2)
+	pullUp.SetLineWidth(2)
 	pullUp.SetLineColor(2)
 
 	pullUp.GetXaxis().SetLabelSize(.15)
@@ -155,7 +190,7 @@ for syst in systematics:
 		pullDown.SetBinError(iBin,math.sqrt(pullDown.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 	pullDown.Divide(hNm)
 	pullDown.SetTitle('')
-	pullDown.SetFillColor(4)
+	pullDown.SetLineWidth(2)
 	pullDown.SetLineColor(4)
 
 	pullDown.GetXaxis().SetLabelSize(.15)
@@ -170,8 +205,11 @@ for syst in systematics:
 	pullDown.GetYaxis().SetNdivisions(506)
 	pullUp.SetMinimum(-0.5)#-1.4)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
 	pullUp.SetMaximum(0.5)#1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
-	pullUp.Draw()
-	pullDown.Draw('same')
+	if 'muRF' not in syst:
+		pullUp.SetMinimum(-0.2)#-1.4)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
+		pullUp.SetMaximum(0.2)#1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
+	pullUp.Draw('hist')
+	pullDown.Draw('hist same')
 	lPad.RedrawAxis()
 
 	uPad.cd()
@@ -221,6 +259,7 @@ for syst in systematics:
 
 	canv.SaveAs(tempVersion+'/bkgs/'+syst+saveKey+'.pdf')
 	canv.SaveAs(tempVersion+'/bkgs/'+syst+saveKey+'.png')
+	canv.SaveAs(tempVersion+'/bkgs/'+syst+saveKey+'.gif')
 	canv.SaveAs(tempVersion+'/bkgs/'+syst+saveKey+'.root')
 
 RFile.Close()

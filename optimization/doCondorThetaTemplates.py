@@ -17,16 +17,16 @@ import os,sys,datetime,itertools
 # stCutList     = [0]
 # minMlbCutList = [0]
 #Basic kinematic cuts optimization configuration (w/o shapes) -- ST -- x53x53/2016 dataset (Total jobs submitted: 2340):
-lepPtCutList  = [30, 50, 60, 80]
-jet1PtCutList = [200, 250, 300, 450]
-jet2PtCutList = [50, 90, 150, 300]
-metCutList    = [80, 100, 150, 200, 250]
-njetsCutList  = [3, 4, 5]
+lepPtCutList  = [60]
+jet1PtCutList = [200, 250, 300, 400]
+jet2PtCutList = [100, 150, 200, 300]
+metCutList    = [60, 75, 100]
+njetsCutList  = [3]
 nbjetsCutList = [0]
-jet3PtCutList = [0]
+jet3PtCutList = [80, 100, 150, 200]
 jet4PtCutList = [0]
 jet5PtCutList = [0]
-drCutList     = [0.75, 1, 1.25]
+drCutList     = [3.0]
 Wjet1PtCutList= [0]
 bjet1PtCutList= [0]
 htCutList     = [0]
@@ -41,7 +41,7 @@ outputDir = thisDir+'/'
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_ST'
+pfix='templates_minMlbST'
 pfix+='_'+date#+'_'+time
 
 outDir = outputDir+pfix

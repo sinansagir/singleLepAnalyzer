@@ -2,8 +2,10 @@ import os,sys,fnmatch
 
 templateDir='/user_data/jhogan/CMSSW_7_4_14/src/tptp_2016/makeTemplates/'
 #templateDir+='templates_minMlb_2016_9_3' #Total number of jobs submitted: 54432
-templateDir+='templates_Wkshp' #Total number of jobs submitted: 14040
+templateDir+='templates4CRhtSR_NewEl' #Total number of jobs submitted: 14040
 thetaConfigTemp = os.getcwd()+'/theta_config_template.py'
+#thetaConfigTemp = os.getcwd()+'/theta_discovery.py'
+fileDir = 'splitLess'
 
 systematicsInFile = ['pileup','muRFcorrd','muR','muF','toppt','jsf','topsf','jmr','jms','tau21','btag','mistag','jer','jec','q2','pdfNew','muRFcorrdNew']#,'btagCorr']
 cats = ['isE_nT0_nW0_nB0', 'isE_nT0_nW0_nB1', 'isE_nT0_nW0_nB2p', 'isE_nT0_nW1p_nB0', 'isE_nT0_nW1p_nB1', 'isE_nT0_nW1p_nB2p',
@@ -11,15 +13,18 @@ cats = ['isE_nT0_nW0_nB0', 'isE_nT0_nW0_nB1', 'isE_nT0_nW0_nB2p', 'isE_nT0_nW1p_
         'isM_nT0_nW0_nB0', 'isM_nT0_nW0_nB1', 'isM_nT0_nW0_nB2p', 'isM_nT0_nW1p_nB0', 'isM_nT0_nW1p_nB1', 'isM_nT0_nW1p_nB2p',
         'isM_nT1p_nW0_nB0','isM_nT1p_nW0_nB1','isM_nT1p_nW0_nB2p','isM_nT1p_nW1p_nB0','isM_nT1p_nW1p_nB1','isM_nT1p_nW1p_nB2p',
         ]
-toFilter0 = ['pdf','muRFdecorrdNew','muRFenv','muR','muF','muRFcorrd'] #always remove in case they are in templates
+toFilter0 = ['toppt','_nH1p_nW0p_nB0_isCR']#'pdf','muRFdecorrdNew','muRFenv','muR','muF','muRFcorrd'] #always remove in case they are in templates
 #toFilter0+= ['topsf','jsf']
 #toFilter0+= ['jsf']
 #toFilter0+= ['topsf']
 #toFilter0 = systematicsInFile
-toFilter0 = ['__'+item+'__' for item in toFilter0]
+toFilter0 = [item for item in toFilter0]
 
 limitConfs = {#'<limit type>':[filter list]
-			  'all':[],
+    #'minMlb':[],
+    #'ST':[],
+    'minMlbST':[],
+    #'deltaRAK8':[]
 # 			  'isE':['isM'], #only electron channel
 # 			  'isM':['isE'], #only muon channel
 # 			  'nT0':['nT1p'], #only 0 t tag category
@@ -39,8 +44,8 @@ limitConfs = {#'<limit type>':[filter list]
 # 		if cat2!=cat: limitConfs[cat].append(cat2)
 
 #os._exit(1)
-limitType = 'all_ST'#'noSysts'
-outputDir = os.getcwd()+'/limits/'+templateDir.split('/')[-1]+'/' #prevent writing these (they are large) to brux6 common area
+limitType = 'noCRHB0'#DRJetCR'#'noSysts'
+outputDir = os.getcwd()+'/limitsAug17/'+templateDir.split('/')[-1]+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 outputDir+= '/'+limitType+'/'
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
@@ -55,9 +60,12 @@ rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
     #if 'lep50_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0' not in rootfile: continue
-    if 'rebinned_stat0p3' not in rootfile: continue
+    if 'splitLess' not in rootfile:continue
+    if 'BKGNORM_rebinned_stat0p3.root' not in rootfile: continue
     if 'plots' in rootfile: continue
-    if 'ST' not in rootfile: continue
+    #if 'bW' not in rootfile: continue
+    #if 'tZ0p5_tH1p0' in rootfile: continue
+    if '0p5' not in rootfile and 'W1p0' not in rootfile and 'H1p0' not in rootfile: continue
     rootfilelist.append(rootfile)
     i+=1
 
@@ -66,7 +74,8 @@ thetaConfigLines = f.readlines()
 f.close()
 
 def makeThetaConfig(rFile,outDir):
-	rFileDir = rFile.split('/')[-2]
+	#rFileDir = rFile.split('/')[-2]
+        rFileDir = fileDir
 	with open(outDir+'/'+rFileDir+'/'+rFile.split('/')[-1][:-5]+'.py','w') as fout:
 		for line in thetaConfigLines:
 			if line.startswith('outDir ='): fout.write('outDir = \''+outDir+'/'+rFileDir+'\'')
@@ -90,17 +99,18 @@ def makeThetaConfig(rFile,outDir):
 
 count=0
 for limitConf in limitConfs:
-	toFilter = []#toFilter0 + limitConfs[limitConf]
+	toFilter = toFilter0 + limitConfs[limitConf]
 	print limitConf,'=',toFilter
 	for file in rootfilelist:
+                if '_'+limitConf+'_' not in file: continue
 		fileName = file.split('/')[-1]
 		signal = fileName.split('_')[2]
-		BRStr = fileName[fileName.find(signal)+len(signal):fileName.find('_12p892fb')]
+		BRStr = fileName[fileName.find(signal)+len(signal):fileName.find('_36p814fb')]
 		outDir = outputDir+limitConf+BRStr+'/'
 		print signal,BRStr
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		os.chdir(outDir)
-		fileDir = file.split('/')[-2]
+		#fileDir = file.split('/')[-2]
 		if not os.path.exists(outDir+fileDir): os.system('mkdir '+fileDir)
 		os.chdir(fileDir)
 		makeThetaConfig(file,outDir)

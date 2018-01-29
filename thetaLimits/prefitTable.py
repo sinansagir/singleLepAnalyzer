@@ -18,15 +18,17 @@ for ind in range(len(prefitlines)):
 nuisNam = [
 			'pdfNew',
 			'muRFcorrdNew',
-			'q2',
 			'toppt',
 			'tau21',
-			'jsf',
-			#'btag',
-			#'mistag',
+			'taupt',
+			'btag',
+			'mistag',
+			'jmr',
+			'jms',
 			'jer',
 			'jec',
 			'pileup',
+			#'trigeff',
 			'muTrigSys',
 			'elTrigSys',
 			'muIsoSys',
@@ -36,22 +38,22 @@ nuisNam = [
 			'lumiSys',
 			'topsys',
 			'ewksys',
-			'qcdsys',
-			'sigsys',
 			]
 
 nuisNamPlot = [
 			'PDF',
 			'muRF',
-			'Q$^{2}$',
 			'Top Pt',
 			'Tau21',
-			'JSF',
-			#'Btag',
-			#'Mistag',
+			'Tau21 Pt',
+			'Btag',
+			'Mistag',
+			'W/H tag: smear',
+			'W/H tag: scale',
 			'JER',
 			'JEC',
 			'pileup',
+			#'Trigger',
 			'muTrig',
 			'elTrig',
 			'muIso',
@@ -59,10 +61,8 @@ nuisNamPlot = [
 			'muId',
 			'elId',
 			'lumi',
-			'TOP flat',
-			'EWK flat',
-			'QCD flat',
-			'Sig flat',
+			'TOP rate',
+			'EWK rate',
 			]
 
 ewkInd = 1
@@ -144,7 +144,7 @@ for ind in obsIndexes:
 
 nCat = 1
 for ind in obsIndexes:
-	print observables[obsIndexes.index(ind)]
+	#print observables[obsIndexes.index(ind)]
 	print "\\begin{table}"
 	print "\\centering"
 	print "\\topcaption{Pre-fit uncertainties in the",
@@ -152,20 +152,20 @@ for ind in obsIndexes:
 	if "isM" in observables[obsIndexes.index(ind)]: print "muon channel with",
 	if "nH1b" in observables[obsIndexes.index(ind)]: print "a 1b Higgs tag.}",
 	if "nH2b" in observables[obsIndexes.index(ind)]: print "a 2b Higgs tag.}",
-	if "nW0" in observables[obsIndexes.index(ind)]: print "0 Higgs tags, 0 W tags and",
+	if "nW0_" in observables[obsIndexes.index(ind)]: print "0 Higgs tags, 0 W tags and",
 	if "nW1p" in observables[obsIndexes.index(ind)]: print "0 Higgs tags, $\geq 1$ W tags and",
-	if "nB0" in observables[obsIndexes.index(ind)]: print "0 b tags.}"
-	if "nB1" in observables[obsIndexes.index(ind)]: print "1 b tag.}"
-	if "nB2" in observables[obsIndexes.index(ind)]: print "2 b tags.}"
+	if "nB0_" in observables[obsIndexes.index(ind)]: print "0 b tags.}"
+	if "nB1_" in observables[obsIndexes.index(ind)]: print "1 b tag.}"
+	if "nB2_" in observables[obsIndexes.index(ind)]: print "2 b tags.}"
 	if "nB3p" in observables[obsIndexes.index(ind)]: print "$\geq 3$ b tags.}"
 	print "\\begin{tabular}{|c||c|c|c|c|}"
 	print "\\hline"
-	print "Nuisance Parameter & $\TTbar$ (1.2 TeV) & TOP & EWK & QCD \\\\"
+	print "Nuisance & $\TTbar$ (1.0 TeV) & TOP & EWK & QCD \\\\"
 	print "\\hline"
 	for nui in nuisNam:
 		i = prefitUncs[ind]['main'].index([nui,'(gauss)'])
 		if prefitUncs[ind]['sig'][i][0]=='-' and prefitUncs[ind]['top'][i][0]=='-' and prefitUncs[ind]['ewk'][i][0]=='-': continue
-		print nuisNamPlot[nuisNam.index(nui)]+' (gauss)'+' & ',
+		print nuisNamPlot[nuisNam.index(nui)]+' & ',
 		print prefitUncs[ind]['sig'][i][0]+' '+prefitUncs[ind]['sig'][i][1]+' & ',
 		print prefitUncs[ind]['top'][i][0]+' '+prefitUncs[ind]['top'][i][1]+' & ',
 		print prefitUncs[ind]['ewk'][i][0]+' '+prefitUncs[ind]['ewk'][i][1]+' & ',

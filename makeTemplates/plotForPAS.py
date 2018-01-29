@@ -15,7 +15,7 @@ lumi=2.3 #for plots
 lumiInTemplates=str(targetlumi/1000).replace('.','p') # 1/fb
 
 discriminant = 'minMlb'
-cutString='finalsel'
+cutString=''#finalsel'
 saveKey = ''#'_topPtSystOnly'
 
 m1 = '800'
@@ -26,9 +26,9 @@ sig2='TTM'+m2 # choose the 2nd signal to plot
 sig2leg='TT (1.2 TeV)'
 scaleSignals = False
 
-systematicList = ['pileup','jec','jer','btag','mistag','tau21','pdfNew','muRFcorrdNew','taupt','jsf']
+systematicList = ['pileup','jec','jer','btag','mistag','tau21','pdfNew','muRFcorrdNew','taupt','jsf','jmr','jms']
 doAllSys = True
-doQ2sys  = True
+doQ2sys  = False
 if not doAllSys: doQ2sys = False # I assume you don't want Q^2 as well if you are not doing the other shape systematics! (this is just to change one bool)
 
 isRebinned='_rebinned_stat0p3'#post fix for file names if the name changed b/c of rebinning or some other process
@@ -40,7 +40,7 @@ yLog  = True
 doRealPull = True
 if doRealPull: doOneBand=False
 
-templateDir=os.getcwd()+'/templates_minMlb_PaperARC_HTweightNew/'+cutString+'/'
+templateDir=os.getcwd()+'/templates_minMlb_PaperARC_fixes/'+cutString+'/'
 tempsig='templates_'+discriminant+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'	
 
 isEMlist =['E','M']
@@ -49,7 +49,7 @@ nWtaglist=['0','1p']
 nbtaglist=['0','1','2','3p']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist))
 
-lumiSys = 0.027 #2.7% lumi uncertainty
+lumiSys = 0.023 #2.7% lumi uncertainty
 trigSys = 0.05 #5% trigger uncertainty
 lepIdSys = 0.01 #1% lepton id uncertainty
 lepIsoSys = 0.01 #1% lepton isolation uncertainty
@@ -58,33 +58,28 @@ ewkXsecSys = 0.#0.05 #5% ewk x-sec uncertainty --> covered by PDF and muRF uncer
 qcdXsecSys = 0.#0.50 #50% qcd x-sec uncertainty --> covered by PDF and muRF uncertainties
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)
 topModelingSys = { #top modeling uncertainty from ttbar CR (correlated across e/m)
-#top_0p_0 : 0.108592856833
-#top_0p_1 : 0.0452487216945
-#top_0p_2p : 0.0568187341528
-			     'top_nT0p_nW0_nB0' :0.109,
-			     'top_nT0p_nW0_nB1' :0.026,
-			     'top_nT0p_nW0_nB2' :0.070,
-			     'top_nT0p_nW0_nB2p':0.070,
-			     'top_nT0p_nW0_nB3p':0.070,
-			     'top_nT0p_nW1p_nB0' :0.109,
-			     'top_nT0p_nW1p_nB1' :0.026,
-			     'top_nT0p_nW1p_nB2' :0.070,
-			     'top_nT0p_nW1p_nB2p':0.070,
-			     'top_nT0p_nW1p_nB3p':0.070,
+			     'top_nT0p_nW0_nB0' :0.125,
+			     'top_nT0p_nW0_nB1' :0.080,
+			     'top_nT0p_nW0_nB2' :0.055,
+			     'top_nT0p_nW0_nB2p':0.055,
+			     'top_nT0p_nW0_nB3p':0.055,
+			     'top_nT0p_nW1p_nB0' :0.125,
+			     'top_nT0p_nW1p_nB1' :0.080,
+			     'top_nT0p_nW1p_nB2' :0.055,
+			     'top_nT0p_nW1p_nB2p':0.055,
+			     'top_nT0p_nW1p_nB3p':0.055,
 			     }
 ewkModelingSys = { #ewk modeling uncertainty from wjets CR (correlated across e/m)		
-#ewk_0_0p : 0.19668578421
-#ewk_1p_0p : 0.0426225978467
-			     'ewk_nT0p_nW0_nB0' :0.183,
-			     'ewk_nT0p_nW0_nB1' :0.183,
-			     'ewk_nT0p_nW0_nB2' :0.183,
-			     'ewk_nT0p_nW0_nB2p':0.183,
-			     'ewk_nT0p_nW0_nB3p':0.183,
-			     'ewk_nT0p_nW1p_nB0' :0.036,
-			     'ewk_nT0p_nW1p_nB1' :0.036,
-			     'ewk_nT0p_nW1p_nB2' :0.036,
-			     'ewk_nT0p_nW1p_nB2p':0.036,
-			     'ewk_nT0p_nW1p_nB3p':0.036,
+			     'ewk_nT0p_nW0_nB0' :0.208,
+			     'ewk_nT0p_nW0_nB1' :0.208,
+			     'ewk_nT0p_nW0_nB2' :0.208,
+			     'ewk_nT0p_nW0_nB2p':0.208,
+			     'ewk_nT0p_nW0_nB3p':0.208,
+			     'ewk_nT0p_nW1p_nB0' :0.038,
+			     'ewk_nT0p_nW1p_nB1' :0.038,
+			     'ewk_nT0p_nW1p_nB2' :0.038,
+			     'ewk_nT0p_nW1p_nB2p':0.038,
+			     'ewk_nT0p_nW1p_nB3p':0.038,
 			     }
 
 def getNormUnc(hist,ibin,modelingUnc):
@@ -108,13 +103,14 @@ def formatUpperHist(histogram):
 		histogram.GetYaxis().SetTitleOffset(1.2)
 		histogram.GetXaxis().SetNdivisions(506)
 	else:
-		histogram.GetYaxis().SetLabelSize(0.07)
-		histogram.GetYaxis().SetTitleSize(0.08)
+		histogram.GetYaxis().SetLabelSize(0.05)
+		histogram.GetYaxis().SetTitleSize(0.07)
 		histogram.GetYaxis().SetTitleOffset(.71)
 
-	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,jets)] (GeV)")
-	histogram.GetYaxis().CenterTitle()
-	histogram.SetMinimum(5.01e-4)
+	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName(): histogram.GetXaxis().SetTitle("min[M(l,j)] [GeV]")
+	else: histogram.GetXaxis().SetTitle("min[M(l,b)] [GeV]")
+	#histogram.GetYaxis().CenterTitle()
+	histogram.SetMinimum(5.01e-5)
 	if not yLog: 
 		histogram.SetMinimum(0.25)
 	if yLog:
@@ -123,19 +119,20 @@ def formatUpperHist(histogram):
 		else: histogram.SetMaximum(25*histogram.GetMaximum())
 		
 def formatLowerHist(histogram):
-	histogram.GetXaxis().SetLabelSize(.12)
-	histogram.GetXaxis().SetTitleSize(0.15)
+	histogram.GetXaxis().SetLabelSize(.15)
+	histogram.GetXaxis().SetTitleSize(0.18)
 	histogram.GetXaxis().SetTitleOffset(0.95)
 	histogram.GetXaxis().SetNdivisions(506)
 	#histogram.GetXaxis().SetTitle("S_{T} (GeV)")
 
-	histogram.GetYaxis().SetLabelSize(0.12)
-	histogram.GetYaxis().SetTitleSize(0.14)
-	histogram.GetYaxis().SetTitleOffset(.37)
+	histogram.GetYaxis().SetLabelSize(0.15)
+	histogram.GetYaxis().SetTitleSize(0.16)
+	histogram.GetYaxis().SetTitleOffset(.33)
 	if not doRealPull: histogram.GetYaxis().SetTitle('Data/Bkg')
-	else: histogram.GetYaxis().SetTitle('#frac{(obs-bkg)}{#sigma}')
-	histogram.GetYaxis().SetNdivisions(7)
-	if doRealPull: histogram.GetYaxis().SetRangeUser(min(-2.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(2.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
+	else: histogram.GetYaxis().SetTitle('#frac{(data-bkg)}{std. dev.}')
+	histogram.GetYaxis().SetNdivisions(5)
+	#if doRealPull: histogram.GetYaxis().SetRangeUser(min(-1.99,0.8*histogram.GetBinContent(histogram.GetMaximumBin())),max(1.99,1.2*histogram.GetBinContent(histogram.GetMaximumBin())))
+	if doRealPull: histogram.GetYaxis().SetRangeUser(-1.99,1.99)
 	else: histogram.GetYaxis().SetRangeUser(0,2.99)
 	histogram.GetYaxis().CenterTitle()
 
@@ -354,14 +351,16 @@ for tag in tagList:
 		hData.SetMarkerStyle(20)
 		hData.SetMarkerSize(1.2)
 		hData.SetLineWidth(2)
+		hData.SetMarkerColor(kBlack)
+		hData.SetLineColor(kBlack)
 
 		bkgHTgerr.SetFillStyle(3004)
 		bkgHTgerr.SetFillColor(kBlack)
 
 		gStyle.SetOptStat(0)
-		c1 = TCanvas("c1","c1",1200,1000)
+		c1 = TCanvas("c1","c1",600,500)
 		gStyle.SetErrorX(0.5)
-		yDiv=0.35
+		yDiv=0.25
 		if blind == True: yDiv=0.1
 		uMargin = 0
 		if blind == True: uMargin = 0.15
@@ -388,7 +387,7 @@ for tag in tagList:
 		formatUpperHist(hData)
 		uPad.cd()
 		hData.SetTitle("")
-		if not blind: hData.Draw("E1 X0")
+		if not blind: hData.Draw("E1")
 		if blind: 
 			hsig1.SetMinimum(0.015)
 			if doNormByBinWidth: hsig1.GetYaxis().SetTitle("Events / 1 GeV")
@@ -399,7 +398,7 @@ for tag in tagList:
 		stackbkgHT.Draw("SAME HIST")
 		hsig1.Draw("SAME HIST")
 		hsig2.Draw("SAME HIST")
-		if not blind: hData.Draw("SAME E1 X0") #redraw data so its not hidden
+		if not blind: hData.Draw("SAME E1") #redraw data so its not hidden
 		uPad.RedrawAxis()
 		bkgHTgerr.Draw("SAME E2")
 		
@@ -419,8 +418,8 @@ for tag in tagList:
 		else: chString+=', '+tag[2]+' b'
 		chLatex.DrawLatex(0.16, 0.82, chString)
 
-		if drawQCD: leg = TLegend(0.45,0.52,0.95,0.87)
-		if not drawQCD: leg = TLegend(0.45,0.6,0.95,0.85)
+		if drawQCD: leg = TLegend(0.492,0.532,0.952,0.881)
+		if not drawQCD: leg = TLegend(0.492,0.612,0.952,0.881)
 		leg.SetShadowColor(0)
 		leg.SetFillColor(0)
 		leg.SetFillStyle(0)
@@ -591,7 +590,7 @@ for tag in tagList:
 			pull.Draw("HIST")
 
 		#c1.Write()
-		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plotsForPAS/'
+		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plotsForPaperHalved/'
 		if not os.path.exists(savePrefix): os.system('mkdir '+savePrefix)
 		savePrefix+=histPrefix+isRebinned+saveKey
 		if doRealPull: savePrefix+='_pull'
@@ -785,14 +784,16 @@ for tag in tagList:
 	hDatamerged.SetMarkerStyle(20)
 	hDatamerged.SetMarkerSize(1.2)
 	hDatamerged.SetLineWidth(2)
+	hDatamerged.SetMarkerColor(kBlack)
+	hDatamerged.SetLineColor(kBlack)
 
 	bkgHTgerrmerged.SetFillStyle(3004)
 	bkgHTgerrmerged.SetFillColor(kBlack)
 
 	gStyle.SetOptStat(0)
-	c1merged = TCanvas("c1merged","c1merged",1200,1000)
+	c1merged = TCanvas("c1merged","c1merged",600,500)
 	gStyle.SetErrorX(0.5)
-	yDiv=0.35
+	yDiv=0.25
 	if blind == True: yDiv=0.1
 	uMargin = 0
 	if blind == True: uMargin = 0.15
@@ -819,7 +820,7 @@ for tag in tagList:
 	uPad.cd()
 	hDatamerged.SetTitle("")
 	stackbkgHTmerged.SetTitle("")
-	if not blind: hDatamerged.Draw("E1 X0")
+	if not blind: hDatamerged.Draw("E1")
 	if blind: 
 		sighist1RHmerged.SetMinimum(0.015)
 		if doNormByBinWidth: sighist1RHmerged.GetYaxis().SetTitle("Events / 1 GeV")
@@ -830,7 +831,7 @@ for tag in tagList:
 	stackbkgHTmerged.Draw("SAME HIST")
 	hsig1merged.Draw("SAME HIST")
 	hsig2merged.Draw("SAME HIST")
-	if not blind: hDatamerged.Draw("SAME E1 X0") #redraw data so its not hidden
+	if not blind: hDatamerged.Draw("SAME E1") #redraw data so its not hidden
 	uPad.RedrawAxis()
 	bkgHTgerrmerged.Draw("SAME E2")
 
@@ -848,8 +849,8 @@ for tag in tagList:
 	else: chString+=', '+tag[2]+' b'
 	chLatexmerged.DrawLatex(0.16, 0.82, chString)
 
-	if drawQCDmerged: legmerged = TLegend(0.45,0.52,0.95,0.87)
-	if not drawQCDmerged: legmerged = TLegend(0.45,0.6,0.95,0.85)
+	if drawQCDmerged: legmerged = TLegend(0.492,0.532,0.952,0.881)
+	if not drawQCDmerged: legmerged = TLegend(0.492,0.612,0.952,0.881)
 	legmerged.SetShadowColor(0)
 	legmerged.SetFillColor(0)
 	legmerged.SetFillStyle(0)
@@ -1002,7 +1003,7 @@ for tag in tagList:
 		pullmerged.Draw("HIST")
 
 	#c1merged.Write()
-	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plotsForPAS/'
+	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plotsForPaperHalved/'
 	if not os.path.exists(savePrefixmerged): os.system('mkdir '+savePrefixmerged)
 	savePrefixmerged+=histPrefixE.replace('isE','lep')+isRebinned+saveKey
 	if doRealPull: savePrefixmerged+='_pull'

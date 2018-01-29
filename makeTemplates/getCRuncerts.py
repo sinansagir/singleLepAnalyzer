@@ -2,22 +2,21 @@
 
 import os,sys,time,math
 
-systematicList = ['pileup','jec','jer','btag','mistag','tau21','topsf','toppt',
-				  'q2','pdfNew','muRFcorrdNew','topsf','trigeff']#,'jsf']
+systematicList = ['pileup','jec','jer','btag','mistag','tau21','taupt','toppt','pdfNew','muRFcorrdNew','trigeff','jsf']
 includeNB0 = False
-discrim = 'ST'
-templateYields = 'templates_'+discrim+'_2016_10_29/lep30_MET100_NJets4_DR1_1jet250_2jet50/yields_'+discrim+'_12p892fb_rebinned_stat0p25.txt' 
-ttbarYields = '../makeCRs/ttbar_'+discrim+'_2016_10_29/yields_'+discrim+'_12p892fb_rebinned_stat0p25.txt'
-wjetsYields = '../makeCRs/wjets_'+discrim+'_2016_10_29/yields_'+discrim+'_12p892fb_rebinned_stat0p25.txt'
+discrim = 'minMlbST'
+templateYields = 'templates_PreApp/yields_'+discrim+'_36p814fb_rebinned_stat0p3.txt' 
+ttbarYields = 'ttbar_PreApp/yields_'+discrim+'_36p814fb_rebinned_stat0p3.txt'
+wjetsYields = 'wjets_PreApp/yields_'+discrim+'_36p814fb_rebinned_stat0p3.txt'
 """NOTE: Need to have the yield files above from theta templates, not combine!!!!!!!!"""
 
-lumiSys = 0.062 #lumi uncertainty
-eltrigSys = 0.03 #electron trigger uncertainty
-mutrigSys = 0.011 #muon trigger uncertainty
-elIdSys = 0.01 #electron id uncertainty
-muIdSys = 0.011 #muon id uncertainty
+lumiSys = 0.026 #lumi uncertainty
+eltrigSys = 0.0 #electron trigger uncertainty
+mutrigSys = 0.0 #muon trigger uncertainty
+elIdSys = 0.02 #electron id uncertainty
+muIdSys = 0.03 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.03 #muon isolation uncertainty
+muIsoSys = 0.01 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
@@ -49,11 +48,11 @@ for line in ttbarlines:
 	if 'Systematics' in line: break
 	if line.startswith('dataOverBkg'):
 		for yld,cat in zip(line.split('&')[1:],ttbarlines[ind-6].split()[1:-1]):
-			newcat = 'top_'+cat.replace('_nT0p','').replace('_nW0p','').replace('isE','E').replace('isM','M')
+			newcat = 'top_'+cat.replace('_nH0','').replace('_nW0p','').replace('isE','E').replace('isM','M')
 			dob_top[newcat] = float(yld.split()[0])
 	elif line.startswith('data') or line.startswith('DATA'):
 		for yld,cat in zip(line.split('&')[1:],ttbarlines[ind-5].split()[1:-1]):
-			newcat = 'top_'+cat.replace('_nT0p','').replace('_nW0p','').replace('isE','E').replace('isM','M')
+			newcat = 'top_'+cat.replace('_nH0','').replace('_nW0p','').replace('isE','E').replace('isM','M')
 			data_top[newcat] = float(yld.split()[0])
 	ind+=1
 
@@ -68,11 +67,11 @@ for line in wjetslines:
 	if 'Systematics' in line: break
 	if line.startswith('dataOverBkg'): 
 		for yld,cat in zip(line.split('&')[1:],wjetslines[ind-6].split()[1:-1]):
-			newcat = 'ewk_'+cat.replace('_nT0p','').replace('_nB0','').replace('isE','E').replace('isM','M')
+			newcat = 'ewk_'+cat.replace('_nH0','').replace('_nB0','').replace('isE','E').replace('isM','M')
 			dob_ewk[newcat] = float(yld.split()[0])
 	elif line.startswith('data') or line.startswith('DATA'): 
 		for yld,cat in zip(line.split('&')[1:],wjetslines[ind-5].split()[1:-1]):
-			newcat = 'ewk_'+cat.replace('_nT0p','').replace('_nB0','').replace('isE','E').replace('isM','M')
+			newcat = 'ewk_'+cat.replace('_nH0','').replace('_nB0','').replace('isE','E').replace('isM','M')
 			data_ewk[newcat] = float(yld.split()[0])
 	ind+=1
 
@@ -80,15 +79,25 @@ for line in wjetslines:
 yields = {}
 if includeNB0: yields['top_E_nB0']  = sum([yields_top[cat] for cat in yields_top.keys() if 'isE' in cat and cat.endswith('nB0')])
 yields['top_E_nB1']  = sum([yields_top[cat] for cat in yields_top.keys() if 'isE' in cat and cat.endswith('nB1')])
-yields['top_E_nB2p'] = sum([yields_top[cat] for cat in yields_top.keys() if 'isE' in cat and (cat.endswith('nB2') or cat.endswith('nB2p') or cat.endswith('nB3p'))])
+yields['top_E_nB2']  = sum([yields_top[cat] for cat in yields_top.keys() if 'isE' in cat and cat.endswith('nB2')])
+yields['top_E_nB3p'] = sum([yields_top[cat] for cat in yields_top.keys() if 'isE' in cat and cat.endswith('nB3p')])
+yields['top_E_nH1b'] = sum([yields_top[cat] for cat in yields_top.keys() if 'isE' in cat and 'nH1b' in cat])
+yields['top_E_nH2b'] = sum([yields_top[cat] for cat in yields_top.keys() if 'isE' in cat and 'nH2b' in cat])
 yields['ewk_E_nW0']  = sum([yields_ewk[cat] for cat in yields_ewk.keys() if 'isE' in cat and 'nW0_' in cat])
 yields['ewk_E_nW1p'] = sum([yields_ewk[cat] for cat in yields_ewk.keys() if 'isE' in cat and 'nW1p_' in cat])
+yields['ewk_E_nH1b'] = sum([yields_ewk[cat] for cat in yields_top.keys() if 'isE' in cat and 'nH1b' in cat])
+yields['ewk_E_nH2b'] = sum([yields_ewk[cat] for cat in yields_top.keys() if 'isE' in cat and 'nH2b' in cat])
 
 if includeNB0: yields['top_M_nB0']  = sum([yields_top[cat] for cat in yields_top.keys() if 'isM' in cat and cat.endswith('nB0')])
 yields['top_M_nB1']  = sum([yields_top[cat] for cat in yields_top.keys() if 'isM' in cat and cat.endswith('nB1')])
-yields['top_M_nB2p'] = sum([yields_top[cat] for cat in yields_top.keys() if 'isM' in cat and (cat.endswith('nB2') or cat.endswith('nB2p') or cat.endswith('nB3p'))])
+yields['top_M_nB2']  = sum([yields_top[cat] for cat in yields_top.keys() if 'isM' in cat and cat.endswith('nB2')])
+yields['top_M_nB3p'] = sum([yields_top[cat] for cat in yields_top.keys() if 'isM' in cat and cat.endswith('nB3p')])
+yields['top_M_nH1b'] = sum([yields_top[cat] for cat in yields_top.keys() if 'isM' in cat and 'nH1b' in cat])
+yields['top_M_nH2b'] = sum([yields_top[cat] for cat in yields_top.keys() if 'isM' in cat and 'nH2b' in cat])
 yields['ewk_M_nW0']  = sum([yields_ewk[cat] for cat in yields_ewk.keys() if 'isM' in cat and 'nW0_' in cat])
 yields['ewk_M_nW1p'] = sum([yields_ewk[cat] for cat in yields_ewk.keys() if 'isM' in cat and 'nW1p_' in cat])
+yields['ewk_M_nH1b'] = sum([yields_ewk[cat] for cat in yields_top.keys() if 'isM' in cat and 'nH1b' in cat])
+yields['ewk_M_nH2b'] = sum([yields_ewk[cat] for cat in yields_top.keys() if 'isM' in cat and 'nH2b' in cat])
 
 """Get the deviation (from 1) of data/MC in CRs"""
 dataOverBkg = {}
@@ -166,7 +175,7 @@ for ind in range(indtemp_ewk+1,indtemp_qcd-1):
 total_top_Up = {}
 total_top_Dn = {}
 for cat in shapes_top_tt[systematicList[0]+'__minus'].keys():
-	newcat = 'top_'+cat.replace('_nT0p','').replace('_nW0p','').replace('isE','E').replace('isM','M')
+	newcat = 'top_'+cat.replace('_nH0','').replace('_nW0p','').replace('isE','E').replace('isM','M')
 	total_top_Up[newcat] = 0.
 	total_top_Dn[newcat] = 0.
 	for syst in shapes_top_tt.keys():
@@ -177,7 +186,7 @@ for cat in shapes_top_tt[systematicList[0]+'__minus'].keys():
 total_ewk_Up = {}
 total_ewk_Dn = {}
 for cat in shapes_ewk_wj[systematicList[0]+'__minus'].keys():
-	newcat = 'ewk_'+cat.replace('_nT0p','').replace('_nB0','').replace('isE','E').replace('isM','M')
+	newcat = 'ewk_'+cat.replace('_nH0','').replace('_nB0','').replace('isE','E').replace('isM','M')
 	total_ewk_Up[newcat] = 0.
 	total_ewk_Dn[newcat] = 0.
 	for syst in shapes_ewk_wj.keys():

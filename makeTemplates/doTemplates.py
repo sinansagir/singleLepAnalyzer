@@ -13,44 +13,47 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='WJCR' #PS,SR,TTCR,WJCR
+region='SRNoB0' #PS,SR,TTCR,WJCR
 isCategorized=False
 cutString=''#lep40_MET60_DR0_1jet200_2jet100'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
-if not isCategorized: pfix='kinematics_'+region
-pfix+='wSFs'
+if region=='HCR': pfix='higgs_'
+if region=='CRall': pfix='control_'
+if region=='CR': pfix='templatesCR_'
+if not isCategorized: pfix='kinematics_'+region+'_'
+pfix+='NewEl'
 #pfix+='ST_2016_11_13_wJSF'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = True
-lumiScaleCoeff = 36800./36000.
-doAllSys = True
-doQ2sys = True
+lumiScaleCoeff = 35867./36814.
+doAllSys =True
+doQ2sys = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','tau21','muR','muF','muRFcorrd','jsf','toppt']#'btag','mistag',,'trigeff','topsf',
+systematicList = ['pileup','jec','jer','tau21','jmr','jms','muR','muF','muRFcorrd','jsf','toppt','trigeff','btag','mistag','taupt']#,,'topsf'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgGrupList = ['top','ewk','qcd']
-bkgProcList = ['TTJets','T','TTV','WJets','ZJets','VV','qcd']
+bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']#,'TTV'
 bkgProcs = {}
-bkgProcs['WJets']  = ['WJetsMG100','WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500'] 
-bkgProcs['ZJets']  = ['DY']
+bkgProcs['WJets']  = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500'] 
+bkgProcs['ZJets']  = ['DYMG']#200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
 bkgProcs['TTV']    = ['TTWl','TTWq','TTZl','TTZq']
 bkgProcs['TTJets'] = ['TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc','TTJetsPH700mtt','TTJetsPH1000mtt']
 bkgProcs['T']      = ['Tt','Tbt','Ts','TtW','TbtW']
-bkgProcs['qcd'] = ['QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
-bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['TTV']+bkgProcs['T']
+bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']#+bkgProcs['TTV']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV'] 
-dataList = ['DataEPRH','DataMPRH','DataERRBCDEFG','DataMRRBCDEFG']
+dataList = ['DataERRBCDEFGH','DataMRRBCDEFGH']
 
 topptProcs = ['top','TTJets']
-bkgProcs['top_q2up'] = bkgProcs['TTV']+bkgProcs['T']+['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']
-bkgProcs['top_q2dn'] = bkgProcs['TTV']+bkgProcs['T']+['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']
+bkgProcs['top_q2up'] = bkgProcs['T']+['TTJetsPHQ2U']#,'TtWQ2U','TbtWQ2U']bkgProcs['TTV']+
+bkgProcs['top_q2dn'] = bkgProcs['T']+['TTJetsPHQ2D']#,'TtWQ2D','TbtWQ2D']bkgProcs['TTV']+
 
 whichSignal = 'TT' #HTB, TT, BB, or X53X53
 massList = range(800,1800+1,100)
@@ -63,41 +66,52 @@ if whichSignal=='HTB': decays = ['']
 
 doBRScan = False
 BRs={}
-BRs['BW']=[0.0,0.50,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]
-BRs['TH']=[0.5,0.25,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]
-BRs['TZ']=[0.5,0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]
+BRs['BW']=[0.0]#0.0,0.50,1.0,0.0]#0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]
+BRs['TH']=[0.0]#0.5,0.25,0.0,1.0]#0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]
+BRs['TZ']=[1.0]#0.5,0.25,0.0,0.0]#1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
 isEMlist =['E','M']
 if region=='SR': nHtaglist=['0','1b','2b']
+elif 'CR' in region:
+	if region=='HCR': nHtaglist=['1b','2b']
+	elif region=='CR': nHtaglist=['0','1p']
+	elif region=='CRall': nHtaglist=['0','1b','2b']
+	else: nHtaglist=['0']
 else: nHtaglist = ['0p']
-if region=='TTCR': nWtaglist = ['0p']
+
+if region=='TTCR' or region=='HCR' or region=='CR': nWtaglist = ['0p']
 else: nWtaglist=['0','0p','1p']
+
 if region=='WJCR': nbtaglist = ['0']
+elif region=='HCR' or region=='CR': nbtaglist = ['0','1p']
 else: nbtaglist=['0','1','1p','2','3p']
 if not isCategorized: 	
 	nHtaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['0p']
 	if region=='WJCR': nbtaglist = ['0']
-	if region=='TTCR': nbtaglist = ['2p']
+	if region=='TTCR': nbtaglist = ['1p']
+	if region=='HCR': 
+		nHtaglist = ['1p']
+		nbtaglist = ['1p']
 njetslist=['3p']
 if region=='PS': njetslist=['3p']
 print 'EMlist = ',isEMlist
 print 'Hlist = ',nHtaglist
 print 'Wlist = ',nWtaglist
 print 'blist = ',nbtaglist
-#catList = ['is'+item[0]+'_nH'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nHtaglist,nWtaglist,nbtaglist,njetslist))]
-#print catList
-#tagList = ['nH'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nHtaglist,nWtaglist,nbtaglist,njetslist))]
-#print tagList
+# catList = ['is'+item[0]+'_nH'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nHtaglist,nWtaglist,nbtaglist,njetslist))]
+# #print catList
+# tagList = ['nH'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nHtaglist,nWtaglist,nbtaglist,njetslist))]
+# #print tagList
 
 # if isCategorized:
 # 	for cat in catList:
 # 		print cat
 # 		if 'nH1b' in cat or 'nH2b' in cat:
-# 			print 'found H: ',cat
+# 			#print 'found H: ',cat
 # 			if 'nW0p' not in cat: 
 # 				catList.remove(cat)
 # 				tagList.remove(cat[4:])
@@ -105,7 +119,7 @@ print 'blist = ',nbtaglist
 # 				catList.remove(cat)
 # 				tagList.remove(cat[4:])
 # 		else: # nH0 in SR, nH0p in CRs
-# 			print 'No H: ',cat[4:]
+# 			#print 'No H: ',cat[4:]
 # 			if region != 'TTCR' and 'nW0p' in cat: 
 # 				catList.remove(cat)
 # 				tagList.remove(cat[4:])
@@ -119,24 +133,32 @@ for item in list(itertools.product(isEMlist,nHtaglist,nWtaglist,nbtaglist,njetsl
 	if isCategorized:
 		if 'b' in item[1]:
 			if item[2] != '0p': continue
-			if item[3] != '1p': continue
+			if region == 'CRall':
+				if item[3] != '0' and item[3] != '1p': continue
+			else:
+				if item[3] != '1p' and region != 'WJCR' and region != 'HCR' and region != 'CR': continue
 		elif 'b' not in item[1]:
-			if item[2] == '0p' and region != 'TTCR': continue
-			if item[3] == '1p': continue
+			if region == 'CRall':
+				if item[2] == '0' and item[3] != '0': continue
+				elif item[2] == '1p' and item[3] != '0': continue
+				elif item[2] == '0p' and (item[3] == '0' or item[3] == '1p'): continue
+			else:
+				if item[2] == '0p' and region != 'TTCR' and region != 'HCR' and region != 'CR': continue
+				if item[3] == '1p' and region != 'CR': continue
 
-	catList.append('is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4])
-	if item[0] == 'E': tagList.append('nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4])
+	catList.append('is'+item[0]+'_nH'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4])
+	if item[0] == 'E': tagList.append('nH'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4])
 
 print catList
 print tagList
                 
-lumiSys = 0.062 #lumi uncertainty
-eltrigSys = 0.05 #electron trigger uncertainty
-mutrigSys = 0.05 #muon trigger uncertainty
+lumiSys = math.sqrt(0.026**2 + 0.05**2) #lumi uncertainty + higgs propagation
+eltrigSys = 0.01 #electron trigger uncertainty
+mutrigSys = 0.01 #muon trigger uncertainty
 elIdSys = 0.02 #electron id uncertainty
-muIdSys = 0.02 #muon id uncertainty
-elIsoSys = 0.02 #electron isolation uncertainty
-muIsoSys = 0.02 #muon isolation uncertainty
+muIdSys = 0.03 #muon id uncertainty
+elIsoSys = 0.01 #electron isolation uncertainty
+muIsoSys = 0.01 #muon isolation uncertainty
 
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
@@ -590,37 +612,36 @@ def findfiles(path, filtre):
             yield os.path.join(root, f)
 
 iPlotList = []
-for file in findfiles(outDir+'/'+catList[0][2:].replace('nT','nH')+'/', '*.p'):
+for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
     if 'bkghists' not in file: continue
     if not os.path.exists(file.replace('bkghists','datahists')): continue
     if not os.path.exists(file.replace('bkghists','sighists')): continue
     iPlotList.append(file.split('_')[-1][:-2])
 
 print "WORKING DIR:",outDir
+checkprint = False
 for iPlot in iPlotList:
-	datahists = {}
+	#if iPlot != 'minMlb' and iPlot != 'ST' and iPlot != 'Tau21Nm1' and iPlot != 'PrunedWNm1' and iPlot != 'PrunedHNm1' and iPlot != 'PrunedNsubBNm1' and iPlot != 'NWJets' and iPlot != 'NBJets': continue
+	#if iPlot != 'NH1bJets' and iPlot != 'NH2bJets' and iPlot != 'NBJetsNotH': continue
+	if iPlot != 'ST': continue
+	datahists = {} 
 	bkghists  = {}
 	sighists  = {}
-	#if iPlot=='minMlj': continue
+	#if iPlot!='NsubBNm1': continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
-		print "         ",cat[2:].replace('nT','nH')
-		datahists.update(pickle.load(open(outDir+'/'+cat[2:].replace('nT','nH')+'/datahists_'+iPlot+'.p','rb')))
-		bkghists.update(pickle.load(open(outDir+'/'+cat[2:].replace('nT','nH')+'/bkghists_'+iPlot+'.p','rb')))
-		sighists.update(pickle.load(open(outDir+'/'+cat[2:].replace('nT','nH')+'/sighists_'+iPlot+'.p','rb')))
+		print "         ",cat[2:]
+		datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
+		bkghists.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists_'+iPlot+'.p','rb')))
+		sighists.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))
 	if scaleLumi:
-		for key in bkghists.keys(): 
-			bkghists[key].Scale(lumiScaleCoeff)					
-			if 'WJetsMG100' in key: bkghists[key].Scale(0.931355)
-			elif 'WJetsMG200' in key: bkghists[key].Scale(0.913146)
-			elif 'WJetsMG400' in key: bkghists[key].Scale(0.866418)
-			elif 'WJetsMG600' in key: bkghists[key].Scale(0.799251)
-			elif 'WJetsMG800' in key: bkghists[key].Scale(0.706555)
-			elif 'WJetsMG1200' in key: bkghists[key].Scale(0.567275)
-			elif 'WJetsMG2500' in key: bkghists[key].Scale(0.422828)
-			
+		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)	    		
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
-
+		
+	checkprint = False
+	print 'sighists check:'
+	for key in sighists:
+		if 'MET_' in key and 'TTM800' in key: print key
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
 	makeThetaCats(datahists,sighists,bkghists,iPlot)
 

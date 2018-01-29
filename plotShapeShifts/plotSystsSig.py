@@ -7,22 +7,22 @@ setTDRStyle()
 R.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 
-lumi = 36.4
-discriminant = 'minMlb'
+lumi = 35.9
+discriminant = 'minMlbST'
 rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_Wkshp/'
+tempVersion = 'templates_NewEl/'
 cutString = ''#SelectionFile'
-templateFile = '../makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_TTM1000_36p0fb'+rfilePostFix+'.root'
+templateFile = '../makeTemplates/'+tempVersion+cutString+'/templates_'+discriminant+'_TTM1000_36p814fb'+rfilePostFix+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/sigs'): os.system('mkdir '+outDir+tempVersion+'/sigs')
 
-saveKey = ''
+saveKey = '_Htag'#''#
 bkgList = ['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
 channels = ['isE','isM']
-htags = ['nH0','nH1b','nH2b']
-wtags = ['nW0','nW0p','nW1p']
-btags = ['nB0','nB1p','nB1','nB2','nB3p']
-systematics = ['pileup','jec','jer','tau21','muRFcorrdNew','pdfNew']#'btag','mistag',,'trigeff''jsf',,'toppt','q2']
+htags = ['nH1b','nH2b']#'nH0']#,
+wtags = ['nW0p']#'nW0','nW0p','nW1p']#
+btags = ['nB1p']#'nB1','nB2','nB3p']#'nB0','nB1p',#
+systematics = ['pileup','jec','jer','tau21','jmr','jms','muRFcorrdNewSig','pdfNew','trigeff','taupt','btag','mistag']#,'jsf',,'toppt','q2']
 
 signameList = [#'TTM800',
 	       #'TTM900',
@@ -40,7 +40,8 @@ signameList = [#'TTM800',
 for signal in signameList:
 	RFile = R.TFile(templateFile.replace('TTM900',signal))
 	for syst in systematics:
-		Prefix = discriminant+'_36p0fb_'+channels[0]+'_'+htags[0]+'_'+wtags[0]+'_'+btags[0]+'_nJ3p__sig'
+		if 'b' not in htags[0]:	Prefix = discriminant+'_36p814fb_'+channels[0]+'_'+htags[0]+'_'+wtags[0]+'_'+btags[0]+'_nJ3p__sig'
+		else: 	Prefix = discriminant+'_36p814fb_'+channels[0]+'_'+htags[0]+'_nW0p_nB1p_nJ3p__sig'
 		print Prefix
 		hNm = RFile.Get(Prefix).Clone()
 		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
@@ -75,6 +76,9 @@ for signal in signameList:
 								htempDown = RFile.Get(Prefix.replace(channels[0],ch).replace(htags[0],htag).replace(wtags[0],wtag).replace(btags[0],btag)+'__'+syst+'__minus').Clone()
 								hDn.Add(htempDown)
 						except:pass
+		hNm.Rebin(2)
+		hUp.Rebin(2)
+		hDn.Rebin(2)
 		hNm.Draw()
 		hUp.Draw()
 		hDn.Draw()
@@ -100,9 +104,6 @@ for signal in signameList:
 
 		R.gStyle.SetOptTitle(0)
 
-		hNm.SetFillColor(R.kWhite)
-		hUp.SetFillColor(R.kWhite)
-		hDn.SetFillColor(R.kWhite)
 		hNm.SetMarkerColor(R.kBlack)
 		hUp.SetMarkerColor(R.kRed)
 		hDn.SetMarkerColor(R.kBlue)
@@ -126,9 +127,9 @@ for signal in signameList:
 		
 		hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 
-		hUp.Draw()
-		hNm.Draw('same')
-		hDn.Draw('same')
+		hUp.Draw('hist')
+		hNm.Draw('hist same')
+		hDn.Draw('hist same')
 
 		lPad.cd()
 		R.gStyle.SetOptTitle(0)
@@ -138,7 +139,7 @@ for signal in signameList:
 			pullUp.SetBinError(iBin,math.sqrt(pullUp.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 		pullUp.Divide(hNm)
 		pullUp.SetTitle('')
-		pullUp.SetFillColor(2)
+		pullUp.SetLineWidth(2)
 		pullUp.SetLineColor(2)
 
 		pullUp.GetXaxis().SetLabelSize(.15)
@@ -158,7 +159,7 @@ for signal in signameList:
 			pullDown.SetBinError(iBin,math.sqrt(pullDown.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 		pullDown.Divide(hNm)
 		pullDown.SetTitle('')
-		pullDown.SetFillColor(4)
+		pullDown.SetLineWidth(2)
 		pullDown.SetLineColor(4)
 
 		pullDown.GetXaxis().SetLabelSize(.15)
@@ -173,8 +174,11 @@ for signal in signameList:
 		pullDown.GetYaxis().SetNdivisions(506)
 		pullUp.SetMinimum(-0.5)#-1.4)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
 		pullUp.SetMaximum(0.5)#1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
-		pullUp.Draw()
-		pullDown.Draw('same')
+		if 'muRF' not in syst:
+			pullUp.SetMinimum(-0.07)#-1.4)#min(pullDown.GetMinimum(),pullUp.GetMinimum()))
+			pullUp.SetMaximum(0.07)#1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))    
+		pullUp.Draw('hist')
+		pullDown.Draw('hist same')
 		lPad.RedrawAxis()
 
 		uPad.cd()
@@ -223,8 +227,8 @@ for signal in signameList:
 		Tex2.SetTextSize(0.05)
 		Tex2.SetTextAlign(31)
 
-		canv.SaveAs(tempVersion+'/sigs/'+syst+'_'+signal+'.pdf')
-		canv.SaveAs(tempVersion+'/sigs/'+syst+'_'+signal+'.png')
-		canv.SaveAs(tempVersion+'/sigs/'+syst+'_'+signal+'.root')
+		canv.SaveAs(tempVersion+'/sigs/'+syst+'_'+signal+saveKey+'.pdf')
+		canv.SaveAs(tempVersion+'/sigs/'+syst+'_'+signal+saveKey+'.png')
+		canv.SaveAs(tempVersion+'/sigs/'+syst+'_'+signal+saveKey+'.root')
 	RFile.Close()
 
