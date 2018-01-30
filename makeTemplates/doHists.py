@@ -271,8 +271,8 @@ catInd = 1
 for cat in catList:
  	catDir = cat[0]+'_nH'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
  	datahists = {}
- 	#bkghists  = {}
- 	#sighists  = {}
+ 	bkghists  = {}
+ 	sighists  = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
  	else: 
 		outDir = os.getcwd()
