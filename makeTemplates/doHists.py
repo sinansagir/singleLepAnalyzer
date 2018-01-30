@@ -286,36 +286,36 @@ for cat in catList:
  	for data in dataList: 
  		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if catInd==nCats: del tFileData[data]
- 	# for bkg in bkgList: 
- 	# 	bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 	# 	if catInd==nCats: del tFileBkg[bkg]
- 	# 	if doAllSys and catInd==nCats:
- 	# 		for syst in shapesFiles:
- 	# 			for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
- 	# for sig in sigList: 
- 	# 	for decay in decays: 
- 	# 		sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 	# 		if catInd==nCats: del tFileSig[sig+decay]
- 	# 		if doAllSys and catInd==nCats:
- 	# 			for syst in shapesFiles:
- 	# 				for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
- 	# if doQ2sys: 
- 	# 	for q2 in q2List: 
- 	# 		bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 	# 		if catInd==nCats: del tFileBkg[q2]
+ 	for bkg in bkgList: 
+ 		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 		if catInd==nCats: del tFileBkg[bkg]
+ 		if doAllSys and catInd==nCats:
+ 			for syst in shapesFiles:
+ 				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
+ 	for sig in sigList: 
+ 	 	for decay in decays: 
+ 	 		sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 	 		if catInd==nCats: del tFileSig[sig+decay]
+ 	 		if doAllSys and catInd==nCats:
+ 	 			for syst in shapesFiles:
+ 	 				for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
+ 	if doQ2sys: 
+ 	 	for q2 in q2List: 
+ 	 		bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 	 		if catInd==nCats: del tFileBkg[q2]
 
  	#Negative Bin Correction
-	#for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
- 	#for sig in sighists.keys(): negBinCorrection(sighists[sig])
+	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
+ 	for sig in sighists.keys(): negBinCorrection(sighists[sig])
 
  	# #OverFlow Correction
  	for data in datahists.keys(): overflow(datahists[data])
- 	#for bkg in bkghists.keys():   overflow(bkghists[bkg])
- 	#for sig in sighists.keys():   overflow(sighists[sig])
+ 	for bkg in bkghists.keys():   overflow(bkghists[bkg])
+ 	for sig in sighists.keys():   overflow(sighists[sig])
 
  	pickle.dump(datahists,open(outDir+'/datahists_'+iPlot+'.p','wb'))
-	#pickle.dump(bkghists,open(outDir+'/bkghists_'+iPlot+'.p','wb'))
-	#pickle.dump(sighists,open(outDir+'/sighists_'+iPlot+'.p','wb'))
+	pickle.dump(bkghists,open(outDir+'/bkghists_'+iPlot+'.p','wb'))
+	pickle.dump(sighists,open(outDir+'/sighists_'+iPlot+'.p','wb'))
  	catInd+=1
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
