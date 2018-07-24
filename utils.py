@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys,math
+import os,sys,math,string
 from ROOT import *
 
 def isEqual(a, b):
@@ -14,6 +14,21 @@ def contains(a, b):
         return b.upper() in a.upper()
     except AttributeError:
         return b in a
+
+def cleanEOSpath(path): 
+    #if path starts with /eos/uscms remove it. 
+    if string.find(path,'/eos/uscms',0,10) == 0:
+        return path[10:]
+    elif string.find(path,'root://cmseos.fnal.gov/',0,23) == 0:
+        return path[23:]
+    else:
+        return path
+
+def EOSpathExists(path): 
+    xrd = 'eos root://cmseos.fnal.gov/'
+    #returns a bool true iff the path exists
+    path = cleanEOSpath(path)
+    return len(os.popen(xrd+' ls -d '+path).readlines()) == 1
 
 ##############################################################################
 

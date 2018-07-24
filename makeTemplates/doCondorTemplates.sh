@@ -1,7 +1,8 @@
 #!/bin/bash
 
-condorDir=$PWD
-theDir=$1
+hostname 
+
+outDir=$1
 iPlot=$2
 region=$3
 isCategorized=$4
@@ -12,8 +13,10 @@ nbtag=$8
 njets=$9
 
 source /cvmfs/cms.cern.ch/cmsset_default.sh
-
-cd $theDir
+scramv1 project CMSSW CMSSW_9_4_6_patch1
+cd CMSSW_9_4_6_patch1
 eval `scramv1 runtime -sh`
+cd -
 
-python doHists.py $condorDir $iPlot $region $isCategorized $isEM $nttag $nWtag $nbtag $njets
+python -u doHists.py $outDir $iPlot $region $isCategorized $isEM $nttag $nWtag $nbtag $njets
+
