@@ -31,7 +31,7 @@ if len(sys.argv)>2: region=str(sys.argv[2])
 if len(sys.argv)>3: pfix=str(sys.argv[3])
 templateDir=os.getcwd()+'/'+pfix+'/'+cutString+'/'
 
-isRebinned='_rebinned_stat1p1' #post for ROOT file names
+isRebinned='' # _rebinned_stat1p1 #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig1='TTM1000' #  choose the 1st signal to plot
@@ -58,14 +58,12 @@ if 'WJCRnoJSF' in pfix or 'WJCRwSFs' in pfix or 'TTCRwNewWgt' in pfix: systemati
 if 'WJCRwJSF' in pfix: systematicList = ['tau21','pileup','jec','jer','muRFcorrdNew','pdfNew','toppt','jsf']
 if 'TTCRnoJSF' in pfix: systematicList = ['tau21','pileup','jec','jer','muRFcorrdNew','pdfNew']
 
-doAllSys = True
-doQ2sys  = False
-if not doAllSys: doQ2sys = False
+doAllSys = False
 addCRsys = False
 doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
-blind = False
+blind = True
 yLog  = False
 if yLog: scaleSignals = False
 doRealPull = True

@@ -9,30 +9,32 @@ from weights import *
 from analyze import *
 from samples import *
 from utils import *
+execfile("/uscms_data/d3/jmanagan/EOSSafeUtils.py")
 
 gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/jhogan/LJMet80X_1lepTT_062617_step2slimmed/nominal'
+step1Dir = 'root://cmseos.fnal.gov//store/user/lpcljm/2018/LJMet94X_1lepTT_072418_step1hadds/nominal'
 
-iPlot = 'minMlbST' #minMlb' #choose a discriminant from plotList below!
+iPlot = 'Tp2Mass' #minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
 region = 'SR'
 if len(sys.argv)>3: region=sys.argv[3]
 isCategorized = 1
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
-isotrig = 1
-doJetRwt= 0
-doAllSys= True
-doQ2sys = False
+doJetRwt= 1
+doAllSys= False
 
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-if region=='TTCR': pfix='ttbarTEST'
-elif region=='WJCR': pfix='wjetsTEST'
-else: pfix='templatesTEST'
+if region=='CR':    pfix='templatesCR_'
+if region=='SR':    pfix='templatesSR_'
+if region=='PS':    pfix='templatesPS__'
+if region=='noDR':  pfix='templatesnoDR_'
+if region=='CRinc': pfix='templatesCRinc_'
+else: pfix='templatesTEST_'
 if not isCategorized: pfix='kinematicsTEST_'+region+''
 #pfix+=iPlot
 #pfix+='_'+datestr#+'_'+timestr
@@ -48,20 +50,17 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 bkgList = [
-	'DYMG',
-	'WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
-	#'WJetsPt100','WJetsPt250','WJetsPt400','WJetsMG600',
-	'WW','WZ','ZZ',
-	'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
-	'TTJetsPH700mtt','TTJetsPH1000mtt',
-	'Tt','Tbt','Ts','TtW','TbtW',
-	'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+	'WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+	#'TTJetsPH',
+	#'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000'
 	]
 
-dataList = ['DataERRBCDEFGH','DataMRRBCDEFGH']
+dataList = [
+	#'DataERRBCDEFGH','DataMRRBCDEFGH'
+	]
 
 whichSignal = 'TT' #HTB, TT, BB, or X53X53
-massList = range(800,1800+1,100)
+massList = range(1100,1800+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -69,51 +68,36 @@ if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' d
 if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
 if whichSignal=='HTB': decays = ['']
 
-q2List  = [#energy scale sample to be processed
-	#'TTJetsPHQ2U','TTJetsPHQ2D',
-	#'TtWQ2U','TbtWQ2U',
-	#'TtWQ2D','TbtWQ2D',
-	]
-
-cutList = {'lepPtCut':60,'metCut':75,'njetsCut':3,'drCut':3.0,'jet1PtCut':300,'jet2PtCut':150,'jet3PtCut':100}
-if 'PS' in region or region=='HTAG':cutList = {'lepPtCut':60,'metCut':60,'njetsCut':3,'drCut':0,'jet1PtCut':200,'jet2PtCut':100, 'jet3PtCut':50}
-if 'noDR' in region: cutList = {'lepPtCut':60,'metCut':75,'njetsCut':3,'drCut':10.0,'jet1PtCut':300,'jet2PtCut':150,'jet3PtCut':100}
+cutList = {'lepPtCut':50,'metCut':55,'nAK8Cut':2,'drCut':3.0,'HTCut':480}
+if 'PS' in region :cutList = {'lepPtCut':50,'metCut':55,'nAK8Cut':0,'drCut':10.0,'HTCut':480}
+if 'noDR' in region: cutList = {'lepPtCut':50,'metCut':55,'nAK8Cut':2,'drCut':10.0,'HTCut':480}
 
 cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
-cutString += '_DR'+str(cutList['drCut'])+'_1jet'+str(int(cutList['jet1PtCut']))
-cutString += '_2jet'+str(int(cutList['jet2PtCut']))#+'_3jet'+str(int(cutList['jet3PtCut']))
+cutString += '_nAK8'+str(cutList['nAK8Cut'])+'_DR'+str(cutList['drCut'])
+cutString += 'HT'+str(cutList['HTCut'])
 		
 if len(sys.argv)>5: isEMlist=[str(sys.argv[5])]
 else: isEMlist = ['E','M']
-if len(sys.argv)>6: nHtaglist=[str(sys.argv[6])]
+if len(sys.argv)>6: taglist=[str(sys.argv[6])]
 else: 
-	if not isCategorized: nHtaglist = ['0p']
-	elif region=='SR': nHtaglist=['0','1b','2b']
-	elif 'CR' in region: nHtaglist=['0','1b','2b']
-	else: nHtaglist = ['0p']
-if len(sys.argv)>7: nWtaglist=[str(sys.argv[7])]
-else: 
-	if not isCategorized: nWtaglist = ['0p']
-	elif region=='TTCR': nWtaglist = ['0p']
-	else: nWtaglist=['0','0p','1p']
-if len(sys.argv)>8: nbtaglist=[str(sys.argv[8])]
-else: 
-	if not isCategorized: nbtaglist = ['0p']
-	elif region=='WJCR': nbtaglist = ['0']
-	else: nbtaglist=['0','1','1p','2','3p']
-if len(sys.argv)>9: njetslist=[str(sys.argv[9])]
-else: njetslist=['3p']
+	if not isCategorized: taglist = ['isVnotV']
+	elif region=='SR': taglist=['isV_bWbW','isV_tHbW','isV_tHtH','isV_tZbW','isV_tZtH','isV_tZtZ','notV']
+	elif region=='CR': taglist=['isVnotV']
+	elif region=='CRinc': taglist=['isV_bWbW','isV_tHbW','isV_tHtH','isV_tZbW','isV_tZtH','isV_tZtZ','notV']
+	else: taglist = ['isVnotV']
+if len(sys.argv)>7: algolist=[str(sys.argv[7])]
+else: algolist = ['BEST','DeepAK8','DeepAK8_decorr']
 
 def readTree(file):
-	if not os.path.exists(file): 
-		print "Error: File does not exist! Aborting ...",file
+	if not EOSpathExists(file[23:]): 
+		print "Error: File does not exist! Aborting ...",file[23:]
 		os._exit(1)
-	tFile = TFile(file,'READ')
+	tFile = TFile.Open(file,'READ')
 	tTree = tFile.Get('ljmet')
 	return tFile, tTree 
 
 print "READING TREES"
-shapesFiles = ['jec','jer']
+shapesFiles = []
 tTreeData = {}
 tFileData = {}
 for data in dataList:
@@ -135,19 +119,15 @@ for sig in sigList:
 
 tTreeBkg = {}
 tFileBkg = {}
-for bkg in bkgList+q2List:
-	if bkg in q2List and not doQ2sys: continue
+for bkg in bkgList:
 	print "READING:",bkg
 	print "        nominal"
 	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
 	if doAllSys:
 		for syst in shapesFiles:
 			for ud in ['Up','Down']:
-				if bkg in q2List:
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=None,None
-				else:
-					print "        "+syst+ud
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
+      			       	print "        "+syst+ud
+		       		tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
 print "FINISHED READING"
 
 #bigbins = [0,50,100,150,200,250,300,350,400,450,500,600,700,800,1000,1200,1500]
@@ -160,6 +140,7 @@ if isCategorized and 'SR' in region:
 	xmax = 1000
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
+	'Tp2Mass':('Tprime2_ALGO_Mass',linspace(0,3000,51).tolist(),';M(T) [GeV])'),
 	'deltaRAK8':('minDR_leadAK8otherAK8',linspace(0,5,51).tolist(),';min #DeltaR(1^{st} AK8 jet, other AK8 jet)'),
 	'minDRlepAK8':('minDR_lepAK8',linspace(0,5,51).tolist(),';min #DeltaR(l, AK8 jet)'),
 	'masslepAK81':('mass_lepAK8s[0]',linspace(0,1500,51).tolist(),';M(l, AK8 jet 1) [GeV]'),
@@ -265,11 +246,11 @@ print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
-catList = list(itertools.product(isEMlist,nHtaglist,nWtaglist,nbtaglist,njetslist))
+catList = list(itertools.product(isEMlist,taglist,algolist))
 nCats  = len(catList)
 catInd = 1
 for cat in catList:
- 	catDir = cat[0]+'_nH'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
+ 	catDir = cat[0]+'_'+cat[1]+'_'+cat[2]
  	datahists = {}
  	bkghists  = {}
  	sighists  = {}
@@ -282,27 +263,23 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
- 	category = {'isEM':cat[0],'nHtag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
+ 	category = {'isEM':cat[0],'tag':cat[1],'algo':cat[2]}
  	for data in dataList: 
- 		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 		datahists.update(analyze(tTreeData,data,cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if catInd==nCats: del tFileData[data]
  	for bkg in bkgList: 
- 		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 		bkghists.update(analyze(tTreeBkg,bkg,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if catInd==nCats: del tFileBkg[bkg]
  		if doAllSys and catInd==nCats:
  			for syst in shapesFiles:
  				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
  	for sig in sigList: 
  	 	for decay in decays: 
- 	 		sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 	 		sighists.update(analyze(tTreeSig,sig+decay,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  	 		if catInd==nCats: del tFileSig[sig+decay]
  	 		if doAllSys and catInd==nCats:
  	 			for syst in shapesFiles:
  	 				for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
- 	if doQ2sys: 
- 	 	for q2 in q2List: 
- 	 		bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 	 		if catInd==nCats: del tFileBkg[q2]
 
  	#Negative Bin Correction
 	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])

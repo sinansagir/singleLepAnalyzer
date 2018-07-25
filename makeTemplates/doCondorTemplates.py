@@ -1,6 +1,8 @@
 import os,sys,datetime,itertools
 
 thisDir = os.getcwd()
+if thisDir[-13:] == 'makeTemplates': runDir = thisDir[:-13]
+else: runDir = thisDir
 outputDir = thisDir+'/'
 region='SRNoB0' #PS,SR,TTCR,WJCR
 categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
@@ -144,7 +146,7 @@ if not categorize:
 njetslist = ['3p']
 if region=='PS': njetslist = ['3p']
 
-outDir = outputDir+pfix
+outDir = outputDir+pfix+'/'
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
 os.system('cp ../analyze.py doHists.py ../weights.py ../samples.py doCondorTemplates.py doCondorTemplates.sh '+outDir+'/')
 os.chdir(outDir)
@@ -156,6 +158,7 @@ count=0
 for iplot in iPlotList:
 	for cat in list(itertools.product(isEMlist,nHtaglist,nWtaglist,nbtaglist,njetslist)):
 		catDir = cat[0]+'_nH'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]		
+		outDir = outDir+catDir'/'
 		if categorize:
 			if 'b' in cat[1]:
 				#print 'got an H tag'
@@ -170,21 +173,24 @@ for iplot in iPlotList:
 		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+catDir)
 		os.chdir(catDir)			
 	
-		dict={'dir':outputDir,'iPlot':iplot,'region':region,'isCategorized':categorize,
+		dict={'rundir':runDir, 'dir':outputDir,'iPlot':iplot,'region':region,'isCategorized':categorize,
 			  'isEM':cat[0],'nHtag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
 	
 		jdf=open('condor.job','w')
 		jdf.write(
-"""universe = vanilla
-Executable = %(dir)s/doCondorTemplates.sh
+			"""x509userproxy = %(PROXY)s
+universe = vanilla
+Executable = %(rundir)s/makeTemplates/doCondorTemplates.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-request_memory = 3072
+Transfer_Input_Files = %(rundir)s/analyze.py, %(rundir)s/samples.py, %(rundir)s/utils.py, %(rundir)s/weights.py
 Output = condor_%(iPlot)s.out
 Error = condor_%(iPlot)s.err
 Log = condor_%(iPlot)s.log
+Notification = Never
 Notification = Error
 Arguments = %(dir)s %(iPlot)s %(region)s %(isCategorized)s %(isEM)s %(nHtag)s %(nWtag)s %(nbtag)s %(njets)s
+
 Queue 1"""%dict)
 		jdf.close()
 
