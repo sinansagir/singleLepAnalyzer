@@ -166,6 +166,7 @@ for iplot in iPlotList:
 				if (region == 'SR' or region == 'WJCR') and cat[2] == '0p': continue
 				if cat[3] == '1p' and region != 'CR': continue
 		print catDir
+		#######
 		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+catDir)
 		os.chdir(catDir)			
 	
