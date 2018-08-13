@@ -6,11 +6,12 @@ input = 'FILE'
 rFileName = input.split('/')[-1][:-5]
                                                                           
 def get_model():
-    model = build_model_from_rootfile(input,include_mc_uncertainties=True,histogram_filter = (lambda s: s.count('__toppt')==0))
+    model = build_model_from_rootfile(input,include_mc_uncertainties=True,histogram_filter = (lambda s: s.count('__BEST')==0 and s.count('__DeepAK8_decorr')==0))
 
     #
     model.fill_histogram_zerobins()
     model.set_signal_processes('sig')
+    model.scale_predictions((41298.+35867.)/36814.)
     
     procs = model.processes
     obsvs = model.observables.keys()
@@ -31,24 +32,15 @@ def get_model():
             try: model.add_lognormal_uncertainty('muRecoSys', math.log(1.01), '*', obs) #iso + tracking
             except: pass
 
-        if 'H2b' in obs or 'H1b' in obs:
-            try: model.add_lognormal_uncertainty('htag_prop', math.log(1.05), '*', obs)
-            except: pass
-        else:
-            try: model.add_lognormal_uncertainty('htag_prop', math.log(0.95), '*', obs)
-            except: pass
-
     try: model.add_lognormal_uncertainty('lumiSys', math.log(1.025), '*', '*')
     except: pass
 
     # flat values for tests
-    try: model.add_lognormal_uncertainty('QCDscale', math.log(1.25),'QCD','*')
+    try: model.add_lognormal_uncertainty('QCDscale', math.log(1.25),'qcd','*')
     except RuntimeError: pass
-    try: model.add_lognormal_uncertainty('SingleTopscale', math.log(1.16),'SingleTop','*')
+    try: model.add_lognormal_uncertainty('TTbarscale', math.log(1.30),'top','*')
     except RuntimeError: pass
-    try: model.add_lognormal_uncertainty('TTbarscale', math.log(1.30),'TTbar','*')
-    except RuntimeError: pass
-    try: model.add_lognormal_uncertainty('EWKscale', math.log(1.25),'EWK','*')
+    try: model.add_lognormal_uncertainty('EWKscale', math.log(1.25),'ewk','*')
     except RuntimeError: pass
     # try: model.add_lognormal_uncertainty('jsf', math.log(1.038), 'WJets', '*')
     # except: pass
