@@ -1,78 +1,14 @@
 # singleLepAnalyzer
 
 Analyzer for plotting the output of "StepX" ROOT files, slimmed versions of "LJMet" ROOT files.
-
------------------------------------------------------------------------------------------------
-
-makeKinematics: plot kinematic distributions. 
-
- 	-- Categories: E, M, All
-
-	-- One distribution per category per job
-
-	PREP:
-
-	1. Edit weights.py and samples.py to define files/counts/xsecs
-
-	2. Edit analyze.py to control TTree->Draw cuts/weights/hists
-
-	3. Edit doHists.py to control histogram names/bins/labels, samples to run, cuts to apply, and files to read in
-
-	4. Edit doCondorKinematics.py to control output directory, categories, and which distributions to plot.
-
-	RUN:
-
-	1. python -u doHists.py --> this is a test, does it crash?
-
-	2. python -u doCondorKinematics.py
-
-	PLOT:
-
-	1. Edit doKinematics.py to control samples and uncertainties. This script converts pickle files to ROOT files and write a latex-formatted yield table
-
-	2. python -u doKinematics.py
-
-	3. python -u plotKinematics.py (edit for all plot-level controls)
-
------------------------------------------------------------------------------------------------
-
-makeCRs: plot ttbar and wjets control regions.
-
-	-- Categories: lepton x N Top jets x N W jets x N b jets
-
-	-- One job per category, giving one distribution (the main discriminant)
-
-	PREP:
-
-	1. Edit weights.py and samples.py to define files/counts/xsecs
-
-	2. Edit analyze.py to control TTree->Draw cuts/weights/hists
-
-	3. Edit doHists.py to control histogram names/bins/labels, samples to run, and files to read in
-
-	4. Edit doCondorCRs.py to control output directory, categories, cuts, and which control region to plot.
-
-	RUN:
-
-	1. python -u doHists.py --> this is a test, does it crash?
-
-	2. python -u doCondorCRs.py
-
-	PLOT:
-
-	1. Edit doCRs.py to control samples and uncertainties. This script converts pickle files to ROOT files and write a latex-formatted yield table
-
-	2. python -u doCRs.py
-
-	3. python -u plotCRs.py (edit for all plot-level controls)
 	 
 -----------------------------------------------------------------------------------------------
 
-makeThetaTemplates: plot templates for 
+makeTemplates: produce templates for 
 
-	-- Categories: lepton x N Top jets x N W jets x N b jets
+	-- Categories: lepton x N Top jets x N W jets x N b jets x N AK4 jets
 
-	-- One job per category, giving one distribution (the main discriminant)
+	-- One job per category per distribution (either a list of kinematics or the main discriminant)
 
 	PREP:
 
@@ -80,27 +16,27 @@ makeThetaTemplates: plot templates for
 
 	2. Edit analyze.py to control TTree->Draw cuts/weights/hists
 
-	3. Edit doHists.py to control histogram names/bins/labels, samples to run, and files to read in
+	3. Edit doHists.py to control histogram names/bins/labels, samples to run, selections to apply, and files to read in
 
-	4. Edit doCondorThetaTemplates.py to control output directory, categories, and cuts. 
+	4. Edit doCondorTemplates.py to control output directory, categories, region, and distributions. 
 
 	RUN:
 
 	1. python -u doHists.py --> this is a test, does it crash?
 
-	2. python -u doCondorThetaTemplates.py
+	2. python -u doCondorTemplates.py
 
 	PLOT:
 
-	1. Edit doThetaTemplates.py to control samples and uncertainties. This script converts pickle files to ROOT files and write a latex-formatted yield table. You can choose to do a branching ratio scan here.
+	1. Edit doTemplates.py to control samples and uncertainties. This script converts pickle files to ROOT files and write a latex-formatted yield table. You can choose to do a branching ratio scan here.
 
-	2. Edit modifyBinning.py to control binning and add certain uncertainties
+	2. Edit modifyBinning.py to control binning, add certain uncertainties, and produce new yield tables with shape uncertainties included (optional)
 
-	3. python -u doThetaTemplates.py
+	3. python -u doTemplates.py
 
 	4. python -u modifyBinning.py
 
-	5. python -u plotThetaTemplates.py (edit for all plot-level controls)
+	5. python -u plotTemplates.py (edit for all plot-level controls)
 
 -----------------------------------------------------------------------------------------------
 
@@ -112,7 +48,7 @@ Uncertainties: various special scripts to treat them
 
 -----------------------------------------------------------------------------------------------
 
-makeLimits: set limits
+thetaLimits: set limits
 
 	Prep:
 
