@@ -1,35 +1,35 @@
-#for iPlot in NsubBNm1 SoftDropNm1; do
-#for iPlot in ST NBJetsNotH lepPt lepEta mindeltaR deltaRAK8 PtRel deltaRjet1 deltaRjet2 HT ST minMlb minMlj lepIso NPV JetEta JetPt MET NJets NBJets NWJets NH1bJets NH2bJets PuppiNH1bJets PuppiNH2bJets NJetsAK8 JetPtAK8 JetEtaAK8 Tau21 Tau21Nm1 Pruned PrunedWNm1 PrunedHNm1 PrunedNsubBNm1 SoftDrop SoftDropNm1 NsubBNm1 PuppiNsubBNm1 PuppiSD PuppiSDNm1; do
-#for iPlot in ST; do
-#for iPlot in minMlbST HT ST YLD; do
-#for iPlot in minMlb minMlj ST; do
-#for iPlot in NBJetsNotH NBJetsNotPH lepPt lepEta mindeltaR deltaRAK8 PtRel deltaRjet1 deltaRjet2 HT ST minMlb minMlj lepIso NPV JetEta JetPt MET NJets NBJets NWJets PuppiNWJets NH1bJets NH2bJets PuppiNH1bJets PuppiNH2bJets NJetsAK8 JetPtAK8 JetEtaAK8 Tau21 Tau21Nm1 PuppiTau21 PuppiTau21Nm1 Pruned PrunedWNm1 PrunedHNm1 PrunedNsubBNm1 SoftDrop SoftDropHNm1 SoftDropNsubBNm1 PuppiNsubBNm1 PuppiSD PuppiSDWNm1 PuppiSDHNm1; do
+#Arguments: iPlot, region, isCategorized, directory, blind, yLog
 
-#for iPlot in PrunedHNm1 PrunedWNm1 Tau21Nm1; do
-    #echo $iPlot
-    #python plotPaper.py $iPlot SR kinematics_SRNoB0_NewEl
-    # python plotTemplates.py $iPlot TTCR ttbar_ARC
-    # python plotTemplates.py $iPlot TTCR ttbar_ARCpuppiW
-    # python plotTemplates.py $iPlot WJCR wjets_ARC
-    # python plotTemplates.py $iPlot WJCR wjets_ARCpuppiW
-    # python plotTemplates.py $iPlot HCR higgs_ARC
-    # python plotTemplates.py $iPlot HCR higgs_ARCpuppiW
-    # python plotTemplates.py $iPlot CR templatesCR_NewEl
-    # python plotTemplates.py $iPlot CRall control_NewEl
-    # python plotTemplates.py $iPlot SR templates_NewEl
-    # python plotTemplates.py $iPlot SR templates_ARCpuppiW
-    # python plotTemplates.py $iPlot SR kinematics_SRnoDR_NewEl
-    # python plotTemplates.py $iPlot SR kinematics_SRNoB0_NewEl
-    # python plotTemplates.py $iPlot SR kinematics_SR_ARCpuppiW
-    # python plotTemplates.py $iPlot SR kinematics_PS_NewEl
-#done
+plotList='tmass Wmass HT ST minDRlepAK8 Tau21Nm1 Tau32Nm1 SoftDropHNm1 SoftDropWZNm1 SoftDropTNm1 DoubleBNm1 JetPt MET NJets NBJets NJetsAK8 JetPtAK8 lepPt NPV lepEta JetEta JetEtaAK8 mindeltaR PtRel'
+for iPlot in $plotList; do
+    echo $iPlot
+    python plotTemplates.py $iPlot PS False kinematicsPS_Oct11 False False 
+    python plotTemplates.py $iPlot PS False kinematicsPS_Oct11 False True  
+done
 
-python plotPaper.py PrunedNsubBNm1 SR kinematics_SRNoB0_NewEl True
-#python plotPaper.py deltaRAK8 SR kinematics_SRNoB0noDR_NewEl
-#python plotPaper.py HT CR templatesCR_NewEl
+plotList='tmass Wmass HT ST minDRlepAK8 Tau21Nm1 Tau32Nm1 SoftDropHNm1 SoftDropWZNm1 SoftDropTNm1 DoubleBNm1 JetPt MET NJets NBJets NJetsAK8 JetPtAK8 lepPt'
+for iPlot in $plotList; do
+    echo $iPlot
+    python plotTemplates.py $iPlot SR False kinematicsSR_Oct11 True False 
+    python plotTemplates.py $iPlot SR False kinematicsSR_Oct11 True True  
+done
 
-# echo 'Templates minMlbST'
-# python plotPaper.py minMlbST SR templates_NewEl True
+plotList='probb probh probj probt probw probz dnnLargest nB nH  nT nW  nZ'
+for iPlot in $plotList; do
+    echo $iPlot
+    python plotTemplates.py $iPlot PSalgos False kinematicsPSalgos_Oct11 False False 
+    python plotTemplates.py $iPlot PSalgos False kinematicsPSalgos_Oct11 False True  
+done
 
-# echo 'CR templates HT'
-# python plotPaper.py HT CR templatesCR_NewEl True
+plotList='Tp2Mass Tp1Mass Tp2Pt Tp1Pt Tp1Eta Tp2Eta Tp1Phi Tp2Phi Tp1deltaR Tp2deltaR probb probh probj probt probw probz dnnLargest nB nH  nT nW  nZ'
+for iPlot in $plotList; do
+    echo $iPlot
+    python plotTemplates.py $iPlot SRalgos False kinematicsSRalgos_Oct11 True False 
+    python plotTemplates.py $iPlot SRalgos False kinematicsSRalgos_Oct11 True True  
+done
+
+python plotTemplates.py deltaRAK8 NoDR False kinematicsNoDR_Oct11 False False
+
+python plotTemplates.py Tp2Mass SR True templatesSR_Oct11 True True  
+python plotTemplates.py Tp2Mass SR True templatesSR_Oct11 True False 
+ 
