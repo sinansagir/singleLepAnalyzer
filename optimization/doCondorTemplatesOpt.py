@@ -1,39 +1,21 @@
 import os,sys,datetime,itertools
 
-#Basic kinematic cuts optimization configuration (w/o shapes) -- minMlb -- x53x53/2016 dataset (Total jobs submitted: 9072):
-# lepPtCutList  = [30, 50, 80]
-# jet1PtCutList = [200, 300, 450]
-# jet2PtCutList = [100, 150, 300]
-# metCutList    = [100, 150, 200]
-# njetsCutList  = [3, 4, 5]
-# nbjetsCutList = [0]
-# jet3PtCutList = [0]
-# jet4PtCutList = [0]
-# jet5PtCutList = [0]
-# drCutList     = [0.75, 1, 1.25]
-# Wjet1PtCutList= [0]
-# bjet1PtCutList= [0]
-# htCutList     = [0]
-# stCutList     = [0]
-# minMlbCutList = [0]
-#'lep30_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0', #minMlb
 #Basic kinematic cuts optimization configuration (w/o shapes) -- ST -- x53x53/2016 dataset (Total jobs submitted: 2340):
-lepPtCutList  = [30, 50, 80]
-jet1PtCutList = [200, 250, 300]
-jet2PtCutList = [50, 90, 150]
-metCutList    = [80, 100, 150]
-njetsCutList  = [3, 4, 5]
+lepPtCutList  = [30]
+jet1PtCutList = [200]
+jet2PtCutList = [50]
+metCutList    = [80]
+njetsCutList  = [5]
 nbjetsCutList = [0]
 jet3PtCutList = [0]
 jet4PtCutList = [0]
 jet5PtCutList = [0]
-drCutList     = [0.75, 1, 1.25]
+drCutList     = [1]
 Wjet1PtCutList= [0]
 bjet1PtCutList= [0]
 htCutList     = [0]
 stCutList     = [0]
 minMlbCutList = [0]
-#'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet50_3jet0', #ST
 
 cutConfigs = list(itertools.product(lepPtCutList,jet1PtCutList,jet2PtCutList,metCutList,njetsCutList,nbjetsCutList,jet3PtCutList,jet4PtCutList,jet5PtCutList,drCutList,Wjet1PtCutList,bjet1PtCutList,htCutList,stCutList,minMlbCutList))
 
@@ -72,7 +54,7 @@ for conf in cutConfigs:
 	jdf=open('condor.job','w')
 	jdf.write(
 """universe = vanilla
-Executable = %(dir)s/doCondorThetaTemplates.sh
+Executable = %(dir)s/doCondorTemplatesOpt.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 request_memory = 3072

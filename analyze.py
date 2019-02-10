@@ -42,24 +42,27 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	catStr = 'is'+isEM+'_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag+'_nJ'+njets
 
 	# Define general cuts
-	cut  = '(leptonPt_singleLepCalc > '+str(cutList['lepPtCut'])+')'
+	cut  = '((leptonPt_singleLepCalc > '+str(cutList['elPtCut'])+' && isElectron==1) || (leptonPt_singleLepCalc > '+str(cutList['muPtCut'])+' && isMuon==1))'
 	cut += ' && (corr_met_singleLepCalc > '+str(cutList['metCut'])+')'
+	cut += ' && (MT_lepMet > '+str(cutList['mtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[0] > '+str(cutList['jet1PtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[1] > '+str(cutList['jet2PtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[2] > '+str(cutList['jet3PtCut'])+')'
-	cut += ' && (minDR_lepJet > 0.4 || ptRel_lepJet > 40)'
-	if 'CR' in region:
-		cut += ' && (deltaR_lepJets[1] >= 0.4 && deltaR_lepJets[1] < '+str(cutList['drCut'])+')'
-	else: # 'PS' or 'SR'
-		cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
+	cut += ' && (minDR_lepJet > 0.4)'# || ptRel_lepJet > 40)'
+# 	if 'CR' in region:
+# 		cut += ' && (deltaR_lepJets[1] >= 0.4 && deltaR_lepJets[1] < '+str(cutList['drCut'])+')'
+# 	else: # 'PS' or 'SR'
+# 		cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
 
 	# Define weights
-	TrigEff = 'TrigEffWeight'
+	TrigEff = '1'#'TrigEffWeightRMA'
+	TrigEffUp = '1'#'min(1.0,TrigEffWeightRMA+TrigEffWeightRMAUncert)'
+	TrigEffDn = '1'#'(TrigEffWeightRMA-TrigEffWeightRMAUncert)'
 	if isotrig == 1:
-		cut += ' && DataPastTriggerOR == 1'# && MCPastTrigger == 1' # no MC HLT except signal
+		cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1' # no MC HLT except signal
 	else:
 		TrigEff = 'TrigEffAltWeight'
-		cut += ' && DataPastTriggerAlt == 1'# && MCPastTriggerAlt == 1'
+		cut += ' && DataPastTriggerAlt == 1' # && MCPastTriggerAlt == 1'
 
 	weightStr = '1'
 	HTweightStr = '1'
@@ -81,7 +84,7 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 # 	HTweightStrUp = '1'
 # 	HTweightStrDn = '1'
 	if 'Data' not in process:
-		weightStr          += ' * '+topPt13TeVstr+' * '+HTweightStr+' * '+TrigEff+' * pileupWeight * isoSF * lepIdSF * EGammaGsfSF * MuTrkSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
+		weightStr          += ' * '+topPt13TeVstr+' * '+HTweightStr+' * '+TrigEff+' * pileupWeight * lepIdSF * EGammaGsfSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
 		weightTrigEffUpStr  = weightStr.replace(TrigEff,'('+TrigEff+'+'+TrigEff+'Uncert)')
 		weightTrigEffDownStr= weightStr.replace(TrigEff,'('+TrigEff+'-'+TrigEff+'Uncert)')
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
@@ -98,14 +101,13 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		weighthtDownStr     = weightStr.replace(HTweightStr,HTweightStrDn)
 
 	# For N-1 tagging cuts
-	pruned_massvar = 'theJetAK8PrunedMassWtagUncerts_JetSubCalc_PtOrdered'
-	soft_massvar='theJetAK8SoftDropMass_JetSubCalc_PtOrdered'
+	sdmassvar='theJetAK8SoftDropCorr_JetSubCalc_PtOrdered'
 	tau21var = 'theJetAK8NjettinessTau2_JetSubCalc_PtOrdered/theJetAK8NjettinessTau1_JetSubCalc_PtOrdered'
 	tau32var = 'theJetAK8NjettinessTau3_JetSubCalc_PtOrdered/theJetAK8NjettinessTau2_JetSubCalc_PtOrdered'
-	if 'PrunedNm1' in iPlot: cut += ' && ('+tau21var+' < 0.6)'
-	if 'SoftDropMassNm1' in iPlot: cut+=  ' && ('+tau32var+' < 0.81)'
-	if 'Tau21Nm1' in iPlot:  cut += ' && ('+pruned_massvar+' > 65 && '+pruned_massvar+' < 105)'
-	if 'Tau32Nm1' in iPlot:  cut += ' && ('+soft_massvar+' > 105 && '+ soft_massvar+' < 220)'
+	if 'SoftDropMassNm1W' in iPlot: cut += ' && ('+tau21var+' < 0.6)'
+	if 'SoftDropMassNm1t' in iPlot: cut += ' && ('+tau32var+' < 0.81)'
+	if 'Tau21Nm1' in iPlot:  cut += ' && ('+sdmassvar+' > 65 && '+sdmassvar+' < 105)'
+	if 'Tau32Nm1' in iPlot:  cut += ' && ('+sdmassvar+' > 105 && '+sdmassvar+' < 220)'
 
 	# Design the tagging cuts for categories
 	isEMCut=''
@@ -113,8 +115,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	elif isEM=='M': isEMCut+=' && isMuon==1'
 
 	nttagLJMETname = 'NJetsTtagged_0p81'
-	nWtagLJMETname = 'NJetsWtagged_0p6_notTtagged'
-	nbtagLJMETname = 'NJetsCSVwithSF_JetSubCalc'
+	nWtagLJMETname = 'NPuppiWtagged_0p55_notTtagged'
+	nbtagLJMETname = 'NJetsCSV_JetSubCalc'
 	njetsLJMETname = 'NJets_JetSubCalc'
 	nttagCut = ''
 	if 'p' in nttag: nttagCut+=' && '+nttagLJMETname+'>='+nttag[:-1]

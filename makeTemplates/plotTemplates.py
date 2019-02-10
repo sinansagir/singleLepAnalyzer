@@ -12,72 +12,69 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=35.9 #for plots
+lumi=41.3 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
-iPlot='minMlb'
+region='PS' #PS,SR,TTCR,WJCR
+isCategorized=0
+iPlot='ST'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
 if region=='SR': pfix='templates_'
 elif region=='WJCR': pfix='wjets_'
 elif region=='TTCR': pfix='ttbar_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-templateDir=os.getcwd()+'/'+pfix+'M17WtSF_2017_3_31/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'2019_2_10/'+cutString+'/'
 postFitFile=os.getcwd()+'/../thetaLimits/chi2test_2017_2_12/histos-mle.root'
 plotPostFit = False #this is not working yet!!
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
 saveKey = ''#'_noQ2' # tag for plot names
 
-sig1='X53X53M900left' #  choose the 1st signal to plot
-sig1leg='X_{5/3}#bar{X}_{5/3} LH (0.9 TeV)'
-sig2='X53X53M1200right' #  choose the 2nd signal to plot
-sig2leg='X_{5/3}#bar{X}_{5/3} RH (1.2 TeV)'
-scaleSignals = False
-sigScaleFact = 40 #put -1 if auto-scaling wanted
+sig1='4TM690' #  choose the 1st signal to plot
+sig1leg='t#bar{t}t#bar{t}'
+sig2='4TM690' #  choose the 2nd signal to plot
+sig2leg='t#bar{t}t#bar{t}'#'X_{5/3}#bar{X}_{5/3} RH (1.2 TeV)'
+scaleSignals = True
+sigScaleFact = 20 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 bkgProcList = ['top','ewk','qcd']
 #bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
-if '53' in sig1: bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOrange-5,'TTJets':rt.kRed-9,'T':rt.kRed-5,'WJets':rt.kBlue-7,'ZJets':rt.kBlue-1,'VV':rt.kBlue+5,'qcd':rt.kOrange-5} #X53X53
+if '53' in sig1 or '4T' in sig1: bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOrange-5,'TTJets':rt.kRed-9,'T':rt.kRed-5,'WJets':rt.kBlue-7,'ZJets':rt.kBlue-1,'VV':rt.kBlue+5,'qcd':rt.kOrange-5} #X53X53
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
 systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','trigeff','ht',
 				  'btag','mistag','pdfNew','muRFcorrdNew','toppt']
 if 'muRFcorrdNew' not in systematicList: saveKey='_noQ2'
-doAllSys = True
+doAllSys = False
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
 doNormByBinWidth=True
+if 'rebinned' not in isRebinned or 'stat1p1' in isRebinned: doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
 yLog  = True
+if yLog: scaleSignals = False
 doRealPull = True
 if doRealPull: doOneBand=False
 compareShapes = False
 if compareShapes: blind,yLog,scaleSignals,sigScaleFact=True,False,False,-1
 drawYields = False
 
-isEMlist =['E','M']
-if region=='SR': nttaglist=['0','1p']
-else: nttaglist = ['0p']
-if region=='TTCR': nWtaglist = ['0p']
-else: nWtaglist=['0','1p']
-if region=='WJCR': nbtaglist = ['0']
-elif region=='TTCR': nbtaglist=['1','2p']#,'2','3p']
-else: nbtaglist=['1','2p']
+isEMlist  = ['E','M']
+nttaglist = ['0p']
+nWtaglist = ['0p']
+nbtaglist = ['2','3','4','5p']
+njetslist = ['7','8','9','10p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['0','1p','2p']
-	if region=='CR': nbtaglist = ['0','0p','1p']
-njetslist = ['4p']
-if region=='PS': njetslist = ['3p']
+	nbtaglist = ['2p']
+	njetslist = ['4p']
 if 'YLD' in iPlot:
 	doNormByBinWidth = False
 	nttaglist = ['0p']
@@ -86,10 +83,10 @@ if 'YLD' in iPlot:
 	njetslist = ['0p']
 tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
 
-lumiSys = 0.026 # lumi uncertainty
+lumiSys = 0.0#26 # lumi uncertainty
 trigSys = 0.0 # trigger uncertainty
-lepIdSys = 0.03 # lepton id uncertainty
-lepIsoSys = 0.01 # lepton isolation uncertainty
+lepIdSys = 0.0#3 # lepton id uncertainty
+lepIsoSys = 0.0#1 # lepton isolation uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total e/m values are close
 
 for tag in tagList:
@@ -169,7 +166,7 @@ if not os.path.exists(templateDir+tempsig.replace(sig1,sig1)):
 print "READING: "+templateDir+tempsig.replace(sig1,sig1)
 RFile1 = rt.TFile(templateDir+tempsig.replace(sig1,sig1))
 RFile2 = rt.TFile(templateDir+tempsig.replace(sig1,sig2))
-RPostFile = rt.TFile(postFitFile)
+if plotPostFit: RPostFile = rt.TFile(postFitFile)
 
 #set the tdr style
 tdrstyle.setTDRStyle()
@@ -177,8 +174,8 @@ tdrstyle.setTDRStyle()
 #change the CMS_lumi variables (see CMS_lumi.py)
 CMS_lumi.lumi_7TeV = "4.8 fb^{-1}"
 CMS_lumi.lumi_8TeV = "18.3 fb^{-1}"
-CMS_lumi.lumi_13TeV= "35.9 fb^{-1}"
-CMS_lumi.writeExtraText = 0
+CMS_lumi.lumi_13TeV= str(lumi)+" fb^{-1}"
+CMS_lumi.writeExtraText = 1
 CMS_lumi.extraText = "Preliminary"
 CMS_lumi.lumi_sqrtS = "13 TeV" # used with iPeriod = 0, e.g. for simulation-only plots (default is an empty string)
 
@@ -362,7 +359,7 @@ for tag in tagList:
 
 		sig1Color= rt.kBlack
 		sig2Color= rt.kRed
-		if '53' in sig1:
+		if '53' in sig1 or '4T' in sig1:
 			sig1Color= rt.kBlack
 			sig2Color= rt.kBlack
 			
@@ -515,7 +512,8 @@ for tag in tagList:
 		if drawQCD:
 			leg.AddEntry(hsig1,sig1leg+scaleFact1Str,"l")
 			leg.AddEntry(bkghists['qcd'+catStr],"QCD","f")
-			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
+			#leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
+			leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
 			try: leg.AddEntry(bkghists['ewk'+catStr],"EWK","f")
 			except: pass
 			try: leg.AddEntry(bkghists['WJets'+catStr],"W+jets","f")
@@ -524,7 +522,8 @@ for tag in tagList:
 			except: pass
 			try: leg.AddEntry(bkghists['VV'+catStr],"VV","f")
 			except: pass
-			leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
+			#leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
+			leg.AddEntry(0, "", "")
 			try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
 			except: pass
 			try: leg.AddEntry(bkghists['TTJets'+catStr],"t#bar{t}","f")
@@ -545,15 +544,18 @@ for tag in tagList:
 			except: pass
 			try: leg.AddEntry(bkghists['VV'+catStr],"VV","f")
 			except: pass
-			leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
+			#leg.AddEntry(hsig2,sig2leg+scaleFact2Str,"l")
+			leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
 			try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
 			except: pass
 			try: leg.AddEntry(bkghists['TTJets'+catStr],"t#bar{t}","f")
 			except: pass
 			try: leg.AddEntry(bkghists['T'+catStr],"Single t","f")
 			except: pass
-			leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
-			if not blind: leg.AddEntry(hData,"Data","ep")
+			#leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
+			if not blind: 
+				leg.AddEntry(0, "", "")
+				leg.AddEntry(hData,"Data","ep")
 		leg.Draw("same")
 
 		#draw the lumi text on the canvas
@@ -665,12 +667,12 @@ for tag in tagList:
 				else: pull.SetBinContent(binNo,0.)
 			pull.SetMaximum(3)
 			pull.SetMinimum(-3)
-			if '53' in sig1:
+			if '53' in sig1 or '4T' in sig1:
 				pull.SetFillColor(2)
 				pull.SetLineColor(2)
 			else:
-				pull.SetFillColor(kGray+2)
-				pull.SetLineColor(kGray+2)
+				pull.SetFillColor(rt.kGray+2)
+				pull.SetLineColor(rt.kGray+2)
 			formatLowerHist(pull,iPlot)
 			pull.GetYaxis().SetTitle('#frac{(obs-bkg)}{uncertainty}')
 			pull.Draw("HIST")
@@ -992,7 +994,8 @@ for tag in tagList:
 	if drawQCDmerged:
 		legmerged.AddEntry(hsig1merged,sig1leg+scaleFact1Str,"l")
 		legmerged.AddEntry(bkghistsmerged['qcdisL'+tagStr],"QCD","f")
-		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
+		#legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
+		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
 		try: legmerged.AddEntry(bkghistsmerged['ewkisL'+tagStr],"EWK","f")
 		except: pass
 		try: legmerged.AddEntry(bkghistsmerged['WJetsisL'+tagStr],"W+jets","f")
@@ -1002,7 +1005,8 @@ for tag in tagList:
 		try: legmerged.AddEntry(bkghistsmerged['VVisL'+tagStr],"VV","f")
 		except: pass
 		if not blind: 
-			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
+			#legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
+			legmerged.AddEntry(0, "", "")
 			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
 			except: pass
 			try: legmerged.AddEntry(bkghistsmerged['TTJetsisL'+tagStr],"t#bar{t}","f")
@@ -1012,7 +1016,8 @@ for tag in tagList:
 			legmerged.AddEntry(0, "", "")
 			legmerged.AddEntry(hDatamerged,"Data","ep")
 		else:
-			legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
+			#legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
+			legmerged.AddEntry(0, "", "")
 			try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
 			except: pass
 			try: legmerged.AddEntry(bkghistsmerged['TTJetsisL'+tagStr],"t#bar{t}","f")
@@ -1029,14 +1034,16 @@ for tag in tagList:
 		except: pass
 		try: legmerged.AddEntry(bkghistsmerged['VVisL'+tagStr],"VV","f")
 		except: pass
-		legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
+		#legmerged.AddEntry(hsig2merged,sig2leg+scaleFact2Str,"l")
+		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
 		try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
 		except: pass
 		try: legmerged.AddEntry(bkghistsmerged['TTJetsisL'+tagStr],"t#bar{t}","f")
 		except: pass
 		try: legmerged.AddEntry(bkghistsmerged['TisL'+tagStr],"Single t","f")
 		except: pass
-		legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
+		#legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
+		legmerged.AddEntry(0, "", "")
 		if not blind: legmerged.AddEntry(hDatamerged,"Data","ep")
 	legmerged.Draw("same")
 
@@ -1147,7 +1154,7 @@ for tag in tagList:
 			else: pullmerged.SetBinContent(binNo,0.)
 		pullmerged.SetMaximum(3)
 		pullmerged.SetMinimum(-3)
-		if '53' in sig1:
+		if '53' in sig1 or '4T' in sig1:
 			pullmerged.SetFillColor(2)
 			pullmerged.SetLineColor(2)
 		else:
@@ -1199,7 +1206,7 @@ if not doNormByBinWidth:
 			
 RFile1.Close()
 RFile2.Close()
-RPostFile.Close()
+if plotPostFit: RPostFile.Close()
 
 print("--- %s minutes ---" % (round(time.time() - start_time, 2)/60))
 

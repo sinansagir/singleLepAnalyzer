@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/user_data/ssagir/LJMet80X_1lep_022317_step2_M17tW/nominal'
+step1Dir = '/mnt/hadoop/users/ssagir/LJMet94X_1lepTT_020619_step1hadds/nominal'
 
 """
 Note: 
@@ -27,31 +27,27 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 bkgList = [
-		  'DYMG',
-		  #'WJetsMG',
-		  'WJetsHT100','WJetsHT200','WJetsHT400','WJetsHT600','WJetsHT800','WJetsHT1200','WJetsHT2500',
-		  #'WJetsPt100','WJetsPt250','WJetsPt400','WJetsPt600',
-		  'WW','WZ','ZZ',
-		  #'TTJetsPH',
-		  'TTJetsPH0to700inc','TTJetsPH700to1000inc','TTJetsPH1000toINFinc',
+		  'DY','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+		  'TTJetsHad0','TTJetsHad700','TTJetsHad1000',
+		  'TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000',
+	 	  'TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
 		  'TTJetsPH700mtt','TTJetsPH1000mtt',
-		  #'TTWl','TTWq','TTZl','TTZq',
-		  'Tt','Tbt','Ts','TtW','TbtW',
-		  'QCDht100','QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+		  'Ts','Tt','Tbt','TtW','TbtW','TTWl','TTZl',
+		  #'QCDht100','QCDht200',
+		  'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
 
-dataList = ['DataERRB2H','DataMRRB2H']
+dataList = ['DataERRBCDEF','DataMRRBCDEF']
 
-whichSignal = 'X53X53' #HTB, TT, BB, or X53X53
-massList = range(800,1600+1,100)
+whichSignal = '4T' #HTB, TT, BB, or X53X53
+massList = [690]#range(800,1600+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
-if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
-if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
-if whichSignal=='HTB': decays = ['']
+elif whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
+elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
+else: decays = [''] #decays to tWtW 100% of the time
 
-iPlot = 'mindeltaR' #choose a discriminant from plotList below!
+iPlot = 'minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
 region = 'PS'
 if len(sys.argv)>3: region=sys.argv[3]
@@ -59,30 +55,20 @@ isCategorized = 0
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 isotrig = 1
 doJetRwt= 0
-doAllSys= True
+doAllSys= False
 doQ2sys = False
 q2List  = [#energy scale sample to be processed
 	       'TTJetsPHQ2U','TTJetsPHQ2D',
-	       #'TtWQ2U','TbtWQ2U',
-	       #'TtWQ2D','TbtWQ2D',
 	       ]
 runData = True
 runBkgs = True
 runSigs = True
 
-cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':450,'jet2PtCut':150,'jet3PtCut':0}
-if region=='PS': cutList = {'lepPtCut':80,'metCut':100,'njetsCut':3,'drCut':0,'jet1PtCut':250,'jet2PtCut':150, 'jet3PtCut':0}
-if (region=='SR' or 'CR' in region) and (iPlot=='ST' or iPlot=='HT'):
-	cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':250,'jet2PtCut':150,'jet3PtCut':0}
-#'lep30_MET100_NJets3_NBJets0_DR0_1jet200_2jet50_3jet0', preSel
-#'lep30_MET150_NJets4_NBJets0_DR1_1jet450_2jet150_3jet0', #minMlb
-#'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet50_3jet0', #ST change to 'lep30_MET100_NJets4_NBJets0_DR1_1jet250_2jet150_3jet0' for trigger HT400
+cutList = {'elPtCut':35,'muPtCut':30,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0}
 
-cutList = {'lepPtCut':80,'metCut':100,'njetsCut':4,'drCut':1,'jet1PtCut':200,'jet2PtCut':90,'jet3PtCut':0} #2015 selections
-
-cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
-cutString += '_DR'+str(cutList['drCut'])+'_1jet'+str(int(cutList['jet1PtCut']))
-cutString += '_2jet'+str(int(cutList['jet2PtCut']))
+cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
+cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])
+cutString += '_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))+str(int(cutList['jet3PtCut']))
 
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
@@ -196,7 +182,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'NJets' :('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 jet multiplicity'),
 	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
 	'NBJetsNoSF':('NJetsCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
-	'NWJets':('NJetsWtagged_0p6',linspace(0, 6, 7).tolist(),';W-tagged jet multiplicity'),
+	'NWJets':('NPuppiWtagged_0p55_notTtagged',linspace(0, 6, 7).tolist(),';W-tagged jet multiplicity'),
 	'NTJets':('NJetsTtagged_0p81',linspace(0, 4, 5).tolist(),';t-tagged jet multiplicity'),
 	'NJetsAK8':('NJetsAK8_JetSubCalc',linspace(0, 8, 9).tolist(),';AK8 jet multiplicity'),
 	'JetPtAK8':('theJetAK8Pt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';AK8 jet p_{T} [GeV]'),
@@ -209,8 +195,9 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'Pruned' :('theJetAK8PrunedMass_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet pruned mass [GeV]'),
 	'PrunedSmeared' :('theJetAK8PrunedMass_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet pruned mass [GeV]'),
 	'PrunedSmearedNm1' :('theJetAK8PrunedMassWtagUncerts_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet pruned mass [GeV]'),
-	'SoftDropMass' :('theJetAK8SoftDropMass_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet soft-drop mass [GeV]'),
-	'SoftDropMassNm1' :('theJetAK8SoftDropMass_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet soft-drop mass [GeV]'),
+	'SoftDropMass' :('theJetAK8SoftDropCorr_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet soft-drop mass [GeV]'),
+	'SoftDropMassNm1W' :('theJetAK8SoftDropCorr_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet soft-drop mass [GeV]'),
+	'SoftDropMassNm1t' :('theJetAK8SoftDropCorr_JetSubCalc_PtOrdered',linspace(0, 500, 51).tolist(),';AK8 jet soft-drop mass [GeV]'),
 	'mindeltaR':('minDR_lepJet',linspace(0, 5, 51).tolist(),';#DeltaR(l, closest jet)'),
 	'deltaRjet1':('deltaR_lepJets[0]',linspace(0, 5, 51).tolist(),';#DeltaR(l,j_{1})'),
 	'deltaRjet2':('deltaR_lepJets[1]',linspace(0, 5, 51).tolist(),';#DeltaR(l,j_{2})'),

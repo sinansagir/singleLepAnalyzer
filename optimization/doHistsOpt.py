@@ -1,39 +1,63 @@
 #!/usr/bin/python
 
-import os,sys,time,math,datetime,pickle,itertools,fnmatch
-from ROOT import gROOT,TFile,TH1F
-from array import array
+import os,sys,time,math,datetime,pickle,itertools,getopt
+from ROOT import gROOT,TFile,TTree,TH1F
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
+from numpy import linspace
 from weights import *
 from modSyst import *
+from analyze import *
+from samples import *
 from utils import *
 
 gROOT.SetBatch(1)
 start_time = time.time()
 
+"""
+Note: 
+--Each process in step1 (or step2) directories should have the root files hadded! 
+--The code will look for <step1Dir>/<process>_hadd.root for nominal trees.
+The uncertainty shape shifted files will be taken from <step1Dir>/../<shape>/<process>_hadd.root,
+where <shape> is for example "JECUp". hadder.py can be used to prepare input files this way! 
+--Each process given in the lists below must have a definition in "samples.py"
+--Check the set of cuts in "analyze.py"
+"""
+
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
+step1Dir = '/mnt/hadoop/users/ssagir/LJMet94X_1lepTT_020619_step1hadds/nominal'
 
-region='PS' #PS,SR,TTCR,WJCR
+region = 'SR' #no need to change
 isCategorized=0
-cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
-if region=='SR': pfix='templates_'
-if region=='TTCR': pfix='ttbar_'
-if region=='WJCR': pfix='wjets_'
-if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='2019_2_10'
-outDir = os.getcwd()+'/'+pfix+'/'+cutString
-
+isotrig = 1
+doJetRwt = 0
+iPlot='ST'
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
-lumiScaleCoeff = 36200./36459.
+lumiScaleCoeff = 3990./2318.
 doAllSys = False
-doQ2sys = False
+doQ2sys = True
 if not doAllSys: doQ2sys = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','ht','muR','muF','muRFcorrd','trigeff','btag','mistag']
-normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
-rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
+systematicList = ['pileup','jec','jer','btag','tau21','mistag','muR','muF','muRFcorrd','toppt','jsf','topsf','trigeff']
+normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes both the background and signal processes !!!!
+
+bkgList = [
+		  'DY','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+		  'TTJetsHad0','TTJetsHad700','TTJetsHad1000',
+		  'TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000',
+	 	  'TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
+		  'TTJetsPH700mtt','TTJetsPH1000mtt',
+		  'Ts','Tt','Tbt','TtW','TbtW','TTWl','TTZl',
+		  #'QCDht100','QCDht200',
+		  'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+		  ]
+
+dataList = ['DataERRBCDEF','DataMRRBCDEF']
+
+q2List  = [#energy scale sample to be processed
+	       'TTJetsPHQ2U','TTJetsPHQ2D',
+	       ]
 
 doJetRwt= 0
 bkgGrupList = ['top','ewk','qcd']
@@ -59,7 +83,7 @@ bkgProcs['top_q2dn'] = bkgProcs['T']+['TTJetsPHQ2D']#'TtWQ2D','TbtWQ2D']
 
 whichSignal = '4T' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
-if region=='PS': massList = [690]
+if region=='PS': massList = [1000,1300]
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -74,18 +98,108 @@ BRs['TZ']=[0.5,0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-isEMlist  = ['E','M']
-nttaglist = ['0p']
-nWtaglist = ['0p']
-nbtaglist = ['2','3','4','5p']
-njetslist = ['7','8','9','10p']
-if not isCategorized: 	
-	nttaglist = ['0p']
-	nWtaglist = ['0p']
-	nbtaglist = ['2p']
-	njetslist = ['4p']
+lepPtCut=20
+metCut=20
+njetsCut=2
+nbjetsCut=0
+drCut=0
+jet1PtCut=0
+jet2PtCut=0
+jet3PtCut=0
+jet4PtCut=0
+jet5PtCut=0
+Wjet1PtCut=0
+bjet1PtCut=0
+htCut=0
+stCut=0
+minMlbCut=0
+
+isEMlist =['E','M']
+nttaglist=['0','1','2p']
+nWtaglist=['0p']
+nbtaglist=['2','3','4p']
+njetslist=['5','6','7','8p']
 catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))]
+
+try: 
+	opts, args = getopt.getopt(sys.argv[2:], "", ["lepPtCut=",
+	                                              "jet1PtCut=",
+	                                              "jet2PtCut=",
+	                                              "jet3PtCut=",
+	                                              "jet4PtCut=",
+	                                              "jet5PtCut=",
+	                                              "metCut=",
+	                                              "njetsCut=",
+	                                              "nbjetsCut=",
+	                                              "drCut=",
+	                                              "Wjet1PtCut=",
+	                                              "bjet1PtCut=",
+	                                              "htCut=",
+	                                              "stCut=",
+	                                              "minMlbCut=",
+	                                              ])
+	print opts,args
+except getopt.GetoptError as err:
+	print str(err)
+	sys.exit(1)
+
+for o, a in opts:
+	print o, a
+	if o == '--lepPtCut': lepPtCut = float(a)
+	if o == '--metCut': metCut = float(a)
+	if o == '--njetsCut': njetsCut = float(a)
+	if o == '--nbjetsCut': nbjetsCut = float(a)
+	if o == '--drCut': drCut = float(a)
+	if o == '--jet1PtCut': jet1PtCut = float(a)
+	if o == '--jet2PtCut': jet2PtCut = float(a)
+	if o == '--jet3PtCut': jet3PtCut = float(a)
+	if o == '--jet4PtCut': jet4PtCut = float(a)
+	if o == '--jet5PtCut': jet5PtCut = float(a)
+	if o == '--Wjet1PtCut': Wjet1PtCut = float(a)
+	if o == '--bjet1PtCut': bjet1PtCut = float(a)
+	if o == '--htCut': htCut = float(a)
+	if o == '--stCut': stCut = float(a)
+	if o == '--minMlbCut': minMlbCut = float(a)
+
+cutList = {'lepPtCut':lepPtCut,
+		   'metCut':metCut,
+		   'njetsCut':njetsCut,
+		   'nbjetsCut':nbjetsCut,
+		   'drCut':drCut,
+		   'jet1PtCut':jet1PtCut,
+		   'jet2PtCut':jet2PtCut,
+		   'jet3PtCut':jet3PtCut,
+		   'jet4PtCut':jet4PtCut,
+		   'jet5PtCut':jet5PtCut,
+		   'Wjet1PtCut':Wjet1PtCut,
+		   'bjet1PtCut':bjet1PtCut,
+		   'htCut':htCut,
+		   'stCut':stCut,
+		   'minMlbCut':minMlbCut,
+		   }
+
+cutString  = 'lep'+str(int(cutList['lepPtCut']))+'_MET'+str(int(cutList['metCut']))
+cutString += '_NJets'+str(int(cutList['njetsCut']))#+'_NBJets'+str(int(cutList['nbjetsCut']))
+cutString += '_DR'+str(cutList['drCut'])+'_1jet'+str(int(cutList['jet1PtCut']))
+cutString += '_2jet'+str(int(cutList['jet2PtCut']))#+'_3jet'+str(int(cutList['jet3PtCut']))
+# cutString += '_4jet'+str(int(cutList['jet4PtCut']))+'_5jet'+str(int(cutList['jet5PtCut']))
+# cutString += '_1Wjet'+str(cutList['Wjet1PtCut'])+'_1bjet'+str(cutList['bjet1PtCut'])
+# cutString += '_HT'+str(cutList['htCut'])+'_ST'+str(cutList['stCut'])+'_minMlb'+str(cutList['minMlbCut'])
+
+cTime=datetime.datetime.now()
+datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
+timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
+pfix='templates_minMlb_'
+pfix+=datestr+'_'+timestr
+
+if len(sys.argv)>1: outDir=sys.argv[1]
+else: 
+	outDir = os.getcwd()+'/'
+	outDir+=pfix
+	if not os.path.exists(outDir): os.system('mkdir '+outDir)
+	if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+outDir+'/'+cutString)
+	outDir+='/'+cutString
 
 lumiSys = 0.0#25 #lumi uncertainty
 eltrigSys = 0.0 #electron trigger uncertainty
@@ -94,7 +208,6 @@ elIdSys = 0.0#2 #electron id uncertainty
 muIdSys = 0.0#3 #muon id uncertainty
 elIsoSys = 0.0#1 #electron isolation uncertainty
 muIsoSys = 0.0#1 #muon isolation uncertainty
-
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
@@ -105,7 +218,7 @@ for tag in tagList:
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module 
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
-	
+		 
 if 'CR' in region: postTag = 'isCR_'
 else: postTag = 'isSR_'
 ###########################################################
@@ -548,63 +661,109 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
 		printTable(table,out)
 
-def findfiles(path, filtre):
-    for root, dirs, files in os.walk(path):
-        for f in fnmatch.filter(files, filtre):
-            yield os.path.join(root, f)
+def readTree(file):
+	if not os.path.exists(file): 
+		print "Error: File does not exist! Aborting ...",file
+		os._exit(1)
+	tFile = TFile(file,'READ')
+	tTree = tFile.Get('ljmet')
+	return tFile, tTree 
 
-iPlotList = []
-for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
-    if 'bkghists' not in file: continue
-    if not os.path.exists(file.replace('bkghists','datahists')): continue
-    if not os.path.exists(file.replace('bkghists','sighists')): continue
-    iPlotList.append(file.split('/')[-1].replace('bkghists_','')[:-2])
+print "READING TREES"
+shapesFiles = ['jec','jer']
+tTreeData = {}
+tFileData = {}
+for data in dataList:
+	print "READING:", data
+	tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
 
-print "WORKING DIR:",outDir
-print "Templates:",iPlotList
-for iPlot in iPlotList:
-	datahists = {}
-	bkghists  = {}
-	sighists  = {}
-	if len(sys.argv)>1 and iPlot!=sys.argv[1]: continue
-	print "LOADING DISTRIBUTION: "+iPlot
-	for cat in catList:
-		print "         ",cat[2:]
-		datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
-		bkghists.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists_'+iPlot+'.p','rb')))
-		sighists.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))
-	
-	#Re-scale lumi
-	if scaleLumi:
-		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
-		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
-	
-	#Rebin
-	if rebinBy>0:
-		print "       REBINNING HISTOGRAMS: MERGING",rebinBy,"BINS ..."
-		for data in datahists.keys(): datahists[data] = datahists[data].Rebin(rebinBy)
-		for bkg in bkghists.keys():   bkghists[bkg] = bkghists[bkg].Rebin(rebinBy)
-		for sig in sighists.keys():   sighists[sig] = sighists[sig].Rebin(rebinBy)
+tTreeSig = {}
+tFileSig = {}
+for sig in sigList:
+	for decay in decays:
+		print "READING:", sig+decay
+		print "        nominal"
+		tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
+		if doAllSys:
+			for syst in shapesFiles:
+				for ud in ['Up','Down']:
+					print "        "+syst+ud
+					tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
 
- 	#Negative Bin Correction
- 	print "       CORRECTING NEGATIVE BINS ..."
- 	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
- 	for sig in sighists.keys(): negBinCorrection(sighists[sig])
+tTreeBkg = {}
+tFileBkg = {}
+for bkg in bkgList+q2List:
+	if bkg in q2List and not doQ2sys: continue
+	print "READING:",bkg
+	print "        nominal"
+	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
+	if doAllSys:
+		for syst in shapesFiles:
+			for ud in ['Up','Down']:
+				if bkg in q2List:
+					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=None,None
+				else:
+					print "        "+syst+ud
+					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
+print "FINISHED READING"
 
- 	#OverFlow Correction
- 	print "       CORRECTING OVER(UNDER)FLOW BINS ..."
- 	for data in datahists.keys(): 
- 		overflow(datahists[data])
- 		underflow(datahists[data])
- 	for bkg in bkghists.keys():
- 		overflow(bkghists[bkg])
- 		underflow(bkghists[bkg])
- 	for sig in sighists.keys():
- 		overflow(sighists[sig])
- 		underflow(sighists[sig])
+plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
+	'HT':('AK4HT',linspace(0, 5000, 101).tolist(),';H_{T} (GeV);'),
+	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, 101).tolist(),';S_{T} (GeV);'),
+	'minMlb':('minMleppBjet',linspace(0, 1000, 201).tolist(),';min[M(l,b)] (GeV);'),
+	}
 
-	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
-	makeThetaCats(datahists,sighists,bkghists,iPlot)
+print "PLOTTING:",iPlot
+print "         LJMET Variable:",plotList[iPlot][0]
+print "         X-AXIS TITLE  :",plotList[iPlot][2]
+print "         BINNING USED  :",plotList[iPlot][1]
+
+nCats  = len(list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)))
+catInd = 1
+datahists = {}
+bkghists  = {}
+sighists  = {}
+for cat in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)):
+	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
+	for data in dataList: 
+		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+		if catInd==nCats: del tFileData[data]
+	for bkg in bkgList: 
+		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+		if catInd==nCats: del tFileBkg[bkg]
+		if doAllSys and catInd==nCats:
+			for syst in shapesFiles:
+				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
+	for sig in sigList: 
+		for decay in decays: 
+			sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+			if catInd==nCats: del tFileSig[sig+decay]
+			if doAllSys and catInd==nCats:
+				for syst in shapesFiles:
+					for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
+	if doQ2sys: 
+		for q2 in q2List: 
+			bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+			if catInd==nCats: del tFileBkg[q2]
+	catInd+=1
+
+#Negative Bin Correction
+for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
+for sig in sighists.keys(): negBinCorrection(sighists[sig])
+
+#OverFlow Correction
+for data in datahists.keys():
+	overflow(datahists[data])
+	underflow(datahists[data])
+for bkg in bkghists.keys():
+	overflow(bkghists[bkg])
+	underflow(bkghists[bkg])
+for sig in sighists.keys():
+	overflow(sighists[sig])
+	underflow(sighists[sig])
+
+print "MAKING CATEGORIES FOR TOTAL SIGNALS ..."
+makeThetaCats(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 
