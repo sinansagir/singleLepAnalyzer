@@ -29,11 +29,12 @@ start_time = time.time()
 # -- Use "removalKeys" to remove specific systematics from the output file.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-iPlot='minMlb'
+iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_M17WtSF_2017_3_31_test/'+cutString
-combinefile = 'templates_'+iPlot+'_35p867fb.root'
+templateDir = os.getcwd()+'/templates_2019_2_1/'+cutString
+#templateDir = os.getcwd()+'/kinematics_SR_2019_2_1/'+cutString
+combinefile = 'templates_'+iPlot+'_41p298fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = False #else rebins theta templates
@@ -41,10 +42,8 @@ doStatShapes = True
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
-sigName = 'X53X53' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
-massList = range(800,1600+1,100)
-if 'kinematics_PS' in templateDir: massList = [1000,1300]
-massList = [900,1200]
+sigName = '4T' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
+massList = [690]
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
@@ -74,13 +73,13 @@ else: #theta
 
 addCRsys = False
 addShapes = True
-lumiSys = 0.025 #lumi uncertainty
+lumiSys = 0.0#25 #lumi uncertainty
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
-elIdSys = 0.02 #electron id uncertainty
-muIdSys = 0.03 #muon id uncertainty
-elIsoSys = 0.01 #electron isolation uncertainty
-muIsoSys = 0.01 #muon isolation uncertainty
+elIdSys = 0.0#2 #electron id uncertainty
+muIdSys = 0.0#3 #muon id uncertainty
+elIsoSys = 0.0#1 #electron isolation uncertainty
+muIsoSys = 0.0#1 #muon isolation uncertainty
 htRwtSys = 0.#15
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2)
@@ -438,7 +437,8 @@ procNames={
            }
 for sig in sigProcList: 
 	if 'left' in sig:  procNames[sig]='LH \\xft ('+str(float(sig[7:-4])/1000)+' \\TeV)'
-	if 'right' in sig: procNames[sig]='RH \\xft ('+str(float(sig[7:-5])/1000)+' \\TeV)'
+	elif 'right' in sig: procNames[sig]='RH \\xft ('+str(float(sig[7:-5])/1000)+' \\TeV)'
+	else: procNames[sig]='4T'
 
 print "List of systematics for "+bkgProcList[0]+" process and "+channels[0]+" channel:"
 print "        ",sorted([hist[hist.find(bkgProcList[0]+'__')+len(bkgProcList[0])+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+bkgProcList[0]+'__' in hist and upTag in hist])# and 'muRF' not in hist
@@ -650,10 +650,9 @@ for proc in bkgProcList+sigProcList:
 	for chn in channels:
 		histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
 		nomHist = histoPrefix+proc
-		shpHist = histoPrefix+proc+'__'+syst+ud
 		try: row.append(' & '+str(round(yieldsErrsAll[nomHist]/(yieldsAll[nomHist]+1e-20),2)))
 		except:
-			print "Missing",proc,"for channel:",chn,"and systematic:",syst
+			print "Missing",proc,"for channel:",chn,"and systematic: stat"
 			pass
 	row.append('\\\\')
 	table.append(row)	
