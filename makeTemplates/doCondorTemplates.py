@@ -3,7 +3,7 @@ import os,sys,datetime,itertools
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-region='SR' #PS,SR,TTCR,WJCR
+region='PS' #PS,SR,TTCR,WJCR
 categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
@@ -16,50 +16,48 @@ if not categorize: pfix='kinematics_'+region
 pfix+='_'+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
-# 			'lepPt',
-# 			'lepEta',
-# 			'deltaRjet1',
-# 			'deltaRjet2',
-# 			'deltaRjet3',
-# 			'NPV',
-# 			'JetEta',
-# 			'JetPt',
-# 			'Jet1Pt',
-# 			'Jet2Pt',
-# 			'Jet3Pt',
-# 			'Jet4Pt',
-# 			'MET',
-# 			'NJets',
-# 			'NBJets',
-# 			'NWJets',
-# 			'NTJets',
-# 			'NJetsAK8',
-# 			'JetPtAK8',
-# 			'JetEtaAK8',
-# 			'Tau21',
-# 			'Tau21Nm1',
-# 			'Tau32',
-# 			'Tau32Nm1',
-# 			'PrunedSmeared',
-# 			'PrunedSmearedNm1',
-# 			'SoftDropMass', 
-# 			'SoftDropMassNm1', 
-# 			'topPt',
-# 			'mindeltaR',
-# 			'PtRel',
+			'lepPt',
+			'lepEta',
+			'deltaRjet1',
+			'deltaRjet2',
+			'deltaRjet3',
+			'NPV',
+			'JetEta',
+			'JetPt',
+			'Jet1Pt',
+			'Jet2Pt',
+			'Jet3Pt',
+			'Jet4Pt',
+			'MET',
+			'NJets',
+			'NBJets',
+			'NWJets',
+			'NTJets',
+			'NJetsAK8',
+			'JetPtAK8',
+			'JetEtaAK8',
+			'Tau21',
+			'Tau21Nm1',
+			'Tau32',
+			'Tau32Nm1',
+			'SoftDropMass', 
+			'SoftDropMassNm1W',
+			'SoftDropMassNm1t',
+			'mindeltaR',
+			'PtRel',
 			
-# 			'HT',
-# 			'ST',
+			'HT',
+			'ST',
 			'minMlb',
 # 			'minMlbSBins',
 
 # 			'NJets_vs_NBJets',
 
-# 			'NBJetsNoSF',
-# 			'nTrueInt',
-# 	        'MTlmet',
-# 			'minMlj',
-# 			'lepIso',
+			'NBJetsNoSF',
+			'nTrueInt',
+	        'MTlmet',
+			'minMlj',
+			'lepIso',
 # 			'deltaRAK8',
 # 			'Bjet1Pt',
 # 			'Wjet1Pt',
@@ -79,6 +77,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'minMljDPhi',
 # 			'minMlbDR',
 # 			'minMlbDPhi',
+# 			'topPt',
 # 			'topMass',
 # 			'nLepGen',
 # 			'METphi',
@@ -93,20 +92,16 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 			'JetPhiAK8',
 			]
 
-isEMlist = ['E','M']
-if region=='SR': nttaglist = ['0','1p']
-else: nttaglist = ['0p']
-if region=='TTCR': nWtaglist = ['0p']
-else: nWtaglist=['0','1p']
-if region=='WJCR': nbtaglist = ['0']
-else: nbtaglist = ['1','2p']#,'2','3p']
+isEMlist  = ['E','M']
+nttaglist = ['0','1','2p']
+nWtaglist = ['0','1','2p']
+nbtaglist = ['2','3','4p']
+njetslist = ['3','4','5','6','7','8','9','10p']
 if not categorize: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['0','1p','2p']
-	if region=='CR': nbtaglist = ['0','0p','1p']
-njetslist = ['4p']
-if region=='PS': njetslist = ['3p']
+	nbtaglist = ['2p']
+	njetslist = ['4p']
 catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 
 outDir = outputDir+pfix

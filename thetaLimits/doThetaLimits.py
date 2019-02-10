@@ -1,53 +1,23 @@
 import os,sys,fnmatch
 
-templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/x53x53_2016/makeTemplates/'
-#templateDir+='templates_minMlb_2016_10_29' #Total number of jobs submitted: 3402
-#templateDir+='templates_ST_2016_10_29' #Total number of jobs submitted: 4374
-templateDir+='templates_M17WtSF_2017_3_31_SRpCR'
-thetaConfigTemp = os.getcwd()+'/theta_config_template_noCRsys.py'
-lumiInFile = '35p867fb'
+templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/fourtops/makeTemplates/'
+templateDir+='templates_2019_2_1'
+thetaConfigTemp = os.getcwd()+'/theta_config_template.py'
+lumiInFile = '41p298fb'
 
 toFilter0 = ['pdf','muR','muF','muRFcorrd','muRFcorrdNew','trigeff'] #always remove in case they are in templates
 #toFilter0+= ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','pdfNew','trigeff','btag','mistag','topmuRFcorrdNew','ewkmuRFcorrdNew','qcdmuRFcorrdNew','ht']#,'jsf'
-toFilter0 = ['__'+item+'__' for item in toFilter0]
-
-catList = ['isE_nT0p_nW0p_nB1','isE_nT0p_nW0p_nB2p',
-           'isE_nT0p_nW0_nB0','isE_nT0p_nW1p_nB0',
-           'isE_nT0_nW0_nB1','isE_nT0_nW0_nB2p',
-           'isE_nT0_nW1p_nB1','isE_nT0_nW1p_nB2p',
-           'isE_nT1p_nW0_nB1','isE_nT1p_nW0_nB2p',
-           'isE_nT1p_nW1p_nB1','isE_nT1p_nW1p_nB2p',
-           ]
-catList+=[item.replace('isE_','isM_') for item in catList]
-catList = ['nT0p_nW0p_nB1','nT0p_nW0p_nB2p',
-           'nT0p_nW0_nB0','nT0p_nW1p_nB0',
-           'nT0_nW0_nB1','nT0_nW0_nB2p',
-           'nT0_nW1p_nB1','nT0_nW1p_nB2p',
-           'nT1p_nW0_nB1','nT1p_nW0_nB2p',
-           'nT1p_nW1p_nB1','nT1p_nW1p_nB2p',
-           ]
+toFilter0 = []#['__'+item+'__' for item in toFilter0]
 
 limitConfs = {#'<limit type>':[filter list]
-# 			  'all_new':[],
-# 			  'all_noJEC':['__jec__'],
-# 			  'all_no1pT1pW1B':['_nT1p_nW1p_nB1_'],
-# 			  'all_no1pT1pW2pB':['_nT1p_nW1p_nB2p_'],
-			  'all_no1pT1pW':['_nT1p_nW1p_'],
-# 			  'nT1p_nW1p_nB2p_noTopPt':[item for item in catList if item!='nT1p_nW1p_nB2p'],
-# 			  'nT1p_nW1p_nB2p_noSyst':[item for item in catList if item!='nT1p_nW1p_nB2p'],
+			  'all':[],
 # 			  'isE':['isM'], #only electron channel
 # 			  'isM':['isE'], #only muon channel
-# 			  'nT0':['nT1p'], #only 0 t tag category
-# 			  'nT1p':['nT0'], #only 1p t tag category
-# 			  'nW0':['nW1p'], #only 0 W tag category
-# 			  'nW1p':['nW0'], #only 1p W tag category
-# 			  'nB1':['nB2p'], #only 1 b tag category
-# 			  'nB2p':['nB1'], #only 2p b tag category
 			  }
 #for cat in catList: limitConfs[cat]=[item for item in catList if item!=cat]
 
-limitType = '_test'#'_simulfit'
-outputDir = '/user_data/ssagir/x53x53_limits_2016/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
+limitType = ''#'_simulfit'
+outputDir = '/user_data/ssagir/fourtops_limits_2019/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
 if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 print outputDir
 
@@ -60,14 +30,8 @@ rootfilelist = []
 i=0
 for rootfile in findfiles(templateDir, '*.root'):
     if 'rebinned_stat0p3.' not in rootfile: continue
-    #if 'right' in rootfile: continue
     if 'plots' in rootfile: continue
     if 'YLD' in rootfile: continue
-    #if 'minMlb' not in rootfile: continue
-    #if 'X53X53M1300' in rootfile: continue
-    #if 'X53X53M1400' in rootfile: continue
-    #if 'X53X53M1500' in rootfile: continue
-    #if 'X53X53M1600' in rootfile: continue
     rootfilelist.append(rootfile)
     i+=1
 
