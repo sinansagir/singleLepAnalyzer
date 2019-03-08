@@ -2,9 +2,9 @@
 
 import os,sys,time,math,datetime,pickle,itertools,getopt
 from ROOT import TH1D,gROOT,TFile,TTree
+from numpy import linspace
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
-from numpy import linspace
 from weights import *
 from analyze import *
 from samples import *
@@ -43,9 +43,9 @@ whichSignal = '4T' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
-elif whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
+if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-else: decays = [''] #decays to tWtW 100% of the time
+else: decays = [''] #there is only one possible decay mode!
 
 iPlot = 'minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
@@ -85,25 +85,20 @@ else: isEMlist = ['E','M']
 if len(sys.argv)>6: nttaglist=[str(sys.argv[6])]
 else: 
 	if not isCategorized: nttaglist = ['0p']
-	if region=='SR': nttaglist=['0','1p']
-	else: nttaglist = ['0p']
+	else: nttaglist=['0','1p']
 if len(sys.argv)>7: nWtaglist=[str(sys.argv[7])]
 else: 
-	if region=='TTCR': nWtaglist = ['0p']
-	else: 
-		if not isCategorized: nWtaglist = ['0p']
-		else: nWtaglist=['0','1p']
+	if not isCategorized: nttaglist = ['0p']
+	else: nWtaglist=['0','1p']
 if len(sys.argv)>8: nbtaglist=[str(sys.argv[8])]
 else: 
-	if region=='WJCR': nbtaglist = ['0']
-	else: 
-		if not isCategorized: nbtaglist = ['1p']
-		else: nbtaglist=['1','2p']
+	if not isCategorized: nbtaglist = ['2p']
+	else: nbtaglist=['2','3','4p']
 if len(sys.argv)>9: njetslist=[str(sys.argv[9])]
 else: 
-	if region=='PS': njetslist=['3p']
-	else: njetslist=['4p']
-
+	if not isCategorized: nbtaglist = ['4p']
+	else: njetslist=['4','5','6','7','8','9','10p']
+	
 def readTree(file):
 	if not os.path.exists(file): 
 		print "Error: File does not exist! Aborting ...",file
@@ -153,7 +148,6 @@ for bkg in bkgList+q2List:
 					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
 print "FINISHED READING"
 
-#bigbins = [0,50,100,150,200,250,300,350,400,450,500,600,700,800,1000,1200,1500]
 bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,5000]
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)

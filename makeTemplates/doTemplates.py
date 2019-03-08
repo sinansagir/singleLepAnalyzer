@@ -14,14 +14,14 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='PS' #PS,SR,TTCR,WJCR
-isCategorized=0
+region='SR' #PS,SR,TTCR,WJCR
+isCategorized=1
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='2019_2_10'
+pfix+='2019_3_2'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -64,7 +64,7 @@ sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-else: decays = [''] #decays to tWtW 100% of the time
+else: decays = [''] #there is only one possible decay mode!
 
 doBRScan = False
 BRs={}
@@ -75,18 +75,20 @@ nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
 isEMlist  = ['E','M']
-nttaglist = ['0p']
-nWtaglist = ['0p']
-nbtaglist = ['2','3','4','5p']
-njetslist = ['7','8','9','10p']
+nttaglist = ['0','1','0p','1p','2p']
+nWtaglist = ['0','1','0p','1p','2p']
+nbtaglist = ['1','2','3','3p','4p']
+njetslist = ['4','5','6','7','8','9','9p','10p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
-tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))]
 
+#check the "skip" function in utils module to see if you want to remove specific categories there!!!
+catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
+tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(('dummy',)+item)]
+		
 lumiSys = 0.0#25 #lumi uncertainty
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
@@ -111,7 +113,7 @@ else: postTag = 'isSR_'
 ###########################################################
 #################### CATEGORIZATION #######################
 ###########################################################
-def makeThetaCats(datahists,sighists,bkghists,discriminant):
+def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 	yieldTable = {}
 	yieldStatErrTable = {}
 	for cat in catList:
@@ -217,7 +219,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			#prepare yield table
 			for proc in bkgGrupList+bkgProcList+sigList+['data']: yieldTable[histoPrefix][proc] = hists[proc+i].Integral()
 			yieldTable[histoPrefix]['totBkg'] = sum([hists[proc+i].Integral() for proc in bkgGrupList])
-			yieldTable[histoPrefix]['dataOverBkg']= yieldTable[histoPrefix]['data']/yieldTable[histoPrefix]['totBkg']
+			yieldTable[histoPrefix]['dataOverBkg']= yieldTable[histoPrefix]['data']/(yieldTable[histoPrefix]['totBkg']+1e-20)
 
 			#prepare MC yield error table
 			for proc in bkgGrupList+bkgProcList+sigList+['data']: yieldStatErrTable[histoPrefix][proc] = 0.
@@ -257,20 +259,21 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			for cat in catList:
 				i=BRconfStr+cat
 				for proc in bkgGrupList+[signal]:
-					if hists[proc+i].Integral() > 0:
-						hists[proc+i].Write()
-						if doAllSys:
-							for syst in systematicList:
-								if syst=='toppt' and proc not in topptProcs: continue
-								if syst=='ht' and proc not in htProcs: continue
-								hists[proc+i+syst+'Up'].Write()
-								hists[proc+i+syst+'Down'].Write()
-							for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
-						if doQ2sys:
-							if proc+'_q2up' not in bkgProcs.keys(): continue
-							hists[proc+i+'q2Up'].Write()
-							hists[proc+i+'q2Down'].Write()
-					else: print proc+i,"IS EMPTY! SKIPPING ..."
+					if proc in bkgGrupList and hists[proc+i].Integral() == 0:
+						print proc+i,"IS EMPTY! SKIPPING ..."
+						continue
+					hists[proc+i].Write()
+					if doAllSys:
+						for syst in systematicList:
+							if syst=='toppt' and proc not in topptProcs: continue
+							if syst=='ht' and proc not in htProcs: continue
+							hists[proc+i+syst+'Up'].Write()
+							hists[proc+i+syst+'Down'].Write()
+						for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
+					if doQ2sys:
+						if proc+'_q2up' not in bkgProcs.keys(): continue
+						hists[proc+i+'q2Up'].Write()
+						hists[proc+i+'q2Down'].Write()
 				hists['data'+i].Write()
 			thetaRfile.Close()
 
@@ -443,7 +446,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 						if proc=='totBkg' or proc=='dataOverBkg':
 							for bkg in bkgGrupList:
 								try:
-									yieldtemp += yieldTable[histoPrefix][bkg]
+									yieldtemp += yieldTable[histoPrefix][bkg]+1e-20
 									yielderrtemp += yieldStatErrTable[histoPrefix][bkg]**2
 									yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldTable[histoPrefix][bkg])**2
 								except:
@@ -492,7 +495,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							try:
 								yieldtempE += yieldTable[histoPrefixE][bkg]
 								yieldtempM += yieldTable[histoPrefixM][bkg]
-								yieldtemp  += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]
+								yieldtemp  += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]+1e-20
 								yielderrtemp += yieldStatErrTable[histoPrefixE][bkg]**2+yieldStatErrTable[histoPrefixM][bkg]**2
 								yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 							except:
@@ -604,7 +607,7 @@ for iPlot in iPlotList:
  		underflow(sighists[sig])
 
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
-	makeThetaCats(datahists,sighists,bkghists,iPlot)
+	makeCatTemplates(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 
