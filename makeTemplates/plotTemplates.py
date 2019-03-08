@@ -15,27 +15,25 @@ start_time = time.time()
 lumi=41.3 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='PS' #PS,SR,TTCR,WJCR
-isCategorized=0
-iPlot='ST'
+region='SR' #PS,SR,TTCR,WJCR
+isCategorized=1
+iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
 if region=='SR': pfix='templates_'
 elif region=='WJCR': pfix='wjets_'
 elif region=='TTCR': pfix='ttbar_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-templateDir=os.getcwd()+'/'+pfix+'2019_2_10/'+cutString+'/'
-postFitFile=os.getcwd()+'/../thetaLimits/chi2test_2017_2_12/histos-mle.root'
-plotPostFit = False #this is not working yet!!
+templateDir=os.getcwd()+'/'+pfix+'2019_3_2/'+cutString+'/'
 
-isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
-saveKey = ''#'_noQ2' # tag for plot names
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
+saveKey = '' # tag for plot names
 
 sig1='4TM690' #  choose the 1st signal to plot
 sig1leg='t#bar{t}t#bar{t}'
 sig2='4TM690' #  choose the 2nd signal to plot
-sig2leg='t#bar{t}t#bar{t}'#'X_{5/3}#bar{X}_{5/3} RH (1.2 TeV)'
-scaleSignals = True
+sig2leg='t#bar{t}t#bar{t}'
+scaleSignals = False
 sigScaleFact = 20 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
@@ -56,7 +54,7 @@ doNormByBinWidth=True
 if 'rebinned' not in isRebinned or 'stat1p1' in isRebinned: doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
-blind = False
+blind = True
 yLog  = True
 if yLog: scaleSignals = False
 doRealPull = True
@@ -66,10 +64,12 @@ if compareShapes: blind,yLog,scaleSignals,sigScaleFact=True,False,False,-1
 drawYields = False
 
 isEMlist  = ['E','M']
-nttaglist = ['0p']
-nWtaglist = ['0p']
-nbtaglist = ['2','3','4','5p']
-njetslist = ['7','8','9','10p']
+nttaglist = ['0','1','0p','1p','2p']
+nWtaglist = ['0','1','0p','1p','2p']
+nbtaglist = ['1','2','3','3p','4p']
+#nbtaglist = ['1']
+#if len(nbtaglist)==1: saveKey = '_nB'+nbtaglist[0]
+njetslist = ['4','5','6','7','8','9','9p','10p']
 if not isCategorized: 	
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
@@ -81,7 +81,11 @@ if 'YLD' in iPlot:
 	nWtaglist = ['0p']
 	nbtaglist = ['0p']
 	njetslist = ['0p']
-tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
+
+tagListTemp = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
+tagList = []
+for tag in tagListTemp:#check the "skip" function in utils module to see if you want to remove specific categories there!!!
+	if not skip(('dummy',)+tag): tagList.append(tag)
 
 lumiSys = 0.0#26 # lumi uncertainty
 trigSys = 0.0 # trigger uncertainty
@@ -121,7 +125,7 @@ def formatUpperHist(histogram):
 		histogram.GetYaxis().SetLabelSize(0.07)
 		histogram.GetYaxis().SetTitleSize(0.08)
 		histogram.GetYaxis().SetTitleOffset(.71)
-	if 'YLD' in iPlot: histogram.GetXaxis().LabelsOption("u")
+	#if 'YLD' in iPlot: histogram.GetXaxis().LabelsOption("u")
 
 	if 'nB0' in histogram.GetName() and 'minMlb' in histogram.GetName() and 'YLD' not in iPlot: histogram.GetXaxis().SetTitle("min[M(l,j)], j#neqb [GeV]")
 	if 'JetPt' in histogram.GetName() or 'JetEta' in histogram.GetName() or 'JetPhi' in histogram.GetName() or 'Pruned' in histogram.GetName() or 'Tau' in histogram.GetName() or 'SoftDropMass' in histogram.GetName(): histogram.GetYaxis().SetTitle(histogram.GetYaxis().GetTitle().replace("Events","Jets"))
@@ -166,7 +170,6 @@ if not os.path.exists(templateDir+tempsig.replace(sig1,sig1)):
 print "READING: "+templateDir+tempsig.replace(sig1,sig1)
 RFile1 = rt.TFile(templateDir+tempsig.replace(sig1,sig1))
 RFile2 = rt.TFile(templateDir+tempsig.replace(sig1,sig2))
-if plotPostFit: RPostFile = rt.TFile(postFitFile)
 
 #set the tdr style
 tdrstyle.setTDRStyle()
@@ -183,7 +186,7 @@ iPos = 11
 if( iPos==0 ): CMS_lumi.relPosX = 0.12
 
 H_ref = 600; 
-W_ref = 800; 
+W_ref = 1200; 
 W = W_ref
 H  = H_ref
 
@@ -193,6 +196,7 @@ iPeriod = 4 #see CMS_lumi.py module for usage!
 T = 0.10*H_ref
 B = 0.35*H_ref 
 if blind == True: B = 0.12*H_ref
+if 'YLD' in iPlot: B = 0.22*H_ref
 L = 0.12*W_ref
 R = 0.04*W_ref
 
@@ -223,11 +227,6 @@ for tag in tagList:
 		for proc in bkgProcList: 
 			try:
 				bkghists[proc+catStr] = RFile1.Get(histPrefix+'__'+proc).Clone()
-				if plotPostFit: 
-					postFitHist = RPostFile.Get(histPrefix+'__'+proc).Clone()
-					for ibin in range(1,bkghists[proc+catStr].GetNbinsX()+1):
-						bkghists[proc+catStr].SetBinContent(ibin,postFitHist.GetBinContent(ibin))
-						bkghists[proc+catStr].SetBinError(ibin,postFitHist.GetBinError(ibin))
 				totBkg += bkghists[proc+catStr].Integral()
 			except:
 				print "There is no "+proc+"!!! Skipping it....."
@@ -325,16 +324,17 @@ for tag in tagList:
 		
 		bkgHTgerr = totBkgTemp3[catStr].Clone()
 
-		scaleFact1 = int(bkgHT.GetMaximum()/hsig1.GetMaximum()) - int(bkgHT.GetMaximum()/hsig1.GetMaximum()) % 10
-		scaleFact2 = int(bkgHT.GetMaximum()/hsig2.GetMaximum()) - int(bkgHT.GetMaximum()/hsig2.GetMaximum()) % 10
-		if scaleFact1==0: scaleFact1=int(bkgHT.GetMaximum()/hsig1.GetMaximum())
-		if scaleFact2==0: scaleFact2=int(bkgHT.GetMaximum()/hsig2.GetMaximum())
-		if scaleFact1==0: scaleFact1=1
-		if scaleFact2==0: scaleFact2=1
-		if sigScaleFact>0:
-			scaleFact1=sigScaleFact
-			scaleFact2=sigScaleFact
-		if not scaleSignals:
+		if scaleSignals:
+			scaleFact1 = int(bkgHT.GetMaximum()/(hsig1.GetMaximum()+1e-20)) - int(bkgHT.GetMaximum()/(hsig1.GetMaximum()+1e-20)) % 10
+			scaleFact2 = int(bkgHT.GetMaximum()/(hsig2.GetMaximum()+1e-20)) - int(bkgHT.GetMaximum()/(hsig2.GetMaximum()+1e-20)) % 10
+			if scaleFact1==0: scaleFact1=int(bkgHT.GetMaximum()/(hsig1.GetMaximum()+1e-20))
+			if scaleFact2==0: scaleFact2=int(bkgHT.GetMaximum()/(hsig2.GetMaximum()+1e-20))
+			if scaleFact1==0: scaleFact1=1
+			if scaleFact2==0: scaleFact2=1
+			if sigScaleFact>0:
+				scaleFact1=sigScaleFact
+				scaleFact2=sigScaleFact
+		else:
 			scaleFact1=1
 			scaleFact2=1
 		hsig1.Scale(scaleFact1)
@@ -690,7 +690,6 @@ for tag in tagList:
 		if yLog: savePrefix+='_logy'
 		if blind: savePrefix+='_blind'
 		if compareShapes: savePrefix+='_shp'
-		if plotPostFit: savePrefix+='_postfit'
 
 		if doOneBand:
 			c1.SaveAs(savePrefix+"totBand.pdf")
@@ -716,12 +715,6 @@ for tag in tagList:
 		try: 
 			bkghistsmerged[proc+'isL'+tagStr] = RFile1.Get(histPrefixE+'__'+proc).Clone()
 			bkghistsmerged[proc+'isL'+tagStr].Add(RFile1.Get(histPrefixM+'__'+proc))
-			if plotPostFit: 
-				postFitHist = RPostFile.Get(histPrefixE+'__'+proc).Clone()
-				postFitHist.Add(RPostFile.Get(histPrefixM+'__'+proc))
-				for ibin in range(1,bkghistsmerged[proc+'isL'+tagStr].GetNbinsX()+1):
-					bkghistsmerged[proc+'isL'+tagStr].SetBinContent(ibin,postFitHist.GetBinContent(ibin))
-					bkghistsmerged[proc+'isL'+tagStr].SetBinError(ibin,postFitHist.GetBinError(ibin))
 			totBkgMerged += bkghistsmerged[proc+'isL'+tagStr].Integral()
 		except:pass
 	hDatamerged = RFile1.Get(histPrefixE+'__DATA').Clone()
@@ -818,16 +811,17 @@ for tag in tagList:
 
 	bkgHTgerrmerged = totBkgTemp3['isL'+tagStr].Clone()
 
-	scaleFact1merged = int(bkgHTmerged.GetMaximum()/hsig1merged.GetMaximum()) - int(bkgHTmerged.GetMaximum()/hsig1merged.GetMaximum()) % 10
-	scaleFact2merged = int(bkgHTmerged.GetMaximum()/hsig2merged.GetMaximum()) - int(bkgHTmerged.GetMaximum()/hsig2merged.GetMaximum()) % 10
-	if scaleFact1merged==0: scaleFact1merged=int(bkgHTmerged.GetMaximum()/hsig1merged.GetMaximum())
-	if scaleFact2merged==0: scaleFact2merged=int(bkgHTmerged.GetMaximum()/hsig2merged.GetMaximum())
-	if scaleFact1merged==0: scaleFact1merged=1
-	if scaleFact2merged==0: scaleFact2merged=1
-	if sigScaleFact>0:
-		scaleFact1merged=sigScaleFact
-		scaleFact2merged=sigScaleFact
-	if not scaleSignals:
+	if scaleSignals:
+		scaleFact1merged = int(bkgHTmerged.GetMaximum()/hsig1merged.GetMaximum()) - int(bkgHTmerged.GetMaximum()/hsig1merged.GetMaximum()) % 10
+		scaleFact2merged = int(bkgHTmerged.GetMaximum()/hsig2merged.GetMaximum()) - int(bkgHTmerged.GetMaximum()/hsig2merged.GetMaximum()) % 10
+		if scaleFact1merged==0: scaleFact1merged=int(bkgHTmerged.GetMaximum()/hsig1merged.GetMaximum())
+		if scaleFact2merged==0: scaleFact2merged=int(bkgHTmerged.GetMaximum()/hsig2merged.GetMaximum())
+		if scaleFact1merged==0: scaleFact1merged=1
+		if scaleFact2merged==0: scaleFact2merged=1
+		if sigScaleFact>0:
+			scaleFact1merged=sigScaleFact
+			scaleFact2merged=sigScaleFact
+	else:
 		scaleFact1merged=1
 		scaleFact2merged=1
 	hsig1merged.Scale(scaleFact1merged)
@@ -1182,7 +1176,6 @@ for tag in tagList:
 	if yLog: savePrefixmerged+='_logy'
 	if blind: savePrefixmerged+='_blind'
 	if compareShapes: savePrefixmerged+='_shp'
-	if plotPostFit: savePrefixmerged+='_postfit'
 
 	if doOneBand: 
 		c1merged.SaveAs(savePrefixmerged+"totBand.pdf")
@@ -1206,7 +1199,6 @@ if not doNormByBinWidth:
 			
 RFile1.Close()
 RFile2.Close()
-if plotPostFit: RPostFile.Close()
 
 print("--- %s minutes ---" % (round(time.time() - start_time, 2)/60))
 

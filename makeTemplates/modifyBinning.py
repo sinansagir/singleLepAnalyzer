@@ -32,8 +32,7 @@ start_time = time.time()
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_2019_2_1/'+cutString
-#templateDir = os.getcwd()+'/kinematics_SR_2019_2_1/'+cutString
+templateDir = os.getcwd()+'/templates_2019_3_2/'+cutString
 combinefile = 'templates_'+iPlot+'_41p298fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
@@ -48,19 +47,17 @@ sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
 	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
-bkgProcList = ['top','ewk']#,'qcd'] #put the most dominant process first
-#bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
+bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
-minNbins=5 #min number of bins to be merged
+minNbins=1 #min number of bins to be merged
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 statThres = 0.05 #statistical uncertainty threshold on total background to assign BB nuisances -- enter 0.0 to assign BB for all bins
 #if len(sys.argv)>1: stat=float(sys.argv[1])
 singleBinCR = False
 symmetrizeTopPtShift = False
 
-if iPlot=='minMlb': minNbins=3 #min 15GeV bin width
-if iPlot=='HT' or iPlot=='ST': minNbins=8 #min 40GeV bin width
+# if iPlot=='minMlb': minNbins=3 #min 15GeV bin width
 
 if rebinCombine:
 	dataName = 'data_obs'
@@ -85,8 +82,8 @@ elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2)
 
 removalKeys = {} # True == keep, False == remove
-removalKeys['jsf__']   = False
-removalKeys['q2__']    = False
+removalKeys['jsf__'] = False
+removalKeys['q2__']  = False
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -110,10 +107,15 @@ totBkgHists = {}
 dataHists_ = {}
 for hist in datahists:
 	channel = hist[hist.find('fb_')+3:hist.find('__')]
-	totBkgHists[channel]=tfile.Get(hist.replace('__'+dataName,'__'+bkgProcList[0])).Clone()
 	dataHists_[channel]=tfile.Get(hist).Clone()
+	print hist
+	procfirst = 0
+	try: totBkgHists[channel]=tfile.Get(hist.replace('__'+dataName,'__'+bkgProcList[0])).Clone()
+	except: 
+		totBkgHists[channel]=tfile.Get(hist.replace('__'+dataName,'__'+bkgProcList[1])).Clone()
+		procfirst = 1
 	for proc in bkgProcList:
-		if proc==bkgProcList[0]: continue
+		if proc==bkgProcList[procfirst]: continue
 		try: totBkgHists[channel].Add(tfile.Get(hist.replace('__'+dataName,'__'+proc)))
 		except: 
 			print "Missing",proc,"for category:",hist
@@ -147,8 +149,6 @@ for chn in totBkgHists.keys():
 		if nBinsMerged<minNbins: continue
 		if totTempBinContent_E>0. and totTempBinContent_M>0.:
 			if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
-				#if totDataTempBinContent_E==0. or totDataTempBinContent_M==0.: continue
-				#if math.sqrt(totDataTempBinErrSquared_E)/totDataTempBinContent_E>0.45 or math.sqrt(totDataTempBinErrSquared_M)/totDataTempBinContent_M>0.45: continue
 				totTempBinContent_E = 0.
 				totTempBinContent_M = 0.
 				totTempBinErrSquared_E = 0.
@@ -181,35 +181,8 @@ for chn in xbinsListTemp.keys():
 	print chn,"=",xbinsList[chn]
 print "//"*40
 
-xbinsList['isE_nT0_nW1p_nB2p_nJ4p'] = [0.0, 45.0, 60.0, 75.0, 90.0, 105.0, 120.0, 135.0, 150.0, 185.0, 195.0, 210.0, 225.0, 240.0, 300.0, 320.0, 335.0, 365.0, 405.0, 440.0, 480.0, 540.0, 640.0, 1000.0]
-xbinsList['isM_nT0_nW1p_nB2p_nJ4p'] = xbinsList['isE_nT0_nW1p_nB2p_nJ4p']
-# xbinsList['isE_nT0p_nW0_nB0_nJ4p']  = [0.0, 35.0, 50.0, 65.0, 80.0, 95.0, 110.0, 125.0, 140.0, 155.0, 170.0, 185.0, 200.0, 215.0, 230.0, 245.0, 260.0, 275.0, 290.0, 305.0, 320.0, 335.0, 350.0, 380.0, 425.0, 440.0, 1000.0]
-# xbinsList['isE_nT0p_nW1p_nB0_nJ4p'] = [0.0, 40.0, 55.0, 70.0, 85.0, 100.0, 115.0, 130.0, 145.0, 160.0, 175.0, 190.0, 205.0, 220.0, 235.0, 250.0, 265.0, 280.0, 1000.0]
-# xbinsList['isM_nT0p_nW0_nB0_nJ4p']  = xbinsList['isE_nT0p_nW0_nB0_nJ4p']
-# xbinsList['isM_nT0p_nW1p_nB0_nJ4p'] = xbinsList['isE_nT0p_nW1p_nB0_nJ4p']
-
-# 2015 binning:
-# xbinsList['isE_nT0_nW0_nB1_nJ4p'] = [0, 80.0, 96.0, 112.0, 128.0, 144.0, 160.0, 192.0, 208.0, 240.0, 272.0, 304.0, 320.0, 352.0, 400.0, 464.0, 576.0, 1000.0]
-# xbinsList['isE_nT0_nW0_nB2p_nJ4p'] = [0, 48.0, 64.0, 80.0, 96.0, 112.0, 128.0, 160.0, 240.0, 1000.0]
-# xbinsList['isE_nT0_nW1p_nB1_nJ4p'] = [0, 64.0, 80.0, 96.0, 112.0, 128.0, 160.0, 176.0, 240.0, 304.0, 336.0, 416.0, 464.0, 1000.0]
-# xbinsList['isE_nT0_nW1p_nB2p_nJ4p'] = [0, 64.0, 80.0, 96.0, 112.0, 128.0, 144.0, 160.0, 208.0, 1000.0]
-# xbinsList['isE_nT1p_nW0_nB1_nJ4p'] = [0, 80.0, 96.0, 112.0, 144.0, 256.0, 320.0, 432.0, 544.0, 1000.0]
-# xbinsList['isE_nT1p_nW0_nB2p_nJ4p'] = [0, 64.0, 80.0, 96.0, 112.0, 128.0, 144.0, 176.0, 1000.0]
-# xbinsList['isE_nT1p_nW1p_nB1_nJ4p'] = [0, 128.0, 224.0, 304.0, 1000.0]
-# xbinsList['isE_nT1p_nW1p_nB2p_nJ4p'] = [0, 64.0, 80.0, 96.0, 128.0, 1000.0]
-# xbinsList['isM_nT0_nW0_nB1_nJ4p'] = [0, 80.0, 96.0, 112.0, 128.0, 144.0, 160.0, 192.0, 208.0, 240.0, 272.0, 304.0, 320.0, 352.0, 400.0, 464.0, 576.0, 1000.0]
-# xbinsList['isM_nT0_nW0_nB2p_nJ4p'] = [0, 48.0, 64.0, 80.0, 96.0, 112.0, 128.0, 160.0, 240.0, 1000.0]
-# xbinsList['isM_nT0_nW1p_nB1_nJ4p'] = [0, 64.0, 80.0, 96.0, 112.0, 128.0, 160.0, 176.0, 240.0, 304.0, 336.0, 416.0, 464.0, 1000.0]
-# xbinsList['isM_nT0_nW1p_nB2p_nJ4p'] = [0, 64.0, 80.0, 96.0, 112.0, 128.0, 144.0, 160.0, 208.0, 1000.0]
-# xbinsList['isM_nT1p_nW0_nB1_nJ4p'] = [0, 80.0, 96.0, 112.0, 144.0, 256.0, 320.0, 432.0, 544.0, 1000.0]
-# xbinsList['isM_nT1p_nW0_nB2p_nJ4p'] = [0, 64.0, 80.0, 96.0, 112.0, 128.0, 144.0, 176.0, 1000.0]
-# xbinsList['isM_nT1p_nW1p_nB1_nJ4p'] = [0, 128.0, 224.0, 304.0, 1000.0]
-# xbinsList['isM_nT1p_nW1p_nB2p_nJ4p'] = [0, 64.0, 80.0, 96.0, 128.0, 1000.0]
-
 xbins = {}
 for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
-
-#os._exit(1)
 
 iRfile=0
 yieldsAll = {}
@@ -515,7 +488,6 @@ for isEM in isEMlist:
 			table.append(row)
 		iSig = 0
 		for sig in sigProcList:
-			#row=['SoverSqrtSpB_'+sig]
 			row=['SoverSigmaB_'+sig]
 			iChn = 1
 			for chn in channels: 
@@ -524,7 +496,6 @@ for isEM in isEMlist:
 				bkgYldErr_ = float([iList for iList in table[table.index(['',isEM+'_'+nttag+'_yields']):] if iList[0] == procNames['totBkg']][0][iChn].strip().split()[3])
 				sigYld_ = float([iList for iList in table[table.index(['',isEM+'_'+nttag+'_yields']):] if iList[0] == procNames[sig]][0][iChn].strip().split()[1])
 				sigYldErr_ = float([iList for iList in table[table.index(['',isEM+'_'+nttag+'_yields']):] if iList[0] == procNames[sig]][0][iChn].strip().split()[3])
-				#row.append(' & '+str(sigYld_/math.sqrt(sigYld_+bkgYld_)))
 				row.append(' & '+str(round_sig(sigYld_/bkgYldErr_,5)))
 				iChn+=1
 			row.append('\\\\')
@@ -609,7 +580,6 @@ for nttag in nttaglist:
 		table.append(row)
 	iSig=0
 	for sig in sigProcList:
-		#row=['SoverSqrtSpB_'+sig]
 		row=['SoverSigmaB_'+sig]
 		iChn = 1
 		for chn_ in channels: 
@@ -619,7 +589,6 @@ for nttag in nttaglist:
 			bkgYldErr_ = float([iList for iList in table[table.index(['','isL_'+nttag+'_yields']):] if iList[0] == procNames['totBkg']][0][iChn].strip().split()[3])
 			sigYld_ = float([iList for iList in table[table.index(['','isL_'+nttag+'_yields']):] if iList[0] == procNames[sig]][0][iChn].strip().split()[1])
 			sigYldErr_ = float([iList for iList in table[table.index(['','isL_'+nttag+'_yields']):] if iList[0] == procNames[sig]][0][iChn].strip().split()[3])
-			#row.append(' & '+str(sigYld_/math.sqrt(sigYld_+bkgYld_)))
 			row.append(' & '+str(round_sig(sigYld_/bkgYldErr_,5)))
 			iChn+=1
 		row.append('\\\\')
@@ -658,12 +627,12 @@ for proc in bkgProcList+sigProcList:
 	table.append(row)	
 	table.append(['break'])
 
-postFix = ''#'_noQ2'
+postFix = ''
 if addShapes: postFix+='_addShps'
 if not addCRsys: postFix+='_noCRunc'
 out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
 printTable(table,out)
-#os._exit(1)
+
 print "       WRITING SUMMARY TEMPLATES: "
 lumiStr = combinefile.split('_')[-1][:-7]
 for signal in sigProcList:

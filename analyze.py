@@ -49,10 +49,6 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[1] > '+str(cutList['jet2PtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[2] > '+str(cutList['jet3PtCut'])+')'
 	cut += ' && (minDR_lepJet > 0.4)'# || ptRel_lepJet > 40)'
-# 	if 'CR' in region:
-# 		cut += ' && (deltaR_lepJets[1] >= 0.4 && deltaR_lepJets[1] < '+str(cutList['drCut'])+')'
-# 	else: # 'PS' or 'SR'
-# 		cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')'
 
 	# Define weights
 	TrigEff = '1'#'TrigEffWeightRMA'
@@ -76,13 +72,8 @@ def analyze(tTree,process,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotDetails,ca
 		#HTweightStr   = 'HTSF_Exp'
 		#HTweightStrUp = 'HTSF_ExpUp'
 		#HTweightStrDn = 'HTSF_ExpDn'
-	
 	topPt13TeVstr = '1'
 	if 'TTJets' in process: topPt13TeVstr = 'topPtWeight13TeV'
-# 	topPt13TeVstr = '1'
-# 	HTweightStr   = '1'
-# 	HTweightStrUp = '1'
-# 	HTweightStrDn = '1'
 	if 'Data' not in process:
 		weightStr          += ' * '+topPt13TeVstr+' * '+HTweightStr+' * '+TrigEff+' * pileupWeight * lepIdSF * EGammaGsfSF * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc)) * '+str(weight[process])
 		weightTrigEffUpStr  = weightStr.replace(TrigEff,'('+TrigEff+'+'+TrigEff+'Uncert)')

@@ -1,3 +1,4 @@
+#!/usr/bin/python
 
 input = 'dummy.root'
 
@@ -34,11 +35,8 @@ model = get_model()
 model_summary(model)
 
 #plot_exp, plot_obs = bayesian_limits(model,'all')#, n_toy = 5000, n_data = 500)
-#plot_exp, plot_obs = bayesian_limits(model,'all', n_toy = 100000, n_data = 1000)
 plot_exp, plot_obs = bayesian_limits(model,'expected')
 plot_exp.write_txt('limits_'+rFileName+'_expected.txt')
 #plot_obs.write_txt('limits_'+rFileName+'_observed.txt')
 
 report.write_html('htmlout_'+rFileName)
-
-

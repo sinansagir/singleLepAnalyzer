@@ -1,25 +1,39 @@
+#!/usr/bin/python
+
 import os,sys,fnmatch
+from catconfigs import *
 
-templateDir='/user_data/ssagir/CMSSW_7_4_7/src/singleLepAnalyzer/fourtops/makeTemplates/'
-templateDir+='templates_2019_2_1'
-thetaConfigTemp = os.getcwd()+'/theta_config_template.py'
+templateDir=os.getcwd()+'/../makeTemplates/templates_2019_3_2'
+thetaConfigFile = os.getcwd()+'/theta_limit_template.py'
 lumiInFile = '41p298fb'
+doLimits = True #else it will run discovery significances
 
-toFilter0 = ['pdf','muR','muF','muRFcorrd','muRFcorrdNew','trigeff'] #always remove in case they are in templates
-#toFilter0+= ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','pdfNew','trigeff','btag','mistag','topmuRFcorrdNew','ewkmuRFcorrdNew','qcdmuRFcorrdNew','ht']#,'jsf'
 toFilter0 = []#['__'+item+'__' for item in toFilter0]
 
 limitConfs = {#'<limit type>':[filter list]
-			  'all':[],
+# 			  'all':[],
 # 			  'isE':['isM'], #only electron channel
 # 			  'isM':['isE'], #only muon channel
+			  'tag120' :[tag for tag in tags['all'] if tag not in tags['tag120']],
+			  'tag63'  :[tag for tag in tags['all'] if tag not in tags['tag63']],
+			  'tag45'  :[tag for tag in tags['all'] if tag not in tags['tag45']],
+			  'tag36'  :[tag for tag in tags['all'] if tag not in tags['tag36']],
+			  'tag27'  :[tag for tag in tags['all'] if tag not in tags['tag27']],
+			  'noTW15' :[tag for tag in tags['all'] if tag not in tags['noTW15']],
+			  'onlyW30':[tag for tag in tags['all'] if tag not in tags['onlyW30']],
+			  'onlyT30':[tag for tag in tags['all'] if tag not in tags['onlyT30']],
 			  }
 #for cat in catList: limitConfs[cat]=[item for item in catList if item!=cat]
 
-limitType = ''#'_simulfit'
-outputDir = '/user_data/ssagir/fourtops_limits_2019/'+templateDir.split('/')[-1]+limitType+'/' #prevent writing these (they are large) to brux6 common area
-if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
-print outputDir
+limitType = '_lim'
+if not doLimits:
+	limitType = '_disc'
+	thetaConfigFile = os.getcwd()+'/theta_disc_template.py'
+outputDir = '/user_data/ssagir/fourtops_limits_2019/'+templateDir.split('/')[-1]+limitType+'/'
+if os.path.exists(outputDir):
+	 print "The directory",outputDir,"exists!!! I will not overwrite it. Please specify a different output directory ..."
+	 os._exit(1)
+else: os.system('mkdir '+outputDir)
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -27,17 +41,15 @@ def findfiles(path, filtre):
             yield os.path.join(root, f)
             
 rootfilelist = []
-i=0
 for rootfile in findfiles(templateDir, '*.root'):
-    if 'rebinned_stat0p3.' not in rootfile: continue
+    if 'rebinned_stat0p3' not in rootfile: continue
     if 'plots' in rootfile: continue
     if 'YLD' in rootfile: continue
     rootfilelist.append(rootfile)
-    i+=1
 
-f = open(thetaConfigTemp, 'rU')
-thetaConfigLines = f.readlines()
-f.close()
+confile = open(thetaConfigFile, 'rU')
+thetaConfigLines = confile.readlines()
+confile.close()
 
 def makeThetaConfig(rFile,outDir,toFilter):
 	with open(outDir+'/'+rFile.split('/')[-1][:-5]+'.py','w') as fout:
