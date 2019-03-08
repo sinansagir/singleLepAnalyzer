@@ -17,6 +17,15 @@ def contains(a, b):
 
 ##############################################################################
 
+def skip(cat): #the catList above will make all possible permutations of the taglists above.
+			   #If categorization is not uniform (or if you'd like to remove some specific categories), 
+			   #it can be defined here. If this function returns True for a category, a job will not be submitted for it.
+	#return False
+	if (cat[1]=='1' or cat[1]=='1p' or cat[1]=='2p') and (cat[2]=='1' or cat[2]=='2p'): return True
+	elif (cat[1]=='2p') and (cat[2]=='1p' or cat[2]=='2p') and (cat[4]=='4' or cat[4]=='5'): return True
+	elif (cat[1]=='2p') and (cat[2]=='1p' or cat[2]=='2p') and (cat[3]=='4p'): return True
+	else: return False
+
 def poissonNormByBinWidth(tgae,hist):
 	confLevel = 0.6827 #1sigma
 	alpha = 1. - confLevel
