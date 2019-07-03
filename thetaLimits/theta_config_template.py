@@ -3,15 +3,15 @@ from operator import itemgetter,attrgetter
 
 input = 'FILE'
 
-rFileName = input.split('/')[-1][:-5]
+rFileName = input.split('/')[-1][:-5]+'_DeepAK8'
                                                                           
 def get_model():
-    model = build_model_from_rootfile(input,include_mc_uncertainties=True,histogram_filter = (lambda s: s.count('__BEST')==0 and s.count('__DeepAK8_decorr')==0))
+    model = build_model_from_rootfile(input,include_mc_uncertainties=True,histogram_filter = (lambda s: s.count('Best')==0))
 
     #
     model.fill_histogram_zerobins()
     model.set_signal_processes('sig')
-    model.scale_predictions((41298.+35867.)/36814.)
+    ##model.scale_predictions((41298.+35867.)/36814.)
     
     procs = model.processes
     obsvs = model.observables.keys()
@@ -22,26 +22,182 @@ def get_model():
             except: pass
             try: model.add_lognormal_uncertainty('elIsoSys', math.log(1.01), '*', obs) #iso + reco
             except: pass
+            try: model.add_lognormal_uncertainty('elTrigSys', math.log(1.05), '*', obs) #iso + reco
+            except: pass
             try: model.add_lognormal_uncertainty('elRecoSys', math.log(1.01), '*', obs) #iso + reco
             except: pass
         elif 'isM' in obs:
-            try: model.add_lognormal_uncertainty('muIdSys', math.log(1.03), '*', obs)
+            try: model.add_lognormal_uncertainty('muIdSys', math.log(1.02), '*', obs)
             except: pass
             try: model.add_lognormal_uncertainty('muIsoSys', math.log(1.01), '*', obs) #iso + tracking
             except: pass
+            try: model.add_lognormal_uncertainty('muTrigSys', math.log(1.05), '*', obs) #iso + tracking
+            except: pass
             try: model.add_lognormal_uncertainty('muRecoSys', math.log(1.01), '*', obs) #iso + tracking
             except: pass
+        
+        # if 'bWbW' in obs:
+        #     try: model.add_lognormal_uncertainty('Beff',math.log(1.10),'sig',obs) # 2 true b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Beff',math.log(1.10),'top',obs) # 2 true b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Bmis',math.log(1.10),'ewk',obs) # 2 fake b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Bmis',math.log(1.10),'qcd',obs) # 2 fake b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Weff',math.log(1.05),'sig',obs) # 1 true W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Weff',math.log(1.05),'top',obs) # 1 true W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Wmis',math.log(1.10),'ewk',obs) # 2 fake W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Wmis',math.log(1.10),'qcd',obs) # 2 fake W's
+        #     except: pass        
+        # elif 'tHbW' in obs:
+        #     try: model.add_lognormal_uncertainty('Beff',math.log(1.05),'sig',obs) # 1 true b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Beff',math.log(1.05),'top',obs) # 1 true b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Bmis',math.log(1.05),'ewk',obs) # 1 fake b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Bmis',math.log(1.05),'qcd',obs) # 1 fake b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Weff',math.log(1.05),'sig',obs) # 1 true W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Weff',math.log(1.05),'top',obs) # 1 true W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Wmis',math.log(1.05),'ewk',obs) # 1 fake W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Wmis',math.log(1.05),'qcd',obs) # 1 fake W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'sig',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'top',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.05),'ewk',obs) # 1 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.05),'qcd',obs) # 1 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Heff',math.log(1.05),'sig',obs) # 1 true H's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Hmis',math.log(1.05),'top',obs) # 1 fake H's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Hmis',math.log(1.05),'ewk',obs) # 1 fake H's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Hmis',math.log(1.05),'qcd',obs) # 1 fake H's
+        #     except: pass        
+        # elif 'tZbW' in obs:
+        #     try: model.add_lognormal_uncertainty('Beff',math.log(1.05),'sig',obs) # 1 true b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Beff',math.log(1.05),'top',obs) # 1 true b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Bmis',math.log(1.05),'ewk',obs) # 1 fake b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Bmis',math.log(1.05),'qcd',obs) # 1 fake b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Weff',math.log(1.05),'sig',obs) # 1 true W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Weff',math.log(1.05),'top',obs) # 1 true W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Wmis',math.log(1.05),'ewk',obs) # 1 fake W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Wmis',math.log(1.05),'qcd',obs) # 1 fake W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'sig',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'top',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.05),'ewk',obs) # 1 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.05),'qcd',obs) # 1 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Zeff',math.log(1.05),'sig',obs) # 1 true Z's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Zmis',math.log(1.05),'top',obs) # 1 fake Z's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Zmis',math.log(1.05),'ewk',obs) # 1 fake Z's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Zmis',math.log(1.05),'qcd',obs) # 1 fake Z's
+        #     except: pass        
+        # elif 'tZHtZH' in obs:
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'sig',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'top',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.10),'ewk',obs) # 2 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.10),'qcd',obs) # 2 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Heff',math.log(1.10),'sig',obs) # 2 true H's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Hmis',math.log(1.10),'top',obs) # 2 fake H's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Hmis',math.log(1.10),'ewk',obs) # 2 fake H's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Hmis',math.log(1.10),'qcd',obs) # 2 fake H's
+        #     except: pass        
+        # elif 'notVbW' in obs:
+        #     try: model.add_lognormal_uncertainty('Beff',math.log(1.05),'sig',obs) # 1 true b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Beff',math.log(1.05),'top',obs) # 1 true b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Bmis',math.log(1.05),'ewk',obs) # 1 fake b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Bmis',math.log(1.05),'qcd',obs) # 1 fake b's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Weff',math.log(1.05),'sig',obs) # 1 true W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Weff',math.log(1.05),'top',obs) # 1 true W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Wmis',math.log(1.05),'ewk',obs) # 1 fake W's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Wmis',math.log(1.05),'qcd',obs) # 1 fake W's
+        #     except: pass        
+        # elif 'notVtH' in obs:
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'sig',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'top',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.05),'ewk',obs) # 1 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.05),'qcd',obs) # 1 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Heff',math.log(1.05),'sig',obs) # 1 true H's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Hmis',math.log(1.05),'top',obs) # 1 fake H's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Hmis',math.log(1.05),'ewk',obs) # 1 fake H's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Hmis',math.log(1.05),'qcd',obs) # 1 fake H's
+        #     except: pass        
+        # elif 'notVtZ' in obs:
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'sig',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Teff',math.log(1.05),'top',obs) # 1 true t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.05),'ewk',obs) # 1 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Tmis',math.log(1.05),'qcd',obs) # 1 fake t's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Zeff',math.log(1.05),'sig',obs) # 1 true Z's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Zmis',math.log(1.05),'top',obs) # 1 fake Z's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Zmis',math.log(1.05),'ewk',obs) # 1 fake Z's
+        #     except: pass            
+        #     try: model.add_lognormal_uncertainty('Zmis',math.log(1.05),'qcd',obs) # 1 fake Z's
+        #     except: pass                  
 
-    try: model.add_lognormal_uncertainty('lumiSys', math.log(1.025), '*', '*')
+    try: model.add_lognormal_uncertainty('lumiSys', math.log(1.023), '*', '*')
     except: pass
 
     # flat values for tests
-    try: model.add_lognormal_uncertainty('QCDscale', math.log(1.25),'qcd','*')
-    except RuntimeError: pass
-    try: model.add_lognormal_uncertainty('TTbarscale', math.log(1.30),'top','*')
-    except RuntimeError: pass
-    try: model.add_lognormal_uncertainty('EWKscale', math.log(1.25),'ewk','*')
-    except RuntimeError: pass
+    #try: model.add_lognormal_uncertainty('QCDscale', math.log(1.25),'qcd','*')
+    #except RuntimeError: pass
+    #try: model.add_lognormal_uncertainty('TTbarscale', math.log(1.30),'top','*')
+    #except RuntimeError: pass
+    #try: model.add_lognormal_uncertainty('EWKscale', math.log(1.25),'ewk','*')
+    #except RuntimeError: pass
     # try: model.add_lognormal_uncertainty('jsf', math.log(1.038), 'WJets', '*')
     # except: pass
     # try: model.add_lognormal_uncertainty('muRFcorrdNewDYJets', math.log(1.15), 'DYJets', '*')
@@ -62,7 +218,7 @@ model_summary(model)
 plot_exp, plot_obs = bayesian_limits(model,'all', n_toy = 3000, n_data = 300)
 
 plot_exp.write_txt('limits_'+rFileName+'_expected.txt')
-plot_obs.write_txt('limits_'+rFileName+'_observed.txt')
+##plot_obs.write_txt('limits_'+rFileName+'_observed.txt')
 
 report.write_html('htmlout_'+rFileName)
 

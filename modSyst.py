@@ -44,3 +44,11 @@ modelingSys['ewkAll']=0.11
 #dummies:
 modelingSys['top_nW0p_nB1p']=0.
 modelingSys['ewk_nW0p_nB1p']=0.
+
+##### NEW STUFF MAYBE???
+modelingSys['ewk']=0
+modelingSys['top']=0
+modelingSys['qcd']=0
+modelingSys['totBkg']=0
+modelingSys['data']=0
+modelingSys['dataOverBkg']=0

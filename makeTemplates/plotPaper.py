@@ -2,7 +2,7 @@
 
 import os,sys,time,math,pickle,itertools
 parent = os.path.dirname(os.getcwd())
-sys.path.append(parent)
+sys.path.append(os.getcwd())
 from ROOT import *
 from weights import *
 from modSyst import *
@@ -14,33 +14,33 @@ setTDRStyle()
 gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=35.9 #for plots
+lumi=41.3 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #SR,TTCR,WJCR
-isCategorized=False
-iPlot='minMlbST'
+isCategorized=True
+iPlot='ST'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''#lep40_MET60_DR0_1jet200_2jet100'
-if region=='SR': pfix='templates_'#+iPlot
-elif region=='WJCR': pfix='wjets_'#+iPlot
-elif region=='TTCR': pfix='ttbar_'#+iPlot
-elif region=='HCR': pfix='higgs_'#+iPlot
-elif region=='CR': pfix='templatesCR_'
-elif region=='CRall': pfix='control_'
-if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='NewEl'
+if region=='SR': pfix='templatesSR'
+elif region=='PS': pfix='templatesPS'
+elif region=='noDR': pfix='templatesnoDR'
+elif region=='CRinc': pfix='templatesCRinc'
+elif region=='CR': pfix='templatesCR'
+else: pfix='templates_'
+if not isCategorized: pfix='kinematics_'+region
+
 if len(sys.argv)>2: region=str(sys.argv[2])
 if len(sys.argv)>3: pfix=str(sys.argv[3])
-templateDir=os.getcwd()+'/'+pfix+'/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'/'
 
-isRebinned='_rebinned_stat1p1' #post for ROOT file names
+isRebinned='' #_rebinned_stat1p1' #post for ROOT file names
 saveKey = '' # tag for plot names
 
-sig1='TTM1000' #  choose the 1st signal to plot
-sig1leg='T#bar{T} (1.0 TeV)'
-sig2='TTM1200' #  choose the 2nd signal to plot
-sig2leg='T#bar{T} (1.2 TeV)'
+sig1='TTM1100' #  choose the 1st signal to plot
+sig1leg='T#bar{T} (1.1 TeV)'
+sig2='TTM1800' #  choose the 2nd signal to plot
+sig2leg='T#bar{T} (1.8 TeV)'
 drawNormalized = False # STACKS CAN'T DO THIS...bummer
 scaleSignals = False
 if not isCategorized and 'CR' not in region: scaleSignals = True
@@ -56,12 +56,13 @@ if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+6,'ewk':kMagenta-3,'qcd':kOrange+7} #TT
 
-systematicList = ['tau21','jmr','jms','pileup','jec','jer','muRFcorrdNewTop','muRFcorrdNewEwk','muRFcorrdNewQCD','pdfNew','toppt','btag','mistag','trigeff','taupt']
+systematicList = ['muRFcorrd']
+#systematicList = ['tau21','jmr','jms','pileup','jec','jer','muRFcorrdNewTop','muRFcorrdNewEwk','muRFcorrdNewQCD','pdfNew','toppt','btag','mistag','trigeff','taupt']
 if 'WJCRnoJSF' in pfix or 'WJCRwSFs' in pfix or 'TTCRwNewWgt' in pfix: systematicList = ['tau21','pileup','jec','jer','muRFcorrdNew','pdfNew','toppt']
 if 'WJCRwJSF' in pfix: systematicList = ['tau21','pileup','jec','jer','muRFcorrdNew','pdfNew','toppt','jsf']
 if 'TTCRnoJSF' in pfix: systematicList = ['tau21','pileup','jec','jer','muRFcorrdNew','pdfNew']
 
-doAllSys = True
+doAllSys = False
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
@@ -79,61 +80,34 @@ if compareShapes: blind,yLog=True,False
 histrange = {}
 
 isEMlist =['E','M']
-#isEMlist =['M']
-if region=='SR': nHtaglist=['0','1b','2b']
-elif 'CR' in region:
-	if region=='HCR': nHtaglist=['1b','2b']
-	elif region=='CR': nHtaglist=['0','1p']
-	elif region=='CRall': nHtaglist=['0','1b','2b']
-	else: nHtaglist=['0']
-else: nHtaglist = ['0p']
-
-if region=='TTCR' or region=='HCR' or region=='CR': nWtaglist = ['0p']
-else: nWtaglist=['0','0p','1p']
-
-if region=='WJCR': nbtaglist = ['0']
-elif region=='HCR' or region=='CR': nbtaglist = ['0','1p']
-else: nbtaglist=['0','1','1p','2','3p']
-if not isCategorized: 	
-	nHtaglist = ['0p']
-	nWtaglist = ['0p']
-	nbtaglist = ['0p']
-	if region=='WJCR': nbtaglist = ['0']
-	if region=='TTCR': nbtaglist = ['1p']
-	if region=='HCR': 
-		nHtaglist = ['1b','2b']
-		nbtaglist = ['1p']
-njetslist = ['3p']
-if region=='PS': njetslist = ['3p']
-if iPlot=='YLD':
-	doNormByBinWidth = False
-	nHtaglist = ['0p']
-	nWtaglist = ['0p']
-	nbtaglist = ['0p']
-	njetslist = ['0p']
-
+algolist = ['BEST','DeepAK8','DeepAK8_decorr']
+if not isCategorized: taglist = ['isVnotV']
+elif region=='SR': taglist=['taggedbWbW','taggedtHbW','taggedtHtH','taggedtZbW','taggedtZtH','taggedtZtZ','notV']
+elif region=='CRinc': taglist=['isVnotV']
+elif region=='CR': taglist=['taggedbWbW','taggedtHbW','taggedtHtH','taggedtZbW','taggedtZtH','taggedtZtZ','notV']
+else: taglist = ['isVnotV']
 tagList = []
 if isCategorized and iPlot != 'YLD':
 	for item in list(itertools.product(nHtaglist,nWtaglist,nbtaglist,njetslist)):
-		if 'b' in item[0]:
-			if item[1] != '0p': continue
-			if region == 'CRall':
-				if item[2] != '0' and item[2] != '1p': continue
-			else:
-				if item[2] != '1p' and region != 'WJCR' and region != 'HCR' and region != 'CR': continue
-		elif 'b' not in item[0]:
-			if region == 'CRall':
-				if item[1] == '0' and item[2] != '0': continue
-				elif item[1] == '1p' and item[2] != '0': continue
-				elif item[1] == '0p' and (item[2] == '0' or item[2] == '1p'): continue
-			else:
-				if item[1] == '0p' and region != 'TTCR' and region != 'HCR' and region != 'CR': continue
-				if item[2] == '1p' and region != 'CR': continue
-		tag = [item[0],item[1],item[2],item[3]]
+		# if 'b' in item[0]:
+		# 	if item[1] != '0p': continue
+		# 	if region == 'CRall':
+		# 		if item[2] != '0' and item[2] != '1p': continue
+		# 	else:
+		# 		if item[2] != '1p' and region != 'WJCR' and region != 'HCR' and region != 'CR': continue
+		# elif 'b' not in item[0]:
+		# 	if region == 'CRall':
+		# 		if item[1] == '0' and item[2] != '0': continue
+		# 		elif item[1] == '1p' and item[2] != '0': continue
+		# 		elif item[1] == '0p' and (item[2] == '0' or item[2] == '1p'): continue
+		# 	else:
+		# 		if item[1] == '0p' and region != 'TTCR' and region != 'HCR' and region != 'CR': continue
+		# 		if item[2] == '1p' and region != 'CR': continue
+		tag = [item[0],item[1]]
 		tagList.append(tag)
-else: tagList = list(itertools.product(nHtaglist,nWtaglist,nbtaglist,njetslist))
+else: tagList = list(itertools.product(taglist,algolist))
 
-lumiSys = math.sqrt(0.025**2 + 0.05**2) # lumi uncertainty plus higgs prop
+lumiSys = .024  # lumi uncertainty plus higgs prop
 trigSys = 0.01 # trigger uncertainty, now really reco uncertainty
 lepIdSys = 0.03 # lepton id uncertainty
 lepIsoSys = 0.01 # lepton isolation uncertainty
