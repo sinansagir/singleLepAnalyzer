@@ -155,7 +155,6 @@ def formatLowerHist(histogram):
 	histogram.GetXaxis().SetTitleSize(0.18)
 	histogram.GetXaxis().SetTitleOffset(0.95)
 	histogram.GetXaxis().SetNdivisions(506)
-	#histogram.GetXaxis().SetTitle("S_{T} (GeV)")
 	if 'YLD' in iPlot: histogram.GetXaxis().LabelsOption("u")
 	if iPlot=='ST': histogram.GetXaxis().SetRangeUser(600,5000)
 	if iPlot=='dnnLargest': histogram.GetXaxis().SetRangeUser(0,6)

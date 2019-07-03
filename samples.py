@@ -281,21 +281,6 @@ samples = {
 'QCDht1500':'QCD_HT1500to2000_TuneCP5_13TeV-madgraph-pythia8',
 'QCDht2000':'QCD_HT2000toInf_TuneCP5_13TeV-madgraph-pythia8',
 }
-samples['WJetsMG100JSF']  = samples['WJetsMG100']
-samples['WJetsMG200JSF']  = samples['WJetsMG200']
-samples['WJetsMG400JSF']  = samples['WJetsMG400']
-samples['WJetsMG600JSF']  = samples['WJetsMG600']
-samples['WJetsMG800JSF']  = samples['WJetsMG800']
-samples['WJetsMG1200JSF'] = samples['WJetsMG1200']
-samples['WJetsMG2500JSF'] = samples['WJetsMG2500']
-samples['QCDht100JSF']  = samples['QCDht100']
-samples['QCDht200JSF']  = samples['QCDht200']
-samples['QCDht300JSF']  = samples['QCDht300']
-samples['QCDht500JSF']  = samples['QCDht500']
-samples['QCDht700JSF']  = samples['QCDht700']
-samples['QCDht1000JSF'] = samples['QCDht1000']
-samples['QCDht1500JSF'] = samples['QCDht1500']
-samples['QCDht2000JSF'] = samples['QCDht2000']
 
 
 

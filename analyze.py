@@ -233,7 +233,7 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	print "Weights:",weightStr
 	print 'Cuts: '+fullcut
 
-	# Declare histograms
+	# Declare histograms --- COMMENTS FOR UNCERTAINTIES NOT BEING RUN YET
 	hists = {}
 	hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:

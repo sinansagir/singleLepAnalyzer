@@ -13,6 +13,7 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
+<<<<<<< HEAD
 region='PS' #PS,SR,TTCR,WJCR
 isCategorized=False
 pfix='templates'+region
@@ -27,11 +28,28 @@ doAllSys = False
 addCRsys = False
 systematicList = ['muRFcorrd','pileup','prefire','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis']#,'toppt']
 if isCategorized: systematicList = ['muRFcorrd','pileup','prefire','jec','btag','jsf','muR','muF','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis']#,'pdf','toppt',]
+=======
+region='SRalgos' #PS,PSalgos,SR,SRalgos,CR,NoDR
+isCategorized=False
+pfix='templates'+region
+if not isCategorized: pfix='kinematics'+region
+pfix+='_Oct11'
+outDir = os.getcwd()+'/'+pfix+'/'
+
+scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
+scaleLumi = False
+lumiScaleCoeff = 35867./36814.
+doAllSys = True
+addCRsys = False
+#systematicList = ['pileup','jec','jer','tau21','jmr','jms','muR','muF','muRFcorrd','jsf','toppt','trigeff','btag','mistag','taupt']#,,'topsf'
+systematicList = ['pileup','jsf','muRFcorrd','toppt']
+>>>>>>> upstream/tptp_94X
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgGrupList = ['top','ewk','qcd']
 bkgProcList = ['TTJets','WJets','ZJets','qcd','TTV','T']
 bkgProcs = {}
+<<<<<<< HEAD
 bkgProcs['WJets']  = ['WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500'] #'WJetsMG200',
 bkgProcs['ZJets']  = ['DYMG']#200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
@@ -47,11 +65,30 @@ dataList = [
 	'DataMRRBCDEF'
 	#'Data18EG',
 	#'Data18MU',
+=======
+bkgProcs['WJets']  = ['WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500'] 
+bkgProcs['ZJets']  = ['DY']
+#bkgProcs['VV']     = ['WW','WZ','ZZ'] ## ADDME
+bkgProcs['TTV']    = ['TTWl','TTZl']#,'TTWq','TTZq'] ## ADDME
+bkgProcs['TTJets'] = ['TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000','TTJetsHad0','TTJetsHad700','TTJetsHad1000',
+		      'TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000','TTJetsPH700mtt','TTJetsPH1000mtt']
+bkgProcs['T']      = ['Tt','Tbt','Ts','TtW','TbtW']
+bkgProcs['qcd'] = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']+bkgProcs['TTV']
+bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']#+bkgProcs['VV'] 
+dataList = [
+	'DataERRBCDEF',
+	'DataMRRBCDEF'
+>>>>>>> upstream/tptp_94X
 	]
 
 topptProcs = ['top','TTJets']
 
+<<<<<<< HEAD
 whichSignal = 'TT' #HTB, TT, BB, or X53X53
+=======
+whichSignal = 'TT' #TT, BB, or X53X53
+>>>>>>> upstream/tptp_94X
 massList = range(1100,1800+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
@@ -73,6 +110,7 @@ if not doBRScan: nBRconf=1
 
 isEMlist =['E','M']
 algolist = ['all']
+<<<<<<< HEAD
 if isCategorized or 'algos' in region or 'SR' in region: algolist = ['DeepAK8']#,'BEST'],'DeepAK8DC']
 taglist = ['all']
 if isCategorized: 
@@ -120,6 +158,17 @@ catList = ['is'+item[0]+'_'+item[1]+'_'+item[2] for item in list(itertools.produ
 lumiSys = 0.023 #lumi uncertainty
 eltrigSys = 0.03 #electron trigger uncertainty
 mutrigSys = 0.03 #muon trigger uncertainty
+=======
+if isCategorized or 'algos' in region: algolist = ['BEST','DeepAK8','DeepAK8DC']
+taglist = ['all']
+if isCategorized: taglist=['taggedbWbW','taggedtHbW','taggedtHtH','taggedtZbW','taggedtZtH','taggedtZtZ','taggedtZHtZH','notV']
+	
+catList = ['is'+item[0]+'_'+item[1]+'_'+item[2] for item in list(itertools.product(isEMlist,taglist,algolist))]
+
+lumiSys = 0.024 #lumi uncertainty
+eltrigSys = 0.01 #electron trigger uncertainty
+mutrigSys = 0.01 #muon trigger uncertainty
+>>>>>>> upstream/tptp_94X
 elIdSys = 0.02 #electron id uncertainty
 muIdSys = 0.02 #muon id uncertainty
 elIsoSys = 0.01 #electron isolation uncertainty
@@ -162,7 +211,11 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			#Group data processes
 			hists['data'+i] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
 			for dat in dataList:
+<<<<<<< HEAD
 			      	#print 'dataList member',dat,'with integral',datahists[histoPrefix+'_'+dat].Integral()
+=======
+			      	print 'dataList member',dat,'with integral',datahists[histoPrefix+'_'+dat].Integral()
+>>>>>>> upstream/tptp_94X
 				if dat!=dataList[0]: hists['data'+i].Add(datahists[histoPrefix+'_'+dat])
 			
 			#Group processes
@@ -251,12 +304,17 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							hists[signal+i+syst+'Up'].Scale(1./xsec[signal])
 							hists[signal+i+syst+'Down'].Scale(1./xsec[signal])
 							if normalizeRENORM_PDF and (syst.startswith('mu') or syst=='pdf'):
+<<<<<<< HEAD
 								try:
 									hists[signal+i+syst+'Up'].Scale(hists[signal+i].Integral()/hists[signal+i+syst+'Up'].Integral())
 									hists[signal+i+syst+'Down'].Scale(hists[signal+i].Integral()/hists[signal+i+syst+'Down'].Integral())
 								except:
 									print "Couldn't normalize MU for",signal,i
 									pass
+=======
+								hists[signal+i+syst+'Up'].Scale(hists[signal+i].Integral()/hists[signal+i+syst+'Up'].Integral())
+								hists[signal+i+syst+'Down'].Scale(hsihistsg[signal+i].Integral()/hists[signal+i+syst+'Down'].Integral())
+>>>>>>> upstream/tptp_94X
 						if 'pdf' in systematicList:
 							for pdfInd in range(100): 
 								hists[signal+i+'pdf'+str(pdfInd)].Scale(1./xsec[signal])
@@ -280,6 +338,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 								hists[proc+i+syst+'Down'].Write()
 							if 'pdf' in systematicList:
 								for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
+<<<<<<< HEAD
 				for proc in [signal]:
 					hists[proc+i].Write()
 					if doAllSys:
@@ -290,6 +349,8 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 							hists[proc+i+syst+'Down'].Write()
 						if 'pdf' in systematicList:
 							for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
+=======
+>>>>>>> upstream/tptp_94X
 				hists['data'+i].Write()
 			thetaRfile.Close()
 
@@ -338,6 +399,10 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			hists['data'+i].Write()
 		combineRfile.Close()
 		'''
+<<<<<<< HEAD
+=======
+		######### THIS CRASHED SO WE COMMENTED IT OUT FOR NOW ###########
+>>>>>>> upstream/tptp_94X
 		# print "       WRITING SUMMARY TEMPLATES: "
 		# for signal in sigList:
 		# 	print "              ... "+signal
@@ -431,8 +496,12 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 		for isEM in isEMlist:
 			if isEM=='E': corrdSys = elcorrdSys
 			if isEM=='M': corrdSys = mucorrdSys
+<<<<<<< HEAD
 			if isEM=='L': corrdSys = math.sqrt(elcorrdSys*elcorrdSys + mucorrdSys*mucorrdSys)
 		#	g in nHtaglist:
+=======
+
+>>>>>>> upstream/tptp_94X
 			table.append(['break'])
 			table.append(['','is'+isEM+'_yields'])
 			table.append(['break'])
@@ -475,7 +544,10 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 				table.append(row)
 		
 		#yields for PAS tables (yields in e/m channels combined)
+<<<<<<< HEAD
 		#for nHtag in nHtaglist:
+=======
+>>>>>>> upstream/tptp_94X
 		table.append(['break'])
 		table.append(['','isL'+'_yields'])
 		table.append(['break'])
@@ -568,6 +640,7 @@ print 'Plot list:',iPlotList
 
 checkprint = False
 for iPlot in iPlotList:
+<<<<<<< HEAD
 	#if 'CR' in region:
 		#if iPlot == 'probSumDecay': continue
 		#if iPlot == 'probSumFour': continue
@@ -577,6 +650,12 @@ for iPlot in iPlotList:
 	bkghists  = {}
 	sighists  = {}
 	#if iPlot!='HT': continue
+=======
+	datahists = {} 
+	bkghists  = {}
+	sighists  = {}
+
+>>>>>>> upstream/tptp_94X
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]
@@ -592,10 +671,18 @@ for iPlot in iPlotList:
 	for key in sighists:
 		if 'MET_' in key and 'TTM800' in key: print key
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
+<<<<<<< HEAD
 	#try:
 	makeThetaCats(datahists,sighists,bkghists,iPlot)
 	#except:
 	#	print 'makeThetaCats failed for iPlot:',iPlot
 	#	pass
+=======
+	try:
+		makeThetaCats(datahists,sighists,bkghists,iPlot)
+	except:
+		print 'makeThetaCats failed for iPlot:',iPlot
+		pass
+>>>>>>> upstream/tptp_94X
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))

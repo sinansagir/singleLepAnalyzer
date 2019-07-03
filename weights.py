@@ -42,6 +42,41 @@ BR['BBBHBH'] = BR['BH']*BR['BH']
 
 # Number of processed MC events (before selections)
 nRun={}
+# new counts for 2017
+nRun['TTJetsHad0'] = 130725364*0.8832
+nRun['TTJetsHad700'] = 130725364*0.0921 + 39258853*0.442
+nRun['TTJetsHad1000'] = 130725364*0.02474 + 14970062*0.442
+nRun['TTJetsSemiLep0'] = 111325048*0.8832
+nRun['TTJetsSemiLep700'] = 111325048*0.0921 + 39258853*0.405
+nRun['TTJetsSemiLep1000'] = 111325048*0.02474 + 14970062*0.405
+nRun['TTJets2L2nu0'] = 66979742*0.8832
+nRun['TTJets2L2nu700'] = 66979742*0.0921 + 39258853*0.079
+nRun['TTJets2L2nu1000'] = 66979742*0.02474 + 14970062*0.079
+nRun['TTJetsPH700mtt'] = 39258853 + 130725364*0.0921 + 111325048*0.0921 + 66979742*0.0921
+nRun['TTJetsPH1000mtt'] = 14970062 + 130725364*0.02474 + 111325048*0.02474 + 66979742*0.02474
+nRun['Ts'] = 6179792. #from 9906720
+nRun['Tt'] = 17743720.
+nRun['Tbt']= 7690150.
+nRun['TtW'] = 7660001.
+nRun['TbtW'] = 7993682.
+nRun['WJetsMG400'] = 14313274.#
+nRun['WJetsMG600'] = 21709087.#
+nRun['WJetsMG800'] = 20432728.#
+nRun['WJetsMG1200']= 20258624.#
+nRun['WJetsMG2500']= 21495421.#
+nRun['DY'] = 123584520. # from 182359896, this is the ext1 sample
+nRun['QCDht300'] = 60316577.#
+nRun['QCDht500'] = 54624037.#
+nRun['QCDht700'] = 47724800.#
+nRun['QCDht1000'] = 16595628.#
+nRun['QCDht1500'] = 11634434.#
+nRun['QCDht2000'] = 5941306.#
+nRun['TTWl'] = 2692366. #from 4919674
+nRun['TTZl'] = 131210. #from 250000
+
+# not updated for 2017
+#Do NGen*[1-2X], where X is the neg event fraction calculated from the jobs completed! 
+#A = P - N = F - 2*N   A/F = 1 - 2*(N/F)  N/F = (1 - A/F)/2
 nRun['TTJets'] = 14188545. #need negative counts
 nRun['TTJetsPH'] = 111068128.#
 nRun['TTJetsHad0'] = 129211104*0.8832 # from integral 130262340.0, file TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
@@ -101,20 +136,6 @@ nRun['TTWl'] = 2692366. #from 4919674
 nRun['TTWq'] = 430310. #from 833298
 nRun['TTZl'] = 131210. #from 250000
 nRun['TTZq'] = 351164. #from 749400
-nRun['Hptb180'] = 404688. #Ngen=1499270
-nRun['Hptb200'] = 400501. #Ngen=1473805
-nRun['Hptb220'] = 402569. #Ngen=1499361 
-nRun['Hptb250'] = 395891. #Ngen=1491475
-nRun['Hptb300'] = 390646. #Ngen=1497522
-nRun['Hptb350'] = 390221. #Ngen=1496373
-nRun['Hptb400'] = 387746. #Ngen=1496088
-nRun['Hptb450'] = 379926. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!! Sample not available yet
-nRun['Hptb500'] = 400004. #Ngen=1500000
-nRun['Hptb750'] = 377320. #Ngen=1488753 CHECK NEG COUNT in MORIOND17!!!!! Sample not available yet
-nRun['Hptb800'] = 376326. #Ngen=1494646
-nRun['Hptb1000'] = 376708. #Ngen=1491600
-nRun['Hptb2000'] = 373174. #Ngen=1500000
-nRun['Hptb3000'] = 377717. #Ngen=1497017
 
 nRun['TTM1000BWBW'] = 842000.0*0.333*0.333
 nRun['TTM1100BWBW'] = 745000.0*0.333*0.333#
@@ -265,17 +286,7 @@ nRun['X53X53M1500right'] = 300000.
 nRun['X53X53M1600left']  = 300000.
 nRun['X53X53M1600right'] = 300000.
 
-#energy scale samples (Q^2)
-nRun['TTJetsPHQ2U'] = 9933327.
-nRun['TTJetsPHQ2D'] = 9942427.
-nRun['TtWQ2U'] = 497600. #not used
-nRun['TtWQ2D'] = 499200. #not used
-nRun['TbtWQ2U'] = 500000. #not used
-nRun['TbtWQ2D'] = 497600. #not used
-
-
-
-# Cross sections for MC samples (in pb)
+# Cross sections for MC samples (in pb) -- most unchanged for 2017
 xsec={}
 xsec['DY'] = 6025.2 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 xsec['DYMG'] = 6025.2 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
@@ -304,6 +315,7 @@ xsec['TTJets2L2nu700'] = 831.76*0.0921*0.105
 xsec['TTJets2L2nu1000'] = 831.76*0.02474*0.105
 xsec['TTJetsPH700mtt'] = 831.76*0.0921 #(xsec*filtering coeff.)
 xsec['TTJetsPH1000mtt'] = 831.76*0.02474 #(xsec*filtering coeff.)
+
 xsec['WJetsMG100'] = 1345.*1.21 # (1.21 = k-factor )# https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 xsec['WJetsMG200'] = 359.7*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 xsec['WJetsMG400'] = 48.91*1.21 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
@@ -331,38 +343,6 @@ xsec['Ts'] = 7.20/3 #(1/3 was suggested by Thomas Peiffer to account for the lep
 xsec['Tbs'] = 4.16/3 #(1/3 was suggested by Thomas Peiffer to account for the leptonic branching ratio)# https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['TtW'] = 35.83 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['TbtW'] = 35.83 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
-
-#Scaling all HTB signal x-secs to 1pb as agreed with POM, 
-#so we have the signal yields scaled to 1pb
-xsec['Hptb180'] = 1.#((0.824531)**2/0.683584)*0.75 #interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb200'] = 1.#0.824531*0.75 #was 0.783951 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb220'] = 1.#0.683584*0.75 #was 0.648629 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb250'] = 1.#0.524247*0.75 #was 0.4982015 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb300'] = 1.#0.343796*0.75 #was 0.324766 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb350'] = 1.#0.2312180*0.75 #was 0.2184385 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb400'] = 1.#0.158142*0.75 #was 0.148574 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb450'] = 1.#0.1106674*0.75 #was 0.104141 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb500'] = 1.#0.0785572*0.75 #was 0.0735225 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb750'] = 1.#0.0172205*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb800'] = 1.#0.0130645*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb1000'] = 1.#0.00474564*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb2000'] = 1.#(8.70916e-05)*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['Hptb3000'] = 1.#((8.70916e-05)**2/0.00474564)*0.75 #interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-
-xsec['HTBM180'] = 1.#((0.824531)**2/0.683584)*0.75 #interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM200'] = 1.#0.824531*0.75 #was 0.783951 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM220'] = 1.#0.683584*0.75 #was 0.648629 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM250'] = 1.#0.524247*0.75 #was 0.4982015 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM300'] = 1.#0.343796*0.75 #was 0.324766 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM350'] = 1.#0.2312180*0.75 #was 0.2184385 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM400'] = 1.#0.158142*0.75 #was 0.148574 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM450'] = 1.#0.1106674*0.75 #was 0.104141 interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM500'] = 1.#0.0785572*0.75 #was 0.0735225 http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM750'] = 1.#0.0172205*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM800'] = 1.#0.0130645*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM1000'] = 1.#0.00474564*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM2000'] = 1.#(8.70916e-05)*0.75 #http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
-xsec['HTBM3000'] = 1.#((8.70916e-05)**2/0.00474564)*0.75 #interpolation using the fact that xsec proportuonal to exp(-m) http://www.hephy.at/user/mflechl/hp_xsec/xsec_13TeV_tHp_2016_2_5.txt
 
 xsec['TTM700']   = 0.455 # from https://twiki.cern.ch/twiki/bin/view/CMS/B2GMonteCarlo
 xsec['TTM800']  = 0.196 # from https://twiki.cern.ch/twiki/bin/view/CMS/B2GMonteCarlo
@@ -419,14 +399,6 @@ xsec['QCDht700'] = 6831. # from https://twiki.cern.ch/twiki/bin/viewauth/CMS/Sum
 xsec['QCDht1000'] = 1207. # from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#QCD
 xsec['QCDht1500'] = 119.9 # from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#QCD 
 xsec['QCDht2000'] = 25.24 # from https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#QCD
-
-#energy scale samples (Q^2)
-xsec['TTJetsPHQ2U'] = xsec['TTJetsPH']
-xsec['TTJetsPHQ2D'] = xsec['TTJetsPH']
-xsec['TtWQ2U'] = xsec['TtW']
-xsec['TtWQ2D'] = xsec['TtW']
-xsec['TbtWQ2U'] = xsec['TbtW']
-xsec['TbtWQ2D'] = xsec['TbtW']
 
 # Calculate lumi normalization weights
 weight = {}
