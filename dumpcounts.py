@@ -168,35 +168,16 @@ from ROOT import TFile, TH1
 
 for file in filelist:
     print('-------------------------------------------------------')
-    rfile = TFile.Open('root://cmseos.fnal.gov//store/user/lpcljm/2018/LJMet94X_1lepTTdnn_032519_step1hadds/nominal/'+file)
-    hist = rfile.Get("nevents")
-    adjusted = hist.GetBinContent(4) - hist.GetBinContent(2)
-    integral = hist.Integral()
+    rfile = TFile.Open('root://cmseos.fnal.gov//store/user/escharni/FWLJMET102X_1lep2017Dnn_070219_step1hadds/'+file)
+    hist = rfile.Get("weightHist")
+    adjusted = hist.GetBinContent(1)
+    integral = hist.GetBinContent(5) + hist.GetBinContent(7)
+    newpdf = hist.GetbinContent(2)
 
     if 'prime' not in file:
         print(str(adjusted)+'. # from integral '+str(integral)+', file '+file)
     else:
-        print(str(integral)+'. # not adjusting! file '+file)
-
-    # rfile = TFile.Open('root://cmseos.fnal.gov//store/user/lpcljm/2018/LJMet94X_1lepTTdnn_032519_step1hadds/JECup/'+file)
-    # hist = rfile.Get("nevents")
-    # adjusted = hist.GetBinContent(4) - hist.GetBinContent(2)
-    # integral = hist.Integral()
-
-    # if 'prime' not in file:
-    #     print(str(adjusted)+'. # from integral '+str(integral)+', JECup')
-    # else:
-    #     print(str(integral)+'. # not adjusting! JECup')
-
-    # rfile = TFile.Open('root://cmseos.fnal.gov//store/user/lpcljm/2018/LJMet94X_1lepTTdnn_032519_step1hadds/JECdown/'+file)
-    # hist = rfile.Get("nevents")
-    # adjusted = hist.GetBinContent(4) - hist.GetBinContent(2)
-    # integral = hist.Integral()
-
-    # if 'prime' not in file:
-    #     print(str(adjusted)+'. # from integral '+str(integral)+', JECdown')
-    # else:
-    #     print(str(integral)+'. # not adjusting! JECdown')
+        print(str(newpdf)+'. # not adjusting! # from integral '+str(integral)+', file '+file)
 
 
 
