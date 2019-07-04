@@ -18,9 +18,9 @@ step1Dir = 'root://cmseos.fnal.gov//store/user/jmanagan/LJMet94X_1lepTTdnn_04221
 
 iPlot = 'HT' #minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
-region = 'TTCR'
+region = 'PS'
 if len(sys.argv)>3: region=sys.argv[3]
-isCategorized = True
+isCategorized = False
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 doJetRwt= 1
 doTopRwt= 0
@@ -87,16 +87,20 @@ else:
 	algolist = ['all']
 	if isCategorized or 'algos' in region: algolist = ['DeepAK8']
 
-def readTree(file):
-#	if not EOSpathExists(file[23:]): 
-#		print "Error: File does not exist! Aborting ...",file[23:]
-#		os._exit(1)
+def readTree(file,shift):
+	if not EOSpathExists(file[23:]): 
+		print "Error: File does not exist! Aborting ...",file[23:]
+		os._exit(1)
 	tFile = TFile.Open(file,'READ')
-	tTree = tFile.Get('ljmet')
+	tTree = tFile.Get('ljmet_'+shift)
 	return tFile, tTree 
 
+def readTreeOnly(file,shift):
+	tTree = tFile.Get('ljmet_'+shift)
+	return tTree
+
 print "READING TREES"
-shapesFiles = ['jec','btag']
+shapesFiles = ['jec','jer','btag','ltag']
 tTreeData = {}
 tFileData = {}
 for data in dataList:
@@ -114,7 +118,7 @@ for sig in sigList:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
 					print "        "+syst+ud
-					tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
+					tTreeSig[sig+decay+syst+ud]=readTreeOnly(tFileSig[sig+decay],syst.upper()+ud.lower())
 
 tTreeBkg = {}
 tFileBkg = {}
@@ -127,7 +131,7 @@ for bkg in bkgList:
 		for syst in shapesFiles:
 			for ud in ['Up','Down']:
       			       	print "        "+syst+ud
-		       		tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
+		       		tTreeBkg[bkg+syst+ud]=readTreeOnly(tFileBkg[bkg],syst.upper()+ud.lower())
 print "FINISHED READING"
 
 #bigbins = [0,50,100,150,200,250,300,350,400,450,500,600,700,800,1000,1200,1500]
@@ -276,16 +280,10 @@ for cat in catList:
 		#print bkg,bkghists
  		bkghists.update(analyze(tTreeBkg,bkg,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized,whichSignal))
  		if catInd==nCats: del tFileBkg[bkg]
- 		if doAllSys and catInd==nCats:
- 			for syst in shapesFiles:
- 				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
  	for sig in sigList: 
  	 	for decay in decays: 
  	 		sighists.update(analyze(tTreeSig,sig+decay,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized,whichSignal))
  	 		if catInd==nCats: del tFileSig[sig+decay]
- 	 		if doAllSys and catInd==nCats:
- 	 			for syst in shapesFiles:
- 	 				for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
 
  	#Negative Bin Correction
 	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
