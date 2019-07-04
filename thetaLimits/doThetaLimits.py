@@ -90,7 +90,7 @@ for limitConf in limitConfs:
         if '_'+limitConf+'_' not in file: continue
         fileName = file.split('/')[-1]
         signal = fileName.split('_')[2]
-        BRStr = fileName[fileName.find(signal)+len(signal):fileName.find('_41p298fb')]
+        BRStr = fileName[fileName.find(signal)+len(signal):fileName.find('_41p530fb')]
 
         ## Make the output directory, go there, and make the config
         ## Will pick up executable from main dir

@@ -199,10 +199,6 @@ Output = condor_%(iPlot)s.out
 Error = condor_%(iPlot)s.err
 Log = condor_%(iPlot)s.log
 Notification = Never
-<<<<<<< HEAD
-=======
-Notification = Error
->>>>>>> upstream/tptp_94X
 Arguments = %(dir)s %(iPlot)s %(region)s %(isCategorized)s %(isEM)s %(tag)s %(algo)s
 
 Queue 1"""%dict)
