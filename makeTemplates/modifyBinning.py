@@ -35,7 +35,7 @@ folder = 'templatesSR_Mar30NoPDF'
 if len(sys.argv)>2: folder=str(sys.argv[2])
 cutString = ''
 templateDir = os.getcwd()+'/'+folder+'/'+cutString
-combinefile = 'yields_'+iPlot+'_41p298fb.root'
+combinefile = 'yields_'+iPlot+'_41p530fb.root'
 
 rebin4chi2 = False #include data in requirements
 rebinCombine = False #else rebins theta templates
