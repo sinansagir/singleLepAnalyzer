@@ -24,7 +24,7 @@ isCategorized = False
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 doJetRwt= 1
 doTopRwt= 0
-doAllSys= False
+doAllSys= True
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
@@ -47,7 +47,7 @@ bkgList = [
 	'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
 	'WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
 	'TTJetsHad0','TTJetsHad700','TTJetsHad1000','TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000','TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
-	'TTJetsMtt700','TTJetsMtt1000','Ts','Tbs','Tt','Tbt','TtW','TbtW','TTWl','TTZl','TTHB','TTHnoB',
+	'TTJetsPH700mtt','TTJetsPH1000mtt','Ts','Tbs','Tt','Tbt','TtW','TbtW','TTWl','TTZl','TTHB','TTHnoB',
 	'WW','WZ','ZZ',
 	'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000'
 	]
@@ -81,16 +81,16 @@ else:
 	algolist = ['all']
 	if isCategorized or 'algos' in region: algolist = ['DeepAK8']
 
-def readTree(file,shift):
+def readTree(file):
 	if not EOSpathExists(file[23:]): 
 		print "Error: File does not exist! Aborting ...",file[23:]
 		os._exit(1)
 	tFile = TFile.Open(file,'READ')
-	tTree = tFile.Get('ljmet_'+shift)
+	tTree = tFile.Get('ljmet')
 	return tFile, tTree 
 
 def readTreeOnly(file,shift):
-	tTree = tFile.Get('ljmet_'+shift)
+	tTree = file.Get('ljmet_'+shift)
 	return tTree
 
 print "READING TREES"

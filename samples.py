@@ -165,6 +165,8 @@ samples = {
 'TTJets2L2nu0':'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700',
 'TTJets2L2nu700':'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt700to1000',
 'TTJets2L2nu1000':'TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt1000toInf',
+'TTJetsPH700mtt':'TT_Mtt-700to1000_TuneCP5_PSweights_13TeV-powheg-pythia8',
+'TTJetsPH1000mtt':'TT_Mtt-1000toInf_TuneCP5_PSweights_13TeV-powheg-pythia8',
 'TTZl':'TTZToLLNuNu_M-10_TuneCP5_PSweights_13TeV-amcatnlo-pythia8',
 'TTWl':'TTWJetsToLNu_TuneCP5_PSweights_13TeV-amcatnloFXFX-madspin-pythia8',
 'TTHB':'ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8',

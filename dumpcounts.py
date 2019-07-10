@@ -1,8 +1,8 @@
 import os,sys
 
 filelist = [ 
-    'SingleElectron_hadd.root',
-    'SingleMuon_hadd.root',
+#    'SingleElectron_hadd.root',
+#    'SingleMuon_hadd.root',
     'DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8_hadd.root',
     'DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8_hadd.root',
     'DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8_hadd.root',
@@ -33,6 +33,8 @@ filelist = [
     'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root',
     'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt1000toInf_hadd.root',
     'TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt700to1000_hadd.root',
+    'TT_Mtt-700to1000_TuneCP5_PSweights_13TeV-powheg-pythia8_hadd.root',
+    'TT_Mtt-1000toInf_TuneCP5_PSweights_13TeV-powheg-pythia8_hadd.root',
     'TTZToLLNuNu_M-10_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_hadd.root',
     'TTWJetsToLNu_TuneCP5_PSweights_13TeV-amcatnloFXFX-madspin-pythia8_hadd.root',
     'ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8_hadd.root',
@@ -96,6 +98,12 @@ filelist = [
     'BprimeBprime_M-1600_TuneCP5_13TeV-madgraph-pythia8_BZBZ_hadd.root',
     'BprimeBprime_M-1600_TuneCP5_13TeV-madgraph-pythia8_BZTW_hadd.root',
     'BprimeBprime_M-1600_TuneCP5_13TeV-madgraph-pythia8_TWTW_hadd.root',
+    'BprimeBprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_BHBH_hadd.root',
+    'BprimeBprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_BHTW_hadd.root',
+    'BprimeBprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_BZBH_hadd.root',
+    'BprimeBprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_BZBZ_hadd.root',
+    'BprimeBprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_BZTW_hadd.root',
+    'BprimeBprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_TWTW_hadd.root',
     'BprimeBprime_M-1800_TuneCP5_13TeV-madgraph-pythia8_BHBH_hadd.root',
     'BprimeBprime_M-1800_TuneCP5_13TeV-madgraph-pythia8_BHTW_hadd.root',
     'BprimeBprime_M-1800_TuneCP5_13TeV-madgraph-pythia8_BZBH_hadd.root',
@@ -172,7 +180,7 @@ for file in filelist:
     hist = rfile.Get("weightHist")
     adjusted = hist.GetBinContent(1)
     integral = hist.GetBinContent(5) + hist.GetBinContent(7)
-    newpdf = hist.GetbinContent(2)
+    newpdf = hist.GetBinContent(2)
 
     if 'prime' not in file:
         print(str(adjusted)+'. # from integral '+str(integral)+', file '+file)
