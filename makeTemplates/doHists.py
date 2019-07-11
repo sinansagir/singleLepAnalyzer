@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = 'root://cmseos.fnal.gov//store/user/jmanagan/LJMet94X_1lepTTdnn_042219_step2hadds/nominal'
+step1Dir = 'root://cmseos.fnal.gov//store/user/escharni/FWLJMET102X_1lep2017Dnn_070219_step1hadds'
 
 iPlot = 'HT' #minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
@@ -24,7 +24,7 @@ isCategorized = False
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 doJetRwt= 1
 doTopRwt= 0
-doAllSys= False
+doAllSys= True
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
@@ -44,16 +44,17 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 bkgList = [
-	'DYMG','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+	'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
+	'WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
 	'TTJetsHad0','TTJetsHad700','TTJetsHad1000','TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000','TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
-	'TTJetsPH700mtt','TTJetsPH1000mtt','Ts','Tbs','Tt','Tbt','TtW','TbtW','TTW','TTZ','TTH',
+	'TTJetsPH700mtt','TTJetsPH1000mtt','Ts','Tbs','Tt','Tbt','TtW','TbtW','TTWl','TTZl','TTHB','TTHnoB',
 	'WW','WZ','ZZ',
-	'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000'
+	'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000'
 	]
 
 dataList = [
-	'DataERRBCDEF',
-	'DataMRRBCDEF',
+	'DataEABCDEF',
+	'DataMABCDEF',
 	#'Data18EG',
 	#'Data18MU',
 	]
@@ -63,19 +64,12 @@ massList = range(1000,1800+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
-if whichSignal=='BB': 
-	decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-	sigList.remove('BBM1700')
-if whichSignal=='X53X53': decays = [''] #decays to tWtW 100% of the time
-if whichSignal=='HTB': decays = ['']
+if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 
 cutList = {'lepPtCut':55,'metCut':50,'nAK8Cut':3,'dnnCut':0.50,'HTCut':510} ## also requires mass reco worked
 if 'CR' in region :cutList = {'lepPtCut':55,'metCut':50,'nAK8Cut':3,'dnnCut':0.50,'HTCut':510} 
 if 'PS' in region :cutList = {'lepPtCut':55,'metCut':50,'nAK8Cut':0,'dnnCut':0.0,'HTCut':510} ## most basic
-if 'NoDR' in region: cutList = {'lepPtCut':55,'metCut':50,'nAK8Cut':2,'dnnCut':0.0,'HTCut':510} ## not used anymore
 
-cutString  = ''
-		
 if len(sys.argv)>5: isEMlist=[str(sys.argv[5])]
 else: isEMlist = ['E','M']
 if len(sys.argv)>6: taglist=[str(sys.argv[6])]
@@ -87,16 +81,16 @@ else:
 	algolist = ['all']
 	if isCategorized or 'algos' in region: algolist = ['DeepAK8']
 
-def readTree(file,shift):
+def readTree(file):
 	if not EOSpathExists(file[23:]): 
 		print "Error: File does not exist! Aborting ...",file[23:]
 		os._exit(1)
 	tFile = TFile.Open(file,'READ')
-	tTree = tFile.Get('ljmet_'+shift)
+	tTree = tFile.Get('ljmet')
 	return tFile, tTree 
 
 def readTreeOnly(file,shift):
-	tTree = tFile.Get('ljmet_'+shift)
+	tTree = file.Get('ljmet_'+shift)
 	return tTree
 
 print "READING TREES"
@@ -163,6 +157,18 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
         'Tp2Phi':('Tprime2_DeepAK8_Phi',linspace(-3.14,3.14,51).tolist(),';T quark #phi'),
         'Tp1deltaR':('Tprime1_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(T quark product jets)'),
         'Tp2deltaR':('Tprime2_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(T quark product jets)'),
+	'Bp1Mass':('Bprime1_DeepAK8_Mass',linspace(0,4000,51).tolist(),';M(B) [GeV]'), ## replace with ALGO if needed
+        'Bp2Mass':('Bprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(B) [GeV]'),
+        'Bp2MDnn':('Bprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(B) [GeV]'), #analyze.py makes notV DnnBprime
+        'Bp2MST':('Bprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(B) [GeV]'), #analyze.py makes notV ST
+        'Bp1Pt':('Bprime1_DeepAK8_Pt',linspace(0,3000,51).tolist(),';B quark p_{T} [GeV]'),
+        'Bp2Pt':('Bprime2_DeepAK8_Pt',linspace(0,3000,51).tolist(),';B quark p_{T} [GeV]'),
+        'Bp1Eta':('Bprime1_DeepAK8_Eta',linspace(-5,5,51).tolist(),';B quark #eta'),
+        'Bp2Eta':('Bprime2_DeepAK8_Eta',linspace(-5,5,51).tolist(),';B quark #eta'),
+        'Bp1Phi':('Bprime1_DeepAK8_Phi',linspace(-3.14,3.14).tolist(),';B quark #phi'),
+        'Bp2Phi':('Bprime2_DeepAK8_Phi',linspace(-3.14,3.14,51).tolist(),';B quark #phi'),
+        'Bp1deltaR':('Bprime1_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(B quark product jets)'),
+        'Bp2deltaR':('Bprime2_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(B quark product jets)'),
 	'DnnTprime':('dnn_Tprime',linspace(0,1,nbins).tolist(),';DNN VLQ score'),
 	'DnnTTbar':('dnn_ttbar',linspace(0,1,51).tolist(),';DNN t#bar{t} score'),
 	'DnnWJets':('dnn_WJets',linspace(0,1,51).tolist(),';DNN W+jets score'),

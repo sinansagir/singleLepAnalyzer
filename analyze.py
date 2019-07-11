@@ -49,10 +49,9 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 			plotTreeName = plotTreeName.replace('QCD','J')
 
 	# Define general cuts (These are the only cuts for 'PS')
-	cut  = '(leptonPt_singleLepCalc > '+str(cutList['lepPtCut'])+')'
-	cut += ' && (corr_met_singleLepCalc > '+str(cutList['metCut'])+')'
+	cut  = '(leptonPt_MultiLepCalc > '+str(cutList['lepPtCut'])+')'
+	cut += ' && (corr_met_MultiLepCalc > '+str(cutList['metCut'])+')'
 	cut += ' && (AK4HT > '+str(cutList['HTCut'])+')'
-	cut += ' && (nPV_singleLepCalc > 50)'
 	#cut += ' && (minDR_lepJet > 0.4 || ptRel_lepJet > 40)' // done in step1 now by removing jet
 	
 	if 'CR' in region: # 'CR' or 'CRinc'  certain AK8 jets and low signal node
@@ -61,8 +60,6 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 		if 'WJ' in region: cut += ' && (dnn_ttbar <= dnn_WJets)'
 	elif 'SR' in region: # 'SR'  certain AK8 jets, mass reco, high signal node
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnn_Tprime >= '+str(cutList['dnnCut'])+')'
-	elif 'NoDR' in region: # 'noDR'
-		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (minDR_leadAK8otherAK8 < '+str(cutList['drCut'])+')'
 	elif 'PS' in region: # 'PS'  
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+')'
 		if '0b' in region: cut += ' && (NJetsCSVwithSF_JetSubCalc == 0)'
@@ -72,7 +69,7 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	# Define weights
 	TrigEffUp = '1'
 	TrigEffDn = '1'
-	TrigEff = '1'
+	TrigEff = 'triggerSF'
 	cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1'
 
 	jetSFstr='1'
@@ -87,9 +84,10 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	weightStr = '1'
 	if 'Data' not in process: 
 		# replaced isoSF, MuTrkSF with 1
-		weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeightUp * lepIdSF * EGammaGsfSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])
-		#if 'TTJets' in process: weightStr = 'topPtWeight13TeV * '+weightStr
-		if whichSig not in process: weightStr += ' * (MCWeight_singleLepCalc/abs(MCWeight_singleLepCalc))' ## approx pos PDF in signal with no weight this iteration
+		if 'TTM' in process or 'BBM' in process:
+			weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * lepIdSF * EGammaGsfSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * pdfNewNominalWeight'
+		else:
+			weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * lepIdSF * EGammaGsfSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc))'
 
 		#weightTrigEffUpStr  = weightStr.replace(TrigEff,TrigEffUp)
 		#weightTrigEffDownStr= weightStr.replace(TrigEff,TrigEffDn)
@@ -283,9 +281,9 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 		if process+'btagUp' in tTree: 
 			hists[iPlot+'btagUp_'   +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'btagUp_'   +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 			hists[iPlot+'btagDown_' +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'btagDown_' +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-		if process+'mistagUp' in tTree:
-			hists[iPlot+'mistagUp_'   +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'mistagUp_'   +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
-			hists[iPlot+'mistagDown_' +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'mistagDown_' +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		if process+'ltagUp' in tTree:
+			hists[iPlot+'ltagUp_'   +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'ltagUp_'   +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+			hists[iPlot+'ltagDown_' +lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'ltagDown_' +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 
 		if isCategorized:
 			hists[iPlot+'muRUp_'        +lumiStr+'fb_'+catStr+'_'+process] = TH1D(iPlot+'muRUp_'        +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
@@ -344,9 +342,9 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 		if process+'btagUp' in tTree:
 			tTree[process+'btagUp'].Draw(plotTreeName   +' >> '+iPlot+'btagUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
 			tTree[process+'btagDown'].Draw(plotTreeName +' >> '+iPlot+'btagDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
-		if process+'mistagUp' in tTree:
-			tTree[process+'mistagUp'].Draw(plotTreeName   +' >> '+iPlot+'mistagUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
-			tTree[process+'mistagDown'].Draw(plotTreeName +' >> '+iPlot+'mistagDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+		if process+'ltagUp' in tTree:
+			tTree[process+'ltagUp'].Draw(plotTreeName   +' >> '+iPlot+'ltagUp_'  +lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+			tTree[process+'ltagDown'].Draw(plotTreeName +' >> '+iPlot+'ltagDown_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
 
 		if isCategorized:
 			tTree[process].Draw(plotTreeName+' >> '+iPlot+'muRUp_'        +lumiStr+'fb_'+catStr+'_'+process, weightmuRUpStr+'*('+fullcut+')', 'GOFF')
