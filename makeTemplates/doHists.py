@@ -55,8 +55,6 @@ bkgList = [
 dataList = [
 	'DataEABCDEF',
 	'DataMABCDEF',
-	#'Data18EG',
-	#'Data18MU',
 	]
 
 whichSignal = 'TT' #HTB, TT, BB, or X53X53
@@ -71,7 +69,7 @@ if 'CR' in region :cutList = {'lepPtCut':55,'metCut':50,'nAK8Cut':3,'dnnCut':0.5
 if 'PS' in region :cutList = {'lepPtCut':55,'metCut':50,'nAK8Cut':0,'dnnCut':0.0,'HTCut':510} ## most basic
 
 if len(sys.argv)>5: isEMlist=[str(sys.argv[5])]
-else: isEMlist = ['E','M']
+else: isEMlist = ['E']
 if len(sys.argv)>6: taglist=[str(sys.argv[6])]
 else: 
 	taglist = ['all']
@@ -80,53 +78,6 @@ if len(sys.argv)>7: algolist=[str(sys.argv[7])]
 else: 
 	algolist = ['all']
 	if isCategorized or 'algos' in region: algolist = ['DeepAK8']
-
-def readTree(file):
-	if not EOSpathExists(file[23:]): 
-		print "Error: File does not exist! Aborting ...",file[23:]
-		os._exit(1)
-	tFile = TFile.Open(file,'READ')
-	tTree = tFile.Get('ljmet')
-	return tFile, tTree 
-
-def readTreeOnly(file,shift):
-	tTree = file.Get('ljmet_'+shift)
-	return tTree
-
-print "READING TREES"
-shapesFiles = ['jec','jer','btag','ltag']
-tTreeData = {}
-tFileData = {}
-for data in dataList:
-	print "READING:", data
-	tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
-
-tTreeSig = {}
-tFileSig = {}
-for sig in sigList:
-	for decay in decays:
-		print "READING:", sig+decay
-		print "        nominal"
-		tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
-		if doAllSys:
-			for syst in shapesFiles:
-				for ud in ['Up','Down']:
-					print "        "+syst+ud
-					tTreeSig[sig+decay+syst+ud]=readTreeOnly(tFileSig[sig+decay],syst.upper()+ud.lower())
-
-tTreeBkg = {}
-tFileBkg = {}
-for bkg in bkgList:
-	print "READING:",bkg
-	print "        nominal"
-	print step1Dir+'/'+samples[bkg]+'_hadd.root'
-	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
-	if doAllSys:
-		for syst in shapesFiles:
-			for ud in ['Up','Down']:
-      			       	print "        "+syst+ud
-		       		tTreeBkg[bkg+syst+ud]=readTreeOnly(tFileBkg[bkg],syst.upper()+ud.lower())
-print "FINISHED READING"
 
 #bigbins = [0,50,100,150,200,250,300,350,400,450,500,600,700,800,1000,1200,1500]
 bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,5000]
@@ -258,12 +209,58 @@ print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
+def readTree(file):
+	if not EOSpathExists(file[23:]): 
+		print "Error: File does not exist! Aborting ...",file[23:]
+		os._exit(1)
+	tFile = TFile.Open(file,'READ')
+	tTree = tFile.Get('ljmet')
+	return tFile, tTree 
+
+def readFileOnly(file):
+	if not EOSpathExists(file[23:]): 
+		print "Error: File does not exist! Aborting ...",file[23:]
+		os._exit(1)
+	tFile = TFile.Open(file,'READ')
+	return tFile
+
+def readTreeNominal(file):	
+	tTree = file.Get('ljmet')
+	return tTree
+
+def readTreeShift(file,shift):	
+	tTree = file.Get('ljmet_'+shift)
+	return tTree
+
+print "READING TREES"
+shapesFiles = ['jec','jer','btag','ltag']
+tTreeData = {}
+tFileData = {}
+for data in dataList:
+	print "READING:", data
+	tFileData[data]=readFileOnly(step1Dir+'/'+samples[data]+'_hadd.root')
+
+tTreeSig = {}
+tFileSig = {}
+for sig in sigList:
+	for decay in decays:
+		print "READING:", sig+decay
+		tFileSig[sig+decay]=readFileOnly(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
+
+tTreeBkg = {}
+tFileBkg = {}
+for bkg in bkgList:
+	print "READING:",bkg
+	tFileBkg[bkg]=readFileOnly(step1Dir+'/'+samples[bkg]+'_hadd.root')
+
+print "FINISHED READING FILES"
+
 catList = list(itertools.product(isEMlist,taglist,algolist))
 print 'Cat list:',catList
 nCats  = len(catList)
 catInd = 1
 for cat in catList:
-	print 'Category:',cat
+	print '==================== Category:',cat,'======================'
  	catDir = cat[0]+'_'+cat[1]+'_'+cat[2]
  	datahists = {}
  	bkghists  = {}
@@ -278,18 +275,50 @@ for cat in catList:
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
  	category = {'isEM':cat[0],'tag':cat[1],'algo':cat[2]}
+
 	print 'Running analyze'
  	for data in dataList: 
+		print '-------------------------'
+		tTreeData[data]=readTreeNominal(tFileData[data])
  		datahists.update(analyze(tTreeData,data,cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized,whichSignal))
- 		if catInd==nCats: del tFileData[data]
+ 		if catInd==nCats: 
+			print 'deleting',data
+			del tFileData[data]
+			del tTreeData[data]
  	for bkg in bkgList: 
-		#print bkg,bkghists
+		print '-------------------------'
+		tTreeBkg[bkg]=readTreeNominal(tFileBkg[bkg])
+		if doAllSys:
+			for syst in shapesFiles:
+				for ud in ['Up','Down']:
+					print "        "+syst+ud
+					tTreeBkg[bkg+syst+ud]=readTreeShift(tFileBkg[bkg],syst.upper()+ud.lower())
  		bkghists.update(analyze(tTreeBkg,bkg,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized,whichSignal))
- 		if catInd==nCats: del tFileBkg[bkg]
+ 		if catInd==nCats:
+			print 'deleting',bkg
+			del tFileBkg[bkg]
+			del tTreeBkg[bkg]
+			if doAllSys:
+				for syst in shapesFiles:
+					for ud in ['Up','Down']: del tTreeBkg[bkg+syst+ud]
+
  	for sig in sigList: 
  	 	for decay in decays: 
+			print '-------------------------'
+			tTreeSig[sig+decay]=readTreeNominal(tFileSig[sig+decay])
+			if doAllSys:
+				for syst in shapesFiles:
+					for ud in ['Up','Down']:
+						print "        "+syst+ud
+						tTreeSig[sig+decay+syst+ud]=readTreeShift(tFileSig[sig+decay],syst.upper()+ud.lower())
  	 		sighists.update(analyze(tTreeSig,sig+decay,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized,whichSignal))
- 	 		if catInd==nCats: del tFileSig[sig+decay]
+ 	 		if catInd==nCats: 
+				print 'deleting',sig+decay
+				del tFileSig[sig+decay]
+				del tTreeSig[sig+decay]
+				if doAllSys:
+					for syst in shapesFiles:
+						for ud in ['Up','Down']: del tTreeSig[sig+decay+syst+ud]
 
  	#Negative Bin Correction
 	for bkg in bkghists.keys(): negBinCorrection(bkghists[bkg])
