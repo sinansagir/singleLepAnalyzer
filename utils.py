@@ -24,11 +24,59 @@ def cleanEOSpath(path):
     else:
         return path
 
+def striplist(alist): 
+	#takes a list of strings, returns a version of the list with 
+	#whitespace stripped from all entries.
+	ret = []
+	for item in alist:
+		ret.append(item.strip())
+	return ret
+
 def EOSpathExists(path): 
-    xrd = 'eos root://cmseos.fnal.gov/'
-    #returns a bool true iff the path exists
+    #returns a bool true iff the path exists and has contents
+    xrd = 'xrdfs root://cmseos.fnal.gov/'
     path = cleanEOSpath(path)
-    return len(os.popen(xrd+' ls -d '+path).readlines()) == 1
+    return len(os.popen(xrd+' ls -d '+path).readlines()) > 0
+
+def EOSlist_root_files(Dir): 
+    #ls Dir/*.root, returns a list of the root file names that it finds (without the path) 
+    xrd = 'xrdfs root://cmseos.fnal.gov/'
+    Dir = cleanEOSpath(Dir)
+    items = os.popen(xrd+' ls -u '+Dir).readlines() #they have a \n at the end 
+    items2 = striplist(items)
+    rootlist = []
+    for item in items2:
+        if string.rfind(item,'root',-4) != -1:
+            rootlist.append(item)
+    return rootlist
+
+def readTreeNominal(sample):
+	pathstring0 = step1Dir[23:]+'/'+sample+'_hadd.root'
+	pathstring1 = step1Dir[23:]+'/'+sample+'_1_hadd.root'
+	if not EOSpathExists(pathstring0) and not EOSpathExists(pathstring1): 
+		print "Error: path does not exist! Aborting ... no",pathstring0,"nor",pathstring1
+		os._exit(1)
+	rootfiles = EOSlist_root_files(step1Dir[23:])	
+
+	tChain = TChain('ljmet')
+	for i in range(0,len(rootfiles)):
+		if sample not in rootfiles[i]: continue
+		tChain.Add(rootfiles[i])
+	return tChain 
+
+def readTreeShift(sample,shift):	
+	pathstring0 = step1Dir[23:]+'/'+sample+'_hadd.root'
+	pathstring1 = step1Dir[23:]+'/'+sample+'_1_hadd.root'
+	if not EOSpathExists(pathstring0) and not EOSpathExists(pathstring1): 
+		print "Error: path does not exist! Aborting ... no",pathstring0,"nor",pathstring1
+		os._exit(1)
+	rootfiles = EOSlist_root_files(step1Dir[23:])	
+
+	tChain = TChain('ljmet_'+shift)
+	for i in range(0,len(rootfiles)):
+		if sample not in rootfiles[i]: continue
+		tChain.Add(rootfiles[i])
+	return tChain 
 
 ##############################################################################
 
