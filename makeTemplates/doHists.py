@@ -24,7 +24,7 @@ isCategorized = False
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 doJetRwt= 1
 doTopRwt= 0
-doAllSys= True
+doAllSys= False
 cTime=datetime.datetime.now()
 datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
@@ -45,9 +45,9 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 
 bkgList = [
 	'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
-	'WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+	'WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
 	'TTJetsHad0','TTJetsHad700','TTJetsHad1000','TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000','TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
-	'TTJetsPH700mtt','TTJetsPH1000mtt','Ts','Tbs','Tt','Tbt','TtW','TbtW','TTWl','TTZl','TTHB','TTHnoB',
+	'TTJetsPH700mtt','TTJetsPH1000mtt','Ts','Tbs','Tt','Tbt','TtW','TbtW','TTWl','TTZl','TTHB','TTHnoB','TTWq',
 	'WW','WZ','ZZ',
 	'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000'
 	]
@@ -91,23 +91,23 @@ if isCategorized and 'SR' in region:
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
         'tmass':('t_mass',linspace(0,500,51).tolist(),';M(t) [GeV]'),
         'Wmass':('W_mass',linspace(0,250,51).tolist(),';M(W) [GeV]'),
-        'tpt':('t_pt',linspace(0,1000,51).tolist(),';M(t) [GeV]'),
-        'Wpt':('W_pt',linspace(0,1000,51).tolist(),';M(W) [GeV]'),
+        'tpt':('t_pt',linspace(0,1000,51).tolist(),';tpt [GeV]'),
+        'Wpt':('W_pt',linspace(0,1000,51).tolist(),';Wpt [GeV]'),
         'Wdrlep':('W_dRLep',linspace(0,5,51).tolist(),';leptonic W, #DeltaR(W,lepton)'),
         'tdrWb':('t_dRWb',linspace(0,5,51).tolist(),';leptonic t, #DeltaR(W,b)'),
 	'isLepW':('isLeptonic_W',linspace(0,2,3).tolist(),';lepton from W'),
-        'Tp1Mass':('Tprime1_DeepAK8_Mass',linspace(0,4000,51).tolist(),';M(T) [GeV]'), ## replace with ALGO if needed
-        'Tp2Mass':('Tprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(T) [GeV]'),
-        'Tp2MDnn':('Tprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(T) [GeV]'), #analyze.py makes notV DnnTprime
-        'Tp2MST':('Tprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(T) [GeV]'), #analyze.py makes notV ST
-        'Tp1Pt':('Tprime1_DeepAK8_Pt',linspace(0,3000,51).tolist(),';T quark p_{T} [GeV]'),
-        'Tp2Pt':('Tprime2_DeepAK8_Pt',linspace(0,3000,51).tolist(),';T quark p_{T} [GeV]'),
-        'Tp1Eta':('Tprime1_DeepAK8_Eta',linspace(-5,5,51).tolist(),';T quark #eta'),
-        'Tp2Eta':('Tprime2_DeepAK8_Eta',linspace(-5,5,51).tolist(),';T quark #eta'),
-        'Tp1Phi':('Tprime1_DeepAK8_Phi',linspace(-3.14,3.14).tolist(),';T quark #phi'),
-        'Tp2Phi':('Tprime2_DeepAK8_Phi',linspace(-3.14,3.14,51).tolist(),';T quark #phi'),
-        'Tp1deltaR':('Tprime1_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(T quark product jets)'),
-        'Tp2deltaR':('Tprime2_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(T quark product jets)'),
+        'Tp1Mass':('Tprime1_DeepAK8_Mass',linspace(0,4000,51).tolist(),';M(lepT) [GeV]'), ## replace with ALGO if needed
+        'Tp2Mass':('Tprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(hadT) [GeV]'),
+        'Tp2MDnn':('Tprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(hadT) [GeV]'), #analyze.py makes notV DnnTprime
+        'Tp2MST':('Tprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(hadT) [GeV]'), #analyze.py makes notV ST
+        'Tp1Pt':('Tprime1_DeepAK8_Pt',linspace(0,3000,51).tolist(),';lepT quark p_{T} [GeV]'),
+        'Tp2Pt':('Tprime2_DeepAK8_Pt',linspace(0,3000,51).tolist(),';hadT quark p_{T} [GeV]'),
+        'Tp1Eta':('Tprime1_DeepAK8_Eta',linspace(-5,5,51).tolist(),';lepT quark #eta'),
+        'Tp2Eta':('Tprime2_DeepAK8_Eta',linspace(-5,5,51).tolist(),';hadT quark #eta'),
+        'Tp1Phi':('Tprime1_DeepAK8_Phi',linspace(-3.14,3.14).tolist(),';lepT quark #phi'),
+        'Tp2Phi':('Tprime2_DeepAK8_Phi',linspace(-3.14,3.14,51).tolist(),';hadT quark #phi'),
+        'Tp1deltaR':('Tprime1_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(lepT quark product jets)'),
+        'Tp2deltaR':('Tprime2_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(hadT quark product jets)'),
 	'Bp1Mass':('Bprime1_DeepAK8_Mass',linspace(0,4000,51).tolist(),';M(B) [GeV]'), ## replace with ALGO if needed
         'Bp2Mass':('Bprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(B) [GeV]'),
         'Bp2MDnn':('Bprime2_DeepAK8_Mass',linspace(0,4000,nbins).tolist(),';M(B) [GeV]'), #analyze.py makes notV DnnBprime
@@ -140,13 +140,13 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 
 	'deltaRAK8':('minDR_leadAK8otherAK8',linspace(0,5,51).tolist(),';min #DeltaR(1^{st} AK8 jet, other AK8 jet)'),
 	'minDRlepAK8':('minDR_lepAK8',linspace(0,5,51).tolist(),';min #DeltaR(l, AK8 jet)'),
-	'minDPhiMetJet':('minDPhi_MetJet',linspace(-3.2,3.2,33).tolist(),':min #Delta#phi(MET, AK4 jet)'),
+	'minDPhiMetJet':('minDPhi_MetJet',linspace(-3.2,3.2,33).tolist(),';min #Delta#phi(MET, AK4 jet)'),
 	'MTlmet':('MT_lepMet',linspace(0,250,51).tolist(),';M_{T}(l,#slash{E}_{T}) [GeV]'),
 	'MTlmetmod':('MT_lepMetmod',linspace(0,250,51).tolist(),';M_{T}(l,mod #slash{E}_{T}) [GeV]'),
-	'NPV'   :('nPV_singleLepCalc',linspace(0, 100, 101).tolist(),';PV multiplicity;'),
-	'NTrue'   :('nTrueInteractions_singleLepCalc',linspace(0, 100, 101).tolist(),';MC pileup multiplicity;'),
-	'lepPt' :('leptonPt_singleLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV];'),
-	'lepEta':('leptonEta_singleLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta;'),
+	'NPV'   :('nPV_MultiLepCalc',linspace(0, 100, 101).tolist(),';PV multiplicity;'),
+	'NTrue'   :('nTrueInteractions_MultiLepCalc',linspace(0, 100, 101).tolist(),';MC pileup multiplicity;'),
+	'lepPt' :('leptonPt_MultiLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV];'),
+	'lepEta':('leptonEta_MultiLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta;'),
 	'JetEta':('theJetEta_JetSubCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK4 Jet #eta;'),
 	'JetPt' :('theJetPt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';jet p_{T} [GeV];'),
 	'Jet1Pt':('theJetPt_JetSubCalc_PtOrdered[0]',linspace(0, 1500, 51).tolist(),';1^{st} AK4 Jet p_{T} [GeV];'),
@@ -156,8 +156,8 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'Jet4Pt':('theJetPt_JetSubCalc_PtOrdered[3]',linspace(0, 500, 51).tolist(),';4^{th} AK4 Jet p_{T} [GeV];'),
 	'Jet5Pt':('theJetPt_JetSubCalc_PtOrdered[4]',linspace(0, 500, 51).tolist(),';5^{th} AK4 Jet p_{T} [GeV];'),
 	'Jet6Pt':('theJetPt_JetSubCalc_PtOrdered[5]',linspace(0, 500, 51).tolist(),';6^{th} AK4 Jet p_{T} [GeV];'),
-	'MET'   :('corr_met_singleLepCalc',linspace(0, 1500, 51).tolist(),';#slash{E}_{T} [GeV];'),
-	'METmod'   :('corr_metmod_singleLepCalc',linspace(0, 1500, 51).tolist(),';modified #slash{E}_{T} [GeV];'),
+	'MET'   :('corr_met_MultiLepCalc',linspace(0, 1500, 51).tolist(),';#slash{E}_{T} [GeV];'),
+	'METmod'   :('corr_metmod_MultiLepCalc',linspace(0, 1500, 51).tolist(),';modified #slash{E}_{T} [GeV];'),
 	'NJets' :('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity;'),
 	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
 	'NBJetsNoSF':('NJetsCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
@@ -184,9 +184,9 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'deltaRjet2':('deltaR_lepJets[1]',linspace(0, 5, 51).tolist(),';#DeltaR(l, 2^{nd} jet);'),
 	'deltaRjet3':('deltaR_lepJets[2]',linspace(0, 5, 51).tolist(),';#DeltaR(l, 3^{rd} jet);'),
 	'nLepGen':('NLeptonDecays_TpTpCalc',linspace(0,10,11).tolist(),';N lepton decays from TT'),
-	'METphi':('corr_met_phi_singleLepCalc',linspace(-3.2,3.2,65).tolist(),';#phi(#slash{E}_{T})'),
-	'lepPhi':('leptonPhi_singleLepCalc',linspace(-3.2,3.2,65).tolist(),';#phi(l)'),
-	'lepIso':('leptonMiniIso_singleLepCalc',linspace(0,0.2,51).tolist(),';lepton mini isolation'),
+	'METphi':('corr_met_phi_MultiLepCalc',linspace(-3.2,3.2,65).tolist(),';#phi(#slash{E}_{T})'),
+	'lepPhi':('leptonPhi_MultiLepCalc',linspace(-3.2,3.2,65).tolist(),';#phi(l)'),
+	'lepIso':('leptonMiniIso_MultiLepCalc',linspace(0,0.2,51).tolist(),';lepton mini isolation'),
 	'Tau1':('theJetAK8NjettinessTau1_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{1}'),
 	'Tau2':('theJetAK8NjettinessTau2_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{2}'),
 	'Tau3':('theJetAK8NjettinessTau3_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{3}'),
@@ -210,17 +210,17 @@ print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
 def readTree(file):
-	if not EOSpathExists(file[23:]): 
-		print "Error: File does not exist! Aborting ...",file[23:]
-		os._exit(1)
+#	if not EOSpathExists(file[23:]): 
+#		print "Error: File does not exist! Aborting ...",file[23:]
+#		os._exit(1)
 	tFile = TFile.Open(file,'READ')
 	tTree = tFile.Get('ljmet')
 	return tFile, tTree 
 
 def readFileOnly(file):
-	if not EOSpathExists(file[23:]): 
-		print "Error: File does not exist! Aborting ...",file[23:]
-		os._exit(1)
+#	if not EOSpathExists(file[23:]): 
+#		print "Error: File does not exist! Aborting ...",file[23:]
+#		os._exit(1)
 	tFile = TFile.Open(file,'READ')
 	return tFile
 
