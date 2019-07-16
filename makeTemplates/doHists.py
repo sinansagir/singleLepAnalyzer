@@ -209,51 +209,10 @@ print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
-def readTree(file):
-#	if not EOSpathExists(file[23:]): 
-#		print "Error: File does not exist! Aborting ...",file[23:]
-#		os._exit(1)
-	tFile = TFile.Open(file,'READ')
-	tTree = tFile.Get('ljmet')
-	return tFile, tTree 
-
-def readFileOnly(file):
-#	if not EOSpathExists(file[23:]): 
-#		print "Error: File does not exist! Aborting ...",file[23:]
-#		os._exit(1)
-	tFile = TFile.Open(file,'READ')
-	return tFile
-
-def readTreeNominal(file):	
-	tTree = file.Get('ljmet')
-	return tTree
-
-def readTreeShift(file,shift):	
-	tTree = file.Get('ljmet_'+shift)
-	return tTree
-
-print "READING TREES"
 shapesFiles = ['jec','jer','btag','ltag']
 tTreeData = {}
-tFileData = {}
-for data in dataList:
-	print "READING:", data
-	tFileData[data]=readFileOnly(step1Dir+'/'+samples[data]+'_hadd.root')
-
 tTreeSig = {}
-tFileSig = {}
-for sig in sigList:
-	for decay in decays:
-		print "READING:", sig+decay
-		tFileSig[sig+decay]=readFileOnly(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
-
 tTreeBkg = {}
-tFileBkg = {}
-for bkg in bkgList:
-	print "READING:",bkg
-	tFileBkg[bkg]=readFileOnly(step1Dir+'/'+samples[bkg]+'_hadd.root')
-
-print "FINISHED READING FILES"
 
 catList = list(itertools.product(isEMlist,taglist,algolist))
 print 'Cat list:',catList
@@ -279,24 +238,22 @@ for cat in catList:
 	print 'Running analyze'
  	for data in dataList: 
 		print '-------------------------'
-		tTreeData[data]=readTreeNominal(tFileData[data])
+		tTreeData[data]=readTreeNominal(samples[data]) ## located in utils.py
  		datahists.update(analyze(tTreeData,data,cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized,whichSignal))
  		if catInd==nCats: 
 			print 'deleting',data
-			del tFileData[data]
 			del tTreeData[data]
  	for bkg in bkgList: 
 		print '-------------------------'
-		tTreeBkg[bkg]=readTreeNominal(tFileBkg[bkg])
+		tTreeBkg[bkg]=readTreeNominal(samples[bkg])
 		if doAllSys:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
 					print "        "+syst+ud
-					tTreeBkg[bkg+syst+ud]=readTreeShift(tFileBkg[bkg],syst.upper()+ud.lower())
+					tTreeBkg[bkg+syst+ud]=readTreeShift(samples[bkg],syst.upper()+ud.lower()) ## located in utils.py
  		bkghists.update(analyze(tTreeBkg,bkg,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized,whichSignal))
  		if catInd==nCats:
 			print 'deleting',bkg
-			del tFileBkg[bkg]
 			del tTreeBkg[bkg]
 			if doAllSys:
 				for syst in shapesFiles:
@@ -305,16 +262,15 @@ for cat in catList:
  	for sig in sigList: 
  	 	for decay in decays: 
 			print '-------------------------'
-			tTreeSig[sig+decay]=readTreeNominal(tFileSig[sig+decay])
+			tTreeSig[sig+decay]=readTreeNominal(samples[sig+decay])
 			if doAllSys:
 				for syst in shapesFiles:
 					for ud in ['Up','Down']:
 						print "        "+syst+ud
-						tTreeSig[sig+decay+syst+ud]=readTreeShift(tFileSig[sig+decay],syst.upper()+ud.lower())
+						tTreeSig[sig+decay+syst+ud]=readTreeShift(samples[sig+decay],syst.upper()+ud.lower())
  	 		sighists.update(analyze(tTreeSig,sig+decay,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized,whichSignal))
  	 		if catInd==nCats: 
 				print 'deleting',sig+decay
-				del tFileSig[sig+decay]
 				del tTreeSig[sig+decay]
 				if doAllSys:
 					for syst in shapesFiles:
