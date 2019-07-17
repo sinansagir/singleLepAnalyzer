@@ -170,7 +170,7 @@ if categorize:
 
 outDir = outputDir+pfix+'/'
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
-os.system('cp ../analyze.py doHists.py ../weights.py ../samples.py doCondorTemplates.py doCondorTemplates.sh '+outDir+'/')
+os.system('cp ../analyze.py doHists.py ../utils.py ../weights.py ../samples.py doCondorTemplates.py doCondorTemplates.sh '+outDir+'/')
 os.chdir(outDir)
 
 catlist = list(itertools.product(isEMlist,taglist,algolist))
@@ -193,7 +193,7 @@ universe = vanilla
 Executable = %(rundir)s/makeTemplates/doCondorTemplates.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = %(rundir)s/analyze.py, %(rundir)s/samples.py, %(rundir)s/utils.py, %(rundir)s/weights.py, %(rundir)s/makeTemplates/doHists.py
+Transfer_Input_Files = ../analyze.py, ../samples.py, ../utils.py, ../weights.py, ../doHists.py
 Output = condor_%(iPlot)s.out
 Error = condor_%(iPlot)s.err
 Log = condor_%(iPlot)s.log
