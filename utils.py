@@ -32,11 +32,11 @@ def striplist(alist):
 		ret.append(item.strip())
 	return ret
 
-def EOSpathExists(path): 
+def EOSpathExists(path,file): 
     #returns a bool true iff the path exists and has contents
     xrd = 'xrdfs root://cmseos.fnal.gov/'
     path = cleanEOSpath(path)
-    return len(os.popen(xrd+' ls -d '+path).readlines()) > 0
+    return len(os.popen(xrd+' ls '+path+' | grep "'+file+'"').readlines()) > 0
 
 def EOSlist_root_files(Dir): 
     #ls Dir/*.root, returns a list of the root file names that it finds (without the path) 
@@ -50,10 +50,10 @@ def EOSlist_root_files(Dir):
             rootlist.append(item)
     return rootlist
 
-def readTreeNominal(sample):
-	pathstring0 = step1Dir[23:]+'/'+sample+'_hadd.root'
-	pathstring1 = step1Dir[23:]+'/'+sample+'_1_hadd.root'
-	if not EOSpathExists(pathstring0) and not EOSpathExists(pathstring1): 
+def readTreeNominal(sample,step1Dir):
+	pathstring0 = sample+'_hadd.root'
+	pathstring1 = sample+'_1_hadd.root'
+	if not EOSpathExists(step1Dir[23:]+'/',pathstring0) and not EOSpathExists(step1Dir[23:]+'/',pathstring1): 
 		print "Error: path does not exist! Aborting ... no",pathstring0,"nor",pathstring1
 		os._exit(1)
 	rootfiles = EOSlist_root_files(step1Dir[23:])	
@@ -64,10 +64,10 @@ def readTreeNominal(sample):
 		tChain.Add(rootfiles[i])
 	return tChain 
 
-def readTreeShift(sample,shift):	
-	pathstring0 = step1Dir[23:]+'/'+sample+'_hadd.root'
-	pathstring1 = step1Dir[23:]+'/'+sample+'_1_hadd.root'
-	if not EOSpathExists(pathstring0) and not EOSpathExists(pathstring1): 
+def readTreeShift(sample,shift,step1Dir):	
+	pathstring0 = sample+'_hadd.root'
+        pathstring1 = sample+'_1_hadd.root'
+        if not EOSpathExists(step1Dir[23:]+'/',pathstring0) and not EOSpathExists(step1Dir[23:]+'/',pathstring1):
 		print "Error: path does not exist! Aborting ... no",pathstring0,"nor",pathstring1
 		os._exit(1)
 	rootfiles = EOSlist_root_files(step1Dir[23:])	
