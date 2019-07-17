@@ -29,7 +29,7 @@ templateDir=os.getcwd()+'/'+pfix+'/'
 print 'Plotting',region,'is categorized?',isCategorized
 
 isRebinned=''#_rebinned_stat0p3' #post for ROOT file names
-BRstr=''#bW0p5_tZ0p25_tH0p25_' 
+BRstr='bW0p5_tZ0p25_tH0p25_' 
 saveKey = '' # tag for plot names
 
 sig1='TTM1200' #  choose the 1st signal to plot
@@ -58,6 +58,7 @@ doAllSys = False
 addCRsys = False
 doNormByBinWidth=False
 doOneBand = True
+# MAY NEED TO RE-INDENT PART/ALL OF CODE FROM HERE TO CORRESPONDING COMMENT!!!!!
 if not doAllSys: doOneBand = True # Don't change this!
 blind = False
 if len(sys.argv)>5: blind=bool(eval(sys.argv[5]))
@@ -79,7 +80,7 @@ if 'algos' in region or 'SR' in region or isCategorized:
 taglist = ['all']
 if isCategorized == True: 
 	taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notV','notVtH','notVtZ','notVbW']
-	if 'Counts' in pfix: taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtH','notVtZ','notVbW',
+	if '_' in pfix: taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtH','notVtZ','notVbW',
 					'notV2pT','notV01T2pH','notV01T1H','notV1T0H','notV0T0H1pZ','notV0T0H0Z2pW','notV0T0H0Z01W']
 	#isEMlist = ['L']
 	#taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtZ','notVbW','notVtH',
@@ -164,6 +165,7 @@ def formatLowerHist(histogram):
 	histogram.GetYaxis().SetTitleOffset(.3)
 	if not doRealPull: histogram.GetYaxis().SetTitle('Data/Bkg')
 	else: histogram.GetYaxis().SetTitle('#frac{(data-bkg)}{std. dev.}')
+# MAY NEED TO RE-INDENT ALL CODE ABOVE HERE TO CORRESPONDING COMMENT!!!
 	histogram.GetYaxis().SetNdivisions(7)
 	if doRealPull: histogram.GetYaxis().SetRangeUser(-2.99,2.99)
 	elif yLog and doNormByBinWidth: histogram.GetYaxis().SetRangeUser(0.1,1.9)
