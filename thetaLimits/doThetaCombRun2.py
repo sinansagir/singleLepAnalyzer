@@ -9,6 +9,7 @@ import os,sys,fnmatch
 # from unc_scale import *
 runDir='/uscms_data/d3/escharni/CMSSW_10_2_10/src/singleLepAnalyzer'
 templateDir=runDir+'/makeTemplates/templatesSR_July_MVA_Update_Round2'
+
 thetaConfigTemp = os.getcwd()+'/theta_combineRun2_template.py'
 whichSignal = 'TT'
 
