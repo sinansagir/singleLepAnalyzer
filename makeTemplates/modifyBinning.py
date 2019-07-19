@@ -44,7 +44,7 @@ normalizeRENORM = False #only for signals
 normalizePDF    = False #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 sigName = 'TT' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
-massList = range(1100,1800+1,100)
+massList = range(1000,1800+1,100)
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='TT': 
 	sigProcList = [sigName+'M'+str(mass) for mass in massList]
@@ -79,8 +79,8 @@ mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
 removalKeys = {} # True == keep, False == remove
 removalKeys['btag__']    = True
-removalKeys['mistag__']  = True
-removalKeys['trigeff__'] = True
+removalKeys['ltag__']  = True
+removalKeys['trigeff__'] = False
 removalKeys['muR__']       = False
 removalKeys['muF__']       = False
 removalKeys['muRFcorrd__'] = False
@@ -140,17 +140,17 @@ for chn in totBkgHists.keys():
 
 	Nbins = 0
 	if 'notV' in chn: 
-		if 'Counts' not in folder:
-			xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
-			Nbins = tfile.Get(datahists[0]).GetNbinsX()
-		else:
+#		if 'Counts' not in folder:
+#			xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
+#			Nbins = tfile.Get(datahists[0]).GetNbinsX()
+#		else:
 			xbinsListTemp[chn]=[tfile.Get(datahists[4]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[4]).GetXaxis().GetNbins())]
 			Nbins = tfile.Get(datahists[4]).GetNbinsX()
 	else: 
-		if 'Counts' not in folder:
-			xbinsListTemp[chn]=[tfile.Get(datahists[4]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[4]).GetXaxis().GetNbins())]
-			Nbins = tfile.Get(datahists[4]).GetNbinsX()
-		else:
+#		if 'Counts' not in folder:
+#			xbinsListTemp[chn]=[tfile.Get(datahists[4]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[4]).GetXaxis().GetNbins())]
+#			Nbins = tfile.Get(datahists[4]).GetNbinsX()
+#		else:
 			xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
 			Nbins = tfile.Get(datahists[0]).GetNbinsX()
 	
@@ -200,7 +200,11 @@ for chn in totBkgHists.keys():
 					xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
 
 	## Going right to left -- if the last entry isn't 0 add it
-	if xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
+	if (iPlot != 'DnnTprime' or 'CR' in folder) and xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
+	if iPlot == 'DnnTprime' and 'templatesSR' in folder:
+		if xbinsListTemp[chn][-1]>0.5: xbinsListTemp[chn].append(0.5)
+		elif xbinsListTemp[chn][-1]!=0.5: xbinsListTemp[chn][-1] = 0.5
+	elif iPlot == 'DnnTprime' and 'CR' in folder and xbinsListTemp[chn][0]!=0.5: xbinsListTemp[chn][0] = 0.5 
 	
 	## If the 1st bin is empty or too small, make the left side wider
 	if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
