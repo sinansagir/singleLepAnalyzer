@@ -43,51 +43,22 @@ BR['BBBHBH'] = BR['BH']*BR['BH']
 # Number of processed MC events (before selections)
 nRun={}
 # new counts for 2017
-nRun['TTJetsHad0'] = 130725364*0.8832
-nRun['TTJetsHad700'] = 130725364*0.0921 + 39258853*0.442
-nRun['TTJetsHad1000'] = 130725364*0.02474 + 14970062*0.442
-nRun['TTJetsSemiLep0'] = 111325048*0.8832
-nRun['TTJetsSemiLep700'] = 111325048*0.0921 + 39258853*0.405
-nRun['TTJetsSemiLep1000'] = 111325048*0.02474 + 14970062*0.405
-nRun['TTJets2L2nu0'] = 66979742*0.8832
-nRun['TTJets2L2nu700'] = 66979742*0.0921 + 39258853*0.079
-nRun['TTJets2L2nu1000'] = 66979742*0.02474 + 14970062*0.079
-nRun['TTJetsPH700mtt'] = 39258853 + 130725364*0.0921 + 111325048*0.0921 + 66979742*0.0921
-nRun['TTJetsPH1000mtt'] = 14970062 + 130725364*0.02474 + 111325048*0.02474 + 66979742*0.02474
-nRun['Ts'] = 6179792. #from 9906720
-nRun['Tt'] = 17743720.
-nRun['Tbt']= 7690150.
-nRun['TtW'] = 7660001.
-nRun['TbtW'] = 7993682.
-nRun['WJetsMG400'] = 14313274.#
-nRun['WJetsMG600'] = 21709087.#
-nRun['WJetsMG800'] = 20432728.#
-nRun['WJetsMG1200']= 20258624.#
-nRun['WJetsMG2500']= 21495421.#
-nRun['DY'] = 123584520. # from 182359896, this is the ext1 sample
-nRun['QCDht300'] = 60316577.#
-nRun['QCDht500'] = 54624037.#
-nRun['QCDht700'] = 47724800.#
-nRun['QCDht1000'] = 16595628.#
-nRun['QCDht1500'] = 11634434.#
-nRun['QCDht2000'] = 5941306.#
-nRun['TTWl'] = 2692366. #from 4919674
+
 nRun['TTZl'] = 5239484.0 # from integral 11092000.0, file TTZToLLNuNu_M-10_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_hadd.root
 
-# not updated for 2017
 #Do NGen*[1-2X], where X is the neg event fraction calculated from the jobs completed! 
 #A = P - N = F - 2*N   A/F = 1 - 2*(N/F)  N/F = (1 - A/F)/2
 nRun['TTJets'] = 14188545. #need negative counts
 nRun['TTJetsPH'] = 111068128.#
 nRun['TTJetsHad0'] = 129211204*0.8832 # from integral 130262340.0, file TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
-nRun['TTJetsHad700'] = 129211204*0.0921 + 384286270.457
-nRun['TTJetsHad1000'] = 129211204*0.02474 + 212883950.457
+nRun['TTJetsHad700'] = 129211204*0.0921 + 38428627*0.457
+nRun['TTJetsHad1000'] = 129211204*0.02474 + 21288395*0.457
 nRun['TTJetsSemiLep0'] = 109124472*0.8832 # from integral 110085096.0, file TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
-nRun['TTJetsSemiLep700'] = 109124472*0.0921 + 384286270.438
-nRun['TTJetsSemiLep1000'] = 109124472*0.02474 + 212883950.438
+nRun['TTJetsSemiLep700'] = 109124472*0.0921 + 38428627*0.438
+nRun['TTJetsSemiLep1000'] = 109124472*0.02474 + 21288395*0.438
 nRun['TTJets2L2nu0'] = 68595608*0.8832 # from integral 69155808.0, file TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
-nRun['TTJets2L2nu700'] = 68595608*0.0921 + 384286270.105
-nRun['TTJets2L2nu1000'] = 68595608*0.02474 + 212883950.105
+nRun['TTJets2L2nu700'] = 68595608*0.0921 + 38428627*0.105
+nRun['TTJets2L2nu1000'] = 68595608*0.02474 + 21288395*0.105
 nRun['TTJetsPH700mtt'] = 38428627 + 129211204*0.0921 + 109124472*0.0921 + 68595608*0.0921 #from 39258853, file TT_Mtt-700to1000_TuneCP5_13TeV-powheg-pythia8_hadd.root
 nRun['TTJetsPH1000mtt'] = 21288395 + 129211204*0.02474 + 109124472*0.02474 + 68595608*0.02474 # from integral 22458751.0, file TT_Mtt-1000toInf_TuneCP5_PSweights_13TeV-powheg
 nRun['Ts'] = 6895750. # from integral 6898000.0, file ST_s-channel_top_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
