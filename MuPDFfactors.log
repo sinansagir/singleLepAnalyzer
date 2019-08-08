@@ -1,0 +1,180 @@
+[?1034h---------------------BprimeBprime_M-1000_TuneCP5_13TeV-madgraph-pythia8--------------------------
+845111.774. # from integral 850000.0
+MuRF up yield = 1138507.879
+MuRF dn yield = 642435.874
+PDF up yield = 847685.613
+PDF dn yield = 841125.28
+MUup scale factor = 0.742
+MUdn scale factor = 1.315
+PDFup scale factor = 0.997
+PDFdn scale factor = 1.005
+---------------------BprimeBprime_M-1100_TuneCP5_13TeV-madgraph-pythia8--------------------------
+801957.408. # from integral 806000.0
+MuRF up yield = 1079581.057
+MuRF dn yield = 610186.932
+PDF up yield = 804631.62
+PDF dn yield = 797374.638
+MUup scale factor = 0.743
+MUdn scale factor = 1.314
+PDFup scale factor = 0.997
+PDFdn scale factor = 1.006
+---------------------BprimeBprime_M-1200_TuneCP5_13TeV-madgraph-pythia8--------------------------
+841677.896. # from integral 850000.0
+MuRF up yield = 1134725.098
+MuRF dn yield = 639430.125
+PDF up yield = 845411.948
+PDF dn yield = 834894.224
+MUup scale factor = 0.742
+MUdn scale factor = 1.316
+PDFup scale factor = 0.996
+PDFdn scale factor = 1.008
+---------------------BprimeBprime_M-1300_TuneCP5_13TeV-madgraph-pythia8--------------------------
+745802.718. # from integral 758000.0
+MuRF up yield = 1006733.469
+MuRF dn yield = 565915.57
+PDF up yield = 750599.737
+PDF dn yield = 737404.643
+MUup scale factor = 0.741
+MUdn scale factor = 1.318
+PDFup scale factor = 0.994
+PDFdn scale factor = 1.011
+---------------------BprimeBprime_M-1400_TuneCP5_13TeV-madgraph-pythia8--------------------------
+707879.797. # from integral 728000.0
+MuRF up yield = 958018.59
+MuRF dn yield = 535728.709
+PDF up yield = 714534.77
+PDF dn yield = 697306.437
+MUup scale factor = 0.739
+MUdn scale factor = 1.321
+PDFup scale factor = 0.991
+PDFdn scale factor = 1.015
+---------------------BprimeBprime_M-1500_TuneCP5_13TeV-madgraph-pythia8--------------------------
+643707.523. # from integral 675000.0
+MuRF up yield = 876190.324
+MuRF dn yield = 484379.481
+PDF up yield = 651969.157
+PDF dn yield = 631536.764
+MUup scale factor = 0.735
+MUdn scale factor = 1.329
+PDFup scale factor = 0.987
+PDFdn scale factor = 1.019
+---------------------BprimeBprime_M-1600_TuneCP5_13TeV-madgraph-pythia8--------------------------
+721580.032. # from integral 769000.0
+MuRF up yield = 982296.109
+MuRF dn yield = 542788.596
+PDF up yield = 733646.47
+PDF dn yield = 702585.719
+MUup scale factor = 0.735
+MUdn scale factor = 1.329
+PDFup scale factor = 0.984
+PDFdn scale factor = 1.027
+---------------------BprimeBprime_M-1700_TuneCP5_13TeV-madgraph-pythia8--------------------------
+770946.093. # from integral 842000.0
+MuRF up yield = 1051095.674
+MuRF dn yield = 579046.267
+PDF up yield = 787668.17
+PDF dn yield = 743329.359
+MUup scale factor = 0.733
+MUdn scale factor = 1.331
+PDFup scale factor = 0.979
+PDFdn scale factor = 1.037
+---------------------BprimeBprime_M-1800_TuneCP5_13TeV-madgraph-pythia8--------------------------
+754483.491. # from integral 850000.0
+MuRF up yield = 1032140.227
+MuRF dn yield = 564455.436
+PDF up yield = 777616.357
+PDF dn yield = 719238.573
+MUup scale factor = 0.731
+MUdn scale factor = 1.337
+PDFup scale factor = 0.97
+PDFdn scale factor = 1.049
+---------------------TprimeTprime_M-1000_TuneCP5_13TeV-madgraph-pythia8--------------------------
+839939.901. # from integral 842000.0
+MuRF up yield = 1129034.365
+MuRF dn yield = 639991.259
+PDF up yield = 842200.949
+PDF dn yield = 835838.721
+MUup scale factor = 0.744
+MUdn scale factor = 1.312
+PDFup scale factor = 0.997
+PDFdn scale factor = 1.005
+---------------------TprimeTprime_M-1100_TuneCP5_13TeV-madgraph-pythia8--------------------------
+747734.884. # from integral 745000.0
+MuRF up yield = 1000512.584
+MuRF dn yield = 572328.621
+PDF up yield = 751068.655
+PDF dn yield = 742190.769
+MUup scale factor = 0.747
+MUdn scale factor = 1.306
+PDFup scale factor = 0.996
+PDFdn scale factor = 1.007
+---------------------TprimeTprime_M-1200_TuneCP5_13TeV-madgraph-pythia8--------------------------
+822226.024. # from integral 829000.0
+MuRF up yield = 1107418.028
+MuRF dn yield = 625261.358
+PDF up yield = 826075.608
+PDF dn yield = 815373.731
+MUup scale factor = 0.742
+MUdn scale factor = 1.315
+PDFup scale factor = 0.995
+PDFdn scale factor = 1.008
+---------------------TprimeTprime_M-1300_TuneCP5_13TeV-madgraph-pythia8--------------------------
+834347.119. # from integral 847000.0
+MuRF up yield = 1125221.933
+MuRF dn yield = 634052.306
+PDF up yield = 839725.707
+PDF dn yield = 825164.037
+MUup scale factor = 0.741
+MUdn scale factor = 1.316
+PDFup scale factor = 0.994
+PDFdn scale factor = 1.011
+---------------------TprimeTprime_M-1400_TuneCP5_13TeV-madgraph-pythia8--------------------------
+788803.235. # from integral 811000.0
+MuRF up yield = 1068140.497
+MuRF dn yield = 596657.539
+PDF up yield = 795981.455
+PDF dn yield = 777201.602
+MUup scale factor = 0.738
+MUdn scale factor = 1.322
+PDFup scale factor = 0.991
+PDFdn scale factor = 1.015
+---------------------TprimeTprime_M-1500_TuneCP5_13TeV-madgraph-pythia8--------------------------
+798085.286. # from integral 827000.0
+MuRF up yield = 1078160.126
+MuRF dn yield = 605033.467
+PDF up yield = 809301.959
+PDF dn yield = 780819.184
+MUup scale factor = 0.74
+MUdn scale factor = 1.319
+PDFup scale factor = 0.986
+PDFdn scale factor = 1.022
+---------------------TprimeTprime_M-1600_TuneCP5_13TeV-madgraph-pythia8--------------------------
+797699.588. # from integral 850000.0
+MuRF up yield = 1085624.855
+MuRF dn yield = 600298.342
+PDF up yield = 810857.682
+PDF dn yield = 776420.663
+MUup scale factor = 0.735
+MUdn scale factor = 1.329
+PDFup scale factor = 0.984
+PDFdn scale factor = 1.027
+---------------------TprimeTprime_M-1700_TuneCP5_13TeV-madgraph-pythia8--------------------------
+744416.206. # from integral 836000.0
+MuRF up yield = 1032264.297
+MuRF dn yield = 549835.774
+PDF up yield = 759248.485
+PDF dn yield = 722018.968
+MUup scale factor = 0.721
+MUdn scale factor = 1.354
+PDFup scale factor = 0.98
+PDFdn scale factor = 1.031
+---------------------TprimeTprime_M-1800_TuneCP5_13TeV-madgraph-pythia8--------------------------
+756253.365. # from integral 827000.0
+MuRF up yield = 1013597.833
+MuRF dn yield = 576822.811
+PDF up yield = 783185.372
+PDF dn yield = 720112.803
+MUup scale factor = 0.746
+MUdn scale factor = 1.311
+PDFup scale factor = 0.966
+PDFdn scale factor = 1.05
