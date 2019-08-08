@@ -53,18 +53,26 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	cut += ' && (corr_met_MultiLepCalc > '+str(cutList['metCut'])+')'
 	cut += ' && (AK4HT > '+str(cutList['HTCut'])+')'
 	#cut += ' && (minDR_lepJet > 0.4 || ptRel_lepJet > 40)' // done in step1 now by removing jet
+
+	BBstr = ''
+	if whichSig=='BB': BBstr = 'BB'
 	
 	if 'CR' in region: # 'CR' or 'CRinc'  certain AK8 jets and low signal node
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnn_Tprime < '+str(cutList['dnnCut'])+')'
-		if 'TT' in region: cut += ' && (dnn_ttbar > dnn_WJets)'
-		if 'WJ' in region: cut += ' && (dnn_ttbar <= dnn_WJets)'
+		if 'TT' in region: cut += ' && (dnn_ttbar'+BBstr+' > dnn_WJets'+BBstr+')'
+		if 'WJ' in region: cut += ' && (dnn_ttbar'+BBstr+' <= dnn_WJets'+BBstr+')'
 	elif 'SR' in region: # 'SR'  certain AK8 jets, mass reco, high signal node
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnn_Tprime >= '+str(cutList['dnnCut'])+')'
 	elif 'PS' in region: # 'PS'  
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+')'
+		#cut += ' && (NJets_JetSubCalc >= 3)'			# |All four of|
+		#cut += ' && (theJetPt_JetSubCalc_PtOrdered[0] > 200)'	# |these lines|
+		#cut += ' && (theJetPt_JetSubCalc_PtOrdered[1] > 100)'	# |for special|
+		#cut += ' && (theJetPt_JetSubCalc_PtOrdered[2] > 50)'	# |test only. |
 		if '0b' in region: cut += ' && (NJetsCSVwithSF_JetSubCalc == 0)'
 		elif '1b' in region: cut += ' && (NJetsCSVwighSF_JetSubCalc == 1)'
 		elif '2b' in region: cut += ' && (NJetsCSVwithSF_JetSubCalc >= 2)'
+	if whichSig=='BB': cut = cut.replace('Tprime','Bprime')
 
 	# Define weights
 	TrigEffUp = '1'
@@ -153,6 +161,9 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 			plotTreeName = 'AK4HTpMETpLepPt'
 			xbins = array('d', linspace(0,5000,51).tolist())
 			xaxislabel = ';ST [GeV]'
+	if whichSig == 'BB':
+		plotTreeName = plotTreeName.replace('Tprime','Bprime')
+		iPlot = iPlot.replace('Tp','Bp')
 
 	# Design the EM cuts for categories
 	isEMCut=''

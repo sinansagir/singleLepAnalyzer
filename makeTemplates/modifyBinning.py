@@ -35,6 +35,7 @@ folder = 'templatesSR_Mar30NoPDF'
 if len(sys.argv)>2: folder=str(sys.argv[2])
 cutString = ''
 templateDir = os.getcwd()+'/'+folder+'/'+cutString
+print "templateDir: ",templateDir
 combinefile = 'yields_'+iPlot+'_41p530fb.root'
 
 rebin4chi2 = False #include data in requirements
@@ -43,7 +44,7 @@ rebinCombine = False #else rebins theta templates
 normalizeRENORM = False #only for signals
 normalizePDF    = False #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
-sigName = 'TT' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
+sigName = 'BB' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
 massList = range(1000,1800+1,100)
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='TT': 
@@ -92,7 +93,12 @@ def findfiles(path, filtre):
             yield os.path.join(root, f)
 
 #Setup the selection of the files to be rebinned:          only those that aren't rebinned and are this plot
-rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and 'bW' in file and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
+rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and 'tW' in file and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
+print "templateDir: ",templateDir
+print "file: ",file
+print "combinefile: ",combinefile
+print "iPlot: ",iPlot
+print "rfiles: ",rfiles
 if rebinCombine: rfiles = [templateDir+'/'+combinefile]
 
 #Open the lowest mass signal for consistency
@@ -200,11 +206,11 @@ for chn in totBkgHists.keys():
 					xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
 
 	## Going right to left -- if the last entry isn't 0 add it
-	if (iPlot != 'DnnTprime' or 'CR' in folder) and xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
-	if iPlot == 'DnnTprime' and 'templatesSR' in folder:
+	if ((iPlot != 'DnnTprime' and iPlot != 'DnnBprime') or 'CR' in folder) and xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
+	if (iPlot == 'DnnTprime' or iPlot == 'DnnBprime') and 'templatesSR' in folder:
 		if xbinsListTemp[chn][-1]>0.5: xbinsListTemp[chn].append(0.5)
 		elif xbinsListTemp[chn][-1]!=0.5: xbinsListTemp[chn][-1] = 0.5
-	elif iPlot == 'DnnTprime' and 'CR' in folder and xbinsListTemp[chn][0]!=0.5: xbinsListTemp[chn][0] = 0.5 
+	elif (iPlot == 'DnnTprime' or iPlot == 'DnnBprime') and 'CR' in folder and xbinsListTemp[chn][0]!=0.5: xbinsListTemp[chn][0] = 0.5 
 	
 	## If the 1st bin is empty or too small, make the left side wider
 	if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
@@ -283,7 +289,7 @@ for rfile in rfiles:
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
 			rebinnedHists[hist].Write()
 
-			if 'bW0p5' in rfile:
+			if 'W0p5' in rfile:
 				yieldHistName = hist
 				if not rebinCombine: yieldHistName = hist.replace('_sig','_'+rfile.split('_')[-5]) ### ASSUMING BR IS IN FILE NAME
 
@@ -461,6 +467,7 @@ for isEM in isEMlist:
 					else: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2
 					yielderrtemp += (corrdSys*yieldtemp)**2
 				yielderrtemp = math.sqrt(yielderrtemp)
+				print "yieldsAll: ",yieldsAll
 				if proc==dataName: row.append(' & '+str(int(yieldsAll[histoPrefix+proc])))
 				else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 			row.append('\\\\')
