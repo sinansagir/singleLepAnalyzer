@@ -25,7 +25,7 @@ scaleLumi = False
 lumiScaleCoeff = 41530./41298.
 doAllSys = True
 addCRsys = False
-systematicList = ['muRFcorrd']#['muRFcorrd','pileup','prefire','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag']#,'toppt']
+systematicList = ['muRFcorrd','pileup','prefire','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag']#,'toppt']
 if isCategorized: systematicList = ['muRFcorrd','pileup','prefire','jec','btag','jsf','muR','muF','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag']#,'pdf','toppt',]
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
