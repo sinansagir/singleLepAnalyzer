@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = 'root://cmseos.fnal.gov//store/user/escharni/FWLJMET102X_1lep2017Dnn_071519_step1hadds'
+step1Dir = 'root://cmseos.fnal.gov//store/user/escharni/FWLJMET102X_1lep2017Dnn_072519_step2hadds'
 
 iPlot = 'HT' #minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
@@ -49,7 +49,7 @@ bkgList = [
 	'TTJetsHad0','TTJetsHad700','TTJetsHad1000','TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000','TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
 	'TTJetsPH700mtt','TTJetsPH1000mtt','Ts','Tbs','Tt','Tbt','TtW','TbtW','TTWl','TTZl','TTHB','TTHnoB','TTWq',
 	'WW','WZ','ZZ',
-	'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000'
+	'QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000'
 	]
 
 dataList = [
@@ -57,7 +57,7 @@ dataList = [
 	'DataMABCDEF',
 	]
 
-whichSignal = 'TT' #HTB, TT, BB, or X53X53
+whichSignal = 'BB' #HTB, TT, BB, or X53X53
 massList = range(1000,1800+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
@@ -73,7 +73,8 @@ else: isEMlist = ['E']
 if len(sys.argv)>6: taglist=[str(sys.argv[6])]
 else: 
 	taglist = ['all']
-	if isCategorized: taglist=['taggedbWbW','taggedtHbW','taggedtHtH','taggedtZbW','taggedtZtH','taggedtZtZ','taggedtZHtZH','notV']
+	if isCategorized and whichSignal == 'TT': taglist=['taggedbWbW','taggedtHbW','taggedtHtH','taggedtZbW','taggedtZtH','taggedtZtZ','taggedtZHtZH','notV']
+	elif isCategorized and whichSignal == 'BB': taglist=['taggedtWtW','taggedbHtW','taggedbHbH','taggedbZtW','taggedbZbH','taggedbZbZ','notV']
 if len(sys.argv)>7: algolist=[str(sys.argv[7])]
 else: 
 	algolist = ['all']

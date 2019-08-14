@@ -31,12 +31,13 @@ print 'Plotting',region,'is categorized?',isCategorized
 isRebinned=''#_rebinned_stat0p3' #post for ROOT file names
 if len(sys.argv)>7: isRebinned='_rebinned_stat'+str(sys.argv[7])
 BRstr=''
-if isCategorized: BRstr='bW0p5_tZ0p25_tH0p25_'
+if isCategorized and 'BB' in pfix: BRstr='tW0p5_bZ0p25_bH0p25_'
+elif isCategorized: BRstr='bW0p5_tZ0p25_tH0p25_'
 saveKey = '' # tag for plot names
 
-sig1='TTM1200' #  choose the 1st signal to plot
+sig1='BBM1200' #  choose the 1st signal to plot
 sig1leg='T#bar{T} (1.2 TeV)'
-sig2='TTM1500' #  choose the 2nd signal to plot
+sig2='BBM1500' #  choose the 2nd signal to plot
 sig2leg='T#bar{T} (1.5 TeV)'
 drawNormalized = False # STACKS CAN'T DO THIS...bummer
 scaleSignals = True
@@ -84,7 +85,9 @@ if 'algos' in region or 'SR' in region or isCategorized:
 taglist = ['all']
 if isCategorized == True: 
 	taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notV','notVtH','notVtZ','notVbW']
-	if '_' in pfix: taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtH','notVtZ','notVbW',
+	if 'BB' in pfix: taglist=['taggedtWtW','taggedbZtW','taggedbHtW','notVbH','notVbZ','notVtW',
+					'notV2pT','notV01T2pH','notV01T1H','notV1T0H','notV0T0H1pZ','notV0T0H0Z2pW','notV0T0H0Z01W']
+	else: taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtH','notVtZ','notVbW',
 					'notV2pT','notV01T2pH','notV01T1H','notV1T0H','notV0T0H1pZ','notV0T0H0Z2pW','notV0T0H0Z01W']
 	#isEMlist = ['L']
 	#taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtZ','notVbW','notVtH',
