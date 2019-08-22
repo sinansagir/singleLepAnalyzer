@@ -43,7 +43,8 @@ print "xsec =",xs
 
 signal_process_groups = {'sig': ['sig']}
 fjson = open(rFileName+'.json', 'w')
-#disc = discovery(model,use_data = False,input_expected='toys:%f' % xs,spid='sig',Z_error_max=0.1,ts_method=derll)
-disc = discovery(model,use_data = False,input_expected='toys:%f' % xs,spid='sig',ts_method=derll)#,maxit=2, n=1000000)
+#defaults: theta_auto.discovery(model, spid=None, use_data=True, Z_error_max=0.05, maxit=100, n=10000, input_expected='toys:1.0', n_expected=1000, nuisance_constraint=None, nuisance_prior_toys_bkg=None, options=None, verbose=True, ts_method=<function deltanll at 0x46355f0>)
+disc = discovery(model,use_data = False,input_expected='toys:%f' % xs,spid='sig',Z_error_max=0.1,ts_method=derll)
+#disc = discovery(model,use_data = False,n=250000,input_expected='toys:%f' % xs,spid='sig',ts_method=derll)#,maxit=2, n=1000000)
 json.dump(disc, fjson)
 print disc

@@ -14,7 +14,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/mnt/hadoop/users/ssagir/LJMet94X_1lepTT_020619_step1hadds/nominal'
+step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_4t_081019_step1hadds/nominal'
 
 """
 Note: 
@@ -27,17 +27,30 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 """
 
 bkgList = [
-		  'DY','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
+		  'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
+		  'WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG12001','WJetsMG12002','WJetsMG25001','WJetsMG25002',
+		  
 		  'TTJetsHad0','TTJetsHad700','TTJetsHad1000',
-		  'TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000',
+		  'TTJetsSemiLep01','TTJetsSemiLep02','TTJetsSemiLep03','TTJetsSemiLep04','TTJetsSemiLep700','TTJetsSemiLep1000',
 	 	  'TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
-		  'TTJetsPH700mtt','TTJetsPH1000mtt',
-		  'Ts','Tt','Tbt','TtW','TbtW','TTWl','TTZl',
-		  #'QCDht100','QCDht200',
-		  'QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
-		  ]
+		  'TTJets700mtt','TTJets1000mtt',
+		  
+		  'TTJetsHad1','TTJetsHad2','TTJetsHad3',
+		  'TTJetsSemiLepNjet01','TTJetsSemiLepNjet02','TTJetsSemiLepNjet03','TTJetsSemiLepNjet04','TTJetsSemiLepNjet05','TTJetsSemiLepNjet06',
+		  'TTJetsSemiLepNjet91','TTJetsSemiLepNjet92','TTJetsSemiLepNjet93','TTJetsSemiLepNjet94','TTJetsSemiLepNjet95','TTJetsSemiLepNjet96',
+		  'TTJetsSemiLepNjet9bin1','TTJetsSemiLepNjet9bin2','TTJetsSemiLepNjet9bin3',
+		  'TTJets2L2nu1','TTJets2L2nu2','TTJets2L2nu3',
 
-dataList = ['DataERRBCDEF','DataMRRBCDEF']
+		  'TTJetsSemiLep1','TTJetsSemiLep2','TTJetsSemiLep3','TTJetsSemiLep4','TTJetsSemiLep5','TTJetsSemiLep6',
+		  
+		  'Ts','Tbs','Tt','Tbt','TtW','TbtW', 
+		  'TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ',
+		  'TTWl','TTWq','TTZl','TTHB','TTHnoB',
+          'WW','WZ','ZZ',
+		  'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+		  ]
+		  
+dataList = ['DataE','DataM']
 
 whichSignal = '4T' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
@@ -47,13 +60,9 @@ if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' d
 elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 else: decays = [''] #there is only one possible decay mode!
 
-iPlot = 'minMlb' #choose a discriminant from plotList below!
-if len(sys.argv)>2: iPlot=sys.argv[2]
+iPlot = 'HT' #choose a discriminant from plotList below!
 region = 'PS'
-if len(sys.argv)>3: region=sys.argv[3]
 isCategorized = 0
-if len(sys.argv)>4: isCategorized=int(sys.argv[4])
-isotrig = 1
 doJetRwt= 0
 doAllSys= False
 doQ2sys = False
@@ -64,7 +73,7 @@ runData = True
 runBkgs = True
 runSigs = True
 
-cutList = {'elPtCut':35,'muPtCut':30,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0}
+cutList = {'elPtCut':35,'muPtCut':30,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut': 300}
 
 cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
 cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])
@@ -80,25 +89,47 @@ if not isCategorized: pfix='kinematics_'+region+'_'
 pfix+=iPlot
 pfix+='_TEST_'+datestr#+'_'+timestr
 		
-if len(sys.argv)>5: isEMlist=[str(sys.argv[5])]
-else: isEMlist = ['E','M']
-if len(sys.argv)>6: nttaglist=[str(sys.argv[6])]
-else: 
-	if not isCategorized: nttaglist = ['0p']
-	else: nttaglist=['0','1p']
-if len(sys.argv)>7: nWtaglist=[str(sys.argv[7])]
-else: 
-	if not isCategorized: nttaglist = ['0p']
-	else: nWtaglist=['0','1p']
-if len(sys.argv)>8: nbtaglist=[str(sys.argv[8])]
-else: 
-	if not isCategorized: nbtaglist = ['2p']
-	else: nbtaglist=['2','3','4p']
-if len(sys.argv)>9: njetslist=[str(sys.argv[9])]
-else: 
-	if not isCategorized: nbtaglist = ['4p']
-	else: njetslist=['4','5','6','7','8','9','10p']
-	
+isEMlist  = ['E','M']
+nhottlist = ['0','1p']
+nttaglist = ['0','1p']
+nWtaglist = ['0','1p']
+nbtaglist = ['2','3','4p']
+njetslist = ['4','5','6','7','8','9','10p']
+if not isCategorized: 
+	nhottlist = ['0p']
+	nttaglist = ['0p']
+	nWtaglist = ['0p']
+	nbtaglist = ['2p']
+	njetslist = ['4p']
+
+try: 
+	opts, args = getopt.getopt(sys.argv[2:], "", ["iPlot=",
+	                                              "region=",
+	                                              "isCategorized=",
+	                                              "isEM=",
+	                                              "nhott=",
+	                                              "nttag=",
+	                                              "nWtag=",
+	                                              "nbtag=",
+	                                              "njets=",
+	                                              ])
+	print opts,args
+except getopt.GetoptError as err:
+	print str(err)
+	sys.exit(1)
+
+for opt, arg in opts:
+	print opt, arg
+	if opt == '--iPlot': iPlot = arg
+	elif opt == '--region': region = arg
+	elif opt == '--isCategorized': isCategorized = int(arg)
+	elif opt == '--isEM': isEMlist = [str(arg)]
+	elif opt == '--nhott': nhottlist = [str(arg)]
+	elif opt == '--nttag': nttaglist = [str(arg)]
+	elif opt == '--nWtag': nWtaglist = [str(arg)]
+	elif opt == '--nbtag': nbtaglist = [str(arg)]
+	elif opt == '--njets': njetslist = [str(arg)]	
+         		
 def readTree(file):
 	if not os.path.exists(file): 
 		print "Error: File does not exist! Aborting ...",file
@@ -153,10 +184,10 @@ bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'deltaRAK8':('minDR_leadAK8otherAK8',linspace(0,5,51).tolist(),';min #DeltaR(1^{st} AK8 jet, other AK8 jet)'),
 	'MTlmet':('MT_lepMet',linspace(0,250,51).tolist(),';M_{T}(l,#slash{E}_{T}) [GeV]'),
-	'NPV'   :('nPV_singleLepCalc',linspace(0, 60, 61).tolist(),';PV multiplicity'),
-	'nTrueInt':('nTrueInteractions_singleLepCalc',linspace(0, 75, 76).tolist(),';# true interactions'),
-	'lepPt' :('leptonPt_singleLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV]'),
-	'lepEta':('leptonEta_singleLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta'),
+	'NPV'   :('nPV_MultiLepCalc',linspace(0, 60, 61).tolist(),';PV multiplicity'),
+	'nTrueInt':('nTrueInteractions_MultiLepCalc',linspace(0, 75, 76).tolist(),';# true interactions'),
+	'lepPt' :('leptonPt_MultiLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV]'),
+	'lepEta':('leptonEta_MultiLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta'),
 	'JetEta':('theJetEta_JetSubCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK4 jet #eta'),
 	'JetPt' :('theJetPt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';jet p_{T} [GeV]'),
 	'Jet1Pt':('theJetPt_JetSubCalc_PtOrdered[0]',linspace(0, 1500, 51).tolist(),';p_{T}(j_{1}) [GeV]'),
@@ -172,12 +203,12 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'Jet4PtBins':('theJetPt_JetSubCalc_PtOrdered[3]',linspace(0,2000,21).tolist(),';p_{T}(j_{4}) [GeV]'),
 	'Jet5PtBins':('theJetPt_JetSubCalc_PtOrdered[4]',linspace(0,2000,21).tolist(),';p_{T}(j_{5}) [GeV]'),
 	'Jet6PtBins':('theJetPt_JetSubCalc_PtOrdered[5]',linspace(0,2000,21).tolist(),';p_{T}(j_{6}) [GeV]'),
-	'MET'   :('corr_met_singleLepCalc',linspace(0, 1500, 51).tolist(),';#slash{E}_{T} [GeV]'),
+	'MET'   :('corr_met_MultiLepCalc',linspace(0, 1500, 51).tolist(),';#slash{E}_{T} [GeV]'),
 	'NJets' :('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 jet multiplicity'),
 	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
 	'NBJetsNoSF':('NJetsCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
-	'NWJets':('NPuppiWtagged_0p55_notTtagged',linspace(0, 6, 7).tolist(),';W-tagged jet multiplicity'),
-	'NTJets':('NJetsTtagged_0p81',linspace(0, 4, 5).tolist(),';t-tagged jet multiplicity'),
+	'NWJets':('NJetsWtagged',linspace(0, 6, 7).tolist(),';W-tagged jet multiplicity'),
+	'NTJets':('NJetsTtagged',linspace(0, 4, 5).tolist(),';t-tagged jet multiplicity'),
 	'NJetsAK8':('NJetsAK8_JetSubCalc',linspace(0, 8, 9).tolist(),';AK8 jet multiplicity'),
 	'JetPtAK8':('theJetAK8Pt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';AK8 jet p_{T} [GeV]'),
 	'JetPtBinsAK8':('theJetAK8Pt_JetSubCalc_PtOrdered',bigbins,';AK8 jet p_{T} [GeV];'),
@@ -197,12 +228,12 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'deltaRjet2':('deltaR_lepJets[1]',linspace(0, 5, 51).tolist(),';#DeltaR(l,j_{2})'),
 	'deltaRjet3':('deltaR_lepJets[2]',linspace(0, 5, 51).tolist(),';#DeltaR(l,j_{3})'),
 	'nLepGen':('NLeptonDecays_TpTpCalc',linspace(0,10,11).tolist(),';N lepton decays from TT'),
-	'METphi':('corr_met_phi_singleLepCalc',linspace(-3.2,3.2,65).tolist(),';#phi(#slash{E}_{T})'),
-	'lepPhi':('leptonPhi_singleLepCalc',linspace(-3.2,3.2,65).tolist(),';#phi(l)'),
-	'lepDxy':('leptonDxy_singleLepCalc',linspace(-0.02,0.02,51).tolist(),';lepton xy impact param [cm]'),
-	'lepDz':('leptonDz_singleLepCalc',linspace(-0.1,0.1,51).tolist(),';lepton z impact param [cm]'),
-	'lepCharge':('leptonCharge_singleLepCalc',linspace(-2,2,5).tolist(),';lepton charge'),
-	'lepIso':('leptonMiniIso_singleLepCalc',linspace(0,0.1,51).tolist(),';lepton mini isolation'),
+	'METphi':('corr_met_phi_MultiLepCalc',linspace(-3.2,3.2,65).tolist(),';#phi(#slash{E}_{T})'),
+	'lepPhi':('leptonPhi_MultiLepCalc',linspace(-3.2,3.2,65).tolist(),';#phi(l)'),
+	'lepDxy':('leptonDxy_MultiLepCalc',linspace(-0.02,0.02,51).tolist(),';lepton xy impact param [cm]'),
+	'lepDz':('leptonDz_MultiLepCalc',linspace(-0.1,0.1,51).tolist(),';lepton z impact param [cm]'),
+	'lepCharge':('leptonCharge_MultiLepCalc',linspace(-2,2,5).tolist(),';lepton charge'),
+	'lepIso':('leptonMiniIso_MultiLepCalc',linspace(0,0.1,51).tolist(),';lepton mini isolation'),
 	'Tau1':('theJetAK8NjettinessTau1_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{1}'),
 	'Tau2':('theJetAK8NjettinessTau2_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{2}'),
 	'JetPhi':('theJetPhi_JetSubCalc_PtOrdered',linspace(-3.2,3.2,65).tolist(),';AK4 Jet #phi'),
@@ -235,6 +266,22 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'WjetPt':('WJetTaggedPt',linspace(0,1500,51).tolist(),';p_{T}(W_{jet}) [GeV]'),
 	'PtRel':('ptRel_lepJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
 	'deltaPhiLMET':('deltaPhi_lepMET',linspace(-3.2,3.2,51).tolist(),';#Delta#phi(l,#slash{E}_{T})'),
+	'NHOTtJets':('topNtops_HOTTaggerCalc',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity'),
+	'NresolvedTops1p':('NresolvedTops1pFake',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (1% fake)'),
+	'NresolvedTops2p':('NresolvedTops2pFake',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (2% fake)'),
+	'NresolvedTops5p':('NresolvedTops5pFake',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (5% fake)'),
+	'NresolvedTops10p':('NresolvedTops10pFake',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (10% fake)'),
+	'HOTtPt':('topPt_HOTTaggerCalc',linspace(0, 1000, 51).tolist(),';resolved t-tagged jet p_{T} [GeV]'),
+	'HOTtEta':('topEta_HOTTaggerCalc',linspace(-4, 4, 41).tolist(),';resolved t-tagged jet #eta'),
+	'HOTtPhi':('topPhi_HOTTaggerCalc',linspace(-3.2,3.2,65).tolist(),';resolved t-tagged jet #phi'),
+	'HOTtMass':('topMass_HOTTaggerCalc',linspace(0, 500, 51).tolist(),';resolved t-tagged jet mass [GeV]'),
+	'HOTtDisc':('topDiscriminator_HOTTaggerCalc',linspace(0,1,51).tolist(),';resolved t-tagged jet discriminator'),
+	'HOTtNconst':('topNconstituents_HOTTaggerCalc',linspace(0, 10, 11).tolist(),';resolved t-tagged jet # constituents'),
+	'HOTtNAK4':('topNAK4_HOTTaggerCalc',linspace(0, 15, 16).tolist(),';resolved t-tagged jet # AK4 jets'),
+	'HOTtDRmax':('topDRmax_HOTTaggerCalc',linspace(0,1,51).tolist(),';resolved t-tagged jet DRmax'),
+	'HOTtDThetaMax':('topDThetaMax_HOTTaggerCalc',linspace(0,1,51).tolist(),';resolved t-tagged jet DThetaMax'),
+	'HOTtDThetaMin':('topDThetaMin_HOTTaggerCalc',linspace(0,1,51).tolist(),';resolved t-tagged jet DThetaMin'),
+	'isHTgt500Njetge9':('isHTgt500Njetge9',linspace(0,2,3).tolist(),';isHTgt500Njetge9'),
 	
 	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 jet multiplicity',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
 
@@ -245,6 +292,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 # 	'ST':('AK4HTpMETpLepPt',linspace(650, 4000, 671).tolist(),';S_{T} [GeV]'),
 	'minMlb':('minMleppBjet',linspace(0, 1000, 201).tolist(),';min[M(l,b)] [GeV]'),
 	'minMlbSBins':('minMleppBjet',linspace(0, 1000, 1001).tolist(),';min[M(l,b)] [GeV]'),
+	'BDT':('BDT',linspace(-1, 1, 201).tolist(),';BDT'),
 	}
 
 print "PLOTTING:",iPlot
@@ -252,13 +300,13 @@ print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
-catList = list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))
+catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 nCats  = len(catList)
 
 catInd = 1
 for cat in catList:
  	if not runData: break
- 	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
+ 	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
  	datahists = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
  	else: 
@@ -269,9 +317,9 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
- 	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
+ 	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
  	for data in dataList: 
- 		datahists.update(analyze(tTreeData,data,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 		datahists.update(analyze(tTreeData,data,cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if catInd==nCats: del tFileData[data]
  	pickle.dump(datahists,open(outDir+'/datahists_'+iPlot+'.p','wb'))
  	catInd+=1
@@ -279,7 +327,7 @@ for cat in catList:
 catInd = 1
 for cat in catList:
  	if not runBkgs: break
- 	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
+ 	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
  	bkghists  = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
  	else: 
@@ -290,16 +338,16 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
- 	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
+ 	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
  	for bkg in bkgList: 
- 		bkghists.update(analyze(tTreeBkg,bkg,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 		bkghists.update(analyze(tTreeBkg,bkg,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if catInd==nCats: del tFileBkg[bkg]
  		if doAllSys and catInd==nCats:
  			for syst in shapesFiles:
  				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
  	if doQ2sys: 
  		for q2 in q2List: 
- 			bkghists.update(analyze(tTreeBkg,q2,cutList,isotrig,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 			bkghists.update(analyze(tTreeBkg,q2,cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  			if catInd==nCats: del tFileBkg[q2]
 	pickle.dump(bkghists,open(outDir+'/bkghists_'+iPlot+'.p','wb'))
  	catInd+=1
@@ -307,7 +355,7 @@ for cat in catList:
 catInd = 1
 for cat in catList:
  	if not runSigs: break
- 	catDir = cat[0]+'_nT'+cat[1]+'_nW'+cat[2]+'_nB'+cat[3]+'_nJ'+cat[4]
+ 	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
  	sighists  = {}
  	if len(sys.argv)>1: outDir=sys.argv[1]
  	else: 
@@ -318,10 +366,10 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
- 	category = {'isEM':cat[0],'nttag':cat[1],'nWtag':cat[2],'nbtag':cat[3],'njets':cat[4]}
+ 	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
  	for sig in sigList: 
  		for decay in decays: 
- 			sighists.update(analyze(tTreeSig,sig+decay,cutList,isotrig,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 			sighists.update(analyze(tTreeSig,sig+decay,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  			if catInd==nCats: del tFileSig[sig+decay]
  			if doAllSys and catInd==nCats:
  				for syst in shapesFiles:
