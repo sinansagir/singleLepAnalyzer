@@ -12,8 +12,8 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-
+lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
+saveKey = ''
 region='SR' #PS,SR,TTCR,WJCR
 isCategorized=1
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
@@ -21,7 +21,7 @@ if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='2019_3_2'
+pfix+='2019_8_21'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -35,23 +35,41 @@ systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','topp
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 
-doJetRwt= 0
+doJetRwt = False
+doTTmtt = False
+doTTinc = False
 bkgGrupList = ['top','ewk','qcd']
-bkgProcList = ['TTJets','T','TTV','WJets','ZJets','qcd']
+bkgProcList = ['TTJets','T','TTV','TTXY','WJets','ZJets','VV','qcd']
 bkgProcs = {}
-bkgProcs['WJets']  = ['WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',]
+bkgProcs['WJets']  = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG12001','WJetsMG12002','WJetsMG25001','WJetsMG25002']
 if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']] 
-bkgProcs['ZJets']  = ['DY']
-bkgProcs['VV']     = []#'WW','WZ','ZZ']
-bkgProcs['TTJets'] = ['TTJetsHad0','TTJetsHad700','TTJetsHad1000','TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000','TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000','TTJetsPH700mtt','TTJetsPH1000mtt']
-bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
-bkgProcs['TTV'] = ['TTWl','TTZl']
-bkgProcs['qcd'] = ['QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
+bkgProcs['VV']     = ['WW','WZ','ZZ']
+bkgProcs['TTJets'] = ['TTJetsHad1','TTJetsHad2','TTJetsHad3']
+bkgProcs['TTJets']+= ['TTJetsSemiLepNjet01','TTJetsSemiLepNjet02','TTJetsSemiLepNjet03','TTJetsSemiLepNjet04','TTJetsSemiLepNjet05','TTJetsSemiLepNjet06']
+bkgProcs['TTJets']+= ['TTJetsSemiLepNjet91','TTJetsSemiLepNjet92','TTJetsSemiLepNjet93','TTJetsSemiLepNjet94','TTJetsSemiLepNjet95','TTJetsSemiLepNjet96']
+bkgProcs['TTJets']+= ['TTJetsSemiLepNjet9bin1','TTJetsSemiLepNjet9bin2','TTJetsSemiLepNjet9bin3']
+bkgProcs['TTJets']+= ['TTJets2L2nu1','TTJets2L2nu2','TTJets2L2nu3']
+if doTTmtt:
+	saveKey+='_mtt'
+	bkgProcs['TTJets'] = ['TTJetsHad0','TTJetsHad700','TTJetsHad1000']
+	bkgProcs['TTJets']+= ['TTJetsSemiLep01','TTJetsSemiLep02','TTJetsSemiLep03','TTJetsSemiLep04','TTJetsSemiLep700','TTJetsSemiLep1000']
+	bkgProcs['TTJets']+= ['TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000']
+	bkgProcs['TTJets']+= ['TTJets700mtt','TTJets1000mtt']
+elif doTTinc:
+	saveKey+='_TTinc'
+	bkgProcs['TTJets'] = ['TTJetsHad1','TTJetsHad2','TTJetsHad3']
+	bkgProcs['TTJets']+= ['TTJetsSemiLep1','TTJetsSemiLep2','TTJetsSemiLep3','TTJetsSemiLep4','TTJetsSemiLep5','TTJetsSemiLep6']
+	bkgProcs['TTJets']+= ['TTJets2L2nu1','TTJets2L2nu2','TTJets2L2nu3']
+bkgProcs['T']   = ['Ts','Tbs','Tt','Tbt','TtW','TbtW']
+bkgProcs['TTV'] = ['TTWl','TTWq','TTZl','TTHB','TTHnoB']
+bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
+bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']] 
-bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']
+bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV'] 
-dataList = ['DataERRBCDEF','DataMRRBCDEF']
-
+dataList = ['DataE','DataM']
+		  
 htProcs = ['ewk','WJets']
 topptProcs = ['top','TTJets']
 bkgProcs['top_q2up'] = bkgProcs['T']+['TTJetsPHQ2U']#'TtWQ2U','TbtWQ2U']
@@ -59,7 +77,6 @@ bkgProcs['top_q2dn'] = bkgProcs['T']+['TTJetsPHQ2D']#'TtWQ2D','TbtWQ2D']
 
 whichSignal = '4T' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
-if region=='PS': massList = [690]
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -75,20 +92,27 @@ nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
 isEMlist  = ['E','M']
-nttaglist = ['0','1','0p','1p','2p']
-nWtaglist = ['0','1','0p','1p','2p']
-nbtaglist = ['1','2','3','3p','4p']
+nhottlist = ['0','0p','1p']
+nttaglist = ['0','0p','1p']
+nWtaglist = ['0','0p','1p','1','2p']
+nbtaglist = ['2','3','3p','4p']
 njetslist = ['4','5','6','7','8','9','9p','10p']
+# nhottlist = ['0p']
+# nttaglist = ['0p']
+# nWtaglist = ['0p']
+# nbtaglist = ['2p']
+# njetslist = ['4p','5p','6p','7p','8p','9p','10p']
 if not isCategorized: 	
+	nhottlist = ['0p']
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
-
+	
 #check the "skip" function in utils module to see if you want to remove specific categories there!!!
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
-tagList = ['nT'+item[0]+'_nW'+item[1]+'_nB'+item[2]+'_nJ'+item[3] for item in list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(('dummy',)+item)]
-		
+catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
+tagList = ['nHOT'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(('dummy',)+item)]
+
 lumiSys = 0.0#25 #lumi uncertainty
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
@@ -117,7 +141,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 	yieldTable = {}
 	yieldStatErrTable = {}
 	for cat in catList:
-		histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
+		histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 		yieldTable[histoPrefix]={}
 		yieldStatErrTable[histoPrefix]={}
 		if doAllSys:
@@ -137,7 +161,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		hists={}
 		for cat in catList:
 			print "              processing cat: "+cat
-			histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
+			histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 			i=BRconfStr+cat
 
 			#Group data processes
@@ -254,7 +278,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		print "       WRITING THETA TEMPLATES: "
 		for signal in sigList:
 			print "              ... "+signal
-			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
+			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+saveKey+'.root'
 			thetaRfile = TFile(thetaRfileName,'RECREATE')
 			for cat in catList:
 				i=BRconfStr+cat
@@ -279,7 +303,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 
 		#Combine templates:
 		print "       WRITING COMBINE TEMPLATES: "
-		combineRfileName = outDir+'/templates_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.root'
+		combineRfileName = outDir+'/templates_'+discriminant+BRconfStr+'_'+lumiStr+saveKey+'.root'
 		combineRfile = TFile(combineRfileName,'RECREATE')
 		for cat in catList:
 			print "              ... "+cat
@@ -300,6 +324,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						hists[signal+i+'pdf'+str(pdfInd)].Write()
 			for proc in bkgGrupList:
 				hists[proc+i].SetName(hists[proc+i].GetName().replace('fb_','fb_'+postTag))
+				if hists[proc+i].Integral() == 0: hists[proc+i].SetBinContent(1,1e-20)
 				hists[proc+i].Write()
 				if doAllSys:
 					for syst in systematicList:
@@ -325,29 +350,33 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		print "       WRITING SUMMARY TEMPLATES: "
 		for signal in sigList:
 			print "              ... "+signal
-			yldRfileName = outDir+'/templates_YLD_'+signal+BRconfStr+'_'+lumiStr+'fb.root'
+			yldRfileName = outDir+'/templates_YLD_'+signal+BRconfStr+'_'+lumiStr+saveKey+'.root'
 			yldRfile = TFile(yldRfileName,'RECREATE')
 			for isEM in isEMlist:	
 				for proc in bkgGrupList+['data',signal]:
 					yldHists = {}
-					yldHists[isEM+proc]=TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA'),'',len(tagList),0,len(tagList))
+					yldHists[isEM+proc]=TH1F('YLD_'+lumiStr+'_is'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA'),'',len(tagList),0,len(tagList))
 					if doAllSys and proc!='data':
 						for syst in systematicList:
 							for ud in ['Up','Down']:
 								if syst=='toppt' and proc not in topptProcs: continue
 								if syst=='ht' and proc not in htProcs: continue
-								yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+'__'+ud.replace('Up','plus').replace('Down','minus'),'',len(tagList),0,len(tagList))
+								yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'_is'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+'__'+ud.replace('Up','plus').replace('Down','minus'),'',len(tagList),0,len(tagList))
 					if doQ2sys and proc+'_q2up' in bkgProcs.keys(): 
-						yldHists[isEM+proc+'q2Up']  =TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__q2__plus','',len(tagList),0,len(tagList))
-						yldHists[isEM+proc+'q2Down']=TH1F('YLD_'+lumiStr+'fb_is'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__q2__minus','',len(tagList),0,len(tagList))
+						yldHists[isEM+proc+'q2Up']  =TH1F('YLD_'+lumiStr+'_is'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__q2__plus','',len(tagList),0,len(tagList))
+						yldHists[isEM+proc+'q2Down']=TH1F('YLD_'+lumiStr+'_is'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__q2__minus','',len(tagList),0,len(tagList))
 					ibin = 1
 					for cat in catList:
 						if 'is'+isEM not in cat: continue
+						nhottag = cat.split('_')[-5][4:]
 						nttag = cat.split('_')[-4][2:]
 						nWtag = cat.split('_')[-3][2:]
 						nbtag = cat.split('_')[-2][2:]
 						njets = cat.split('_')[-1][2:]
 						binStr = ''
+						if nhottag!='0p':
+							if 'p' in nhottag: binStr+='#geq'+nhottag[:-1]+'res-t/'
+							else: binStr+=nttag+'res-t/'
 						if nttag!='0p':
 							if 'p' in nttag: binStr+='#geq'+nttag[:-1]+'t/'
 							else: binStr+=nttag+'t/'
@@ -361,7 +390,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 							if 'p' in njets: binStr+='#geq'+njets[:-1]+'j'
 							else: binStr+=njets+'j'
 						if binStr.endswith('/'): binStr=binStr[:-1]
-						histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
+						histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 						yldHists[isEM+proc].SetBinContent(ibin,yieldTable[histoPrefix][proc])
 						yldHists[isEM+proc].SetBinError(ibin,yieldStatErrTable[histoPrefix][proc])
 						yldHists[isEM+proc].GetXaxis().SetBinLabel(ibin,binStr)
@@ -399,7 +428,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		table.append(['YIELDS']+[proc for proc in bkgProcList+['data']])
 		for cat in catList:
 			row = [cat]
-			histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
+			histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 			for proc in bkgProcList+['data']:
 				row.append(str(yieldTable[histoPrefix][proc])+' $\pm$ '+str(yieldStatErrTable[histoPrefix][proc]))
 			table.append(row)			
@@ -410,7 +439,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		table.append(['YIELDS']+[proc for proc in bkgGrupList+['data']])
 		for cat in catList:
 			row = [cat]
-			histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
+			histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 			for proc in bkgGrupList+['data']:
 				row.append(str(yieldTable[histoPrefix][proc])+' $\pm$ '+str(yieldStatErrTable[histoPrefix][proc]))
 			table.append(row)
@@ -421,7 +450,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		table.append(['YIELDS']+[proc for proc in sigList])
 		for cat in catList:
 			row = [cat]
-			histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
+			histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 			for proc in sigList:
 				row.append(str(yieldTable[histoPrefix][proc])+' $\pm$ '+str(yieldStatErrTable[histoPrefix][proc]))
 			table.append(row)
@@ -440,7 +469,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					for cat in catList:
 						if not ('is'+isEM in cat and 'nT'+nttag in cat): continue
 						modTag = cat[cat.find('nT'):cat.find('nJ')-3]
-						histoPrefix=discriminant+'_'+lumiStr+'fb_'+cat
+						histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 						yieldtemp = 0.
 						yielderrtemp = 0.
 						if proc=='totBkg' or proc=='dataOverBkg':
@@ -484,7 +513,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				for cat in catList:
 					if not ('isE' in cat and 'nT'+nttag in cat): continue
 					modTag = cat[cat.find('nT'):cat.find('nJ')-3]
-					histoPrefixE = discriminant+'_'+lumiStr+'fb_'+cat
+					histoPrefixE = discriminant+'_'+lumiStr+'_'+cat
 					histoPrefixM = histoPrefixE.replace('isE','isM')
 					yieldtemp = 0.
 					yieldtempE = 0.
@@ -535,7 +564,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					for ud in ['Up','Down']:
 						row = [syst+ud]
 						for cat in catList:
-							histoPrefix = discriminant+'_'+lumiStr+'fb_'+cat
+							histoPrefix = discriminant+'_'+lumiStr+'_'+cat
 							nomHist = histoPrefix
 							shpHist = histoPrefix+syst+ud
 							try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
@@ -547,8 +576,8 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						table.append(row)
 				table.append(['break'])
 			
-		if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
-		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+'fb'+'.txt','w')
+		if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+BRconfStr+'_'+lumiStr+saveKey+'.txt','w')
+		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+saveKey+'.txt','w')
 		printTable(table,out)
 
 def findfiles(path, filtre):

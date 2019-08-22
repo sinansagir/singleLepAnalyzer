@@ -3,10 +3,10 @@
 import os,sys,fnmatch
 from catconfigs import *
 
-templateDir=os.getcwd()+'/../makeTemplates/templates_2019_3_2'
+templateDir=os.getcwd()+'/../makeTemplates/templates_2019_8_21'
 thetaConfigFile = os.getcwd()+'/theta_limit_template.py'
-lumiInFile = '41p298fb'
-doLimits = True #else it will run discovery significances
+lumiInFile = '41p53fb'
+doLimits = False #else it will run discovery significances
 
 toFilter0 = []#['__'+item+'__' for item in toFilter0]
 
@@ -14,14 +14,30 @@ limitConfs = {#'<limit type>':[filter list]
 # 			  'all':[],
 # 			  'isE':['isM'], #only electron channel
 # 			  'isM':['isE'], #only muon channel
-			  'tag120' :[tag for tag in tags['all'] if tag not in tags['tag120']],
-			  'tag63'  :[tag for tag in tags['all'] if tag not in tags['tag63']],
-			  'tag45'  :[tag for tag in tags['all'] if tag not in tags['tag45']],
-			  'tag36'  :[tag for tag in tags['all'] if tag not in tags['tag36']],
-			  'tag27'  :[tag for tag in tags['all'] if tag not in tags['tag27']],
-			  'noTW15' :[tag for tag in tags['all'] if tag not in tags['noTW15']],
-			  'onlyW30':[tag for tag in tags['all'] if tag not in tags['onlyW30']],
-			  'onlyT30':[tag for tag in tags['all'] if tag not in tags['onlyT30']],
+# 			  'tag120' :[tag for tag in tags['all'] if tag not in tags['tag120']],
+# 			  'tag63'  :[tag for tag in tags['all'] if tag not in tags['tag63']],
+# 			  'tag54'  :[tag for tag in tags['all'] if tag not in tags['tag54']],
+# 			  'tag45'  :[tag for tag in tags['all'] if tag not in tags['tag45']],
+# 			  'tag36'  :[tag for tag in tags['all'] if tag not in tags['tag36']],
+# 			  'tag27'  :[tag for tag in tags['all'] if tag not in tags['tag27']],
+# 			  'noTW15' :[tag for tag in tags['all'] if tag not in tags['noTW15']],
+# 			  'onlyW30':[tag for tag in tags['all'] if tag not in tags['onlyW30']],
+# 			  'onlyT30':[tag for tag in tags['all'] if tag not in tags['onlyT30']],
+# 			  'noTW18' :[tag for tag in tags['all'] if tag not in tags['noTW18']],
+# 			  'onlyW36':[tag for tag in tags['all'] if tag not in tags['onlyW36']],
+# 			  'onlyT36':[tag for tag in tags['all'] if tag not in tags['onlyT36']],
+
+			  '165cats'  :[tag for tag in tags['allcats'] if tag not in tags['165cats']],
+			  '144cats'  :[tag for tag in tags['allcats'] if tag not in tags['144cats']],
+			  '102cats'  :[tag for tag in tags['allcats'] if tag not in tags['102cats']],
+			  '90cats'   :[tag for tag in tags['allcats'] if tag not in tags['90cats']],
+			  '75cats'   :[tag for tag in tags['allcats'] if tag not in tags['75cats']],
+			  '60cats'   :[tag for tag in tags['allcats'] if tag not in tags['60cats']],
+			  '45cats'   :[tag for tag in tags['allcats'] if tag not in tags['45cats']],
+			  'noHOTtW15':[tag for tag in tags['allcats'] if tag not in tags['noHOTtW15']],
+			  'onlyHOT30':[tag for tag in tags['allcats'] if tag not in tags['onlyHOT30']],
+			  'onlyT30'  :[tag for tag in tags['allcats'] if tag not in tags['onlyT30']],
+			  'onlyW30'  :[tag for tag in tags['allcats'] if tag not in tags['onlyW30']],
 			  }
 #for cat in catList: limitConfs[cat]=[item for item in catList if item!=cat]
 
@@ -31,7 +47,7 @@ if not doLimits:
 	thetaConfigFile = os.getcwd()+'/theta_disc_template.py'
 outputDir = '/user_data/ssagir/fourtops_limits_2019/'+templateDir.split('/')[-1]+limitType+'/'
 if os.path.exists(outputDir):
-	 print "The directory",outputDir,"exists!!! I will not overwrite it. Please specify a different output directory ..."
+	 print "The directory",outputDir,"exists!!! I will not overwrite it. Please specify a different output directory or remove the existing one ..."
 	 os._exit(1)
 else: os.system('mkdir '+outputDir)
 
@@ -43,6 +59,7 @@ def findfiles(path, filtre):
 rootfilelist = []
 for rootfile in findfiles(templateDir, '*.root'):
     if 'rebinned_stat0p3' not in rootfile: continue
+    #if 'BDT' not in rootfile: continue
     if 'plots' in rootfile: continue
     if 'YLD' in rootfile: continue
     rootfilelist.append(rootfile)

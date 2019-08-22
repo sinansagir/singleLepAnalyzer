@@ -32,12 +32,12 @@ start_time = time.time()
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_2019_3_2/'+cutString
-combinefile = 'templates_'+iPlot+'_41p298fb.root'
+templateDir = os.getcwd()+'/templates_2019_8_21/'+cutString
+combinefile = 'templates_'+iPlot+'_41p53fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = False #else rebins theta templates
-doStatShapes = True
+doStatShapes = False
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
@@ -388,16 +388,18 @@ for chn in channels:
 			modelingSys[proc+'_'+modTag] = 0.
 	
 isEMlist =[]
+nhottlist=[]
 nttaglist=[]
 nWtaglist=[]
 nbtaglist=[]
 njetslist=[]
 for chn in channels:
 	if chn.split('_')[0+rebinCombine] not in isEMlist: isEMlist.append(chn.split('_')[0+rebinCombine])
-	if chn.split('_')[1+rebinCombine] not in nttaglist: nttaglist.append(chn.split('_')[1+rebinCombine])
-	if chn.split('_')[2+rebinCombine] not in nWtaglist: nWtaglist.append(chn.split('_')[2+rebinCombine])
-	if chn.split('_')[3+rebinCombine] not in nbtaglist: nbtaglist.append(chn.split('_')[3+rebinCombine])
-	if chn.split('_')[4+rebinCombine] not in njetslist: njetslist.append(chn.split('_')[4+rebinCombine])
+	if chn.split('_')[1+rebinCombine] not in nhottlist: nhottlist.append(chn.split('_')[1+rebinCombine])
+	if chn.split('_')[2+rebinCombine] not in nttaglist: nttaglist.append(chn.split('_')[2+rebinCombine])
+	if chn.split('_')[3+rebinCombine] not in nWtaglist: nWtaglist.append(chn.split('_')[3+rebinCombine])
+	if chn.split('_')[4+rebinCombine] not in nbtaglist: nbtaglist.append(chn.split('_')[4+rebinCombine])
+	if chn.split('_')[5+rebinCombine] not in njetslist: njetslist.append(chn.split('_')[5+rebinCombine])
 
 procNames={
            'top':'TOP',
