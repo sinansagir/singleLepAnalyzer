@@ -12,11 +12,11 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=41.3 #for plots
+lumi=41.5 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
+isCategorized=0
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
@@ -24,9 +24,9 @@ if region=='SR': pfix='templates_'
 elif region=='WJCR': pfix='wjets_'
 elif region=='TTCR': pfix='ttbar_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-templateDir=os.getcwd()+'/'+pfix+'2019_3_2/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'2019_8_21/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned=''#'_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig1='4TM690' #  choose the 1st signal to plot
@@ -45,7 +45,8 @@ else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5}
 
 systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','trigeff','ht',
 				  'btag','mistag','pdfNew','muRFcorrdNew','toppt']
-if 'muRFcorrdNew' not in systematicList: saveKey='_noQ2'
+systematicList = ['muRFcorrd', 'L1NonPFP']
+#if 'muRFcorrdNew' not in systematicList: saveKey='_noQ2'
 doAllSys = False
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
@@ -54,35 +55,36 @@ doNormByBinWidth=True
 if 'rebinned' not in isRebinned or 'stat1p1' in isRebinned: doNormByBinWidth=False
 doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
-blind = True
+blind = False
 yLog  = True
 if yLog: scaleSignals = False
-doRealPull = True
+doRealPull = False
 if doRealPull: doOneBand=False
 compareShapes = False
 if compareShapes: blind,yLog,scaleSignals,sigScaleFact=True,False,False,-1
 drawYields = False
 
 isEMlist  = ['E','M']
-nttaglist = ['0','1','0p','1p','2p']
-nWtaglist = ['0','1','0p','1p','2p']
-nbtaglist = ['1','2','3','3p','4p']
-#nbtaglist = ['1']
-#if len(nbtaglist)==1: saveKey = '_nB'+nbtaglist[0]
+nhottlist = ['0','0p','1p']
+nttaglist = ['0','0p','1p']
+nWtaglist = ['0','0p','1p']
+nbtaglist = ['2','3','3p','4p']
 njetslist = ['4','5','6','7','8','9','9p','10p']
 if not isCategorized: 	
+	nhottlist = ['0p']
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
 if 'YLD' in iPlot:
 	doNormByBinWidth = False
+	nhottlist = ['0p']
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['0p']
 	njetslist = ['0p']
-
-tagListTemp = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
+	
+tagListTemp = list(itertools.product(nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 tagList = []
 for tag in tagListTemp:#check the "skip" function in utils module to see if you want to remove specific categories there!!!
 	if not skip(('dummy',)+tag): tagList.append(tag)
@@ -186,7 +188,7 @@ iPos = 11
 if( iPos==0 ): CMS_lumi.relPosX = 0.12
 
 H_ref = 600; 
-W_ref = 1200; 
+W_ref = 800; 
 W = W_ref
 H  = H_ref
 
@@ -216,7 +218,7 @@ totBkgTemp1 = {}
 totBkgTemp2 = {}
 totBkgTemp3 = {}
 for tag in tagList:
-	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]+'_nJ'+tag[3]
+	tagStr='nHOT'+tag[0]+'_nT'+tag[1]+'_nW'+tag[2]+'_nB'+tag[3]+'_nJ'+tag[4]
 	modTag = tagStr[tagStr.find('nT'):tagStr.find('nJ')-3]
 	for isEM in isEMlist:
 		histPrefix=iPlot+'_'+lumiInTemplates+'fb_'
@@ -241,8 +243,8 @@ for tag in tagList:
 		print hData_test.Integral(),bkgHT_test.Integral()
 		hsig1 = RFile1.Get(histPrefix+'__sig').Clone(histPrefix+'__sig1')
 		hsig2 = RFile2.Get(histPrefix+'__sig').Clone(histPrefix+'__sig2')
-		hsig1.Scale(xsec[sig1])
-		hsig2.Scale(xsec[sig2])
+		#hsig1.Scale(xsec[sig1])
+		#hsig2.Scale(xsec[sig2])
 		if doNormByBinWidth:
 			for proc in bkgProcList:
 				try: normByBinWidth(bkghists[proc+catStr])
@@ -476,23 +478,28 @@ for tag in tagList:
 		chLatex.SetTextAlign(21) # align center
 		flvString = ''
 		tagString = ''
+		tagString2 = ''
 		if isEM=='E': flvString+='e+jets'
 		if isEM=='M': flvString+='#mu+jets'
 		if tag[0]!='0p': 
-			if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
-			else: tagString+=tag[0]+' t, '
+			if 'p' in tag[0]: tagString2+='#geq'+tag[0][:-1]+' resolved t'
+			else: tagString2+=tag[0]+' resolved t'
 		if tag[1]!='0p': 
-			if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
-			else: tagString+=tag[1]+' W, '
+			if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' t, '
+			else: tagString+=tag[1]+' t, '
 		if tag[2]!='0p': 
-			if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b, '
-			else: tagString+=tag[2]+' b, '
+			if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' W, '
+			else: tagString+=tag[2]+' W, '
 		if tag[3]!='0p': 
-			if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' j'
-			else: tagString+=tag[3]+' j'
+			if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' b, '
+			else: tagString+=tag[3]+' b, '
+		if tag[4]!='0p': 
+			if 'p' in tag[4]: tagString+='#geq'+tag[4][:-1]+' j'
+			else: tagString+=tag[4]+' j'
 		if tagString.endswith(', '): tagString = tagString[:-2]
 		chLatex.DrawLatex(tagPosX, tagPosY, flvString)
 		chLatex.DrawLatex(tagPosX, tagPosY-0.06, tagString)
+		chLatex.DrawLatex(tagPosX, tagPosY-0.12, tagString2)
 
 		if drawQCD: leg = rt.TLegend(0.45,0.52,0.95,0.87)
 		if not drawQCD or blind: leg = rt.TLegend(0.45,0.64,0.95,0.89)
@@ -681,6 +688,7 @@ for tag in tagList:
 		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 		if not os.path.exists(savePrefix): os.system('mkdir '+savePrefix)
 		savePrefix+=histPrefix+isRebinned.replace('_rebinned_stat1p1','')+saveKey
+		if nhottlist[0]=='0p': savePrefix=savePrefix.replace('nHOT0p_','')
 		if nttaglist[0]=='0p': savePrefix=savePrefix.replace('nT0p_','')
 		if nWtaglist[0]=='0p': savePrefix=savePrefix.replace('nW0p_','')
 		if nbtaglist[0]=='0p': savePrefix=savePrefix.replace('nB0p_','')
@@ -730,8 +738,8 @@ for tag in tagList:
 	hsig2merged = RFile2.Get(histPrefixE+'__sig').Clone(histPrefixE+'__sig2merged')
 	hsig1merged.Add(RFile1.Get(histPrefixM+'__sig').Clone())
 	hsig2merged.Add(RFile2.Get(histPrefixM+'__sig').Clone())
-	hsig1merged.Scale(xsec[sig1])
-	hsig2merged.Scale(xsec[sig2])
+	#hsig1merged.Scale(xsec[sig1])
+	#hsig2merged.Scale(xsec[sig2])
 	if doNormByBinWidth:
 		for proc in bkgProcList:
 			try: normByBinWidth(bkghistsmerged[proc+'isL'+tagStr])
@@ -953,21 +961,26 @@ for tag in tagList:
 	chLatexmerged.SetTextAlign(21) # align center
 	flvString = 'e/#mu+jets'
 	tagString = ''
+	tagString2 = ''
 	if tag[0]!='0p':
-		if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
-		else: tagString+=tag[0]+' t, '
+		if 'p' in tag[0]: tagString2+='#geq'+tag[0][:-1]+' resolved t'
+		else: tagString2+=tag[0]+' resolved t'
 	if tag[1]!='0p':
-		if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
-		else: tagString+=tag[1]+' W, '
+		if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' t, '
+		else: tagString+=tag[1]+' t, '
 	if tag[2]!='0p':
-		if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b, '
-		else: tagString+=tag[2]+' b, '
+		if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' W, '
+		else: tagString+=tag[2]+' W, '
 	if tag[3]!='0p':
-		if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' j'
-		else: tagString+=tag[3]+' j'
+		if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' b, '
+		else: tagString+=tag[3]+' b, '
+	if tag[4]!='0p':
+		if 'p' in tag[4]: tagString+='#geq'+tag[4][:-1]+' j'
+		else: tagString+=tag[4]+' j'
 	if tagString.endswith(', '): tagString = tagString[:-2]
 	chLatexmerged.DrawLatex(tagPosX, tagPosY, flvString)
 	chLatexmerged.DrawLatex(tagPosX, tagPosY-0.06, tagString)
+	chLatexmerged.DrawLatex(tagPosX, tagPosY-0.12, tagString2)
 
 	if drawQCDmerged: legmerged = rt.TLegend(0.45,0.52,0.95,0.87)
 	if not drawQCDmerged or blind: legmerged = rt.TLegend(0.45,0.64,0.95,0.89)
@@ -1167,6 +1180,7 @@ for tag in tagList:
 	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 	if not os.path.exists(savePrefixmerged): os.system('mkdir '+savePrefixmerged)
 	savePrefixmerged+=histPrefixE.replace('isE','isL')+isRebinned.replace('_rebinned_stat1p1','')+saveKey
+	if nhottlist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nHOT0p_','')
 	if nttaglist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nT0p_','')
 	if nWtaglist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nW0p_','')
 	if nbtaglist[0]=='0p': savePrefixmerged=savePrefixmerged.replace('nB0p_','')
