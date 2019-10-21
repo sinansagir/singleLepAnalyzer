@@ -10,6 +10,7 @@ from tdrStyle import *
 setTDRStyle()
 
 blind=True
+combination=True
 saveKey=''
 signal = 'T'
 lumiPlot = '41.5'# '97.4'#
@@ -289,6 +290,7 @@ nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
 tempKeys = ['DeepAK8']#['comb123']#,'isE','isM','nW0','nW1p','nB0','nB1','nB2','nB3p']#
+if combination: tempKeys = ['comb1718']
 
 expLims = []
 obsLims = []
@@ -305,6 +307,9 @@ for tempKey in tempKeys:
 				
 		limitFile='/limits_templates_'+discriminant+'_'+signal+signal+'M1100'+chiral+BRconfStr+'_'+str(lumiStr)+'fb'+isRebinned+'_'+tempKey+'_expected.txt'
 		if 'ssdl' in tempKey: limitFile='/limits_Limits_'+signal+signal+'M1100'+chiral+BRconfStr+'_All_LL40_SL35_HT1200_nConst4_expected.txt'
+		if tempKey=='comb1718':
+			limitDir='/uscms_data/d3/escharni/CMSSW_10_2_10/src/singleLepAnalyzer/thetaLimits/limitsJul19/templatesSR_July_MVA_Update_Round2/'+tempKey+BRconfStr+'/templatesSR_July_MVA_Update_Round2/'
+			limitFile='limits_templates_'+discriminant+'_'+signal+signal+'M1100'+chiral+BRconfStr+'_'+str(lumiStr)+'fb'+isRebinned+'_expected.txt'
 		try: 		
 			expTemp,obsTemp = PlotLimits(limitDir,limitFile,tempKey+BRconfStr)
 			expLims.append(expTemp)
