@@ -5,7 +5,7 @@
 #done
 
 #Tp2Mass DnnTprime Tp2MDnn 
-for iPlot in ST Tp2MST; do
+for iPlot in DnnBprime Bp2Mass; do #ST
 #for iPlot in minMlb ST minMlj; do
 #for iPlot in deltaRAK8; do
 #for iPlot in minMlbST ST; do
@@ -15,14 +15,10 @@ for iPlot in ST Tp2MST; do
     #python -u modifyBinning.py $iPlot templatesSR_Apr22 0.3
     #python -u modifyBinning.py $iPlot templatesSR_Apr22Counts 0.3
     #python -u modifyBinning.py $iPlot templatesSR_Apr22Dnn0p9 0.3
-    python -u modifyBinning.py $iPlot templatesSR_Apr22Dnn0p9Counts 0.3
+    #python -u modifyBinning.py $iPlot templatesSR_July_MVA_Update_Round2 0.3
+    python -u modifyBinning.py $iPlot templatesSR_July2019_BB_Trained_MVA 0.3
 
     # python -u modifyBinning.py $iPlot kinematics_PS_NewEl 1.1
-    # python -u modifyBinning.py $iPlot kinematics_SR_NewEl 1.1
-    # python -u modifyBinning.py $iPlot kinematics_SRnoDR_NewEl 1.1
-    # python -u modifyBinning.py $iPlot kinematics_SRnoDR_ARCpuppiW
-    # python -u modifyBinning.py $iPlot ttbar_ARC 0.3
-    # python -u modifyBinning.py $iPlot wjets_ARC 0.3
     # python -u modifyBinning.py $iPlot higgs_ARC 0.3
     # python -u modifyBinning.py $iPlot control_NewEl 0.3
     # python -u modifyBinning.py $iPlot templates_NewEl 1.1

@@ -35,10 +35,16 @@ if isCategorized and 'BB' in pfix: BRstr='tW0p5_bZ0p25_bH0p25_'
 elif isCategorized: BRstr='bW0p5_tZ0p25_tH0p25_'
 saveKey = '' # tag for plot names
 
-sig1='BBM1200' #  choose the 1st signal to plot
-sig1leg='T#bar{T} (1.2 TeV)'
-sig2='BBM1500' #  choose the 2nd signal to plot
-sig2leg='T#bar{T} (1.5 TeV)'
+if 'BB' in pfix:
+	sig1='BBM1200' #  choose the 1st signal to plot
+	sig1leg='B#bar{B} (1.2 TeV)'
+	sig2='BBM1500' #  choose the 2nd signal to plot
+	sig2leg='B#bar{B} (1.5 TeV)'
+else:
+	sig1='TTM1200' #  choose the 1st signal to plot
+        sig1leg='T#bar{T} (1.2 TeV)'
+        sig2='TTM1500' #  choose the 2nd signal to plot
+        sig2leg='T#bar{T} (1.5 TeV)'
 drawNormalized = False # STACKS CAN'T DO THIS...bummer
 scaleSignals = True
 if not isCategorized and 'CR' not in region: scaleSignals = True
@@ -261,7 +267,7 @@ for tag in tagList:
 			errorDn = 0.
 			errorStatUp = gaeBkgHT.GetErrorYhigh(ibin-1)**2
 			errorStatDn = gaeBkgHT.GetErrorYlow(ibin-1)**2
-			errorNorm = 0.
+			errorNorm = (corrdSys**2)*(bkgHT.GetBinContent(ibin)**2)
 
 			if doAllSys:
 				for syst in systematicList:
@@ -710,7 +716,7 @@ for tag in tagList:
 		errorDn = 0.
 		errorStatUp = gaeBkgHTmerged.GetErrorYhigh(ibin-1)**2
 		errorStatDn = gaeBkgHTmerged.GetErrorYlow(ibin-1)**2
-		errorNorm = 0.
+		errorNorm = (corrdSys**2)*(bkgHTmerged.GetBinContent(ibin)**2)
 
 		if doAllSys:
 			for syst in systematicList:

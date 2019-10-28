@@ -57,7 +57,7 @@ dataList = [
 	'DataMABCDEF',
 	]
 
-whichSignal = 'BB' #HTB, TT, BB, or X53X53
+whichSignal = 'TT' #HTB, TT, BB, or X53X53
 massList = range(1000,1800+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
@@ -121,9 +121,9 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
         'Bp2Phi':('Bprime2_DeepAK8_Phi',linspace(-3.14,3.14,51).tolist(),';B quark #phi'),
         'Bp1deltaR':('Bprime1_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(B quark product jets)'),
         'Bp2deltaR':('Bprime2_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(B quark product jets)'),
-	'DnnTprime':('dnn_Tprime',linspace(0,1,nbins).tolist(),';DNN VLQ score'),
-	'DnnTTbar':('dnn_ttbar',linspace(0,1,51).tolist(),';DNN t#bar{t} score'),
-	'DnnWJets':('dnn_WJets',linspace(0,1,51).tolist(),';DNN W+jets score'),
+	'DnnTprime':('dnn_Tprime',linspace(0,1,nbins).tolist(),';DNN T score'),
+	'DnnTTbar':('dnn_ttbar',linspace(0,1,51).tolist(),';DNN-T t#bar{t} score'),
+	'DnnWJets':('dnn_WJets',linspace(0,1,51).tolist(),';DNN-T W+jets score'),
         'probSumDecay':('probSum_DeepAK8_decay',linspace(0,20,21).tolist(),';weighted sum of decay product probabilities'), ## replace with ALGO if needed
         'probSumFour':('probSum_DeepAK8_four',linspace(0,5,6).tolist(),';sum of W/Z/H/t probabilities'),
         'probb':('dnn_B_DeepAK8Calc_PtOrdered',linspace(0,1,51).tolist(),';B score'),  ## replace with AlgoCalc if needed
