@@ -3,13 +3,16 @@
 import os,sys,math,json
 
 theDir = '/user_data/ssagir/fourtops_limits_2019/'
-fileDir = 'templates_2019_8_21'
+fileDir = 'templates_HT510lep50_2019_8_28'
 fileName = 'templates_HT_4TM690_41p53fb_rebinned_stat0p3'
 
 def readLim(thefile):
-	f = open(thefile, 'rU')
-	lines = f.readlines()
-	f.close()
+	try:
+		f = open(thefile, 'rU')
+		lines = f.readlines()
+		f.close()
+	except: 
+		return None,None,None,None,None
 # 	exp    = round(float(lines[1].strip().split()[1]),3)
 # 	exp68L = round(float(lines[1].strip().split()[4]),3)
 # 	exp68H = round(float(lines[1].strip().split()[5]),3)

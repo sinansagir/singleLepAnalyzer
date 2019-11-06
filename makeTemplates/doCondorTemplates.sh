@@ -8,7 +8,7 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 cd $theDir
 eval `scramv1 runtime -sh`
 
-python doHists.py $condorDir \
+python -u doHists.py $condorDir \
 					--iPlot=${2} \
 					--region=${3} \
 					--isCategorized=${4} \

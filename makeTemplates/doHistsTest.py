@@ -35,19 +35,12 @@ bkgList = [
 # 	 	  'TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
 # 		  'TTJets700mtt','TTJets1000mtt',
 
-# 		  'TTJetsHad',
-# 		  'TTJetsSemiLepNjet01','TTJetsSemiLepNjet02','TTJetsSemiLepNjet03','TTJetsSemiLepNjet04',
-# 		  'TTJetsSemiLepNjet91','TTJetsSemiLepNjet92','TTJetsSemiLepNjet93','TTJetsSemiLepNjet94',
-# 		  'TTJetsSemiLepNjet9bin',
-# 		  'TTJets2L2nu',
+		  'TTJetsHad',
+		  'TTJetsSemiLepNjet01','TTJetsSemiLepNjet02','TTJetsSemiLepNjet03','TTJetsSemiLepNjet04',
+		  'TTJetsSemiLepNjet91','TTJetsSemiLepNjet92','TTJetsSemiLepNjet93','TTJetsSemiLepNjet94',
+		  'TTJetsSemiLepNjet9bin',
+		  'TTJets2L2nu',
 		  
-		  'TTJetsHadTTbb','TTJetsHadTTcc','TTJetsHadTTjj',
-		  'TTJetsSemiLepNjet0TTbb','TTJetsSemiLepNjet0TTcc',#'TTJetsSemiLepNjet0TTjj',
-		  'TTJetsSemiLepNjet0TTjj1','TTJetsSemiLepNjet0TTjj2','TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4',
-		  'TTJetsSemiLepNjet9TTbb','TTJetsSemiLepNjet9TTcc','TTJetsSemiLepNjet9TTjj',
-		  'TTJetsSemiLepNjet9binTTbb','TTJetsSemiLepNjet9binTTcc','TTJetsSemiLepNjet9binTTjj',
-		  'TTJets2L2nuTTbb','TTJets2L2nuTTcc','TTJets2L2nuTTjj',
-		  		  
 # 		  'TTJetsHad1','TTJetsHad2','TTJetsHad3',
 # 		  'TTJetsSemiLepNjet01','TTJetsSemiLepNjet02','TTJetsSemiLepNjet03','TTJetsSemiLepNjet04','TTJetsSemiLepNjet05','TTJetsSemiLepNjet06',
 # 		  'TTJetsSemiLepNjet91','TTJetsSemiLepNjet92','TTJetsSemiLepNjet93','TTJetsSemiLepNjet94','TTJetsSemiLepNjet95','TTJetsSemiLepNjet96',
@@ -62,11 +55,11 @@ bkgList = [
           'WW','WZ','ZZ',
 		  'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
-ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
+ttFlvs = ['_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 		  
 dataList = ['DataE','DataM']
 
-whichSignal = 'TTTT' #HTB, TT, BB, or X53X53
+whichSignal = '4T' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
@@ -152,6 +145,47 @@ def readTree(file):
 	tFile = TFile(file,'READ')
 	tTree = tFile.Get('ljmet')
 	return tFile, tTree 
+
+print "READING TREES"
+shapesFiles = ['jec','jer']
+tTreeData = {}
+tFileData = {}
+for data in dataList:
+	if not runData: break
+	print "READING:", data
+	tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
+
+tTreeSig = {}
+tFileSig = {}
+for sig in sigList:
+	if not runSigs: break
+	for decay in decays:
+		print "READING:", sig+decay
+		print "        nominal"
+		tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
+		if doAllSys:
+			for syst in shapesFiles:
+				for ud in ['Up','Down']:
+					print "        "+syst+ud
+					tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
+
+tTreeBkg = {}
+tFileBkg = {}
+for bkg in bkgList+q2List:
+	if not runBkgs: break
+	if bkg in q2List and not doQ2sys: continue
+	print "READING:",bkg
+	print "        nominal"
+	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
+	if doAllSys:
+		for syst in shapesFiles:
+			for ud in ['Up','Down']:
+				if bkg in q2List:
+					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=None,None
+				else:
+					print "        "+syst+ud
+					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
+print "FINISHED READING"
 
 bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,5000]
 
@@ -277,10 +311,6 @@ print "         BINNING USED  :",plotList[iPlot][1]
 catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 nCats  = len(catList)
 
-shapesFiles = ['jec','jer']
-
-tTreeData = {}
-tFileData = {}
 catInd = 1
 for cat in catList:
  	if not runData: break
@@ -297,16 +327,11 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
  	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
  	for data in dataList: 
- 		tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
  		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 		if catInd==nCats: 
- 			del tFileData[data]
- 			del tTreeData[data]
+ 		if catInd==nCats: del tFileData[data]
  	pickle.dump(datahists,open(outDir+'/datahists_'+iPlot+'.p','wb'))
  	catInd+=1
 
-tTreeBkg = {}
-tFileBkg = {}
 catInd = 1
 for cat in catList:
  	if not runBkgs: break
@@ -323,37 +348,20 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
  	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
  	for bkg in bkgList: 
- 		tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
-		if doAllSys:
-			for syst in shapesFiles:
-				for ud in ['Up','Down']:
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
- 		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+ 		bkghists.update(analyze(tTreeBkg,bkg,cutList,'',doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
  		if 'TTJets' in bkg and len(ttFlvs)!=0:
  			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 		if catInd==nCats: 
- 			del tFileBkg[bkg]
- 			del tTreeBkg[bkg]
+ 		if catInd==nCats: del tFileBkg[bkg]
  		if doAllSys and catInd==nCats:
  			for syst in shapesFiles:
- 				for ud in ['Up','Down']: 
- 					del tFileBkg[bkg+syst+ud]
- 					del tTreeBkg[bkg+syst+ud]
+ 				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
  	if doQ2sys: 
  		for q2 in q2List: 
- 			tFileBkg[q2],tTreeBkg[q2]=readTree(step1Dir+'/'+samples[q2]+'_hadd.root')
-			for syst in shapesFiles:
-				for ud in ['Up','Down']:
-					tFileBkg[q2+syst+ud],tTreeBkg[q2+syst+ud]=None,None
  			bkghists.update(analyze(tTreeBkg,q2,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 			if catInd==nCats: 
- 				del tFileBkg[q2]
- 				del tTreeBkg[q2]
+ 			if catInd==nCats: del tFileBkg[q2]
 	pickle.dump(bkghists,open(outDir+'/bkghists_'+iPlot+'.p','wb'))
  	catInd+=1
 
-tTreeSig = {}
-tFileSig = {}
 catInd = 1
 for cat in catList:
  	if not runSigs: break
@@ -371,21 +379,11 @@ for cat in catList:
  	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
  	for sig in sigList: 
  		for decay in decays: 
-			tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
-			if doAllSys:
-				for syst in shapesFiles:
-					for ud in ['Up','Down']:
-						print "        "+syst+ud
-						tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
  			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 			if catInd==nCats: 
- 				del tFileSig[sig+decay]
- 				del tTreeSig[sig+decay]
+ 			if catInd==nCats: del tFileSig[sig+decay]
  			if doAllSys and catInd==nCats:
  				for syst in shapesFiles:
- 					for ud in ['Up','Down']: 
- 						del tFileSig[sig+decay+syst+ud]
- 						del tTreeSig[sig+decay+syst+ud]
+ 					for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
 	pickle.dump(sighists,open(outDir+'/sighists_'+iPlot+'.p','wb'))
  	catInd+=1
 

@@ -3,15 +3,19 @@
 import os,sys,fnmatch
 from catconfigs import *
 
-templateDir=os.getcwd()+'/../makeTemplates/templates_2019_8_21'
+templateDir=os.getcwd()+'/../makeTemplates/templates_syst4_2019_9_24'
 thetaConfigFile = os.getcwd()+'/theta_limit_template.py'
 lumiInFile = '41p53fb'
-doLimits = False #else it will run discovery significances
+doLimits = True #else it will run discovery significances
 
+systematicList = ['pileup','prefire','muRFcorrdNew','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','pdfNew'] # , 'ht','trigeff'
+systematicListRed = ['pileup','prefire','muRFcorrdNew','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','pdfNew'] # , 'ht','trigeff'
 toFilter0 = []#['__'+item+'__' for item in toFilter0]
 
 limitConfs = {#'<limit type>':[filter list]
-# 			  'all':[],
+			  'all':['__muRFcorrdNew__'],
+			  'all_nosyst':[syst+'__' for syst in systematicList]+['__muRFcorrdNew__'],
+			  'all_redsyst':[syst+'__' for syst in systematicListRed]+['__muRFcorrdNew__'],
 # 			  'isE':['isM'], #only electron channel
 # 			  'isM':['isE'], #only muon channel
 # 			  'tag120' :[tag for tag in tags['all'] if tag not in tags['tag120']],
@@ -27,17 +31,17 @@ limitConfs = {#'<limit type>':[filter list]
 # 			  'onlyW36':[tag for tag in tags['all'] if tag not in tags['onlyW36']],
 # 			  'onlyT36':[tag for tag in tags['all'] if tag not in tags['onlyT36']],
 
-			  '165cats'  :[tag for tag in tags['allcats'] if tag not in tags['165cats']],
-			  '144cats'  :[tag for tag in tags['allcats'] if tag not in tags['144cats']],
-			  '102cats'  :[tag for tag in tags['allcats'] if tag not in tags['102cats']],
-			  '90cats'   :[tag for tag in tags['allcats'] if tag not in tags['90cats']],
-			  '75cats'   :[tag for tag in tags['allcats'] if tag not in tags['75cats']],
-			  '60cats'   :[tag for tag in tags['allcats'] if tag not in tags['60cats']],
-			  '45cats'   :[tag for tag in tags['allcats'] if tag not in tags['45cats']],
-			  'noHOTtW15':[tag for tag in tags['allcats'] if tag not in tags['noHOTtW15']],
-			  'onlyHOT30':[tag for tag in tags['allcats'] if tag not in tags['onlyHOT30']],
-			  'onlyT30'  :[tag for tag in tags['allcats'] if tag not in tags['onlyT30']],
-			  'onlyW30'  :[tag for tag in tags['allcats'] if tag not in tags['onlyW30']],
+# 			  '165cats'  :[tag for tag in tags['allcats'] if tag not in tags['165cats']],
+# 			  '144cats'  :[tag for tag in tags['allcats'] if tag not in tags['144cats']],
+# 			  '102cats'  :[tag for tag in tags['allcats'] if tag not in tags['102cats']],
+# 			  '90cats'   :[tag for tag in tags['allcats'] if tag not in tags['90cats']],
+# 			  '75cats'   :[tag for tag in tags['allcats'] if tag not in tags['75cats']],
+# 			  '60cats'   :[tag for tag in tags['allcats'] if tag not in tags['60cats']],
+# 			  '45cats'   :[tag for tag in tags['allcats'] if tag not in tags['45cats']],
+# 			  'noHOTtW15':[tag for tag in tags['allcats'] if tag not in tags['noHOTtW15']],
+# 			  'onlyHOT30':[tag for tag in tags['allcats'] if tag not in tags['onlyHOT30']],
+# 			  'onlyT30'  :[tag for tag in tags['allcats'] if tag not in tags['onlyT30']],
+# 			  'onlyW30'  :[tag for tag in tags['allcats'] if tag not in tags['onlyW30']],
 			  }
 #for cat in catList: limitConfs[cat]=[item for item in catList if item!=cat]
 
@@ -46,10 +50,11 @@ if not doLimits:
 	limitType = '_disc'
 	thetaConfigFile = os.getcwd()+'/theta_disc_template.py'
 outputDir = '/user_data/ssagir/fourtops_limits_2019/'+templateDir.split('/')[-1]+limitType+'/'
-if os.path.exists(outputDir):
-	 print "The directory",outputDir,"exists!!! I will not overwrite it. Please specify a different output directory or remove the existing one ..."
-	 os._exit(1)
-else: os.system('mkdir '+outputDir)
+# if os.path.exists(outputDir):
+# 	 print "The directory",outputDir,"exists!!! I will not overwrite it. Please specify a different output directory or remove the existing one ..."
+# 	 os._exit(1)
+# else: os.system('mkdir '+outputDir)
+if not os.path.exists(outputDir): os.system('mkdir '+outputDir)
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
