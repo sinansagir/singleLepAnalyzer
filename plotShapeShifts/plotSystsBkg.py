@@ -1,37 +1,45 @@
-import ROOT as R
+#!/usr/bin/python
+
 import os,sys,math,itertools
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
+import ROOT as rt
 from array import array
+from utils import *
+import CMS_lumi, tdrstyle
 
-from tdrStyle import *
-setTDRStyle()
-R.gROOT.SetBatch(1)
+#set the tdr style
+tdrstyle.setTDRStyle()
+rt.gROOT.SetBatch(1)
+
 outDir = os.getcwd()+'/'
-
-lumi = 35.9
-discriminant = 'minMlb'
-lumiStr = '35p867fb'
-rfilePostFix = '_rebinned_stat1p1'
-tempVersion = 'templates_2017_3_5/'
+lumi = 41.5
+iPlot = 'HT'
+lumiStr = '41p53fb'
+sig1 = '4TM690' #  choose the 1st signal to plot
+isRebinned = '_rebinned_stat0p3'
+tempVersion = 'templates_syst4_2019_9_24/'
 cutString = ''
-templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
+templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/bkgs'): os.system('mkdir '+outDir+tempVersion+'/bkgs')
 
 saveKey = ''
 bkgList = ['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
 #bkgList = ['ewk']
-isEMlist = ['E','M']
-nttaglist = ['0','1p']
-nWtaglist = ['0','1p']
-nbtaglist = ['1','2p']
-njetslist = ['4p']
-systematics = ['pileup','jec','jer','jms','jmr','tau21','taupt','toppt','ht','topsf','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
+isEMlist  = ['E','M']
+nhottlist = ['0','0p','1p']
+nttaglist = ['0','0p','1p']
+nWtaglist = ['0','0p','1p','1','2p']
+nbtaglist = ['2','3','3p','4p']
+njetslist = ['4','5','6','7','8','9','9p','10p']
+systematics = ['pileup','prefire','muRFcorrdNew','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','pdfNew'] #, 'ht','trigeff'
 
-catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
-RFile = R.TFile(templateFile)
+catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip_75cats(item)]
+RFile = rt.TFile(templateFile)
 
 for syst in systematics:
-	Prefix = discriminant+'_'+lumiStr+'_'+catList[0]+'__'+bkgList[0]
+	Prefix = iPlot+'_'+lumiStr+'_'+catList[0]+'__'+bkgList[0]
 	print Prefix+'__'+syst
 	hNm = RFile.Get(Prefix).Clone()
 	try:
@@ -78,16 +86,16 @@ for syst in systematics:
 	hUp.Draw()
 	hDn.Draw()
 
-	canv = R.TCanvas(syst,syst,1000,700)
+	canv = rt.TCanvas(syst,syst,1000,700)
 	yDiv = 0.35
-	uPad=R.TPad('uPad','',0,yDiv,1,1)
+	uPad=rt.TPad('uPad','',0,yDiv,1,1)
 	uPad.SetTopMargin(0.07)
 	uPad.SetBottomMargin(0)
 	uPad.SetRightMargin(.05)
 	uPad.SetLeftMargin(.18)
 	uPad.Draw()
 
-	lPad=R.TPad("lPad","",0,0,1,yDiv) #for sigma runner
+	lPad=rt.TPad("lPad","",0,0,1,yDiv) #for sigma runner
 	lPad.SetTopMargin(0)
 	lPad.SetBottomMargin(.4)
 	lPad.SetRightMargin(.05)
@@ -97,17 +105,17 @@ for syst in systematics:
 
 	uPad.cd()
 
-	R.gStyle.SetOptTitle(0)
+	rt.gStyle.SetOptTitle(0)
 
-	hNm.SetFillColor(R.kWhite)
-	hUp.SetFillColor(R.kWhite)
-	hDn.SetFillColor(R.kWhite)
-	hNm.SetMarkerColor(R.kBlack)
-	hUp.SetMarkerColor(R.kRed)
-	hDn.SetMarkerColor(R.kBlue)
-	hNm.SetLineColor(R.kBlack)
-	hUp.SetLineColor(R.kRed)
-	hDn.SetLineColor(R.kBlue)
+	hNm.SetFillColor(rt.kWhite)
+	hUp.SetFillColor(rt.kWhite)
+	hDn.SetFillColor(rt.kWhite)
+	hNm.SetMarkerColor(rt.kBlack)
+	hUp.SetMarkerColor(rt.kRed)
+	hDn.SetMarkerColor(rt.kBlue)
+	hNm.SetLineColor(rt.kBlack)
+	hUp.SetLineColor(rt.kRed)
+	hDn.SetLineColor(rt.kBlue)
 	hNm.SetLineWidth(2)
 	hNm.SetLineStyle(1)
 	hUp.SetLineWidth(2)
@@ -130,7 +138,7 @@ for syst in systematics:
 	hDn.Draw('same')
 
 	lPad.cd()
-	R.gStyle.SetOptTitle(0)
+	rt.gStyle.SetOptTitle(0)
 	pullUp = hUp.Clone()
 	for iBin in range(0,pullUp.GetXaxis().GetNbins()+2):
 		pullUp.SetBinContent(iBin,pullUp.GetBinContent(iBin)-hNm.GetBinContent(iBin))
@@ -178,7 +186,7 @@ for syst in systematics:
 
 	uPad.cd()
 
-	legend = R.TLegend(0.6,0.65,0.9,0.90)
+	legend = rt.TLegend(0.6,0.65,0.9,0.90)
 	legend.SetShadowColor(0);
 	legend.SetFillColor(0);
 	legend.SetLineColor(0);
@@ -187,7 +195,7 @@ for syst in systematics:
 	legend.AddEntry(hDn,syst.replace('topsf','t tag').replace('muRFcorrdNew','muRF').replace('muRFdecorrdNew','muRF').replace('muRFcorrd','muRF').replace('muRFenv','muRF').replace('pdfNew','PDF').replace('toppt','Top Pt').replace('jsf','JSF').replace('jec','JEC').replace('q2','Q^{2}').replace('miniiso','miniIso').replace('pileup','Pileup').replace('jer','JER').replace('btag','b tag').replace('pdf','PDF').replace('jmr','JMR').replace('jms','JMS').replace('tau21','#tau_{2}/#tau_{1}')+' Down','l')
 	legend.Draw('same')
 	
-	prelimTex=R.TLatex()
+	prelimTex=rt.TLatex()
 	prelimTex.SetNDC()
 	prelimTex.SetTextAlign(31) # align right
 	prelimTex.SetTextFont(42)
@@ -195,14 +203,14 @@ for syst in systematics:
 	prelimTex.SetLineWidth(2)
 	prelimTex.DrawLatex(0.90,0.943,str(lumi)+" fb^{-1} (13 TeV)")
 
-	prelimTex2=R.TLatex()
+	prelimTex2=rt.TLatex()
 	prelimTex2.SetNDC()
 	prelimTex2.SetTextFont(61)
 	prelimTex2.SetLineWidth(2)
 	prelimTex2.SetTextSize(0.07)
 	prelimTex2.DrawLatex(0.18,0.9364,"CMS")
 
-	prelimTex3=R.TLatex()
+	prelimTex3=rt.TLatex()
 	prelimTex3.SetNDC()
 	prelimTex3.SetTextAlign(13)
 	prelimTex3.SetTextFont(52)

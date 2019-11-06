@@ -32,11 +32,39 @@ def contains(a, b):
 # 	elif (cat[2]=='1p') and (cat[3]!='0p'): return True
 # 	else: return False
 
-def skip(cat):
+def skip_nominal(cat):
 	#return False
 	if (cat[3]=='1' or cat[3]=='2p') and not (cat[1]=='0' and cat[2]=='0'): return True
-	elif (cat[1]=='1p') and (cat[2]=='1p') and (cat[5]=='4'): return True
+	elif (cat[1]=='1p') and (cat[2]=='1p' or cat[3]=='1p') and (cat[5]=='4'): return True
 	else: return False
+
+def skip_90cats(cat):
+	if (cat[1]=='0p' or cat[2]=='0p' or cat[3]=='1' or cat[3]=='2p' or cat[4]=='3p' or cat[5]=='4' or cat[5]=='9p'): return True
+	if (cat[1]=='1p' and cat[3]!='0p'): return True
+	elif (cat[1]=='0' and cat[2]=='1p' and cat[3]!='0p'): return True
+	elif (cat[1]=='0' and cat[2]=='0' and cat[3]=='0p'): return True
+	else: return False
+	
+def skip_75cats(cat):
+	if (cat[1]=='0p' or cat[2]=='0p' or cat[3]=='1' or cat[3]=='2p' or cat[4]=='3p' or cat[5]=='4' or cat[5]=='5' or cat[5]=='9p'): return True
+	if (cat[1]=='1p' and cat[3]!='0p'): return True
+	elif (cat[1]=='0' and cat[2]=='1p' and cat[3]!='0p'): return True
+	elif (cat[1]=='0' and cat[2]=='0' and cat[3]=='0p'): return True
+	else: return False
+	
+def skip_noHOTtW_OR_onlyHOTtW(cat):
+	if (cat[1]=='0p' and cat[2]=='0p' and cat[3]=='0p'): return False
+	if (cat[1]!='0p' and cat[2]=='0p' and cat[3]=='0p'): return False
+	if (cat[1]=='0p' and cat[2]!='0p' and cat[3]=='0p'): return False
+	if (cat[1]=='0p' and cat[2]=='0p' and cat[3]!='0p'): return False
+	return True
+	
+def skip(cat):
+	if cat[1]=='0p' and cat[2]=='0p' and cat[3]=='0p' and cat[4]=='2p' and cat[5]=='4p': return False #preselection plots
+	#return skip_75cats(cat)
+	return skip_noHOTtW_OR_onlyHOTtW(cat)
+
+##############################################################################
 		
 def poissonNormByBinWidth(tgae,hist):
 	confLevel = 0.6827 #1sigma

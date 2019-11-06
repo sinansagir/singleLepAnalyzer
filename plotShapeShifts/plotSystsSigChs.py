@@ -1,78 +1,49 @@
-import ROOT as R
+#!/usr/bin/python
+
 import os,sys,math,itertools
+parent = os.path.dirname(os.getcwd())
+sys.path.append(parent)
+import ROOT as rt
 from array import array
+from utils import *
+import CMS_lumi, tdrstyle
 
-from tdrStyle import *
-setTDRStyle()
-R.gROOT.SetBatch(1)
+#set the tdr style
+tdrstyle.setTDRStyle()
+rt.gROOT.SetBatch(1)
+
 outDir = os.getcwd()+'/'
-
-lumi = 35.9
-discriminant = 'minMlb'
-lumiStr = '35p867fb'
-rfilePostFix = '_rebinned_stat0p3'
-tempVersion = 'templates_M17WtSF_2017_3_31_SRpCR'
+lumi = 41.5
+iPlot = 'HT'
+lumiStr = '41p53fb'
+sig1 = '4TM690' #  choose the 1st signal to plot
+isRebinned = '_rebinned_stat0p3'
+tempVersion = 'templates_syst4_2019_9_24/'
 cutString = ''
-templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+discriminant+'_X53X53M900left_'+lumiStr+rfilePostFix+'.root'
+templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signalIndChannels'): os.system('mkdir '+outDir+tempVersion+'/signalIndChannels')
 
-isEMlist = ['E','M']
-nttaglist = ['0','1p']
-nWtaglist = ['0','1p']
-nbtaglist = ['1','2p']
-njetslist = ['4p']
+isEMlist  = ['E','M']
+nhottlist = ['0','0p','1p']
+nttaglist = ['0','0p','1p']
+nWtaglist = ['0','0p','1p','1','2p']
+nbtaglist = ['2','3','3p','4p']
+njetslist = ['4','5','6','7','8','9','9p','10p']
+systematics = ['pileup','prefire','muRFcorrdNew','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','pdfNew'] #, 'ht','trigeff'
 
-systematics = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','muRFcorrdNew','pdfNew','trigeff','btag','mistag']#,'jsf'
+signameList = ['4TM690']
 
-signameList = [
-# 		   'X53X53M700left',
-# 		   'X53X53M800left',
-		   'X53X53M900left',
-# 		   'X53X53M1000left',
-# 		   'X53X53M1100left',
-# 		   'X53X53M1200left',
-# 		   'X53X53M1300left',
-# 		   'X53X53M1400left',
-# 		   'X53X53M1500left',
-# 		   'X53X53M1600left',
-# 		   'X53X53M700right',
-# 		   'X53X53M800right',
-# 		   'X53X53M900right',
-# 		   'X53X53M1000right',
-# 		   'X53X53M1100right',
-# 		   'X53X53M1200right',
-# 		   'X53X53M1300right',
-# 		   'X53X53M1400right',
-# 		   'X53X53M1500right',
-# 		   'X53X53M1600right',
-		       ]
-
-catList=[
-		 'isE_nT0_nW0_nB1_nJ4p',
-		 'isE_nT0_nW0_nB2p_nJ4p',
-		 'isE_nT0_nW1p_nB1_nJ4p',
-		 'isE_nT0_nW1p_nB2p_nJ4p',
-		 'isE_nT1p_nW0_nB1_nJ4p',
-		 'isE_nT1p_nW0_nB2p_nJ4p',
-		 'isE_nT1p_nW1p_nB1_nJ4p',
-		 'isE_nT1p_nW1p_nB2p_nJ4p',
-		 'isE_nT0p_nW0p_nB1_nJ4p',
-		 'isE_nT0p_nW0p_nB2p_nJ4p',
-		 'isE_nT0p_nW0_nB0_nJ4p',
-		 'isE_nT0p_nW1p_nB0_nJ4p',
-		 ]
-catList = catList + [item.replace('isE','isM') for item in catList]
-#catList = ['is'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(isEMlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
+catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip_75cats(item)]
 
 for signal in signameList:
-	RFile = R.TFile(templateFile.replace('X53X53M900left',signal))
+	RFile = rt.TFile(templateFile.replace(signameList[0],signal))
 	for syst in systematics:
 		for cat in catList:
 			if (syst=='q2' or syst=='toppt'):
 				print "Do you expect to have "+syst+" for your signal? FIX ME IF SO! I'll skip this systematic"
 				continue
-			Prefix = discriminant+'_'+lumiStr+'_'+cat+'__sig'
+			Prefix = iPlot+'_'+lumiStr+'_'+cat+'__sig'
 			print Prefix+'__'+syst
 			hNm = RFile.Get(Prefix).Clone()
 			hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
@@ -81,9 +52,9 @@ for signal in signameList:
 			hUp.Draw()
 			hDn.Draw()
 
-			canv = R.TCanvas(Prefix+'__'+syst,Prefix+'__'+syst,1000,700)
+			canv = rt.TCanvas(Prefix+'__'+syst,Prefix+'__'+syst,1000,700)
 			yDiv = 0.35
-			uPad=R.TPad('uPad','',0,yDiv,1,1)
+			uPad=rt.TPad('uPad','',0,yDiv,1,1)
 			uPad.SetTopMargin(0.07)
 			uPad.SetBottomMargin(0)
 			uPad.SetRightMargin(.05)
@@ -91,7 +62,7 @@ for signal in signameList:
 			#uPad.SetLogy()
 			uPad.Draw()
 
-			lPad=R.TPad("lPad","",0,0,1,yDiv) #for sigma runner
+			lPad=rt.TPad("lPad","",0,0,1,yDiv) #for sigma runner
 			lPad.SetTopMargin(0)
 			lPad.SetBottomMargin(.4)
 			lPad.SetRightMargin(.05)
@@ -101,18 +72,18 @@ for signal in signameList:
 
 			uPad.cd()
 
-			R.gStyle.SetOptTitle(0)
+			rt.gStyle.SetOptTitle(0)
 
 			#canv.SetLogy()
-			hNm.SetFillColor(R.kWhite)
-			hUp.SetFillColor(R.kWhite)
-			hDn.SetFillColor(R.kWhite)
-			hNm.SetMarkerColor(R.kBlack)
-			hUp.SetMarkerColor(R.kRed)
-			hDn.SetMarkerColor(R.kBlue)
-			hNm.SetLineColor(R.kBlack)
-			hUp.SetLineColor(R.kRed)
-			hDn.SetLineColor(R.kBlue)
+			hNm.SetFillColor(rt.kWhite)
+			hUp.SetFillColor(rt.kWhite)
+			hDn.SetFillColor(rt.kWhite)
+			hNm.SetMarkerColor(rt.kBlack)
+			hUp.SetMarkerColor(rt.kRed)
+			hDn.SetMarkerColor(rt.kBlue)
+			hNm.SetLineColor(rt.kBlack)
+			hUp.SetLineColor(rt.kRed)
+			hDn.SetLineColor(rt.kBlue)
 			hNm.SetLineWidth(2)
 			hNm.SetLineStyle(1)
 			hUp.SetLineWidth(2)
@@ -131,13 +102,16 @@ for signal in signameList:
 			#hUp.SetMaximum(1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 			hUp.GetYaxis().SetRangeUser(0.0001,1.1*max(hUp.GetMaximum(),hNm.GetMaximum(),hDn.GetMaximum()))
 
-			hUp.Draw()
-			hNm.Draw('same')
-			hDn.Draw('same')
+# 			hUp.Draw()
+# 			hNm.Draw('same')
+# 			hDn.Draw('same')
+			hUp.Draw('hist')
+			hNm.Draw('samehist')
+			hDn.Draw('samehist')
 			#uPad.RedrawAxis()
 
 			lPad.cd()
-			R.gStyle.SetOptTitle(0)
+			rt.gStyle.SetOptTitle(0)
 			pullUp = hUp.Clone()
 			for iBin in range(0,pullUp.GetXaxis().GetNbins()+2):
 				pullUp.SetBinContent(iBin,pullUp.GetBinContent(iBin)-hNm.GetBinContent(iBin))
@@ -185,13 +159,15 @@ for signal in signameList:
 			pullUp.SetMaximum(1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
 			#pullDown.SetMinimum(pullDown.GetMinimum())
 			#pullDown.SetMaximum(pullDown.GetMaximum())
-			pullUp.Draw()
-			pullDown.Draw('same')
+# 			pullUp.Draw()
+# 			pullDown.Draw('same')
+			pullUp.Draw('hist')
+			pullDown.Draw('samehist')
 			lPad.RedrawAxis()
 
 			uPad.cd()
 
-			legend = R.TLegend(0.7,0.65,0.9,0.90)
+			legend = rt.TLegend(0.7,0.65,0.9,0.90)
 			legend.SetShadowColor(0);
 			legend.SetFillColor(0);
 			legend.SetLineColor(0);
@@ -201,7 +177,7 @@ for signal in signameList:
 
 			legend.Draw('same')
 
-			prelimTex=R.TLatex()
+			prelimTex=rt.TLatex()
 			prelimTex.SetNDC()
 			prelimTex.SetTextAlign(31) # align right
 			prelimTex.SetTextFont(42)
@@ -209,14 +185,14 @@ for signal in signameList:
 			prelimTex.SetLineWidth(2)
 			prelimTex.DrawLatex(0.90,0.943,str(lumi)+" fb^{-1} (13 TeV)")
 
-			prelimTex2=R.TLatex()
+			prelimTex2=rt.TLatex()
 			prelimTex2.SetNDC()
 			prelimTex2.SetTextFont(61)
 			prelimTex2.SetLineWidth(2)
 			prelimTex2.SetTextSize(0.07)
 			prelimTex2.DrawLatex(0.18,0.9364,"CMS")
 
-			prelimTex3=R.TLatex()
+			prelimTex3=rt.TLatex()
 			prelimTex3.SetNDC()
 			prelimTex3.SetTextAlign(13)
 			prelimTex3.SetTextFont(52)
@@ -224,19 +200,24 @@ for signal in signameList:
 			prelimTex3.SetLineWidth(2)
 			prelimTex3.DrawLatex(0.25175,0.9664,"Preliminary")
 
-			chLatex = R.TLatex()
+			chLatex = rt.TLatex()
 			chLatex.SetNDC()
 			chLatex.SetTextSize(0.05)
 			chLatex.SetTextAlign(21)
 			flv = cat.split('_')[0]
-			ttag = cat.split('_')[1]
-			wtag = cat.split('_')[2]
-			btag = cat.split('_')[3]
-			njet = cat.split('_')[4]
+			hottag = cat.split('_')[1]
+			ttag = cat.split('_')[2]
+			wtag = cat.split('_')[3]
+			btag = cat.split('_')[4]
+			njet = cat.split('_')[5]
 			flvString = ''
 			tagString = ''
+			tagString2 = ''
 			if flv=='isE': flvString+='e+jets'
 			if flv=='isM': flvString+='#mu+jets'
+			if hottag!='0p': 
+				if 'p' in hottag: tagString2+='#geq'+hottag[4:-1]+' resolved t'
+				else: tagString2+=hottag[4:]+' resolved t'
 			if ttag!='0p': 
 				if 'p' in ttag: tagString+='#geq'+ttag[2:-1]+' t, '
 				else: tagString+=ttag[2:]+' t, '
@@ -252,9 +233,10 @@ for signal in signameList:
 			if tagString.endswith(', '): tagString = tagString[:-2]
 			chLatex.DrawLatex(0.45, 0.84, flvString)
 			chLatex.DrawLatex(0.45, 0.78, tagString)
+			chLatex.DrawLatex(0.45, 0.72, tagString2)
 		
-			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.pdf')
+			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.pdf')
 			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.png')
-			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.eps')
+			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.eps')
 	RFile.Close()
 
