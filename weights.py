@@ -17,10 +17,10 @@ filtEff_TTJets1000mtt = 0.02474
 filtEff_TTJets700mtt = 0.0921
 filtEff_TTJets0mtt = 0.8832 # 1-filtEff_TTJets700mtt-filtEff_TTJets1000mtt
 filtEff_TTJetsSemiLepNjet9 = 0.0057 # from McM
-nRun_TTJetsHad = 129211204.0 # from integral 130262340.0, file TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
+nRun_TTJetsHad = 129095758.0 # from integral 130262340.0, file TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
 nRun_TTJetsSemiLep = 109124472.0 # from integral 110085096.0, file TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
 nRun_TTJets2L2nu = 68595608.0 # from integral 69155808.0, file TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
-nRun_TTJets700mtt = 38428627.0 # from 39258853, file TT_Mtt-700to1000_TuneCP5_13TeV-powheg-pythia8_hadd.root
+nRun_TTJets700mtt = 38299363.0 # from 39258853, file TT_Mtt-700to1000_TuneCP5_13TeV-powheg-pythia8_hadd.root
 nRun_TTJets1000mtt = 21288395.0 # from integral 22458751.0, file TT_Mtt-1000toInf_TuneCP5_PSweights_13TeV-powheg
 nRun_TTJetsSemiLepNjet9 = 8752072.0 # from integral, file TTToSemiLepton_HT500Njet9_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
 nRun['TTJetsHad0']    = nRun_TTJetsHad * filtEff_TTJets0mtt 
@@ -106,7 +106,8 @@ nRun['TTZH'] = 199285.0 # from integral, file TTZH_TuneCP5_13TeV-madgraph-pythia
 nRun['TTZZ'] = 199363.0 # from integral, file TTZZ_TuneCP5_13TeV-madgraph-pythia8_hadd.root
 
 #4 tops
-nRun['4TM690'] = 373734.0 # file TTTT_TuneCP5_13TeV-amcatnlo-pythia8_hadd.root
+nRun['TTTTM690'] = 373734.0 # from 1M generated events, file TTTT_TuneCP5_13TeV-amcatnlo-pythia8_hadd.root
+nRun['4TM690'] = nRun['TTTTM690']
 
 # Cross sections for MC samples (in pb) -- most unchanged for 2017
 xsec={}
@@ -198,13 +199,14 @@ xsec['TTZH'] = 0.001253 # from McM
 xsec['TTZZ'] = 0.001572 # from McM
 
 #4 Tops
-xsec['4TM690'] = 0.008213 # from McM
+xsec['TTTTM690'] = 0.008213 # from McM
+xsec['4TM690'] = xsec['TTTTM690'] # from McM
 
 # Calculate lumi normalization weights
 weight = {}
 for sample in sorted(nRun.keys()): 
 	weight[sample] = (targetlumi*xsec[sample]) / (nRun[sample])
-	
+
 weight['TTJetsSemiLep01'] = weight['TTJetsSemiLep0']
 weight['TTJetsSemiLep02'] = weight['TTJetsSemiLep0']
 weight['TTJetsSemiLep03'] = weight['TTJetsSemiLep0']
@@ -241,3 +243,23 @@ weight['TTJetsSemiLepNjet9bin3'] = weight['TTJetsSemiLepNjet9bin']
 weight['TTJets2L2nu1'] = weight['TTJets2L2nu']
 weight['TTJets2L2nu2'] = weight['TTJets2L2nu']
 weight['TTJets2L2nu3'] = weight['TTJets2L2nu']
+
+weight['TTJetsHadTTbb'] = weight['TTJetsHad']
+weight['TTJetsHadTTcc'] = weight['TTJetsHad']
+weight['TTJetsHadTTjj'] = weight['TTJetsHad']
+weight['TTJetsSemiLepNjet0TTbb'] = weight['TTJetsSemiLepNjet0']
+weight['TTJetsSemiLepNjet0TTcc'] = weight['TTJetsSemiLepNjet0']
+weight['TTJetsSemiLepNjet0TTjj'] = weight['TTJetsSemiLepNjet0']
+weight['TTJetsSemiLepNjet0TTjj1'] = weight['TTJetsSemiLepNjet0']
+weight['TTJetsSemiLepNjet0TTjj2'] = weight['TTJetsSemiLepNjet0']
+weight['TTJetsSemiLepNjet0TTjj3'] = weight['TTJetsSemiLepNjet0']
+weight['TTJetsSemiLepNjet0TTjj4'] = weight['TTJetsSemiLepNjet0']
+weight['TTJetsSemiLepNjet9TTbb'] = weight['TTJetsSemiLepNjet9']
+weight['TTJetsSemiLepNjet9TTcc'] = weight['TTJetsSemiLepNjet9']
+weight['TTJetsSemiLepNjet9TTjj'] = weight['TTJetsSemiLepNjet9']
+weight['TTJetsSemiLepNjet9binTTbb'] = weight['TTJetsSemiLepNjet9bin']
+weight['TTJetsSemiLepNjet9binTTcc'] = weight['TTJetsSemiLepNjet9bin']
+weight['TTJetsSemiLepNjet9binTTjj'] = weight['TTJetsSemiLepNjet9bin']
+weight['TTJets2L2nuTTbb'] = weight['TTJets2L2nu']
+weight['TTJets2L2nuTTcc'] = weight['TTJets2L2nu']
+weight['TTJets2L2nuTTjj'] = weight['TTJets2L2nu']

@@ -20,11 +20,11 @@ def get_model():
 # 		elif 'isM' in obs:
 # 			model.add_lognormal_uncertainty('muIdSys', math.log(1.03), '*', obs)
 # 			model.add_lognormal_uncertainty('muIsoSys', math.log(1.01), '*', obs)
-    model.add_lognormal_uncertainty('lumiSys', math.log(1.023), '*', '*')
-#     model.add_lognormal_uncertainty('topSys', math.log(1.30), 'top', '*')
-#     model.add_lognormal_uncertainty('ewkSys', math.log(1.30), 'ewk', '*')
-#     model.add_lognormal_uncertainty('qcdSys', math.log(1.30), 'qcd', '*')
-#     model.add_lognormal_uncertainty('sigSys', math.log(1.10), 'sig', '*')
+#     model.add_lognormal_uncertainty('lumiSys', math.log(1.026), '*', '*')
+    model.add_lognormal_uncertainty('topSys', math.log(1.30), 'top', '*')
+    model.add_lognormal_uncertainty('ewkSys', math.log(1.30), 'ewk', '*')
+    model.add_lognormal_uncertainty('qcdSys', math.log(1.30), 'qcd', '*')
+    model.add_lognormal_uncertainty('sigSys', math.log(1.10), 'sig', '*')
    			
     return model
 

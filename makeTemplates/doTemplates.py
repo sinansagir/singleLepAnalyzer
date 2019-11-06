@@ -13,7 +13,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-saveKey = ''
+saveKey = ''#'_noTTHFsplit'
 region='SR' #PS,SR,TTCR,WJCR
 isCategorized=1
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
@@ -21,61 +21,73 @@ if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='2019_8_21'
+pfix+='noHOTtW_OR_onlyHOTtW_2019_10_24'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
+writeSummaryHists = True
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 36200./36459.
-doAllSys = False
+doAllSys = True
 doQ2sys = False
-if not doAllSys: doQ2sys = False
+doPDF = False
+if not doAllSys: 
+	doQ2sys = False
+	doPDF = False
+if doPDF: writeSummaryHists = False
 addCRsys = False
-systematicList = ['pileup','jec','jer','jms','jmr','tau21','taupt','topsf','toppt','ht','muR','muF','muRFcorrd','trigeff','btag','mistag']
+systematicList = ['pileup','prefire','muRFcorrd','muR','muF','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer'] # 'ht','trigeff'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
+zero = 1E-12
 
 doJetRwt = False
 doTTmtt = False
 doTTinc = False
-bkgGrupList = ['top','ewk','qcd']
-bkgProcList = ['TTJets','T','TTV','TTXY','WJets','ZJets','VV','qcd']
+bkgGrupList = ['ttbb','ttcc','ttjj','top','ewk','qcd']
+bkgProcList = ['ttbb','ttcc','ttjj','T','TTV','TTXY','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets']  = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG12001','WJetsMG12002','WJetsMG25001','WJetsMG25002']
 if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']] 
 bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
-bkgProcs['TTJets'] = ['TTJetsHad1','TTJetsHad2','TTJetsHad3']
-bkgProcs['TTJets']+= ['TTJetsSemiLepNjet01','TTJetsSemiLepNjet02','TTJetsSemiLepNjet03','TTJetsSemiLepNjet04','TTJetsSemiLepNjet05','TTJetsSemiLepNjet06']
-bkgProcs['TTJets']+= ['TTJetsSemiLepNjet91','TTJetsSemiLepNjet92','TTJetsSemiLepNjet93','TTJetsSemiLepNjet94','TTJetsSemiLepNjet95','TTJetsSemiLepNjet96']
-bkgProcs['TTJets']+= ['TTJetsSemiLepNjet9bin1','TTJetsSemiLepNjet9bin2','TTJetsSemiLepNjet9bin3']
-bkgProcs['TTJets']+= ['TTJets2L2nu1','TTJets2L2nu2','TTJets2L2nu3']
+TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet9bin','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9']
+bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
+bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
+bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
+bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4']]
 if doTTmtt:
 	saveKey+='_mtt'
-	bkgProcs['TTJets'] = ['TTJetsHad0','TTJetsHad700','TTJetsHad1000']
-	bkgProcs['TTJets']+= ['TTJetsSemiLep01','TTJetsSemiLep02','TTJetsSemiLep03','TTJetsSemiLep04','TTJetsSemiLep700','TTJetsSemiLep1000']
-	bkgProcs['TTJets']+= ['TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000']
-	bkgProcs['TTJets']+= ['TTJets700mtt','TTJets1000mtt']
+	TTlist = ['TTJetsHad0','TTJetsHad700','TTJetsHad1000','TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000']
+	TTlist+= ['TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000']
+	TTlist+= ['TTJets700mtt','TTJets1000mtt']
+	bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
+	bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
+	bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLep0']
+	bkgProcs['ttjj'] += ['TTJetsSemiLep0TTjj'+tt for tt in ['1','2','3','4']]
 elif doTTinc:
 	saveKey+='_TTinc'
-	bkgProcs['TTJets'] = ['TTJetsHad1','TTJetsHad2','TTJetsHad3']
-	bkgProcs['TTJets']+= ['TTJetsSemiLep1','TTJetsSemiLep2','TTJetsSemiLep3','TTJetsSemiLep4','TTJetsSemiLep5','TTJetsSemiLep6']
-	bkgProcs['TTJets']+= ['TTJets2L2nu1','TTJets2L2nu2','TTJets2L2nu3']
+	TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9']
+	bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
+	bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
+	bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLep0']
+	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4']]
 bkgProcs['T']   = ['Ts','Tbs','Tt','Tbt','TtW','TbtW']
 bkgProcs['TTV'] = ['TTWl','TTWq','TTZl','TTHB','TTHnoB']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']] 
-bkgProcs['top'] = bkgProcs['TTJets']+bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']
-bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV'] 
+bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']#+bkgProcs['TTJets']
+#bkgProcs['top']+= bkgProcs['ttbb']+bkgProcs['ttcc']+bkgProcs['ttjj']
+bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV']
 dataList = ['DataE','DataM']
-		  
+
 htProcs = ['ewk','WJets']
-topptProcs = ['top','TTJets']
+topptProcs = ['ttbb','ttcc','ttjj','top']
 bkgProcs['top_q2up'] = bkgProcs['T']+['TTJetsPHQ2U']#'TtWQ2U','TbtWQ2U']
 bkgProcs['top_q2dn'] = bkgProcs['T']+['TTJetsPHQ2D']#'TtWQ2D','TbtWQ2D']
 
-whichSignal = '4T' #HTB, TT, BB, or X53X53
+whichSignal = 'TTTT' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
@@ -94,9 +106,10 @@ if not doBRScan: nBRconf=1
 isEMlist  = ['E','M']
 nhottlist = ['0','0p','1p']
 nttaglist = ['0','0p','1p']
-nWtaglist = ['0','0p','1p','1','2p']
+nWtaglist = ['0','0p','1p']
 nbtaglist = ['2','3','3p','4p']
-njetslist = ['4','5','6','7','8','9','9p','10p']
+#nbtaglist = ['4p']
+njetslist = ['5','6','7','8','9','9p','10p']
 # nhottlist = ['0p']
 # nttaglist = ['0p']
 # nWtaglist = ['0p']
@@ -203,6 +216,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 								htemp = sighists[histoPrefix.replace(discriminant,discriminant+syst+ud)+'_'+signal+decay].Clone()
 								if doBRScan: htemp.Scale(BRs[decay[:2]][BRind]*BRs[decay[2:]][BRind]/(BR[decay[:2]]*BR[decay[2:]]))
 								if decay!=decays[0]: hists[signal+i+syst+ud].Add(htemp)
+			if doPDF:
 				for pdfInd in range(100):
 					for proc in bkgProcList+bkgGrupList:
 						hists[proc+i+'pdf'+str(pdfInd)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkgProcs[proc][0]].Clone(histoPrefix+'__'+proc+'__pdf'+str(pdfInd))
@@ -243,7 +257,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 			#prepare yield table
 			for proc in bkgGrupList+bkgProcList+sigList+['data']: yieldTable[histoPrefix][proc] = hists[proc+i].Integral()
 			yieldTable[histoPrefix]['totBkg'] = sum([hists[proc+i].Integral() for proc in bkgGrupList])
-			yieldTable[histoPrefix]['dataOverBkg']= yieldTable[histoPrefix]['data']/(yieldTable[histoPrefix]['totBkg']+1e-20)
+			yieldTable[histoPrefix]['dataOverBkg']= yieldTable[histoPrefix]['data']/(yieldTable[histoPrefix]['totBkg']+zero)
 
 			#prepare MC yield error table
 			for proc in bkgGrupList+bkgProcList+sigList+['data']: yieldStatErrTable[histoPrefix][proc] = 0.
@@ -270,10 +284,10 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 							if normalizeRENORM_PDF and (syst.startswith('mu') or syst=='pdf'):
 								hists[signal+i+syst+'Up'].Scale(hists[signal+i].Integral()/hists[signal+i+syst+'Up'].Integral())
 								hists[signal+i+syst+'Down'].Scale(hsihistsg[signal+i].Integral()/hists[signal+i+syst+'Down'].Integral())
+					if doPDF:
 						for pdfInd in range(100): 
 							hists[signal+i+'pdf'+str(pdfInd)].Scale(1./xsec[signal])
 
-		nbins = str(int(hists['data'+i].GetXaxis().GetNbins()))
 		#Theta templates:
 		print "       WRITING THETA TEMPLATES: "
 		for signal in sigList:
@@ -282,17 +296,21 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 			thetaRfile = TFile(thetaRfileName,'RECREATE')
 			for cat in catList:
 				i=BRconfStr+cat
+				totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 				for proc in bkgGrupList+[signal]:
-					if proc in bkgGrupList and hists[proc+i].Integral() == 0:
-						print proc+i,"IS EMPTY! SKIPPING ..."
+					if proc in bkgGrupList and hists[proc+i].Integral()/totBkg_ < .01:
+						print proc+i,"IS EMPTY OR < 1% OF TOTAL BKG! SKIPPING ..."
 						continue
 					hists[proc+i].Write()
 					if doAllSys:
 						for syst in systematicList:
 							if syst=='toppt' and proc not in topptProcs: continue
 							if syst=='ht' and proc not in htProcs: continue
+							if hists[proc+i+syst+'Up'].Integral()==0: hists[proc+i+syst+'Up'].SetBinContent(1,zero)
+							if hists[proc+i+syst+'Down'].Integral()==0: hists[proc+i+syst+'Down'].SetBinContent(1,zero)
 							hists[proc+i+syst+'Up'].Write()
 							hists[proc+i+syst+'Down'].Write()
+					if doPDF:
 						for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
 					if doQ2sys:
 						if proc+'_q2up' not in bkgProcs.keys(): continue
@@ -319,12 +337,17 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						hists[signal+i+syst+'Down'].SetName(hists[signal+i+syst+'Down'].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__minus','Down'))
 						hists[signal+i+syst+'Up'].Write()
 						hists[signal+i+syst+'Down'].Write()
+				if doPDF:
 					for pdfInd in range(100): 
 						hists[signal+i+'pdf'+str(pdfInd)].SetName(hists[signal+i+'pdf'+str(pdfInd)].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass))
 						hists[signal+i+'pdf'+str(pdfInd)].Write()
+			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
+				if hists[proc+i].Integral()/totBkg_ < .01:
+					print proc+i,"IS EMPTY OR < 1% OF TOTAL BKG! SKIPPING ..."
+					continue
 				hists[proc+i].SetName(hists[proc+i].GetName().replace('fb_','fb_'+postTag))
-				if hists[proc+i].Integral() == 0: hists[proc+i].SetBinContent(1,1e-20)
+				if hists[proc+i].Integral() == 0: hists[proc+i].SetBinContent(1,zero)
 				hists[proc+i].Write()
 				if doAllSys:
 					for syst in systematicList:
@@ -334,6 +357,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						hists[proc+i+syst+'Down'].SetName(hists[proc+i+syst+'Down'].GetName().replace('fb_','fb_'+postTag).replace('__minus','Down'))
 						hists[proc+i+syst+'Up'].Write()
 						hists[proc+i+syst+'Down'].Write()
+				if doPDF:
 					for pdfInd in range(100): 
 						hists[proc+i+'pdf'+str(pdfInd)].SetName(hists[proc+i+'pdf'+str(pdfInd)].GetName().replace('fb_','fb_'+postTag))
 						hists[proc+i+'pdf'+str(pdfInd)].Write()
@@ -349,6 +373,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 
 		print "       WRITING SUMMARY TEMPLATES: "
 		for signal in sigList:
+			if not writeSummaryHists: break
 			print "              ... "+signal
 			yldRfileName = outDir+'/templates_YLD_'+signal+BRconfStr+'_'+lumiStr+saveKey+'.root'
 			yldRfile = TFile(yldRfileName,'RECREATE')
@@ -376,7 +401,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						binStr = ''
 						if nhottag!='0p':
 							if 'p' in nhottag: binStr+='#geq'+nhottag[:-1]+'res-t/'
-							else: binStr+=nttag+'res-t/'
+							else: binStr+=nhottag+'res-t/'
 						if nttag!='0p':
 							if 'p' in nttag: binStr+='#geq'+nttag[:-1]+'t/'
 							else: binStr+=nttag+'t/'
@@ -475,7 +500,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						if proc=='totBkg' or proc=='dataOverBkg':
 							for bkg in bkgGrupList:
 								try:
-									yieldtemp += yieldTable[histoPrefix][bkg]+1e-20
+									yieldtemp += yieldTable[histoPrefix][bkg]+zero
 									yielderrtemp += yieldStatErrTable[histoPrefix][bkg]**2
 									yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldTable[histoPrefix][bkg])**2
 								except:
@@ -483,7 +508,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 									pass
 							yielderrtemp += (corrdSys*yieldtemp)**2
 							if proc=='dataOverBkg':
-								dataTemp = yieldTable[histoPrefix]['data']+1e-20
+								dataTemp = yieldTable[histoPrefix]['data']+zero
 								dataTempErr = yieldStatErrTable[histoPrefix]['data']**2
 								yielderrtemp = ((dataTemp/yieldtemp)**2)*(dataTempErr/dataTemp**2+yielderrtemp/yieldtemp**2)
 								yieldtemp = dataTemp/yieldtemp
@@ -524,7 +549,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 							try:
 								yieldtempE += yieldTable[histoPrefixE][bkg]
 								yieldtempM += yieldTable[histoPrefixM][bkg]
-								yieldtemp  += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]+1e-20
+								yieldtemp  += yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]+zero
 								yielderrtemp += yieldStatErrTable[histoPrefixE][bkg]**2+yieldStatErrTable[histoPrefixM][bkg]**2
 								yielderrtemp += (modelingSys[bkg+'_'+modTag]*(yieldTable[histoPrefixE][bkg]+yieldTable[histoPrefixM][bkg]))**2 #(modelingSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 							except:
@@ -532,7 +557,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 								pass
 						yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 						if proc=='dataOverBkg':
-							dataTemp = yieldTable[histoPrefixE]['data']+yieldTable[histoPrefixM]['data']+1e-20
+							dataTemp = yieldTable[histoPrefixE]['data']+yieldTable[histoPrefixM]['data']+zero
 							dataTempErr = yieldStatErrTable[histoPrefixE]['data']**2+yieldStatErrTable[histoPrefixM]['data']**2
 							yielderrtemp = ((dataTemp/yieldtemp)**2)*(dataTempErr/dataTemp**2+yielderrtemp/yieldtemp**2)
 							yieldtemp = dataTemp/yieldtemp
@@ -567,7 +592,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 							histoPrefix = discriminant+'_'+lumiStr+'_'+cat
 							nomHist = histoPrefix
 							shpHist = histoPrefix+syst+ud
-							try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+1e-20),2)))
+							try: row.append(' & '+str(round(yieldTable[shpHist][proc]/(yieldTable[nomHist][proc]+zero),2)))
 							except:
 								if not ((syst=='toppt' and proc not in topptProcs) or (syst=='ht' and proc not in htProcs) or (syst=='q2' and (proc+'_q2up' not in bkgProcs.keys() or not doQ2sys))):
 									print "Missing",proc,"for channel:",cat,"and systematic:",syst
@@ -600,6 +625,8 @@ for iPlot in iPlotList:
 	sighists  = {}
 	if len(sys.argv)>1 and iPlot!=sys.argv[1]: continue
 	print "LOADING DISTRIBUTION: "+iPlot
+	#if iPlot=="Tau32Nm1" or iPlot=="SoftDropMassNm1t" or iPlot=="SoftDropMass" or iPlot=="Tau21Nm1" or iPlot=="SoftDropMassNm1W": continue
+	#if iPlot!="SoftDropMass": continue
 	for cat in catList:
 		print "         ",cat[2:]
 		datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))

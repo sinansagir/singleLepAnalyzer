@@ -18,12 +18,11 @@ lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 iPlot='YLD'
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
-templateDir=os.getcwd()+'/'+pfix+'_2019_3_2/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_syst_2019_10_8/'+cutString+'/'
 plotLimits = False
 limitFile = '/user_data/ssagir/HTB_limits_2016/templates_2016_11_26/nB1_nJ3/limits_templates_HT_HTBM200_36p0fb_rebinned_stat0p3_expected.txt'
-massList = [str(mss) for mss in [690]]
 
-isRebinned = '' #'_rebinned_stat0p3'
+isRebinned = '_nB2'#'_rebinned_stat0p3'
 saveKey = '' # tag for plot names
 
 mass = '690'
@@ -31,25 +30,26 @@ sig1 = '4TM690' # choose the 1st signal to plot
 sig1leg='t#bar{t}t#bar{t}'
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-bkgProcList = ['top','ewk','qcd']
-
-bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOrange-5,'TTJets':rt.kRed-9,'T':rt.kRed-5,'WJets':rt.kBlue-7,'ZJets':rt.kBlue-1,'VV':rt.kBlue+5,'qcd':rt.kOrange-5} #X53X53
+bkgProcList = ['ttbb','ttcc','ttjj','top','ewk','qcd']
+bkgHistColors = {'tt2b':rt.kRed,'ttbb':rt.kRed-5,'ttb':rt.kRed-3,'ttcc':rt.kRed-3,'ttjj':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 
 yLog = True
-plotProc = 'bkg'#sig,bkg,SoB,'ttbar','wjets','top','ewk','qcd'
+plotProc = 'SoB'#sig,bkg,SoB,'ttbar','wjets','top','ewk','qcd'
 if len(sys.argv)>1: plotProc=str(sys.argv[1])
-doBkgFraction = False #set plotProc to "bkg"
+doBkgFraction = True #set plotProc to "bkg"
 doNegSigFrac = False
 doEfficiency = False
 scaleXsec = False
 if plotProc=='SoB' or doBkgFraction: yLog = False
+zero = 1E-12
 
 isEMlist  = ['E','M']
+nhottlist = ['0p']
 nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['0p']
 njetslist = ['0p']
-tagList = list(itertools.product(nttaglist,nWtaglist,nbtaglist,njetslist))
+tagList = list(itertools.product(nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 
 def formatUpperHist(histogram):
 	histogram.GetXaxis().SetLabelSize(0)
@@ -66,11 +66,8 @@ def formatUpperHist(histogram):
 		uPad.SetLogy()
 		#histogram.SetMinimum(0.101)
 
-RFiles={}
-for mss in massList: RFiles[mss] = rt.TFile(templateDir+tempsig.replace(mass,mss))
-if doNegSigFrac:
-	RFiles2={}
-	for mss in massList: RFiles2[mss] = rt.TFile(templateDir.replace('_negSignals_','_totSignals_')+tempsig.replace(mass,mss))
+RFile = rt.TFile(templateDir+tempsig)
+if doNegSigFrac: RFile2 = rt.TFile(templateDir.replace('_negSignals_','_totSignals_')+tempsig)
 
 #set the tdr style
 tdrstyle.setTDRStyle()
@@ -87,7 +84,7 @@ iPos = 11
 if( iPos==0 ): CMS_lumi.relPosX = 0.12
 
 H_ref = 600; 
-W_ref = 1200; 
+W_ref = 800; 
 W = W_ref
 H = H_ref
 
@@ -104,16 +101,8 @@ tagPosY = 0.62
 
 bkghists = {}
 bkghistsmerged = {}
-sighists = {}
-sighistsmerged = {}
-sighists2 = {}
-sighists2merged = {}
-hsigObkg = {}
-hsigNegFrac = {}
-hsigObkgmerged = {}
-hsigNegFracmerged = {}
 for tag in tagList:
-	tagStr='nT'+tag[0]+'_nW'+tag[1]+'_nB'+tag[2]+'_nJ'+tag[3]
+	tagStr='nHOT'+tag[0]+'_nT'+tag[1]+'_nW'+tag[2]+'_nB'+tag[3]+'_nJ'+tag[4]
 	#if skip(tag[3],tag[2]): continue #DO YOU WANT TO HAVE THIS??
 	modTag = tagStr[tagStr.find('nT'):tagStr.find('nJ')-3]
 	for isEM in isEMlist:
@@ -122,24 +111,22 @@ for tag in tagList:
 		histPrefix+=catStr
 		print histPrefix
 		for proc in bkgProcList: 
-			try: bkghists[proc+catStr] = RFiles[mass].Get(histPrefix+'__'+proc).Clone()
+			try: bkghists[proc+catStr] = RFile.Get(histPrefix+'__'+proc).Clone()
 			except:
 				print "There is no "+proc+"!!! Skipping it....."
 				pass
 
-		hData = RFiles[mass].Get(histPrefix+'__DATA').Clone()
-		for mss in massList: 
-			sighists[mss] = RFiles[mss].Get(histPrefix+'__sig').Clone(histPrefix+'__'+mss)
-			if scaleXsec: sighists[mss].Scale(xsec['HTBM'+mss])
-			if doEfficiency: sighists[mss].Scale(1./nRun['HTBM'+mss])
-			if doNegSigFrac: 
-				sighists2[mss] = RFiles2[mss].Get(histPrefix+'__sig').Clone(histPrefix+'__2'+mss)
-				if scaleXsec: sighists2[mss].Scale(xsec['HTBM'+mss])
-				if doEfficiency: sighists2[mss].Scale(1./nRun['HTBM'+mss])
+		hData = RFile.Get(histPrefix+'__DATA').Clone()
+		hSig = RFile.Get(histPrefix+'__sig').Clone(histPrefix+'__'+sig1)
+		if scaleXsec: hSig.Scale(xsec[sig1])
+		if doEfficiency: hSig.Scale(1./nRun[sig1])
+		if doNegSigFrac: 
+			hSig2 = RFile2.Get(histPrefix+'__sig').Clone(histPrefix+'__2'+sig1)
+			if scaleXsec: hSig2.Scale(xsec[sig1])
+			if doEfficiency: hSig2.Scale(1./nRun[sig1])
 
-		bkgHT = bkghists[bkgProcList[0]+catStr].Clone()
-		for proc in bkgProcList:
-			if proc==bkgProcList[0]: continue
+		bkgHT = bkghists[bkgProcList[0]+catStr].Clone(bkgProcList[0]+catStr+'totBkg')
+		for proc in bkgProcList[1:]:
 			try: bkgHT.Add(bkghists[proc+catStr])
 			except: pass
 
@@ -175,21 +162,20 @@ for tag in tagList:
 		
 		uPad.cd()
 
-		#sighists[mass].Divide(bkgHT)
-		for mss in massList: 
-			hsigObkg[mss] = sighists[mss].Clone('hsigObkg'+mss)
-			if doNegSigFrac: hsigNegFrac[mss] = sighists[mss].Clone('hsigNegFrac'+mss)
-			for binNo in range(1,hsigObkg[mss].GetNbinsX()+1):
-				hsigObkg[mss].SetBinContent(binNo,sighists[mss].GetBinContent(binNo)/(math.sqrt(sighists[mss].GetBinContent(binNo)+bkgHT.GetBinContent(binNo))+1e-20))
-				if doNegSigFrac: hsigNegFrac[mss].SetBinContent(binNo,sighists[mss].GetBinContent(binNo)/sighists2[mss].GetBinContent(binNo))
+		#hSig.Divide(bkgHT)
+		hsigObkg = hSig.Clone('hsigObkg'+sig1)
+		if doNegSigFrac: hsigNegFrac = hSig.Clone('hsigNegFrac'+sig1)
+		for binNo in range(1,hsigObkg.GetNbinsX()+1):
+			hsigObkg.SetBinContent(binNo,hSig.GetBinContent(binNo)/(math.sqrt(hSig.GetBinContent(binNo)+bkgHT.GetBinContent(binNo))+zero))
+			if doNegSigFrac: hsigNegFrac.SetBinContent(binNo,hSig.GetBinContent(binNo)/hSig2.GetBinContent(binNo))
 		if plotProc=='sig':
-			formatUpperHist(sighists[mass])
-			if doEfficiency: sighists[mass].GetYaxis().SetTitle("N_{passed}/N_{gen}")
-			else: sighists[mass].GetYaxis().SetTitle("N_{sig}")
-			sighists[mass].SetLineColor(2)
-			sighists[mass].SetFillColor(2)
-			sighists[mass].SetLineWidth(2)
-			sighists[mass].Draw("HIST")
+			formatUpperHist(hSig)
+			if doEfficiency: hSig.GetYaxis().SetTitle("N_{passed}/N_{gen}")
+			else: hSig.GetYaxis().SetTitle("N_{sig}")
+			hSig.SetLineColor(2)
+			hSig.SetFillColor(2)
+			hSig.SetLineWidth(2)
+			hSig.Draw("HIST")
 		elif plotProc=='bkg':
 			if doBkgFraction: 
 				stackbkgHTfrac = rt.THStack("stackbkgHTfrac","")
@@ -227,21 +213,21 @@ for tag in tagList:
 			bkghists[plotProc+catStr].Draw("HIST")
 		else:
 			if doNegSigFrac: 
-				formatUpperHist(hsigNegFrac[mass])
-				hsigNegFrac[mass].GetYaxis().SetTitle("N_{neg}/N_{total}")
-				hsigNegFrac[mass].SetLineColor(2)
-				hsigNegFrac[mass].SetFillColor(0)
-				hsigNegFrac[mass].SetLineWidth(4)
-				hsigNegFrac[mass].SetMinimum(0)
-				hsigNegFrac[mass].SetMaximum(1)
-				hsigNegFrac[mass].Draw("HIST")
+				formatUpperHist(hsigNegFrac)
+				hsigNegFrac.GetYaxis().SetTitle("N_{neg}/N_{total}")
+				hsigNegFrac.SetLineColor(2)
+				hsigNegFrac.SetFillColor(0)
+				hsigNegFrac.SetLineWidth(4)
+				hsigNegFrac.SetMinimum(0)
+				hsigNegFrac.SetMaximum(1)
+				hsigNegFrac.Draw("HIST")
 			else:
-				formatUpperHist(hsigObkg[mass])
-				hsigObkg[mass].GetYaxis().SetTitle("N_{sig}/#sqrt{N_{sig}+N_{bkg}}")
-				hsigObkg[mass].SetLineColor(2)
-				hsigObkg[mass].SetFillColor(0)
-				hsigObkg[mass].SetLineWidth(4)
-				hsigObkg[mass].Draw("HIST")
+				formatUpperHist(hsigObkg)
+				hsigObkg.GetYaxis().SetTitle("N_{sig}/#sqrt{N_{sig}+N_{bkg}}")
+				hsigObkg.SetLineColor(2)
+				hsigObkg.SetFillColor(0)
+				hsigObkg.SetLineWidth(4)
+				hsigObkg.Draw("HIST")
 
 		chLatex = rt.TLatex()
 		chLatex.SetNDC()
@@ -252,18 +238,21 @@ for tag in tagList:
 		if isEM=='E': flvString+='e+jets'
 		if isEM=='M': flvString+='#mu+jets'
 		if tag[0]!='0p': 
-			if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
-			else: tagString+=tag[0]+' t, '
+			if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+'res-t/'
+			else: tagString+=tag[0]+'res-t/'
 		if tag[1]!='0p': 
-			if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
-			else: tagString+=tag[1]+' W, '
+			if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+'t/'
+			else: tagString+=tag[1]+'t/'
 		if tag[2]!='0p': 
-			if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b, '
-			else: tagString+=tag[2]+' b, '
+			if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+'W/'
+			else: tagString+=tag[2]+'W/'
 		if tag[3]!='0p': 
-			if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' j'
-			else: tagString+=tag[3]+' j'
-		if tagString.endswith(', '): tagString = tagString[:-2]
+			if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+'b/'
+			else: tagString+=tag[3]+'b/'
+		if tag[4]!='0p': 
+			if 'p' in tag[4]: tagString+='#geq'+tag[4][:-1]+'j'
+			else: tagString+=tag[4]+'j'
+		if tagString.endswith('/'): tagString = tagString[:-1]
 		chLatex.DrawLatex(tagPosX, tagPosY, flvString)
 		chLatex.DrawLatex(tagPosX, tagPosY-0.06, tagString)
 
@@ -278,7 +267,7 @@ for tag in tagList:
 		#c1.Write()
 		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 		if not os.path.exists(savePrefix): os.system('mkdir '+savePrefix)
-		savePrefix+=histPrefix.replace('_nT0p','').replace('_nW0p','').replace('_nB0p','').replace('_nJ0p','')
+		savePrefix+=histPrefix.replace('_nHOT0p','').replace('_nT0p','').replace('_nW0p','').replace('_nB0p','').replace('_nJ0p','')
 		savePrefix+=isRebinned.replace('_rebinned_stat1p1','')+saveKey
 		if yLog: savePrefix+='_logy'
 
@@ -294,9 +283,9 @@ for tag in tagList:
 			elif doNegSigFrac: savePrefix+='_'+sig1+'_negSigFrac'
 			else: savePrefix+='_'+sig1+'_SoB'
 
-		c1.SaveAs(savePrefix+".pdf")
 		c1.SaveAs(savePrefix+".png")
-		c1.SaveAs(savePrefix+".eps")
+		#c1.SaveAs(savePrefix+".pdf")
+		#c1.SaveAs(savePrefix+".eps")
 		for proc in bkgProcList:
 			try: del bkghists[proc+catStr]
 			except: pass
@@ -307,25 +296,23 @@ for tag in tagList:
 	bkghistsmerged = {}
 	for proc in bkgProcList:
 		try: 
-			bkghistsmerged[proc+'isL'+tagStr] = RFiles[mass].Get(histPrefixE+'__'+proc).Clone()
-			bkghistsmerged[proc+'isL'+tagStr].Add(RFiles[mass].Get(histPrefixM+'__'+proc))
+			bkghistsmerged[proc+'isL'+tagStr] = RFile.Get(histPrefixE+'__'+proc).Clone()
+			bkghistsmerged[proc+'isL'+tagStr].Add(RFile.Get(histPrefixM+'__'+proc))
 		except: pass
-	hDatamerged = RFiles[mass].Get(histPrefixE+'__DATA').Clone()
-	hDatamerged.Add(RFiles[mass].Get(histPrefixM+'__DATA').Clone())
-	for mss in massList: 
-		sighistsmerged[mss] = RFiles[mss].Get(histPrefixE+'__sig').Clone(histPrefixE+'__'+mss+'merged')
-		sighistsmerged[mss].Add(RFiles[mss].Get(histPrefixM+'__sig').Clone())
-		if scaleXsec: sighistsmerged[mss].Scale(xsec['HTBM'+mss])
-		if doEfficiency: sighistsmerged[mss].Scale(1./nRun['HTBM'+mss])
-		if doNegSigFrac:
-			sighists2merged[mss] = RFiles2[mss].Get(histPrefixE+'__sig').Clone(histPrefixE+'__'+mss+'merged')
-			sighists2merged[mss].Add(RFiles2[mss].Get(histPrefixM+'__sig').Clone())
-			if scaleXsec: sighists2merged[mss].Scale(xsec['HTBM'+mss])
-			if doEfficiency: sighists2merged[mss].Scale(1./nRun['HTBM'+mss])
+	hDatamerged = RFile.Get(histPrefixE+'__DATA').Clone()
+	hDatamerged.Add(RFile.Get(histPrefixM+'__DATA').Clone())
+	hSigmerged = RFile.Get(histPrefixE+'__sig').Clone(histPrefixE+'__'+sig1+'merged')
+	hSigmerged.Add(RFile.Get(histPrefixM+'__sig').Clone())
+	if scaleXsec: hSigmerged.Scale(xsec[sig1])
+	if doEfficiency: hSigmerged.Scale(1./nRun[sig1])
+	if doNegSigFrac:
+		hSig2merged = RFile2.Get(histPrefixE+'__sig').Clone(histPrefixE+'__'+sig1+'merged')
+		hSig2merged.Add(RFile2.Get(histPrefixM+'__sig').Clone())
+		if scaleXsec: hSig2merged.Scale(xsec[sig1])
+		if doEfficiency: hSig2merged.Scale(1./nRun[sig1])
 
-	bkgHTmerged = bkghistsmerged[bkgProcList[0]+'isL'+tagStr].Clone()
-	for proc in bkgProcList:
-		if proc==bkgProcList[0]: continue
+	bkgHTmerged = bkghistsmerged[bkgProcList[0]+'isL'+tagStr].Clone(bkgProcList[0]+'isL'+tagStr+'totBkg')
+	for proc in bkgProcList[1:]:
 		try: bkgHTmerged.Add(bkghistsmerged[proc+'isL'+tagStr])
 		except: pass
 
@@ -357,56 +344,52 @@ for tag in tagList:
 	
 	uPad.cd()
 
-	#sighistsmerged[mass].Divide(bkgHTmerged)
-	for mss in massList: 
-		hsigObkgmerged[mss] = sighistsmerged[mss].Clone('hsigObkgmerged'+mss)
-		if doNegSigFrac: hsigNegFracmerged[mss] = sighists[mss].Clone('hsigNegFracmerged'+mss)
-		for binNo in range(1,hsigObkgmerged[mss].GetNbinsX()+1):
-			if plotLimits:
-				binLabelB = hsigObkgmerged[mss].GetXaxis().GetBinLabel(binNo).split('/')[0][:-1]
-				binLabelJ = hsigObkgmerged[mss].GetXaxis().GetBinLabel(binNo).split('/')[1][:-1]
-				catStr = 'nB'+binLabelB.replace('#geq','')
-				if '#geq' in binLabelB: catStr+='p'
-				catStr+='_nJ'+binLabelJ.replace('#geq','')
-				if '#geq' in binLabelJ: catStr+='p'
-				fexp = open(limitFile.replace('/nB1_nJ3/','/'+catStr+'/').replace('_HTBM200_','_HTBM'+mss+'_'), 'rU')
-				linesExp = fexp.readlines()
-				fexp.close()
-				exp = float(linesExp[1].strip().split()[1])
-				hsigObkgmerged[mss].SetBinContent(binNo,exp)
-			else: 
-				hsigObkgmerged[mss].SetBinContent(binNo,sighistsmerged[mss].GetBinContent(binNo)/(math.sqrt(sighistsmerged[mss].GetBinContent(binNo)+bkgHTmerged.GetBinContent(binNo))+1e-20))
-				if doNegSigFrac: hsigNegFracmerged[mss].SetBinContent(binNo,sighistsmerged[mss].GetBinContent(binNo)/sighists2merged[mss].GetBinContent(binNo))
+	#hSigmerged.Divide(bkgHTmerged)
+	hsigObkgmerged = hSigmerged.Clone('hsigObkgmerged'+sig1)
+	if doNegSigFrac: hsigNegFracmerged = hSig.Clone('hsigNegFracmerged'+sig1)
+	for binNo in range(1,hsigObkgmerged.GetNbinsX()+1):
+		if plotLimits:
+			binLabelB = hsigObkgmerged.GetXaxis().GetBinLabel(binNo).split('/')[0][:-1]
+			binLabelJ = hsigObkgmerged.GetXaxis().GetBinLabel(binNo).split('/')[1][:-1]
+			catStr = 'nB'+binLabelB.replace('#geq','')
+			if '#geq' in binLabelB: catStr+='p'
+			catStr+='_nJ'+binLabelJ.replace('#geq','')
+			if '#geq' in binLabelJ: catStr+='p'
+			fexp = open(limitFile.replace('/nB1_nJ3/','/'+catStr+'/').replace('_HTBM200_','_HTBM'+sig1+'_'), 'rU')
+			linesExp = fexp.readlines()
+			fexp.close()
+			exp = float(linesExp[1].strip().split()[1])
+			hsigObkgmerged.SetBinContent(binNo,exp)
+		else: 
+			hsigObkgmerged.SetBinContent(binNo,hSigmerged.GetBinContent(binNo)/(math.sqrt(hSigmerged.GetBinContent(binNo)+bkgHTmerged.GetBinContent(binNo))+zero))
+			if doNegSigFrac: hsigNegFracmerged.SetBinContent(binNo,hSigmerged.GetBinContent(binNo)/hSig2merged.GetBinContent(binNo))
 
 	if plotProc=='sig':
-		formatUpperHist(sighistsmerged[mass])
-		if doEfficiency: sighistsmerged[mass].GetYaxis().SetTitle("N_{passed}/N_{gen}")
-		else: sighistsmerged[mass].GetYaxis().SetTitle("N_{sig}")
-		sighistsmerged[mass].SetLineColor(2)
-		sighistsmerged[mass].SetFillColor(2)
-		sighistsmerged[mass].SetLineWidth(2)
-		#sighistsmerged[mass].SetMaximum(0.07)
-		sighistsmerged[mass].Draw("HIST")
+		formatUpperHist(hSigmerged)
+		if doEfficiency: hSigmerged.GetYaxis().SetTitle("N_{passed}/N_{gen}")
+		else: hSigmerged.GetYaxis().SetTitle("N_{sig}")
+		hSigmerged.SetLineColor(2)
+		hSigmerged.SetFillColor(2)
+		hSigmerged.SetLineWidth(2)
+		#hSigmerged.SetMaximum(0.07)
+		hSigmerged.Draw("HIST")
 	elif plotProc=='bkg':
 		if doBkgFraction: 
 			stackbkgHTfracmerged = rt.THStack("stackbkgHTfracmerged","")
 			for proc in bkgProcList:
+				bkghistsmerged[proc+'isL'+tagStr].SetLineColor(bkgHistColors[proc])
+				bkghistsmerged[proc+'isL'+tagStr].SetFillColor(bkgHistColors[proc])
+				bkghistsmerged[proc+'isL'+tagStr].SetLineWidth(2)
+				bkghistsmerged[proc+'isL'+tagStr].GetXaxis().LabelsOption("v")
 				bkghistsmerged[proc+'isL'+tagStr].Divide(bkgHTmerged)
 				bkghistsmerged[proc+'isL'+tagStr].Scale(100)
 				try: stackbkgHTfracmerged.Add(bkghistsmerged[proc+'isL'+tagStr])
 				except: pass
-
-			bkgHTmerged.GetYaxis().SetTitle("N_{process}/N_{tot Bkg}")
-			stackbkgHTfracmerged.SetMaximum(115)
-			for proc in bkgProcList:
-				try: 
-					bkghistsmerged[proc+'isL'+tagStr].SetLineColor(bkgHistColors[proc])
-					bkghistsmerged[proc+'isL'+tagStr].SetFillColor(bkgHistColors[proc])
-					bkghistsmerged[proc+'isL'+tagStr].SetLineWidth(2)
-				except: pass
-			stackbkgHTfracmerged.Draw("HIST")
+			bkghistsmerged['ttbbisL'+tagStr].SetMaximum(140)
+			bkghistsmerged['ttbbisL'+tagStr].Draw("HIST")
+			stackbkgHTfracmerged.Draw("SAMEHIST")
 			
-			leg = rt.TLegend(0.65,0.80,0.95,0.88)
+			leg = rt.TLegend(0.55,0.72,0.95,0.88)
 			leg.SetShadowColor(0)
 			leg.SetFillColor(0)
 			leg.SetFillStyle(0)
@@ -415,20 +398,17 @@ for tag in tagList:
 			leg.SetBorderSize(0) 
 			leg.SetNColumns(3)
 			leg.SetTextFont(62)#42)
-			leg.AddEntry(bkghistsmerged['qcd'+'isL'+tagStr],"QCD","f")
+			try: leg.AddEntry(bkghistsmerged['qcd'+'isL'+tagStr],"QCD","f")
+			except: pass
 			try: leg.AddEntry(bkghistsmerged['ewk'+'isL'+tagStr],"EWK","f")
 			except: pass
 			try: leg.AddEntry(bkghistsmerged['top'+'isL'+tagStr],"TOP","f")
-			except: pass
-			try: leg.AddEntry(bkghistsmerged['wjets'+'isL'+tagStr],"W+jets","f")
-			except: pass
-			try: leg.AddEntry(bkghistsmerged['ttbar'+'isL'+tagStr],"t#bar{t}","f")
 			except: pass
 			try: leg.AddEntry(bkghistsmerged['ttbb'+'isL'+tagStr],"t#bar{t}+b(b)","f")
 			except: pass
 			try: leg.AddEntry(bkghistsmerged['ttcc'+'isL'+tagStr],"t#bar{t}+c(c)","f")
 			except: pass
-			try: leg.AddEntry(bkghistsmerged['ttlf'+'isL'+tagStr],"t#bar{t}+lf","f")
+			try: leg.AddEntry(bkghistsmerged['ttjj'+'isL'+tagStr],"t#bar{t}+j(j)","f")
 			except: pass
 			leg.Draw("same")
 		else:
@@ -451,21 +431,18 @@ for tag in tagList:
 		bkghistsmerged[plotProc+'isL'+tagStr].Draw("HIST")
 	else:
 		if doNegSigFrac: 
-			formatUpperHist(hsigNegFracmerged[mass])
-			hsigNegFracmerged[mass].GetYaxis().SetTitle("N_{neg}/N_{total}")
-			hsigNegFracmerged[mass].SetLineColor(2)
-			hsigNegFracmerged[mass].SetFillColor(0)
-			hsigNegFracmerged[mass].SetLineWidth(4)
-			hsigNegFracmerged[mass].SetMinimum(0.29)
-			hsigNegFracmerged[mass].SetMaximum(0.45)
-			hsigNegFracmerged[mass].Draw("HIST")
-			ind_=0
-			for mss in massList: 
-				ind_+=1
-				hsigNegFracmerged[mss].SetLineColor(ind_)
-				hsigNegFracmerged[mss].SetFillColor(0)
-				hsigNegFracmerged[mss].SetLineWidth(4)
-				hsigNegFracmerged[mss].Draw("SAME HIST")
+			formatUpperHist(hsigNegFracmerged)
+			hsigNegFracmerged.GetYaxis().SetTitle("N_{neg}/N_{total}")
+			hsigNegFracmerged.SetLineColor(2)
+			hsigNegFracmerged.SetFillColor(0)
+			hsigNegFracmerged.SetLineWidth(4)
+			hsigNegFracmerged.SetMinimum(0.29)
+			hsigNegFracmerged.SetMaximum(0.45)
+			hsigNegFracmerged.Draw("HIST")
+			hsigNegFracmerged.SetLineColor(1)
+			hsigNegFracmerged.SetFillColor(0)
+			hsigNegFracmerged.SetLineWidth(4)
+			hsigNegFracmerged.Draw("SAME HIST")
 				
 			leg = rt.TLegend(0.45,0.75,0.99,0.90)
 			leg.SetShadowColor(0)
@@ -476,25 +453,23 @@ for tag in tagList:
 			leg.SetBorderSize(0) 
 			leg.SetNColumns(4)
 			leg.SetTextFont(62)#42)
-			for mss in massList: leg.AddEntry(hsigNegFracmerged[mss],mss,"f")
+			leg.AddEntry(hsigNegFracmerged,sig1leg,"f")
 			leg.Draw("same")
 
 		else:
-			formatUpperHist(hsigObkgmerged[mass])
-			if plotLimits: hsigObkgmerged[mass].GetYaxis().SetTitle("Upper limit")
-			else: hsigObkgmerged[mass].GetYaxis().SetTitle("N_{sig}/#sqrt{N_{sig}+N_{bkg}}")
-			hsigObkgmerged[mass].SetLineColor(2)
-			hsigObkgmerged[mass].SetFillColor(0)
-			hsigObkgmerged[mass].SetLineWidth(4)
-			hsigObkgmerged[mass].Draw("HIST")
+			#formatUpperHist(hsigObkgmerged)
+			hsigObkgmerged.GetXaxis().LabelsOption("v")
+			if plotLimits: hsigObkgmerged.GetYaxis().SetTitle("Upper limit")
+			else: hsigObkgmerged.GetYaxis().SetTitle("N_{sig}/#sqrt{N_{sig}+N_{bkg}}")
+			hsigObkgmerged.SetLineColor(2)
+			hsigObkgmerged.SetFillColor(0)
+			hsigObkgmerged.SetLineWidth(4)
+			hsigObkgmerged.Draw("HIST")
 			
-# 			ind_=0
-# 			for mss in massList: 
-# 				ind_+=1
-# 				hsigObkgmerged[mss].SetLineColor(ind_)
-# 				hsigObkgmerged[mss].SetFillColor(0)
-# 				hsigObkgmerged[mss].SetLineWidth(4)
-# 				hsigObkgmerged[mss].Draw("SAME HIST")
+# 			hsigObkgmerged.SetLineColor(1)
+# 			hsigObkgmerged.SetFillColor(0)
+# 			hsigObkgmerged.SetLineWidth(4)
+# 			hsigObkgmerged.Draw("SAME HIST")
 				
 			leg = rt.TLegend(0.45,0.75,0.99,0.90)
 			leg.SetShadowColor(0)
@@ -505,8 +480,7 @@ for tag in tagList:
 			leg.SetBorderSize(0) 
 			leg.SetNColumns(4)
 			leg.SetTextFont(62)#42)
-			#leg.AddEntry(hsigObkgmerged[mass],mass,"f")
-			#for mss in massList: leg.AddEntry(hsigObkgmerged[mss],mss,"f")
+			#leg.AddEntry(hsigObkgmerged,mass,"f")
 			leg.Draw("same")
 	
 	chLatexmerged = rt.TLatex()
@@ -514,20 +488,6 @@ for tag in tagList:
 	chLatexmerged.SetTextSize(0.04)
 	chLatexmerged.SetTextAlign(21) # align center
 	flvString = 'e/#mu+jets'
-	tagString = ''
-	if tag[0]!='0p':
-		if 'p' in tag[0]: tagString+='#geq'+tag[0][:-1]+' t, '
-		else: tagString+=tag[0]+' t, '
-	if tag[1]!='0p':
-		if 'p' in tag[1]: tagString+='#geq'+tag[1][:-1]+' W, '
-		else: tagString+=tag[1]+' W, '
-	if tag[2]!='0p':
-		if 'p' in tag[2]: tagString+='#geq'+tag[2][:-1]+' b, '
-		else: tagString+=tag[2]+' b, '
-	if tag[3]!='0p':
-		if 'p' in tag[3]: tagString+='#geq'+tag[3][:-1]+' j'
-		else: tagString+=tag[3]+' j'
-	if tagString.endswith(', '): tagString = tagString[:-2]
 	chLatexmerged.DrawLatex(tagPosX, tagPosY, flvString)
 	chLatexmerged.DrawLatex(tagPosX, tagPosY-0.06, tagString)
 
@@ -542,7 +502,7 @@ for tag in tagList:
 	#c1merged.Write()
 	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 	if not os.path.exists(savePrefixmerged): os.system('mkdir '+savePrefixmerged)
-	savePrefixmerged+=histPrefixE.replace('isE','isL').replace('_nT0p','').replace('_nW0p','').replace('_nB0p','').replace('_nJ0p','')
+	savePrefixmerged+=histPrefixE.replace('isE','isL').replace('_nHOT0p','').replace('_nT0p','').replace('_nW0p','').replace('_nB0p','').replace('_nJ0p','')
 	savePrefixmerged+=isRebinned.replace('_rebinned_stat1p1','')+saveKey
 	if yLog: savePrefixmerged+='_logy'
 	
@@ -557,15 +517,16 @@ for tag in tagList:
 		if plotLimits: savePrefixmerged+='_'+sig1+'_lim'
 		else: savePrefixmerged+='_'+sig1+'_SoB'
 
-	c1merged.SaveAs(savePrefixmerged+".pdf")
 	c1merged.SaveAs(savePrefixmerged+".png")
-	c1merged.SaveAs(savePrefixmerged+".eps")
+	#c1merged.SaveAs(savePrefixmerged+".pdf")
+	#c1merged.SaveAs(savePrefixmerged+".eps")
 	for proc in bkgProcList:
 		try: del bkghistsmerged[proc+'isL'+tagStr]
 		except: pass
 			
-for mss in massList: RFiles[mss].Close()
-
+RFile.Close()
+if doNegSigFrac: RFile2.Close()
+	
 print("--- %s minutes ---" % (round(time.time() - start_time, 2)/60))
 
 

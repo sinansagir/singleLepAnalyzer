@@ -18,9 +18,13 @@ if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_full_'+date#+'_'+time
+pfix+='_noHOTtW_OR_onlyHOTtW_'+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
+'HT',
+# 'ST',
+# 'minMlb',
+# 
 # 'lepPt',
 # 'lepEta',
 # 'deltaRjet1',
@@ -49,11 +53,6 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 'SoftDropMassNm1t',
 # 'mindeltaR',
 # 'PtRel',
-# 
-'HT',
-# 'ST',
-# 'minMlb',
-# 
 # 'MTlmet',
 # 'minMlj',
 # 'lepIso',
@@ -109,9 +108,9 @@ iPlotList = [#distribution name as defined in "doHists.py"
 ]
 
 isEMlist  = ['E','M']
-nhottlist = ['0','0p','1p']
-nttaglist = ['0','0p','1p']
-nWtaglist = ['0','0p','1p','1','2p']
+nhottlist = ['0','1p','0p']
+nttaglist = ['0','1p','0p']
+nWtaglist = ['0','1p','0p']
 nbtaglist = ['2','3','3p','4p']
 njetslist = ['4','5','6','7','8','9','9p','10p']
 # nhottlist = ['0p']
