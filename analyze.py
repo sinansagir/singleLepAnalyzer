@@ -92,8 +92,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 		weightmuRDownStr    = 'renormWeights[2] * '+weightStr
 		weightmuFUpStr      = 'renormWeights[1] * '+weightStr
 		weightmuFDownStr    = 'renormWeights[0] * '+weightStr
-		weighttopptUpStr    = weightStr.replace(topPt13TeVstr,'1')
-		weighttopptDownStr  = weightStr #.replace('topPtWeight13TeV','topPtWeight13TeV*topPtWeight13TeV')
+		weighttopptUpStr    = '('+topPt13TeVstr+') * '+weightStr
+		weighttopptDownStr  = '(1/'+topPt13TeVstr+') * '+weightStr
 		weightjsfUpStr      = weightStr.replace(jetSFstr,jetSFstrUp)
 		weightjsfDownStr    = weightStr.replace(jetSFstr,jetSFstrDn)
 
