@@ -67,7 +67,7 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 
 	# Define weights
 	TrigEffElUp = '(triggerSF + isElectron*triggerSFUncert)'
-	TrigEffEldn = '(triggerSF - isElectron*triggerSFUncert)'
+	TrigEffElDn = '(triggerSF - isElectron*triggerSFUncert)'
 	TrigEffMuUp = '(triggerSF + isMuon*triggerSFUncert)'
 	TrigEffMuDn = '(triggerSF - isMuon*triggerSFUncert)'
 	TrigEff = 'triggerSF'
@@ -146,15 +146,15 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	if 'Tau32Nm1' in iPlot:  cut += ' && ('+soft_massvar+' > 105 && '+soft_massvar+' < 210 && '+pt_var+' > 400)'
 	if 'DoubleBNm1' in iPlot: cut += ' && ('+soft_massvar+' > 105 && '+soft_massvar+' < 135 && '+pt_var+' > 300)'
 
-	if (iPlot == 'Tp2MDnn' and 'notV' in tag) or iPlot == 'DnnTprime':
+	if isCategorized and ((iPlot == 'Tp2MDnn' and 'notV' in tag) or iPlot == 'DnnTprime'):
 		plotTreeName = 'dnn_Tprime'
 		xbins = array('d', linspace(float(cutList['dnnCut']),1,51).tolist())
-		xaxislabel = ';DNN T score'		
+		xAxisLabel = ';DNN T score'		
 	if iPlot == 'Tp2MST':
 		if 'notV' in tag: 
 			plotTreeName = 'AK4HTpMETpLepPt'
 			xbins = array('d', linspace(0,5000,51).tolist())
-			xaxislabel = ';ST [GeV]'
+			xAxisLabel = ';ST [GeV]'
 	if whichSig == 'BB':
 		plotTreeName = plotTreeName.replace('Tprime','Bprime')
 		plotTreeName = plotTreeName.replace('dnn_WJets','dnn_WJetsBB')
@@ -162,14 +162,14 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 		iPlot = iPlot.replace('Tp','Bp')
 		iPlot = iPlot.replace('DnnWJets','DnnWJetsBB')
 		iPlot = iPlot.replace('DnnTTbar','DnnTTbarBB')
-		xaxislabel = xaxislabel.replace('DNN T','DNN B')
-		xaxislabel = xaxislabel.replace('DNN-T','DNN-B')
+		xAxisLabel = xAxisLabel.replace('DNN T','DNN B')
+		xAxisLabel = xAxisLabel.replace('DNN-T','DNN-B')
 
 	print "*****"*20
 	print "*****"*20
 	print "DISTRIBUTION:", iPlot
 	print "            -name in ljmet trees:", plotTreeName
-	print "            -x-axis label is set to:", xaxislabel
+	print "            -x-axis label is set to:", xAxisLabel
 	print "            -using the binning as:", xbins
 
 	print "/////"*5
@@ -319,6 +319,7 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 
 	# DRAW histograms
 	tTree[process].Draw(plotTreeName+' >> '+iPlot+''+'_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
+	print 'Nominal hist integral: ',hists[iPlot+''+'_'+lumiStr+'fb_'+catStr+'_' +process].Integral()
 	if doAllSys:
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffElUp_'    +lumiStr+'fb_'+catStr+'_'+process, weightTrigEffElUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffElDown_'  +lumiStr+'fb_'+catStr+'_'+process, weightTrigEffElDownStr+'*('+fullcut+')', 'GOFF')
