@@ -67,7 +67,7 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 
 	# Define weights
 	TrigEffElUp = '(triggerSF + isElectron*triggerSFUncert)'
-	TrigEffEldn = '(triggerSF - isElectron*triggerSFUncert)'
+	TrigEffElDn = '(triggerSF - isElectron*triggerSFUncert)'
 	TrigEffMuUp = '(triggerSF + isMuon*triggerSFUncert)'
 	TrigEffMuDn = '(triggerSF - isMuon*triggerSFUncert)'
 	TrigEff = 'triggerSF'
@@ -149,12 +149,12 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	if (iPlot == 'Tp2MDnn' and 'notV' in tag) or iPlot == 'DnnTprime':
 		plotTreeName = 'dnn_Tprime'
 		xbins = array('d', linspace(float(cutList['dnnCut']),1,51).tolist())
-		xaxislabel = ';DNN T score'		
+		xAxisLabel = ';DNN T score'		
 	if iPlot == 'Tp2MST':
 		if 'notV' in tag: 
 			plotTreeName = 'AK4HTpMETpLepPt'
 			xbins = array('d', linspace(0,5000,51).tolist())
-			xaxislabel = ';ST [GeV]'
+			xAxisLabel = ';ST [GeV]'
 	if whichSig == 'BB':
 		plotTreeName = plotTreeName.replace('Tprime','Bprime')
 		plotTreeName = plotTreeName.replace('dnn_WJets','dnn_WJetsBB')
@@ -162,14 +162,14 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 		iPlot = iPlot.replace('Tp','Bp')
 		iPlot = iPlot.replace('DnnWJets','DnnWJetsBB')
 		iPlot = iPlot.replace('DnnTTbar','DnnTTbarBB')
-		xaxislabel = xaxislabel.replace('DNN T','DNN B')
-		xaxislabel = xaxislabel.replace('DNN-T','DNN-B')
+		xAxisLabel = xAxisLabel.replace('DNN T','DNN B')
+		xAxisLabel = xAxisLabel.replace('DNN-T','DNN-B')
 
 	print "*****"*20
 	print "*****"*20
 	print "DISTRIBUTION:", iPlot
 	print "            -name in ljmet trees:", plotTreeName
-	print "            -x-axis label is set to:", xaxislabel
+	print "            -x-axis label is set to:", xAxisLabel
 	print "            -using the binning as:", xbins
 
 	print "/////"*5
