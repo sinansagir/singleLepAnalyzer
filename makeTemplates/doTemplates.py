@@ -36,7 +36,7 @@ if not doAllSys:
 	doPDF = False
 if doPDF: writeSummaryHists = False
 addCRsys = False
-systematicList = ['pileup','prefire','muRFcorrd','muR','muF','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer'] # 'ht','trigeff'
+systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer'] # 'ht','trigeff'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 zero = 1E-12
