@@ -40,6 +40,8 @@ rebinCombine = True #else rebins theta templates
 doStatShapes = False
 doPDF = False
 doMURF = True
+doPSWeights = True
+normalizePSWeights = True #only for signals
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
@@ -216,6 +218,14 @@ for rfile in rfiles:
 				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__mu')]).Clone()
 				renormSysHist = tfiles[iRfile].Get(hist).Clone()
 				rebinnedHists[hist].Scale(renormNomHist.Integral()/renormSysHist.Integral())
+			if 'sig__isr' in hist and normalizePSWeights: #normalize the renorm/fact shapes to nominal
+				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__isr')]).Clone()
+				renormSysHist = tfiles[iRfile].Get(hist).Clone()
+				rebinnedHists[hist].Scale(renormNomHist.Integral()/renormSysHist.Integral())
+			if 'sig__fsr' in hist and normalizePSWeights: #normalize the renorm/fact shapes to nominal
+				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__fsr')]).Clone()
+				renormSysHist = tfiles[iRfile].Get(hist).Clone()
+				rebinnedHists[hist].Scale(renormNomHist.Integral()/renormSysHist.Integral())
 			if 'sig__pdf' in hist and normalizePDF: #normalize the pdf shapes to nominal
 				renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__pdf')]).Clone()
 				renormSysHist = tfiles[iRfile].Get(hist).Clone()
@@ -223,6 +233,7 @@ for rfile in rfiles:
 			if '__pdf' in hist:
 				if upTag not in hist or downTag not in hist: continue
 			if '__mu' in hist: continue
+			if '__isr' in hist or '__fsr' in hist: continue
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
 			if '__toppt'+downTag in hist and symmetrizeTopPtShift:
 				for ibin in range(1, rebinnedHists[hist].GetNbinsX()+1):
@@ -354,6 +365,48 @@ for rfile in rfiles:
 				muRFcorrdNewDnHist2 = muRFcorrdNewDnHist.Clone(hist.replace('muR'+upTag,proc_+newMuRFName+downTag))
 				muRFcorrdNewUpHist2.Write()
 				muRFcorrdNewDnHist2.Write()
+
+		#constructing PSweights
+		if doPSWeights:
+			isrUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'isr'+upTag in k.GetName() and '_'+chn+'_' in k.GetName()]
+			newPSwgtName = 'PSwgtNew'
+			for hist in isrUphists:
+				proc_ = hist.split('__')[1]
+				PSwgtNewUpHist = rebinnedHists[hist].Clone(hist.replace('isr'+upTag,newPSwgtName+upTag))
+				PSwgtNewDnHist = rebinnedHists[hist].Clone(hist.replace('isr'+upTag,newPSwgtName+downTag))
+				histList = [
+					rebinnedHists[hist[:hist.find('__isr')]], #nominal
+					rebinnedHists[hist], #renormWeights[4]
+					rebinnedHists[hist.replace('isr'+upTag,'isr'+downTag)],
+					rebinnedHists[hist.replace('isr'+upTag,'fsr'+upTag)],
+					rebinnedHists[hist.replace('isr'+upTag,'fsr'+downTag)],
+					]
+				for ibin in range(1,histList[0].GetNbinsX()+1):
+					weightList = [histList[ind].GetBinContent(ibin) for ind in range(len(histList))]
+					indCorrdUp = weightList.index(max(weightList))
+					indCorrdDn = weightList.index(min(weightList))
+
+					PSwgtNewUpHist.SetBinContent(ibin,histList[indCorrdUp].GetBinContent(ibin))
+					PSwgtNewDnHist.SetBinContent(ibin,histList[indCorrdDn].GetBinContent(ibin))
+
+					PSwgtNewUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
+					PSwgtNewDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
+				if ('sig__isr' in hist and normalizePSWeights) or (rebinCombine and '__'+sigName in hist and '__isr' in hist and normalizePSWeights): #normalize the renorm/fact shapes to nominal
+					nominalInt = rebinnedHists[hist[:hist.find('__isr')]].Integral()
+					PSwgtNewUpHist.Scale(nominalInt/PSwgtNewUpHist.Integral())
+					PSwgtNewDnHist.Scale(nominalInt/PSwgtNewDnHist.Integral())
+				PSwgtNewUpHist.Write()
+				PSwgtNewDnHist.Write()
+				yieldsAll[PSwgtNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = PSwgtNewUpHist.Integral()
+				yieldsAll[PSwgtNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = PSwgtNewDnHist.Integral()
+				#Decorrelate muRF systematic ("muRFcorrdNew" still need to be removed in doThetaLimits.py!):
+				PSwgtNewUpHist2 = PSwgtNewUpHist.Clone(hist.replace('isr'+upTag,proc_+newPSwgtName+upTag))
+				PSwgtNewDnHist2 = PSwgtNewDnHist.Clone(hist.replace('isr'+upTag,proc_+newPSwgtName+downTag))
+				PSwgtNewUpHist2.Write()
+				PSwgtNewDnHist2.Write()
+
+
+
 
 		#Constructing PDF shapes
 		if doPDF:
