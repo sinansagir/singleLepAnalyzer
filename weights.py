@@ -44,23 +44,24 @@ BR['BBBHBH'] = BR['BH']*BR['BH']
 nRun={}
 # new counts for 2017
 
-nRun['TTZl'] = 5239484.0 # from integral 11092000.0, file TTZToLLNuNu_M-10_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_hadd.root
+nRun['TTJets2L2Nu'] = 68595608.0. # from integral 69155808.0, file TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
+nRun['TTJetsHad'] = 129211204.0. # from integral 130262340.0, file TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
+nRun['TTJetsSemiLep'] = 109124472.0. # from integral 110085096.0, file TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
+nRun['TTJets1000'] = 21288395.0. # from integral 22458751.0, file TT_Mtt-1000toInf_TuneCP5_PSweights_13TeV-powheg
+nRun['TTJets700'] = 38428627.0. #from 39258853, file TT_Mtt-700to1000_TuneCP5_13TeV-powheg-pythia8_hadd.root
 
-#Do NGen*[1-2X], where X is the neg event fraction calculated from the jobs completed! 
-#A = P - N = F - 2*N   A/F = 1 - 2*(N/F)  N/F = (1 - A/F)/2
-nRun['TTJets'] = 14188545. #need negative counts
-nRun['TTJetsPH'] = 111068128.#
-nRun['TTJetsHad0'] = 129211204*0.8832 # from integral 130262340.0, file TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
-nRun['TTJetsHad700'] = 129211204*0.0921 + 38428627*0.457
-nRun['TTJetsHad1000'] = 129211204*0.02474 + 21288395*0.457
-nRun['TTJetsSemiLep0'] = 109124472*0.8832 # from integral 110085096.0, file TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
-nRun['TTJetsSemiLep700'] = 109124472*0.0921 + 38428627*0.438
-nRun['TTJetsSemiLep1000'] = 109124472*0.02474 + 21288395*0.438
-nRun['TTJets2L2nu0'] = 68595608*0.8832 # from integral 69155808.0, file TTTo2L2Nu_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
-nRun['TTJets2L2nu700'] = 68595608*0.0921 + 38428627*0.105
-nRun['TTJets2L2nu1000'] = 68595608*0.02474 + 21288395*0.105
-nRun['TTJetsPH700mtt'] = 38428627 + 129211204*0.0921 + 109124472*0.0921 + 68595608*0.0921 #from 39258853, file TT_Mtt-700to1000_TuneCP5_13TeV-powheg-pythia8_hadd.root
-nRun['TTJetsPH1000mtt'] = 21288395 + 129211204*0.02474 + 109124472*0.02474 + 68595608*0.02474 # from integral 22458751.0, file TT_Mtt-1000toInf_TuneCP5_PSweights_13TeV-powheg
+nRun['TTJetsHad0'] = nRun['TTJetsHad']*0.8832   # hadronic*BR(0-700)
+nRun['TTJetsHad700'] = nRun['TTJetsHad']*0.0921 + nRun['TTJets700']*0.457 #hadronic*BR(700-1000) + mass700*BR(hadronic)
+nRun['TTJetsHad1000'] = nRun['TTJetsHad']*0.02474 + nRun['TTJets1000']*0.457 #hadronic*BR(1000+) + mass1000*BR(hadronic
+nRun['TTJetsSemiLep0'] = nRun['TTJetsSemiLep']*0.8832  # semilept*BR(0-700)
+nRun['TTJetsSemiLep700'] = nRun['TTJetsSemiLep']*0.0921 + nRun['TTJets700']*0.438 #semilept*BR(700-1000) + mass700*BR(semilept)
+nRun['TTJetsSemiLep1000'] = nRun['TTJetsSemiLep']*0.02474 + nRun['TTJets1000']*0.438 #semilept*BR(1000+) + mass1000*BR(semilept)
+nRun['TTJets2L2nu0'] = nRun['TTJets2L2Nu']*0.8832  #dilepton*BR(0-700)
+nRun['TTJets2L2nu700'] = nRun['TTJets2L2Nu']*0.0921 + nRun['TTJets700']*0.105 #dilepton*BR(700-1000) + mass700*BR(dilepton)
+nRun['TTJets2L2nu1000'] = nRun['TTJets2L2Nu']*0.02474 + nRun['TTJets1000']*0.105 #dilepton*BR(1000+) + mass1000*BR(dilepton)
+nRun['TTJetsPH700mtt'] = nRun['TTJets700'] + nRun['TTJetsHad']*0.0921 + nRun['TTJetsSemiLep']*0.0921 + nRun['TTJets2L2Nu']*0.0921 #mass700 + inclusive*BR(700)
+nRun['TTJetsPH1000mtt'] = nRun['TTJets1000'] + nRun['TTJetsHad']*0.02474 + nRun['TTJetsSemiLep']*0.02474 + nRun['TTJets2L2Nu']*0.02474 #mass1000 + inclusive*BR(1000)
+
 nRun['Ts'] = 6895750. # from integral 6898000.0, file ST_s-channel_top_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
 nRun['Tbs'] = 2952214. # from integral 2953000.0, file ST_s-channel_antitop_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
 nRun['Tt'] = 122640200.0 # from integral 109621700.0, file ST_t-channel_top_4f_InclusiveDecays_TuneCP5_PSweights_13TeV-powheg-pythia8_hadd.root
@@ -105,6 +106,7 @@ nRun['TTW'] = 9384328. # from integral 9425384.0, file ttWJets_TuneCP5_13TeV_mad
 nRun['TTZ'] = 8519074. # from integral 8536618.0, file ttZJets_TuneCP5_13TeV_madgraphMLM_pythia8_hadd.root
 nRun['TTH'] = 9580578. # from integral 9783674.0, file ttH_M125_TuneCP5_13TeV-powheg-pythia8_hadd.root
 nRun['TTWl'] = 2692366. #from 4919674
+nRun['TTZl'] = 5239484.0 # from integral 11092000.0, file TTZToLLNuNu_M-10_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_hadd.root
 nRun['TTHB'] = 7833734.0 # from integral 8000000.0, file ttHTobb_M125_TuneCP5_13TeV-powheg-pythia8_hadd.root
 nRun['TTHnoB'] = 7814711.0 # from integral 7161154.0, file ttHToNonbb_M125_TuneCP5_13TeV-powheg-pythia8_hadd.root
 nRun['TTWq'] = 441560.0 # from integral 811306.0, file TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_hadd.root
@@ -312,12 +314,12 @@ xsec['TTZl'] = 0.2529 # from McM
 xsec['TTZq'] = 0.5297 # from McM
 xsec['TTWl'] = 0.2043 # from McM
 xsec['TTWq'] = 0.4062 # from McM
-xsec['Tt'] = 136.02 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
-xsec['Tbt'] = 80.95 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
-xsec['Ts'] = 7.20/3 #(1/3 was suggested by Thomas Peiffer to account for the leptonic branching ratio)# https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
-xsec['Tbs'] = 4.16/3 #(1/3 was suggested by Thomas Peiffer to account for the leptonic branching ratio)# https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
-xsec['TtW'] = 35.83 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
-xsec['TbtW'] = 35.83 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
+xsec['Tt'] = 136.02 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
+xsec['Tbt'] = 80.95 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
+xsec['Ts'] = 6.35*0.333 #(leptonic) https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
+xsec['Tbs'] = 3.97*0.333 #(leptonic)# https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
+xsec['TtW'] = 35.83 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
+xsec['TbtW'] = 35.83 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
 
 xsec['TTM700']   = 0.455 # from https://twiki.cern.ch/twiki/bin/view/CMS/B2GMonteCarlo
 xsec['TTM800']  = 0.196 # from https://twiki.cern.ch/twiki/bin/view/CMS/B2GMonteCarlo
