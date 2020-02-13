@@ -17,7 +17,7 @@ region='SR' #PS,SR,TTCR,WJCR
 isCategorized=True
 pfix='templates'+region
 if not isCategorized: pfix='kinematics'+region
-pfix+='_July2019_BB_Trained_MVA'
+pfix+='_October2019_TT_Rerun'
 outDir = os.getcwd()+'/'+pfix+'/'
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -26,7 +26,7 @@ lumiScaleCoeff = 41530./41298.
 doAllSys = True
 addCRsys = False
 systematicList = ['muRFcorrd','pileup','prefire','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag']#,'toppt']
-if isCategorized: systematicList = ['muRFcorrd','pileup','prefire','jec','btag','jsf','muR','muF','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag']#,'pdf','toppt',]
+if isCategorized: systematicList = ['muRFcorrd','pileup','prefire','jec','btag','jsf','muR','muF','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag','trigeffEl','trigeffMu']#,'pdf','toppt',]
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 bkgGrupList = ['top','ewk','qcd']
@@ -51,11 +51,12 @@ dataList = [
 
 topptProcs = ['top','TTJets']
 
-whichSignal = 'BB' #HTB, TT, BB, or X53X53
+whichSignal = 'TT' #HTB, TT, BB, or X53X53
 massList = range(1000,1800+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
+	
 
 doBRScan = False
 if isCategorized and 'SR' in region: doBRScan = True
@@ -140,14 +141,14 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			#Group data processes
 			hists['data'+i] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
 			for dat in dataList:
-			      	#print 'dataList member',dat,'with integral',datahists[histoPrefix+'_'+dat].Integral()
+			      	print 'dataList member',dat,'with integral',datahists[histoPrefix+'_'+dat].Integral()
 				if dat!=dataList[0]: hists['data'+i].Add(datahists[histoPrefix+'_'+dat])
 			
 			#Group processes
 			for proc in bkgProcList+bkgGrupList:
 				hists[proc+i] = bkghists[histoPrefix+'_'+bkgProcs[proc][0]].Clone(histoPrefix+'__'+proc)
 				for bkg in bkgProcs[proc]:
-					#print 'bkgList member',bkg,'with integral',bkghists[histoPrefix+'_'+bkg].Integral()
+					print 'bkgList member',histoPrefix+'_'+bkg,'with integral',bkghists[histoPrefix+'_'+bkg].Integral()
 					if bkg!=bkgProcs[proc][0]: hists[proc+i].Add(bkghists[histoPrefix+'_'+bkg])
 
 			#get signal
@@ -474,7 +475,10 @@ for iPlot in iPlotList:
 	for key in sighists:
 		if 'MET_' in key and 'TTM800' in key: print key
 	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
-	if whichSignal=='BB': iPlot=iPlot.replace('Tp','Bp')
+	if whichSignal=='BB':
+		iPlot=iPlot.replace('Tp','Bp')
+		iPlot=iPlot.replace('DnnTTbar','DnnTTbarBB')
+		iPlot=iPlot.replace('DnnWJets','DnnWJetsBB')
 	#try:
 	makeThetaCats(datahists,sighists,bkghists,iPlot)
 	#except:

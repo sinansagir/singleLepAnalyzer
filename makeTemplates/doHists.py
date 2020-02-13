@@ -14,9 +14,9 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = 'root://cmseos.fnal.gov//store/user/escharni/FWLJMET102X_1lep2017Dnn_072519_step2hadds'
+step1Dir = 'root://cmseos.fnal.gov//store/user/escharni/FWLJMET102X_1lep2017Dnn_101519_step1hadds'
 
-iPlot = 'HT' #minMlb' #choose a discriminant from plotList below!
+iPlot = 'DnnTTbar' #minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
 region = 'PS'
 if len(sys.argv)>3: region=sys.argv[3]
