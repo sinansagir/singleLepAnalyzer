@@ -1,6 +1,6 @@
 #!/bin/bash
 
-inputDir=limits_noHOTtW_OR_onlyHOTtW_2019_10_24/
+inputDir=limits_onlyHOTcats_DeepCSV_2020_1_22/
 
 for d in $(ls ${inputDir} | grep "isSR"); 
 do

@@ -10,7 +10,8 @@ from utils import *
 gROOT.SetBatch(1)
 
 fileDir = "/user_data/ssagir/CMSSW_10_2_10/src/singleLepAnalyzer/fourtops/makeTemplates/"
-template = "noHOTtW_OR_onlyHOTtW_2019_10_24"
+template = "onlyHOTcats2pb6pj_DeepCSV_PSsig_2020_1_29"
+if not os.path.exists('./limits_'+template): os.system('mkdir ./limits_'+template)
 saveKey = ""
 
 def add_processes_and_observations(cb, prefix="TTTT"):
@@ -82,20 +83,20 @@ def add_systematics(cb):
 
     signal = cb.cp().signals().process_set()
     bkg = ['ttbb', 'ttcc', 'ttjj', 'top', 'ewk', 'qcd']
-    bkgNoQCD = ['ttbb', 'ttcc', 'ttjj', 'top', 'ewk']
 
-#     cb.cp().process(signal + bkg).channel(['isSR_isE','isSR_isM','isCR_isE','isCR_isM']).AddSyst(cb, "lumi", "lnN", ch.SystMap()(1.027))
-#     cb.cp().process(signal + bkg).channel(['isSR_isE','isCR_isE']).AddSyst(cb, "elTrigSys", "lnN", ch.SystMap()(1.05))
-#     cb.cp().process(signal + bkg).channel(['isSR_isM','isCR_isM']).AddSyst(cb, "muTrigSys", "lnN", ch.SystMap()(1.05))
-#     cb.cp().process(signal + bkg).channel(['isSR_isE','isCR_isE']).AddSyst(cb, "elIdSys", "lnN", ch.SystMap()(1.01))
-#     cb.cp().process(signal + bkg).channel(['isSR_isM','isCR_isM']).AddSyst(cb, "muIdSys", "lnN", ch.SystMap()(1.01))
-#     cb.cp().process(signal + bkg).channel(['isSR_isE','isCR_isE']).AddSyst(cb, "elIsoSys", "lnN", ch.SystMap()(1.01))
-#     cb.cp().process(signal + bkg).channel(['isSR_isM','isCR_isM']).AddSyst(cb, "muIsoSys", "lnN", ch.SystMap()(1.01))
     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "lumi", "lnN", ch.SystMap()(1.023))
+    cb.cp().process(signal + bkg).channel(chnsE).AddSyst(cb, "leptonSFEl", "lnN", ch.SystMap()(1.03)) # 1.5% el id/iso + 2.5% trigger ~ 3%
+    cb.cp().process(signal + bkg).channel(chnsM).AddSyst(cb, "leptonSFMu", "lnN", ch.SystMap()(1.03)) # 1% mu id/iso + 2.5% trigger ~ 3%
     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "jec", "shape", ch.SystMap()(1.0))
     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "jer", "shape", ch.SystMap()(1.0))
     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "prefire", "shape", ch.SystMap()(1.0))
     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "pileup", "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "btag", "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "mistag", "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "hotstat", "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "hotcspur", "shape", ch.SystMap()(1.0))
+    cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "hotclosure", "shape", ch.SystMap()(1.0))
+    cb.cp().process(['ttbb', 'ttcc', 'ttjj']).channel(chns).AddSyst(cb, "toppt", "shape", ch.SystMap()(1.0))
     cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, "ttbbmuRFcorrdNew", "shape", ch.SystMap()(1.0))
     cb.cp().process(['ttcc']).channel(chns).AddSyst(cb, "ttccmuRFcorrdNew", "shape", ch.SystMap()(1.0))
     cb.cp().process(['ttjj']).channel(chns).AddSyst(cb, "ttjjmuRFcorrdNew", "shape", ch.SystMap()(1.0))
@@ -110,8 +111,9 @@ def add_systematics(cb):
     cb.cp().process(['ewk']).channel(chns).AddSyst(cb, "ewkPSwgtNew", "shape", ch.SystMap()(1.0))
     cb.cp().process(['qcd']).channel(chns).AddSyst(cb, "qcdPSwgtNew", "shape", ch.SystMap()(1.0))
     cb.cp().process(signal).channel(chns).AddSyst(cb, "TTTTM690PSwgtNew", "shape", ch.SystMap()(1.0))
+#     cb.cp().process(['ttbb', 'ttcc', 'ttjj']).channel(chns).AddSyst(cb, "ue", "shape", ch.SystMap()(1.0))
+#     cb.cp().process(['ttbb', 'ttcc', 'ttjj']).channel(chns).AddSyst(cb, "hdamp", "shape", ch.SystMap()(1.0))
 #     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "pdfNew", "shape", ch.SystMap()(1.0))
-#     cb.cp().process(['ttbb', 'ttcc', 'ttjj']).channel(chns).AddSyst(cb, "toppt", "shape", ch.SystMap()(1.0))
 #     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "tau32", "shape", ch.SystMap()(1.0))
 #     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "jmst", "shape", ch.SystMap()(1.0))
 #     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "jmrt", "shape", ch.SystMap()(1.0))
@@ -119,8 +121,6 @@ def add_systematics(cb):
 #     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "jmsW", "shape", ch.SystMap()(1.0))
 #     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "jmrW", "shape", ch.SystMap()(1.0))
 #     cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "tau21pt", "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "btag", "shape", ch.SystMap()(1.0))
-    cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, "mistag", "shape", ch.SystMap()(1.0))
 
 def add_autoMCstat(cb):
     print '>> Adding autoMCstats...'
@@ -137,7 +137,12 @@ def add_autoMCstat(cb):
     		cmd = "text2workspace.py "+chnDir+thefile+" -v 1 -m 690 --no-b-only"
     		os.system(cmd)
     	os.chdir(thisDir)
-    
+
+def combine_cards(cb):
+    print '>> Combining cards from individual cats...'
+
+    thisDir = os.getcwd()
+    	    
 def go(cb):
     add_processes_and_observations(cb)
     add_systematics(cb)
@@ -159,8 +164,15 @@ if __name__ == "__main__":
     tfile.Close()
     dataName = 'data_obs'
     chns = [hist[hist.find('fb_')+3:hist.find('__')] for hist in allHistNames if '__'+dataName in hist]
-    bkg_procs = {chn:[hist.split('__')[-1] for hist in allHistNames if chn in hist and not (hist.endswith('Up') or hist.endswith('Down') or hist.endswith(dataName) or hist.endswith('TTTTM690'))] for chn in chns}
-    print bkg_procs
+    chnsE = [chn for chn in chns if '_isE_' in chn]
+    chnsM = [chn for chn in chns if '_isM_' in chn]
+    bkg_procs = {chn:[hist.split('__')[-1] for hist in allHistNames if '_'+chn+'_' in hist and not (hist.endswith('Up') or hist.endswith('Down') or hist.endswith(dataName) or hist.endswith('TTTTM690'))] for chn in chns}
+    #bkg_procs['isSR_isM_nHOT0_nT0p_nW0p_nB3_nJ8']=['ttbb', 'ttcc', 'ttjj', 'top', 'ewk']
+    for cat in sorted(bkg_procs.keys()):
+    	print cat,bkg_procs[cat]
+    	if 'qcd' in bkg_procs[cat]:
+    		print "		Removing qcd ..."
+    		bkg_procs[cat]=bkg_procs[cat][:-1]
 
     sig_procs = ['TTTTM']
     

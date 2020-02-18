@@ -32,7 +32,7 @@ start_time = time.time()
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_noHOTtW_OR_onlyHOTtW_2019_10_24/'+cutString
+templateDir = os.getcwd()+'/templates_onlyHOTcats2pb6pj_DeepCSV_PSsig_2020_1_29/'+cutString
 combinefile = 'templates_'+iPlot+'_41p53fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
@@ -354,8 +354,8 @@ for rfile in rfiles:
 					muRFcorrdNewDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
 				if ('sig__mu' in hist and normalizeRENORM) or (rebinCombine and '__'+sigName in hist and '__mu' in hist and normalizeRENORM): #normalize the renorm/fact shapes to nominal
 					nominalInt = rebinnedHists[hist[:hist.find('__mu')]].Integral()
-					muRFcorrdNewUpHist.Scale(nominalInt/muRFcorrdNewUpHist.Integral())
-					muRFcorrdNewDnHist.Scale(nominalInt/muRFcorrdNewDnHist.Integral())
+					muRFcorrdNewUpHist.Scale(nominalInt/(muRFcorrdNewUpHist.Integral()+zero))
+					muRFcorrdNewDnHist.Scale(nominalInt/(muRFcorrdNewDnHist.Integral()+zero))
 				muRFcorrdNewUpHist.Write()
 				muRFcorrdNewDnHist.Write()
 				yieldsAll[muRFcorrdNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewUpHist.Integral()

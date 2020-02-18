@@ -7,7 +7,7 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 
 cd $theDir
 eval `scramv1 runtime -sh`
-
+pwd
 python -u doHists.py $condorDir \
 					--iPlot=${2} \
 					--region=${3} \

@@ -16,9 +16,9 @@ outDir = os.getcwd()+'/'
 lumi = 41.5
 iPlot = 'HT'
 lumiStr = '41p53fb'
-sig1 = '4TM690' #  choose the 1st signal to plot
+sig1 = 'TTTTM690' #  choose the 1st signal to plot
 isRebinned = '_rebinned_stat0p3'
-tempVersion = 'templates_syst_2019_10_8/'
+tempVersion = 'templates_onlyHOTcats2pb6pj_DeepCSV_PSsig_2020_1_29/'
 cutString = ''
 saveDir = 'bkgIndChannels'
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
@@ -27,14 +27,19 @@ if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir
 
 bkgList = ['ttbb','ttcc','ttjj','top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
 isEMlist  = ['E','M']
-nhottlist = ['0','0p','1p']
-nttaglist = ['0','0p','1p']
-nWtaglist = ['0','0p','1p','1','2p']
-nbtaglist = ['2','3','3p','4p']
-njetslist = ['4','5','6','7','8','9','9p','10p']
-systematics = ['pileup','prefire','muRFcorrdNew','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','pdfNew'] #, 'ht','trigeff'
+nhottlist = ['0','1p']
+nttaglist = ['0p']
+nWtaglist = ['0p']
+nbtaglist = ['2','3','4p']
+njetslist = ['5','6','7','8','9','10p']
+# nhottlist = ['0p']
+nbtaglist = ['2p']
+njetslist = ['6p']
+systematics = ['pileup','prefire','muRFcorrdNew','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','hdamp','ue','PSwgtNew'] # 'ht','trigeff'
+#systematics = ['hotstat','hotcspur','hotclosure','hdamp','ue'] # 'ht','trigeff'
+#systematics = ['PSwgtNew'] # 'ht','trigeff'
 
-catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip_75cats(item)]
+catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 RFile = rt.TFile(templateFile)
 
 for syst in systematics:
@@ -208,8 +213,8 @@ for syst in systematics:
 		legend.SetFillColor(0);
 		legend.SetLineColor(0);
 		legend.AddEntry(hNm,'Nominal','l')
-		legend.AddEntry(hUp,syst.replace('topsf','t tag').replace('muRFcorrdNew','muRF').replace('muRFdecorrdNew','muRF').replace('muRFcorrd','muRF').replace('muRFenv','muRF').replace('pdfNew','PDF').replace('toppt','Top Pt').replace('jsf','JSF').replace('jec','JEC').replace('q2','Q^{2}').replace('miniiso','miniIso').replace('pileup','Pileup').replace('jer','JER').replace('btag','b tag').replace('pdf','PDF').replace('jmr','JMR').replace('jms','JMS').replace('tau21','#tau_{2}/#tau_{1}')+' Up','l')
-		legend.AddEntry(hDn,syst.replace('topsf','t tag').replace('muRFcorrdNew','muRF').replace('muRFdecorrdNew','muRF').replace('muRFcorrd','muRF').replace('muRFenv','muRF').replace('pdfNew','PDF').replace('toppt','Top Pt').replace('jsf','JSF').replace('jec','JEC').replace('q2','Q^{2}').replace('miniiso','miniIso').replace('pileup','Pileup').replace('jer','JER').replace('btag','b tag').replace('pdf','PDF').replace('jmr','JMR').replace('jms','JMS').replace('tau21','#tau_{2}/#tau_{1}')+' Down','l')
+		legend.AddEntry(hUp,syst.replace('hdamp','hDamp').replace('ue','UE').replace('PSwgtNew','PSweight').replace('topsf','t tag').replace('muRFcorrdNew','muRF').replace('muRFdecorrdNew','muRF').replace('muRFcorrd','muRF').replace('muRFenv','muRF').replace('pdfNew','PDF').replace('toppt','top p_{T}').replace('jsf','JSF').replace('jec','JEC').replace('q2','Q^{2}').replace('miniiso','miniIso').replace('pileup','Pileup').replace('jer','JER').replace('btag','b tag').replace('pdf','PDF').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Up','l')
+		legend.AddEntry(hDn,syst.replace('hdamp','hDamp').replace('ue','UE').replace('PSwgtNew','PSweight').replace('topsf','t tag').replace('muRFcorrdNew','muRF').replace('muRFdecorrdNew','muRF').replace('muRFcorrd','muRF').replace('muRFenv','muRF').replace('pdfNew','PDF').replace('toppt','top p_{T}').replace('jsf','JSF').replace('jec','JEC').replace('q2','Q^{2}').replace('miniiso','miniIso').replace('pileup','Pileup').replace('jer','JER').replace('btag','b tag').replace('pdf','PDF').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Down','l')
 		legend.Draw('same')
 
 		prelimTex=rt.TLatex()

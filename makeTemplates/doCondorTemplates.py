@@ -18,7 +18,7 @@ if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_noHOTtW_OR_onlyHOTtW_'+date#+'_'+time
+pfix+='_onlyHOTcats2pb6pj_DeepCSV_2020_1_29'#+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 'HT',
@@ -39,6 +39,9 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 'MET',
 # 'NJets',
 # 'NBJets',
+# 'NBJetsNoSF',
+# 'NDCSVBJets',
+# 'NDCSVBJetsNoSF',
 # 'NWJets',
 # 'NTJets',
 # 'NJetsAK8',
@@ -73,6 +76,10 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 'NresolvedTops2p',
 # 'NresolvedTops5p',
 # 'NresolvedTops10p',
+# 'NresolvedTops1pNoSF',
+# 'NresolvedTops2pNoSF',
+# 'NresolvedTops5pNoSF',
+# 'NresolvedTops10pNoSF',
 # 'HOTtPt',
 # 'HOTtEta',
 # 'HOTtPhi',
@@ -108,11 +115,15 @@ iPlotList = [#distribution name as defined in "doHists.py"
 ]
 
 isEMlist  = ['E','M']
-nhottlist = ['0','1p','0p']
-nttaglist = ['0','1p','0p']
-nWtaglist = ['0','1p','0p']
-nbtaglist = ['2','3','3p','4p']
-njetslist = ['4','5','6','7','8','9','9p','10p']
+nhottlist = ['0','1p']#,'0p']
+#nttaglist = ['0','1p','0p']
+nttaglist = ['0p']
+#nWtaglist = ['0','1p']#,'0p']
+nWtaglist = ['0p']
+nbtaglist = ['2','3','4p']
+njetslist = ['5','6','7','8','9','10p']
+# nbtaglist = ['2p']
+# njetslist = ['6p']
 # nhottlist = ['0p']
 # nttaglist = ['0p']
 # nWtaglist = ['0p']
@@ -128,7 +139,7 @@ catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglis
 	
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
-os.system('cp ../analyze.py doHists.py ../weights.py ../samples.py doCondorTemplates.py doCondorTemplates.sh '+outDir+'/')
+os.system('cp ../analyze.py doHists.py ../weights.py ../samples.py ../utils.py doHists.py doCondorTemplates.py doCondorTemplates.sh '+outDir+'/')
 os.chdir(outDir)
 
 count=0
@@ -140,14 +151,14 @@ for iplot in iPlotList:
 		if not os.path.exists(outDir+'/'+catDir): os.system('mkdir '+catDir)
 		os.chdir(catDir)
 	
-		dict={'dir':outputDir,'iPlot':iplot,'region':region,'isCategorized':categorize,
+		dict={'dir':outDir,'iPlot':iplot,'region':region,'isCategorized':categorize,
 			  'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5],
 			  'exeDir':thisDir}
 	
 		jdf=open('condor_'+iplot+'.job','w')
 		jdf.write(
 """universe = vanilla
-Executable = %(exeDir)s/doCondorTemplates.sh
+Executable = %(dir)s/doCondorTemplates.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 request_memory = 3072
