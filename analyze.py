@@ -118,7 +118,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	nhottLJMETname = 'NresolvedTops1pFake'
 	nttagLJMETname = 'NJetsTtagged'
 	nWtagLJMETname = 'NJetsWtagged'
-	nbtagLJMETname = 'NJetsCSVwithSF_JetSubCalc'
+	nbtagLJMETname = 'NJetsCSVwithSF_MultiLepCalc' # _MultiLepCalc version uses DeepCSV and _JetSubCalc version uses DeepFlv in Oct2019 production!
 	njetsLJMETname = 'NJets_JetSubCalc'
 
 	nhottCut = ''
@@ -179,6 +179,13 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	cut_jmstDn = fullcut.replace(nttagLJMETname,nttagLJMETname+'_shifts[3]')
 	cut_jmrtUp = fullcut.replace(nttagLJMETname,nttagLJMETname+'_shifts[4]')
 	cut_jmrtDn = fullcut.replace(nttagLJMETname,nttagLJMETname+'_shifts[5]')
+	
+	cut_hotstatUp = fullcut.replace(nhottLJMETname,nhottLJMETname+'_shifts[0]')
+	cut_hotstatDn = fullcut.replace(nhottLJMETname,nhottLJMETname+'_shifts[1]')
+	cut_hotcspurUp = fullcut.replace(nhottLJMETname,nhottLJMETname+'_shifts[2]')
+	cut_hotcspurDn = fullcut.replace(nhottLJMETname,nhottLJMETname+'_shifts[3]')
+	cut_hotclosureUp = fullcut.replace(nhottLJMETname,nhottLJMETname+'_shifts[4]')
+	cut_hotclosureDn = fullcut.replace(nhottLJMETname,nhottLJMETname+'_shifts[5]')
 
 	print 'plotTreeName: '+plotTreeName
 	print 'Flavour: '+isEM+' #hott: '+nhott+' #ttags: '+nttag+' #Wtags: '+nWtag+' #btags: '+nbtag+' #jets: '+njets
@@ -190,7 +197,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	if isPlot2D: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process+flv]  = TH2D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process+flv,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process+flv]  = TH1D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process+flv,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer']
+		systList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure']
 		for syst in systList:
 			for ud in ['Up','Down']:
 				if isPlot2D: hists[iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process+flv] = TH2D(iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process+flv,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
@@ -207,17 +214,17 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 # 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffDown_'  +lumiStr+'fb_'+catStr+'_'+process+flv, weightTrigEffDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'pileupUp_'     +lumiStr+'fb_'+catStr+'_'+process+flv, weightPileupUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'pileupDown_'   +lumiStr+'fb_'+catStr+'_'+process+flv, weightPileupDownStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'prefireUp_'     +lumiStr+'fb_'+catStr+'_'+process+flv, weightPileupUpStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'prefireDown_'   +lumiStr+'fb_'+catStr+'_'+process+flv, weightPileupDownStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'prefireUp_'    +lumiStr+'fb_'+catStr+'_'+process+flv, weightPileupUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'prefireDown_'  +lumiStr+'fb_'+catStr+'_'+process+flv, weightPileupDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muRFcorrdUp_'  +lumiStr+'fb_'+catStr+'_'+process+flv, weightmuRFcorrdUpStr  +'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muRFcorrdDown_'+lumiStr+'fb_'+catStr+'_'+process+flv, weightmuRFcorrdDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muRUp_'        +lumiStr+'fb_'+catStr+'_'+process+flv, weightmuRUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muRDown_'      +lumiStr+'fb_'+catStr+'_'+process+flv, weightmuRDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muFUp_'        +lumiStr+'fb_'+catStr+'_'+process+flv, weightmuFUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muFDown_'      +lumiStr+'fb_'+catStr+'_'+process+flv, weightmuFDownStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'isrUp_'      +lumiStr+'fb_'+catStr+'_'+process, weightIsrUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'isrUp_'        +lumiStr+'fb_'+catStr+'_'+process, weightIsrUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'isrDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightIsrDownStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'fsrUp_'      +lumiStr+'fb_'+catStr+'_'+process, weightFsrUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'fsrUp_'        +lumiStr+'fb_'+catStr+'_'+process, weightFsrUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'fsrDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightFsrDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptUp_'      +lumiStr+'fb_'+catStr+'_'+process+flv, weighttopptUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptDown_'    +lumiStr+'fb_'+catStr+'_'+process+flv, weighttopptDownStr+'*('+fullcut+')', 'GOFF')
@@ -226,6 +233,14 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 
 
 		# Change the plot name itself for shifts if needed
+		# hot-tagging:
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotstatUp_'     +lumiStr+'fb_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotstatUp+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotstatDown_'   +lumiStr+'fb_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotstatDn+')', 'GOFF')		
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotcspurUp_'    +lumiStr+'fb_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotcspurUp+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotcspurDown_'  +lumiStr+'fb_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotcspurDn+')', 'GOFF')		
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotclosureUp_'  +lumiStr+'fb_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotclosureUp+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotclosureDown_'+lumiStr+'fb_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotclosureDn+')', 'GOFF')		
+
 		# t-tagging:
 		TAU32upName = plotTreeName
 		TAU32dnName = plotTreeName

@@ -2,7 +2,7 @@
 
 import os,copy,math,glob
 
-inputDir="limits_noHOTtW_OR_onlyHOTtW_2019_10_24/"
+inputDir="limits_onlyHOTcats_DeepCSV_2020_1_22/"
 
 limDirsNoJet = [tag for tag in sorted(os.listdir(inputDir)) if '_nJ6' in tag]
 print len(limDirsNoJet)*5

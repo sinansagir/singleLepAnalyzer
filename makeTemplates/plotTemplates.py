@@ -16,7 +16,7 @@ lumi=41.5 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
+isCategorized=0
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
@@ -24,13 +24,14 @@ if region=='SR': pfix='templates_'
 elif region=='WJCR': pfix='wjets_'
 elif region=='TTCR': pfix='ttbar_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-templateDir=os.getcwd()+'/'+pfix+'syst_2019_10_8/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'DeepCSV_PSsig_2020_1_22/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
-saveKey = '' # tag for plot names
+isRebinned='_rebinned_stat1p1' #post for ROOT file names
+saveKey = '_4txsec' # tag for plot names
 
-sig='4TM690' #  choose the 1st signal to plot
+sig='TTTTM690' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
+scaleSignalsToXsec = True
 scaleSignals = False
 sigScaleFact = 20 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
@@ -38,11 +39,11 @@ tempsig='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 bkgProcList = ['ttbb','ttcc','ttjj','top','ewk','qcd']
 #bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
 if '53' in sig: bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOrange-5,'TTJets':rt.kRed-9,'T':rt.kRed-5,'WJets':rt.kBlue-7,'ZJets':rt.kBlue-1,'VV':rt.kBlue+5,'qcd':rt.kOrange-5} #X53X53
-elif '4T' in sig: bkgHistColors = {'tt2b':rt.kRed,'ttbb':rt.kRed-5,'ttb':rt.kRed-3,'ttcc':rt.kRed-3,'ttjj':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'TTTT' in sig: bkgHistColors = {'tt2b':rt.kRed,'ttbb':rt.kRed-5,'ttb':rt.kRed-3,'ttcc':rt.kRed-3,'ttjj':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','prefire','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','muRFcorrdNew','pdfNew'] #, 'ht','trigeff'
+systematicList = ['pileup','prefire','toppt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgtNew','muRFcorrdNew']#,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #,'hdamp','ue','pdfNew', 'ht','trigeff'
 #if 'muRFcorrdNew' not in systematicList: saveKey='_noQ2'
 doAllSys = True
 doQ2sys  = False
@@ -54,6 +55,7 @@ doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 blind = True
 if blind: doOneBand = False
+if not isCategorized: blind = False
 yLog  = True
 if yLog: scaleSignals = False
 doRealPull = False
@@ -64,12 +66,15 @@ drawYields = False
 zero = 1E-12
 
 isEMlist  = ['E','M']
-nhottlist = ['0','0p','1p']
+nhottlist = ['0','1p']
 nttaglist = ['0','0p','1p']
+nttaglist = ['0p']
 nWtaglist = ['0','0p','1p','1','2p']
-nbtaglist = ['2','3','3p','4p']
-#nbtaglist = ['4p']
-njetslist = ['4','5','6','7','8','9','9p','10p']
+nWtaglist = ['0p']
+nbtaglist = ['2','3','4p']
+njetslist = ['5','6','7','8','9','10p']
+# nbtaglist = ['2p']
+# njetslist = ['6p']
 if not isCategorized: 	
 	nhottlist = ['0p']
 	nttaglist = ['0p']
@@ -89,7 +94,7 @@ tagList = []
 for tag in tagListTemp:#check the "skip" function in utils module to see if you want to remove specific categories there!!!
 	if not skip(('dummy',)+tag) or 'YLD' in iPlot: tagList.append(tag)
 
-lumiSys = 0.0#26 # lumi uncertainty
+lumiSys = 0.0#23 # lumi uncertainty
 trigSys = 0.0 # trigger uncertainty
 lepIdSys = 0.0#3 # lepton id uncertainty
 lepIsoSys = 0.0#1 # lepton isolation uncertainty
@@ -133,6 +138,7 @@ def formatUpperHist(histogram,histogramBkg):
 	histogram.GetYaxis().CenterTitle()
 	histogram.SetMinimum(0.0000101)
 	if region=='PS': histogram.SetMinimum(0.0101)
+	if scaleSignalsToXsec and isCategorized: histogram.SetMinimum(0.000000101)
 	if not yLog: 
 		histogram.SetMinimum(0.015)
 	if yLog:
@@ -240,7 +246,7 @@ for tag in tagList:
 			except: pass
 		print hData_test.Integral(),bkgHT_test.Integral()
 		hsig = RFile.Get(histPrefix+'__sig').Clone(histPrefix+'__sig')
-		#hsig.Scale(xsec[sig])
+		if scaleSignalsToXsec: hsig.Scale(xsec[sig])
 		if doNormByBinWidth:
 			for proc in bkgProcList:
 				try: normByBinWidth(bkghists[proc+catStr])
@@ -675,7 +681,7 @@ for tag in tagList:
 		except: pass
 	hsigmerged = RFile.Get(histPrefixE+'__sig').Clone(histPrefixE+'__sigmerged')
 	hsigmerged.Add(RFile.Get(histPrefixM+'__sig').Clone())
-	#hsigmerged.Scale(xsec[sig])
+	if scaleSignalsToXsec: hsigmerged.Scale(xsec[sig])
 	if doNormByBinWidth:
 		for proc in bkgProcList:
 			try: normByBinWidth(bkghistsmerged[proc+'isL'+tagStr])
