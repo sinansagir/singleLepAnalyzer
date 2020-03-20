@@ -12,10 +12,11 @@ python -u doHists.py $condorDir \
 					--iPlot=${2} \
 					--region=${3} \
 					--isCategorized=${4} \
-					--isEM=${5} \
-					--nhott=${6} \
-					--nttag=${7} \
-					--nWtag=${8} \
-					--nbtag=${9} \
-					--njets=${10} \
+					--year=${5} \
+					--isEM=${6} \
+					--nhott=${7} \
+					--nttag=${8} \
+					--nWtag=${9} \
+					--nbtag=${10} \
+					--njets=${11} \
 					

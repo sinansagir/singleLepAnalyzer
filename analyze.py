@@ -56,12 +56,16 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	if process.startswith('TTJetsSemiLepNjet9'): cut += ' && (isHTgt500Njetge9 == 1)'
 
 	# Define weights
-	TrigEffUp = '1'
-	TrigEffDn = '1'
-	TrigEff = 'triggerSF'
-	cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1'
+	TrigSF   = '1'#'triggerSF'
+	TrigSFUp = '1'
+	TrigSFDn = '1'
+	cut += ' && DataPastTriggerX == 1 && MCPastTriggerX == 1' # CROSS triggers (i.e., VLQ triggers)
+	#cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1' # Lep+Had triggers
+	#cut += ' && DataPastTrigger == 1 && MCLepPastTrigger == 1' # Lep triggers only
+	#cut += ' && DataHadPastTrigger == 1 && MCHadPastTrigger == 1' # Had triggers only
+	#if 'Data' not in process: cut += ' && MCLepPastTrigger == 0' # Had triggers only
 
-	jetSFstr='1'
+	jetSFstr   = '1'
 	jetSFstrUp = '1'
 	jetSFstrDn = '1'
 # 	if (process!='WJetsMG' and 'WJetsMG' in process):
@@ -72,16 +76,16 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 
 	weightStr = '1'
 	#Update here as needed!!!!!!
-	if ('BDT' in plotTreeName) and (process.startswith('4TM') or process.startswith('TTJets')):
+	if ('BDT' in plotTreeName) and (process.startswith('TTTTM') or process.startswith('TTJets')):
 		cut += ' && (isTraining == 3)'
 		weightStr = '3'
 		
 	topPt13TeVstr = '1'
 	if 'TTJets' in process: topPt13TeVstr = 'topPtWeight13TeV'
 	if 'Data' not in process:
-		weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
-# 		weightTrigEffUpStr  = weightStr.replace(TrigEff,'('+TrigEff+'+'+TrigEff+'Uncert)')
-# 		weightTrigEffDownStr= weightStr.replace(TrigEff,'('+TrigEff+'-'+TrigEff+'Uncert)')
+		weightStr          += ' * '+jetSFstr+' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
+# 		weightTriggerUpStr  = weightStr.replace(TrigSF,'('+TrigSF+'+'+TrigSF+'Uncert)')
+# 		weightTriggerDownStr= weightStr.replace(TrigSF,'('+TrigSF+'-'+TrigSF+'Uncert)')
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
 		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
 		weightPrefireUpStr   = weightStr.replace('L1NonPrefiringProb_CommonCalc','L1NonPrefiringProbUp_CommonCalc')
@@ -210,8 +214,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	# DRAW histograms
 	tTree[process].Draw(plotTreeName+' >> '+iPlot+''+'_'+lumiStr+'fb_'+catStr+'_' +process+flv, weightStr+'*('+fullcut+')', 'GOFF')
 	if doAllSys:
-# 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffUp_'    +lumiStr+'fb_'+catStr+'_'+process+flv, weightTrigEffUpStr+'*('+fullcut+')', 'GOFF')
-# 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffDown_'  +lumiStr+'fb_'+catStr+'_'+process+flv, weightTrigEffDownStr+'*('+fullcut+')', 'GOFF')
+# 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'triggerUp_'    +lumiStr+'fb_'+catStr+'_'+process+flv, weightTriggerUpStr+'*('+fullcut+')', 'GOFF')
+# 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'triggerDown_'  +lumiStr+'fb_'+catStr+'_'+process+flv, weightTriggerDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'pileupUp_'     +lumiStr+'fb_'+catStr+'_'+process+flv, weightPileupUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'pileupDown_'   +lumiStr+'fb_'+catStr+'_'+process+flv, weightPileupDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'prefireUp_'    +lumiStr+'fb_'+catStr+'_'+process+flv, weightPileupUpStr+'*('+fullcut+')', 'GOFF')

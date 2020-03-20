@@ -4,17 +4,12 @@ import os,sys,time,math,datetime,pickle,itertools,getopt
 from ROOT import TH1D,gROOT,TFile,TTree
 from numpy import linspace
 parent = os.path.dirname(os.getcwd())
+thisdir= os.path.dirname(os.getcwd()+'/')
 sys.path.append(parent)
 from weights import *
 from analyze import *
 from samples import *
 from utils import *
-
-gROOT.SetBatch(1)
-start_time = time.time()
-
-lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_4t_081019_step1hadds/nominal'
 
 """
 Note: 
@@ -26,77 +21,21 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 --Check the set of cuts in "analyze.py"
 """
 
-bkgList = [
-		  'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
-		  'WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG12001','WJetsMG12002','WJetsMG25001','WJetsMG25002',
-		  
-# 		  'TTJetsHad0','TTJetsHad700','TTJetsHad1000',
-# 		  'TTJetsSemiLep01','TTJetsSemiLep02','TTJetsSemiLep03','TTJetsSemiLep04','TTJetsSemiLep700','TTJetsSemiLep1000',
-# 	 	  'TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
-# 		  'TTJets700mtt','TTJets1000mtt',
+gROOT.SetBatch(1)
+start_time = time.time()
 
-		  'TTJetsHad',
-		  'TTJetsSemiLepNjet01','TTJetsSemiLepNjet02','TTJetsSemiLepNjet03','TTJetsSemiLepNjet04',
-		  'TTJetsSemiLepNjet91','TTJetsSemiLepNjet92','TTJetsSemiLepNjet93','TTJetsSemiLepNjet94',
-		  'TTJetsSemiLepNjet9bin',
-		  'TTJets2L2nu',
-		  
-# 		  'TTJetsHad1','TTJetsHad2','TTJetsHad3',
-# 		  'TTJetsSemiLepNjet01','TTJetsSemiLepNjet02','TTJetsSemiLepNjet03','TTJetsSemiLepNjet04','TTJetsSemiLepNjet05','TTJetsSemiLepNjet06',
-# 		  'TTJetsSemiLepNjet91','TTJetsSemiLepNjet92','TTJetsSemiLepNjet93','TTJetsSemiLepNjet94','TTJetsSemiLepNjet95','TTJetsSemiLepNjet96',
-# 		  'TTJetsSemiLepNjet9bin1','TTJetsSemiLepNjet9bin2','TTJetsSemiLepNjet9bin3',
-# 		  'TTJets2L2nu1','TTJets2L2nu2','TTJets2L2nu3',
-
-# 		  'TTJetsSemiLep1','TTJetsSemiLep2','TTJetsSemiLep3','TTJetsSemiLep4','TTJetsSemiLep5','TTJetsSemiLep6',
-		  
-		  'Ts','Tbs','Tt','Tbt','TtW','TbtW', 
-		  'TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ',
-		  'TTWl','TTWq','TTZl','TTHB','TTHnoB',
-          'WW','WZ','ZZ',
-		  'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
-		  ]
-ttFlvs = ['_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
-		  
-dataList = ['DataE','DataM']
-
-whichSignal = '4T' #HTB, TT, BB, or X53X53
-massList = [690]#range(800,1600+1,100)
-sigList = [whichSignal+'M'+str(mass) for mass in massList]
-if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
-if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
-elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-else: decays = [''] #there is only one possible decay mode!
-
+year = '2018'
 iPlot = 'HT' #choose a discriminant from plotList below!
 region = 'PS'
 isCategorized = 0
 doJetRwt= 0
-doAllSys= True
-doQ2sys = False
-q2List  = [#energy scale sample to be processed
-	       'TTJetsPHQ2U','TTJetsPHQ2D',
-	       ]
-runData = True
-runBkgs = True
-runSigs = True
+doAllSys= False
+doHDsys = True
+doUEsys = True
+if not doAllSys:
+	doHDsys = False
+	doUEsys = False
 
-#cutList = {'elPtCut':35,'muPtCut':30,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':300}
-cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
-
-cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
-cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])
-cutString += '_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))+str(int(cutList['jet3PtCut']))
-
-cTime=datetime.datetime.now()
-datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
-timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-if region=='TTCR': pfix='ttbar_'
-elif region=='WJCR': pfix='wjets_'
-else: pfix='templates_'
-if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+=iPlot
-pfix+='_TEST_'+datestr#+'_'+timestr
-		
 isEMlist  = ['E','M']
 nhottlist = ['0','1p']
 nttaglist = ['0','1p']
@@ -114,6 +53,7 @@ try:
 	opts, args = getopt.getopt(sys.argv[2:], "", ["iPlot=",
 	                                              "region=",
 	                                              "isCategorized=",
+	                                              "year=",
 	                                              "isEM=",
 	                                              "nhott=",
 	                                              "nttag=",
@@ -131,12 +71,88 @@ for opt, arg in opts:
 	if opt == '--iPlot': iPlot = arg
 	elif opt == '--region': region = arg
 	elif opt == '--isCategorized': isCategorized = int(arg)
+	elif opt == '--year': year = arg
 	elif opt == '--isEM': isEMlist = [str(arg)]
 	elif opt == '--nhott': nhottlist = [str(arg)]
 	elif opt == '--nttag': nttaglist = [str(arg)]
 	elif opt == '--nWtag': nWtaglist = [str(arg)]
 	elif opt == '--nbtag': nbtaglist = [str(arg)]
-	elif opt == '--njets': njetslist = [str(arg)]	
+	elif opt == '--njets': njetslist = [str(arg)]
+
+lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
+step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep'+year+'_Oct2019_4t_031920_step1hadds/nominal'
+
+bkgList = [
+		  'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
+		  'WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800',
+		  
+		  'TTJetsHadTTbb','TTJetsHadTTcc','TTJetsHadTTjj',
+		  'TTJetsSemiLepNjet0TTbb','TTJetsSemiLepNjet0TTcc',#'TTJetsSemiLepNjet0TTjj',
+		  'TTJetsSemiLepNjet0TTjj1','TTJetsSemiLepNjet0TTjj2',
+		  'TTJetsSemiLepNjet9TTbb','TTJetsSemiLepNjet9TTcc','TTJetsSemiLepNjet9TTjj',
+		  'TTJetsSemiLepNjet9binTTbb','TTJetsSemiLepNjet9binTTcc','TTJetsSemiLepNjet9binTTjj',
+		  'TTJets2L2nuTTbb','TTJets2L2nuTTcc','TTJets2L2nuTTjj',
+		  
+		  'Ts','Tt','Tbt','TtW','TbtW', 
+		  'TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ',
+		  'TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB',#'TTWq',
+          'WW','WZ','ZZ',
+		  'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
+		  ]
+if year=='2017':
+	bkgList+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004',
+			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs']
+elif year=='2018':
+	bkgList+= ['WJetsMG1200','WJetsMG2500']
+ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
+
+dataList = ['DataE','DataM','DataJ']
+
+whichSignal = 'TTTT' #HTB, TT, BB, or X53X53
+massList = [690]#range(800,1600+1,100)
+sigList = [whichSignal+'M'+str(mass) for mass in massList]
+if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
+if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
+elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
+else: decays = [''] #there is only one possible decay mode!
+
+hdampList = [#hDamp samples
+'TTJets2L2nuHDAMPdnTTbb','TTJets2L2nuHDAMPdnTTcc','TTJets2L2nuHDAMPdnTTjj',
+'TTJets2L2nuHDAMPupTTbb','TTJets2L2nuHDAMPupTTcc','TTJets2L2nuHDAMPupTTjj',
+'TTJetsHadHDAMPdnTTbb','TTJetsHadHDAMPdnTTcc','TTJetsHadHDAMPdnTTjj',
+'TTJetsHadHDAMPupTTbb','TTJetsHadHDAMPupTTcc','TTJetsHadHDAMPupTTjj',
+'TTJetsSemiLepHDAMPdnTTbb','TTJetsSemiLepHDAMPdnTTcc','TTJetsSemiLepHDAMPdnTTjj',
+'TTJetsSemiLepHDAMPupTTbb','TTJetsSemiLepHDAMPupTTcc','TTJetsSemiLepHDAMPupTTjj',
+]
+ueList = [#UE samples
+'TTJets2L2nuUEdnTTbb','TTJets2L2nuUEdnTTcc','TTJets2L2nuUEdnTTjj',
+'TTJets2L2nuUEupTTbb','TTJets2L2nuUEupTTcc','TTJets2L2nuUEupTTjj',
+'TTJetsHadUEdnTTbb','TTJetsHadUEdnTTcc','TTJetsHadUEdnTTjj',
+'TTJetsHadUEupTTbb','TTJetsHadUEupTTcc','TTJetsHadUEupTTjj',
+'TTJetsSemiLepUEdnTTbb','TTJetsSemiLepUEdnTTcc','TTJetsSemiLepUEdnTTjj',
+'TTJetsSemiLepUEupTTbb','TTJetsSemiLepUEupTTcc','TTJetsSemiLepUEupTTjj',
+]
+runData = True
+runBkgs = True
+runSigs = True
+
+#cutList = {'elPtCut':35,'muPtCut':30,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':300}
+cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
+#cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
+
+cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
+cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])
+cutString += '_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))+str(int(cutList['jet3PtCut']))
+
+cTime=datetime.datetime.now()
+datestr='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
+timestr='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
+if region=='TTCR': pfix='ttbar_'
+elif region=='WJCR': pfix='wjets_'
+else: pfix='templates_'
+if not isCategorized: pfix='kinematics_'+region+'_'
+pfix+=iPlot
+pfix+='_TEST_'+datestr#+'_'+timestr
          		
 def readTree(file):
 	if not os.path.exists(file): 
@@ -146,47 +162,6 @@ def readTree(file):
 	tTree = tFile.Get('ljmet')
 	return tFile, tTree 
 
-print "READING TREES"
-shapesFiles = ['jec','jer']
-tTreeData = {}
-tFileData = {}
-for data in dataList:
-	if not runData: break
-	print "READING:", data
-	tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
-
-tTreeSig = {}
-tFileSig = {}
-for sig in sigList:
-	if not runSigs: break
-	for decay in decays:
-		print "READING:", sig+decay
-		print "        nominal"
-		tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
-		if doAllSys:
-			for syst in shapesFiles:
-				for ud in ['Up','Down']:
-					print "        "+syst+ud
-					tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
-
-tTreeBkg = {}
-tFileBkg = {}
-for bkg in bkgList+q2List:
-	if not runBkgs: break
-	if bkg in q2List and not doQ2sys: continue
-	print "READING:",bkg
-	print "        nominal"
-	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
-	if doAllSys:
-		for syst in shapesFiles:
-			for ud in ['Up','Down']:
-				if bkg in q2List:
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=None,None
-				else:
-					print "        "+syst+ud
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
-print "FINISHED READING"
-
 bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,5000]
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
@@ -194,7 +169,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'MTlmet':('MT_lepMet',linspace(0,250,51).tolist(),';M_{T}(l,#slash{E}_{T}) [GeV]'),
 	'NPV'   :('nPV_MultiLepCalc',linspace(0, 60, 61).tolist(),';PV multiplicity'),
 	'nTrueInt':('nTrueInteractions_MultiLepCalc',linspace(0, 75, 76).tolist(),';# true interactions'),
-	'lepPt' :('leptonPt_MultiLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV]'),
+	'lepPt' :('leptonPt_MultiLepCalc',linspace(0, 600, 121).tolist(),';Lepton p_{T} [GeV]'),
 	'lepEta':('leptonEta_MultiLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta'),
 	'JetEta':('theJetEta_JetSubCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK4 jet #eta'),
 	'JetPt' :('theJetPt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';jet p_{T} [GeV]'),
@@ -215,6 +190,8 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'NJets' :('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 jet multiplicity'),
 	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
 	'NBJetsNoSF':('NJetsCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
+	'NDCSVBJets':('NJetsCSVwithSF_MultiLepCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
+	'NDCSVBJetsNoSF':('NJetsCSV_MultiLepCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
 	'NWJets':('NJetsWtagged',linspace(0, 6, 7).tolist(),';W-tagged jet multiplicity'),
 	'NTJets':('NJetsTtagged',linspace(0, 4, 5).tolist(),';t-tagged jet multiplicity'),
 	'NJetsAK8':('NJetsAK8_JetSubCalc',linspace(0, 8, 9).tolist(),';AK8 jet multiplicity'),
@@ -244,6 +221,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'lepIso':('leptonMiniIso_MultiLepCalc',linspace(0,0.1,51).tolist(),';lepton mini isolation'),
 	'Tau1':('theJetAK8NjettinessTau1_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{1}'),
 	'Tau2':('theJetAK8NjettinessTau2_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{2}'),
+	'Tau3':('theJetAK8NjettinessTau3_JetSubCalc_PtOrdered',linspace(0,1,51).tolist(),';AK8 Jet #tau_{3}'),
 	'JetPhi':('theJetPhi_JetSubCalc_PtOrdered',linspace(-3.2,3.2,65).tolist(),';AK4 Jet #phi'),
 	'JetPhiAK8':('theJetAK8Phi_JetSubCalc_PtOrdered',linspace(-3.2,3.2,65).tolist(),';AK8 Jet #phi'),
 	'Bjet1Pt':('BJetLeadPt',linspace(0,1500,51).tolist(),';p_{T}(b_{1}) [GeV]'),  ## B TAG
@@ -275,6 +253,10 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'PtRel':('ptRel_lepJet',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest jet) [GeV]'),
 	'deltaPhiLMET':('deltaPhi_lepMET',linspace(-3.2,3.2,51).tolist(),';#Delta#phi(l,#slash{E}_{T})'),
 	'NHOTtJets':('topNtops_HOTTaggerCalc',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity'),
+	'NresolvedTops1pNoSF':('NresolvedTops1pFakeNoSF',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (1% fake)'),
+	'NresolvedTops2pNoSF':('NresolvedTops2pFakeNoSF',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (2% fake)'),
+	'NresolvedTops5pNoSF':('NresolvedTops5pFakeNoSF',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (5% fake)'),
+	'NresolvedTops10pNoSF':('NresolvedTops10pFakeNoSF',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (10% fake)'),
 	'NresolvedTops1p':('NresolvedTops1pFake',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (1% fake)'),
 	'NresolvedTops2p':('NresolvedTops2pFake',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (2% fake)'),
 	'NresolvedTops5p':('NresolvedTops5pFake',linspace(0, 5, 6).tolist(),';resolved t-tagged jet multiplicity (5% fake)'),
@@ -290,15 +272,14 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'HOTtDThetaMax':('topDThetaMax_HOTTaggerCalc',linspace(0,1,51).tolist(),';resolved t-tagged jet DThetaMax'),
 	'HOTtDThetaMin':('topDThetaMin_HOTTaggerCalc',linspace(0,1,51).tolist(),';resolved t-tagged jet DThetaMin'),
 	'isHTgt500Njetge9':('isHTgt500Njetge9',linspace(0,2,3).tolist(),';isHTgt500Njetge9'),
-	
 	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 jet multiplicity',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
 
 	'HT':('AK4HT',linspace(0, 4000, 101).tolist(),';H_{T} [GeV]'),
 	'ST':('AK4HTpMETpLepPt',linspace(0, 4000, 101).tolist(),';S_{T} [GeV]'),
-# 	'minMlb':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]'),
-# 	'HT':('AK4HT',linspace(450, 4000, 711).tolist(),';H_{T} [GeV]'),
-# 	'ST':('AK4HTpMETpLepPt',linspace(650, 4000, 671).tolist(),';S_{T} [GeV]'),
-	'minMlb':('minMleppBjet',linspace(0, 1000, 201).tolist(),';min[M(l,b)] [GeV]'),
+#	'minMlb':('minMleppBjet',linspace(0, 1000, 51).tolist(),';min[M(l,b)] [GeV]'),
+#	'HT':('AK4HT',linspace(450, 4000, 711).tolist(),';H_{T} [GeV]'),
+#	'ST':('AK4HTpMETpLepPt',linspace(650, 4000, 671).tolist(),';S_{T} [GeV]'),
+	'minMlb':('minMleppBjet',linspace(0, 1000, 101).tolist(),';min[M(l,b)] [GeV]'),
 	'minMlbSBins':('minMleppBjet',linspace(0, 1000, 1001).tolist(),';min[M(l,b)] [GeV]'),
 	'BDT':('BDT',linspace(-1, 1, 201).tolist(),';BDT'),
 	}
@@ -311,34 +292,17 @@ print "         BINNING USED  :",plotList[iPlot][1]
 catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 nCats  = len(catList)
 
-catInd = 1
-for cat in catList:
- 	if not runData: break
- 	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
- 	datahists = {}
- 	if len(sys.argv)>1: outDir=sys.argv[1]
- 	else: 
-		outDir = os.getcwd()
-		outDir+='/'+pfix
-		if not os.path.exists(outDir): os.system('mkdir '+outDir)
-		outDir+='/'+cutString
-		if not os.path.exists(outDir): os.system('mkdir '+outDir)
-		outDir+='/'+catDir
-		if not os.path.exists(outDir): os.system('mkdir '+outDir)
- 	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
- 	for data in dataList: 
- 		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 		if catInd==nCats: del tFileData[data]
- 	pickle.dump(datahists,open(outDir+'/datahists_'+iPlot+'.p','wb'))
- 	catInd+=1
+shapesFiles = ['jec','jer']
 
+tTreeData = {}
+tFileData = {}
 catInd = 1
 for cat in catList:
- 	if not runBkgs: break
- 	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
- 	bkghists  = {}
- 	if len(sys.argv)>1: outDir=sys.argv[1]
- 	else: 
+	if not runData: break
+	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
+	datahists = {}
+	if len(sys.argv)>1: outDir=sys.argv[1]
+	else: 
 		outDir = os.getcwd()
 		outDir+='/'+pfix
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
@@ -346,29 +310,82 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
- 	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
- 	for bkg in bkgList: 
- 		bkghists.update(analyze(tTreeBkg,bkg,cutList,'',doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 		if 'TTJets' in bkg and len(ttFlvs)!=0:
- 			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 		if catInd==nCats: del tFileBkg[bkg]
- 		if doAllSys and catInd==nCats:
- 			for syst in shapesFiles:
- 				for ud in ['Up','Down']: del tFileBkg[bkg+syst+ud]
- 	if doQ2sys: 
- 		for q2 in q2List: 
- 			bkghists.update(analyze(tTreeBkg,q2,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 			if catInd==nCats: del tFileBkg[q2]
+	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
+	for data in dataList: 
+		tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
+		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+		if catInd==nCats: 
+			del tFileData[data]
+			del tTreeData[data]
+	pickle.dump(datahists,open(outDir+'/datahists_'+iPlot+'.p','wb'))
+	catInd+=1
+
+tTreeBkg = {}
+tFileBkg = {}
+catInd = 1
+for cat in catList:
+	if not runBkgs: break
+	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
+	bkghists  = {}
+	if len(sys.argv)>1: outDir=sys.argv[1]
+	else: 
+		outDir = os.getcwd()
+		outDir+='/'+pfix
+		if not os.path.exists(outDir): os.system('mkdir '+outDir)
+		outDir+='/'+cutString
+		if not os.path.exists(outDir): os.system('mkdir '+outDir)
+		outDir+='/'+catDir
+		if not os.path.exists(outDir): os.system('mkdir '+outDir)
+	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
+	for bkg in bkgList: 
+		tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
+		if doAllSys:
+			for syst in shapesFiles:
+				for ud in ['Up','Down']:
+					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
+		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+		if 'TTJets' in bkg and len(ttFlvs)!=0:
+			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+		if catInd==nCats: 
+			del tFileBkg[bkg]
+			del tTreeBkg[bkg]
+		if doAllSys and catInd==nCats:
+			for syst in shapesFiles:
+				for ud in ['Up','Down']: 
+					del tFileBkg[bkg+syst+ud]
+					del tTreeBkg[bkg+syst+ud]
+	if doHDsys: 
+		for hdamp in hdampList: 
+			tFileBkg[hdamp],tTreeBkg[hdamp]=readTree(step1Dir+'/'+samples[hdamp]+'_hadd.root')
+			for syst in shapesFiles:
+				for ud in ['Up','Down']:
+					tFileBkg[hdamp+syst+ud],tTreeBkg[hdamp+syst+ud]=None,None
+			bkghists.update(analyze(tTreeBkg,hdamp,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+			if catInd==nCats: 
+				del tFileBkg[hdamp]
+				del tTreeBkg[hdamp]
+	if doUEsys: 
+		for ue in ueList: 
+			tFileBkg[ue],tTreeBkg[ue]=readTree(step1Dir+'/'+samples[ue]+'_hadd.root')
+			for syst in shapesFiles:
+				for ud in ['Up','Down']:
+					tFileBkg[ue+syst+ud],tTreeBkg[ue+syst+ud]=None,None
+			bkghists.update(analyze(tTreeBkg,ue,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+			if catInd==nCats: 
+				del tFileBkg[ue]
+				del tTreeBkg[ue]
 	pickle.dump(bkghists,open(outDir+'/bkghists_'+iPlot+'.p','wb'))
- 	catInd+=1
+	catInd+=1
 
+tTreeSig = {}
+tFileSig = {}
 catInd = 1
 for cat in catList:
- 	if not runSigs: break
- 	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
- 	sighists  = {}
- 	if len(sys.argv)>1: outDir=sys.argv[1]
- 	else: 
+	if not runSigs: break
+	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
+	sighists  = {}
+	if len(sys.argv)>1: outDir=sys.argv[1]
+	else:
 		outDir = os.getcwd()
 		outDir+='/'+pfix
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
@@ -376,16 +393,26 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
- 	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
- 	for sig in sigList: 
- 		for decay in decays: 
- 			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
- 			if catInd==nCats: del tFileSig[sig+decay]
- 			if doAllSys and catInd==nCats:
- 				for syst in shapesFiles:
- 					for ud in ['Up','Down']: del tFileSig[sig+decay+syst+ud]
+	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
+	for sig in sigList: 
+		for decay in decays: 
+			tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
+			if doAllSys:
+				for syst in shapesFiles:
+					for ud in ['Up','Down']:
+						print "        "+syst+ud
+						tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
+			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+			if catInd==nCats: 
+				del tFileSig[sig+decay]
+				del tTreeSig[sig+decay]
+			if doAllSys and catInd==nCats:
+				for syst in shapesFiles:
+					for ud in ['Up','Down']: 
+						del tFileSig[sig+decay+syst+ud]
+						del tTreeSig[sig+decay+syst+ud]
 	pickle.dump(sighists,open(outDir+'/sighists_'+iPlot+'.p','wb'))
- 	catInd+=1
+	catInd+=1
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 

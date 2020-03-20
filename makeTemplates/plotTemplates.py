@@ -4,7 +4,7 @@ import os,sys,time,math,pickle,itertools
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 import ROOT as rt
-from weights import *
+#from weights import *
 from modSyst import *
 from utils import *
 import CMS_lumi, tdrstyle
@@ -12,22 +12,28 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi=41.5 #for plots
+year=2018
+if year==2017:
+	from weights17 import *
+	lumi=41.5 #for plots
+else:
+	from weights18 import *
+	lumi=59.97 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
-
+	
 region='SR' #PS,SR,TTCR,WJCR
 isCategorized=0
-iPlot='HT'
+iPlot='lepPt'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
-if region=='SR': pfix='templates_'
-elif region=='WJCR': pfix='wjets_'
-elif region=='TTCR': pfix='ttbar_'
-if not isCategorized: pfix='kinematics_'+region+'_'
-templateDir=os.getcwd()+'/'+pfix+'DeepCSV_PSsig_2020_1_22/'+cutString+'/'
+if region=='SR': pfix='templates_R'+str(year)
+elif region=='WJCR': pfix='wjets_R'+str(year)
+elif region=='TTCR': pfix='ttbar_R'+str(year)
+if not isCategorized: pfix='kinematics_'+region+'_R'+str(year)
+templateDir=os.getcwd()+'/'+pfix+'_Xtrig_2020_3_20/'+cutString+'/'
 
-isRebinned='_rebinned_stat1p1' #post for ROOT file names
-saveKey = '_4txsec' # tag for plot names
+isRebinned=''#'_rebinned_stat1p1' #post for ROOT file names
+saveKey = '' # tag for plot names
 
 sig='TTTTM690' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
@@ -45,7 +51,7 @@ else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5}
 
 systematicList = ['pileup','prefire','toppt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgtNew','muRFcorrdNew']#,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #,'hdamp','ue','pdfNew', 'ht','trigeff'
 #if 'muRFcorrdNew' not in systematicList: saveKey='_noQ2'
-doAllSys = True
+doAllSys = False
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
@@ -80,7 +86,7 @@ if not isCategorized:
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
-	njetslist = ['4p']
+	njetslist = ['4p','6p']#,'4','5','6','7','8','9','10p','10','11','12p']
 if 'YLD' in iPlot:
 	doNormByBinWidth = False
 	nhottlist = ['0p']

@@ -32,11 +32,11 @@ start_time = time.time()
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/templates_onlyHOTcats2pb6pj_DeepCSV_PSsig_2020_1_29/'+cutString
+templateDir = os.getcwd()+'/kinematics_SR_2020_3_4/'+cutString
 combinefile = 'templates_'+iPlot+'_41p53fb.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
-rebinCombine = True #else rebins theta templates
+rebinCombine = False #else rebins theta templates
 doStatShapes = False
 doPDF = False
 doMURF = True
@@ -55,7 +55,7 @@ bkgProcList = ['ttbb','ttcc','ttjj','top','ewk','qcd'] #put the most dominant pr
 era = "13TeV"
 
 minNbins=1 #min number of bins to be merged
-stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+stat = 1.1 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 statThres = 0.05 #statistical uncertainty threshold on total background to assign BB nuisances -- enter 0.0 to assign BB for all bins
 #if len(sys.argv)>1: stat=float(sys.argv[1])
 singleBinCR = False
