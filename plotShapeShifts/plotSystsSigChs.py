@@ -16,25 +16,25 @@ outDir = os.getcwd()+'/'
 lumi = 41.5
 iPlot = 'HT'
 lumiStr = '41p53fb'
-sig1 = '4TM690' #  choose the 1st signal to plot
+sig1 = 'TTTTM690' #  choose the 1st signal to plot
 isRebinned = '_rebinned_stat0p3'
-tempVersion = 'templates_syst4_2019_9_24/'
+tempVersion = 'templates_onlyHOTcats_2019_12_30/'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signalIndChannels'): os.system('mkdir '+outDir+tempVersion+'/signalIndChannels')
 
 isEMlist  = ['E','M']
-nhottlist = ['0','0p','1p']
-nttaglist = ['0','0p','1p']
-nWtaglist = ['0','0p','1p','1','2p']
-nbtaglist = ['2','3','3p','4p']
-njetslist = ['4','5','6','7','8','9','9p','10p']
-systematics = ['pileup','prefire','muRFcorrdNew','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','pdfNew'] #, 'ht','trigeff'
+nhottlist = ['0','1p']
+nttaglist = ['0p']
+nWtaglist = ['0p']
+nbtaglist = ['2','3','4p']
+njetslist = ['5','6','7','8','9','9p','10p']
+systematics = ['pileup','prefire','muRFcorrdNew','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer'] #,'pdfNew', 'ht','trigeff'
 
-signameList = ['4TM690']
+signameList = ['TTTTM690']
 
-catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip_75cats(item)]
+catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 
 for signal in signameList:
 	RFile = rt.TFile(templateFile.replace(signameList[0],signal))

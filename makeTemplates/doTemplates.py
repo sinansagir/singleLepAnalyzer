@@ -5,30 +5,36 @@ from ROOT import gROOT,TFile,TH1F
 from array import array
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
-from weights import *
+#from weights import *
 from modSyst import *
 from utils import *
 
 gROOT.SetBatch(1)
 start_time = time.time()
 
+year=2018
+if year==2017:
+	from weights17 import *
+else:
+	from weights18 import *
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 saveKey = ''#'_noTTHFsplit'
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
+isCategorized=0
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='onlyHOTcats2pb6pj_DeepCSV_2020_1_29'
+pfix+='R'+str(year)+'_'
+pfix+='Xtrig_2020_3_20'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 writeSummaryHists = True
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 36200./36459.
-doAllSys = True
+doAllSys = False
 doHDsys = True
 doUEsys = True
 doPDF = False
@@ -40,7 +46,7 @@ if doPDF: writeSummaryHists = False
 addCRsys = False
 systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure'] # 'ht','trigeff'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
-rebinBy = 2 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
+rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 zero = 1E-12
 
 doJetRwt = False
@@ -49,7 +55,11 @@ doTTinc = False
 bkgGrupList = ['ttbb','ttcc','ttjj','top','ewk','qcd']
 bkgProcList = ['ttbb','ttcc','ttjj','T','TTV','TTXY','WJets','ZJets','VV','qcd']
 bkgProcs = {}
-bkgProcs['WJets']  = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004']
+bkgProcs['WJets'] = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800']
+if year==2017:
+	bkgProcs['WJets']+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25002','WJetsMG25003','WJetsMG25004']
+elif year==2018:
+	bkgProcs['WJets']+= ['WJetsMG1200','WJetsMG2500']
 if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']] 
 bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
@@ -57,7 +67,10 @@ TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet9bin','TTJetsSemiLepNjet0'
 bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
 bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
-bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
+if year==2017:
+	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
+elif year==2018:
+	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
 if doTTmtt:
 	saveKey+='_mtt'
 	TTlist = ['TTJetsHad0','TTJetsHad700','TTJetsHad1000','TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000']
@@ -74,7 +87,8 @@ elif doTTinc:
 	bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 	bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLep0']
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4']]
-bkgProcs['T']   = ['Ts','Tbs','Tt','Tbt','TtW','TbtW']
+bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
+if year==2017: bkgProcs['T']+= ['Tbs']
 bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
@@ -82,10 +96,10 @@ if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']]
 bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']#+bkgProcs['TTJets']
 #bkgProcs['top']+= bkgProcs['ttbb']+bkgProcs['ttcc']+bkgProcs['ttjj']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV']
-dataList = ['DataE','DataM']
+dataList = ['DataE','DataM','DataJ']
 
 htProcs = ['ewk','WJets']
-topptProcs = ['ttbb','ttcc','ttjj','top']
+topptProcs = ['ttbb','ttcc','ttjj']
 for hf in ['bb','cc','jj']:
 	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupTT'+hf]
 	bkgProcs['tt'+hf+'_hddn'] = ['TTJetsHadHDAMPdnTT'+hf,'TTJets2L2nuHDAMPdnTT'+hf,'TTJetsSemiLepHDAMPdnTT'+hf]
@@ -121,14 +135,12 @@ njetslist = ['5','6','7','8','9','10p']
 # nWtaglist = ['0p']
 # nbtaglist = ['2p']
 # njetslist = ['4p','5p','6p','7p','8p','9p','10p']
-nbtaglist = ['2p']
-njetslist = ['6p']
 if not isCategorized: 	
 	nhottlist = ['0p']
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
-	njetslist = ['4p']
+	njetslist = ['4p','6p']#,'4','5','6','7','8','9','10p','10','11','12p']
 	
 #check the "skip" function in utils module to see if you want to remove specific categories there!!!
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
@@ -672,7 +684,7 @@ for iPlot in iPlotList:
 	if len(sys.argv)>1 and iPlot!=sys.argv[1]: continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	#if iPlot=="Tau32Nm1" or iPlot=="SoftDropMassNm1t" or iPlot=="SoftDropMass" or iPlot=="Tau21Nm1" or iPlot=="SoftDropMassNm1W": continue
-	if iPlot!="HT": continue
+	#if iPlot!="HT": continue
 	for cat in catList:
 		print "         ",cat[2:]
 		datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
