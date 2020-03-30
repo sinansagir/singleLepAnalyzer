@@ -12,7 +12,7 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-year=2018
+year=2017
 if year==2017:
 	from weights17 import *
 else:
@@ -20,7 +20,7 @@ else:
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 saveKey = ''#'_noTTHFsplit'
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=0
+isCategorized=1
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
@@ -31,10 +31,10 @@ pfix+='Xtrig_2020_3_20'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 writeSummaryHists = True
-scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
+scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 scaleLumi = False
 lumiScaleCoeff = 36200./36459.
-doAllSys = False
+doAllSys = True
 doHDsys = True
 doUEsys = True
 doPDF = False
@@ -48,6 +48,7 @@ systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','toppt'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 zero = 1E-12
+removeThreshold = 0.015 # If a process/totalBkg is less than the threshold, the process will be removed in the output files!
 
 doJetRwt = False
 doTTmtt = False
@@ -123,18 +124,13 @@ nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
 isEMlist  = ['E','M']
-nhottlist = ['0','1p']#,'0p']
-#nttaglist = ['0','1p','0p']
+nhottlist = ['0','1p']
 nttaglist = ['0p']
-#nWtaglist = ['0','1p']#,'0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
-njetslist = ['5','6','7','8','9','10p']
-# nhottlist = ['0p']
-# nttaglist = ['0p']
-# nWtaglist = ['0p']
+njetslist = ['6','7','8','9','10p']
 # nbtaglist = ['2p']
-# njetslist = ['4p','5p','6p','7p','8p','9p','10p']
+# njetslist = ['6p']#,'7p','8p','9p','10p']
 if not isCategorized: 	
 	nhottlist = ['0p']
 	nttaglist = ['0p']
@@ -335,8 +331,8 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				i=BRconfStr+cat
 				totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 				for proc in bkgGrupList+[signal]:
-					if proc in bkgGrupList and hists[proc+i].Integral()/totBkg_ < .01:
-						print proc+i,"IS EMPTY OR < 1% OF TOTAL BKG! SKIPPING ..."
+					if proc in bkgGrupList and hists[proc+i].Integral()/totBkg_ < removeThreshold:
+						print proc+i,"IS EMPTY OR < "+str(removeThreshold*100)+"% OF TOTAL BKG! SKIPPING ..."
 						continue
 					hists[proc+i].Write()
 					if doAllSys:
@@ -384,8 +380,8 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						hists[signal+i+'pdf'+str(pdfInd)].Write()
 			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
-				if hists[proc+i].Integral()/totBkg_ < .01:
-					print proc+i,"IS EMPTY OR < 1% OF TOTAL BKG! SKIPPING ..."
+				if hists[proc+i].Integral()/totBkg_ < removeThreshold:
+					print proc+i,"IS EMPTY OR < "+str(removeThreshold*100)+"% OF TOTAL BKG! SKIPPING ..."
 					continue
 				hists[proc+i].SetName(hists[proc+i].GetName().replace('fb_','fb_'+postTag))
 				if hists[proc+i].Integral() == 0: hists[proc+i].SetBinContent(1,zero)

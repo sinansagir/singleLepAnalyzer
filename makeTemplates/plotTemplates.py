@@ -22,22 +22,22 @@ else:
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 	
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=0
-iPlot='lepPt'
+isCategorized=1
+iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
 if region=='SR': pfix='templates_R'+str(year)
 elif region=='WJCR': pfix='wjets_R'+str(year)
 elif region=='TTCR': pfix='ttbar_R'+str(year)
 if not isCategorized: pfix='kinematics_'+region+'_R'+str(year)
-templateDir=os.getcwd()+'/'+pfix+'_Xtrig_2020_3_20/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_Xtrig_2pb6pj_2020_3_29/'+cutString+'/'
 
-isRebinned=''#'_rebinned_stat1p1' #post for ROOT file names
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig='TTTTM690' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
-scaleSignalsToXsec = True
+scaleSignalsToXsec = False
 scaleSignals = False
 sigScaleFact = 20 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
@@ -51,7 +51,7 @@ else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5}
 
 systematicList = ['pileup','prefire','toppt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgtNew','muRFcorrdNew']#,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #,'hdamp','ue','pdfNew', 'ht','trigeff'
 #if 'muRFcorrdNew' not in systematicList: saveKey='_noQ2'
-doAllSys = False
+doAllSys = True
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
 addCRsys = False
@@ -73,14 +73,12 @@ zero = 1E-12
 
 isEMlist  = ['E','M']
 nhottlist = ['0','1p']
-nttaglist = ['0','0p','1p']
 nttaglist = ['0p']
-nWtaglist = ['0','0p','1p','1','2p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
-njetslist = ['5','6','7','8','9','10p']
-# nbtaglist = ['2p']
-# njetslist = ['6p']
+njetslist = ['6','7','8','9','10p']
+nbtaglist = ['2p']
+njetslist = ['6p']
 if not isCategorized: 	
 	nhottlist = ['0p']
 	nttaglist = ['0p']
@@ -621,10 +619,8 @@ for tag in tagList:
 					#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pull.GetXaxis().SetBinLabel(binNo,str(binNo))
 					if binLbl%2 == 0: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
 					else: pull.GetXaxis().SetBinLabel(binNo,'')
-				if 'NTJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
-				if 'NWJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
-				if 'NBJets' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
-				if 'NresolvedTops' in iPlot: pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
+				if 'NDCSVBJets' in iPlot or 'NresolvedTops' in iPlot or 'NBJets' in iPlot or 'NWJets' in iPlot or 'NTJets' in iPlot: 
+					pull.GetXaxis().SetBinLabel(binNo,str(binLbl))
 				if hData.GetBinContent(binNo)!=0:
 					MCerror = 0.5*(totBkgTemp3[catStr].GetErrorYhigh(binNo-1)+totBkgTemp3[catStr].GetErrorYlow(binNo-1))
 					pull.SetBinContent(binNo,(hData.GetBinContent(binNo)-bkgHT.GetBinContent(binNo))/math.sqrt(MCerror**2+hData.GetBinError(binNo)**2))
@@ -963,10 +959,8 @@ for tag in tagList:
 				#if binNo == 1 or binNo == 5 or binNo == 10 or binNo == 15: pullmerged.GetXaxis().SetBinLabel(binNo,str(binNo))
 				if binLbl%2 == 0: pullmerged.GetXaxis().SetBinLabel(binNo,str(binLbl))
 				else: pullmerged.GetXaxis().SetBinLabel(binNo,'')
-			if 'NTJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binLbl))
-			if 'NWJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binLbl))
-			if 'NBJets' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binLbl))
-			if 'NresolvedTops' in iPlot: pullmerged.GetXaxis().SetBinLabel(binNo,str(binLbl))
+			if 'NDCSVBJets' in iPlot or 'NresolvedTops' in iPlot or 'NBJets' in iPlot or 'NWJets' in iPlot or 'NTJets' in iPlot: 
+				pullmerged.GetXaxis().SetBinLabel(binNo,str(binLbl))
 			if bkgHTmerged.GetBinContent(binNo)!=0:
 				pull.SetBinError(binNo,hDatamerged.GetBinError(binNo)/bkgHTmerged.GetBinContent(binNo))
 		pullmerged.SetMaximum(3)

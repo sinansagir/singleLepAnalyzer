@@ -4,11 +4,17 @@ import os,sys,time,math,fnmatch
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from array import array
-from weights import *
+#from weights import *
 from modSyst import *
 from utils import *
 from ROOT import *
 start_time = time.time()
+
+year=2017
+if year==2017:
+	from weights17 import *
+else:
+	from weights18 import *
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Run as:
@@ -32,11 +38,12 @@ start_time = time.time()
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
-templateDir = os.getcwd()+'/kinematics_SR_2020_3_4/'+cutString
-combinefile = 'templates_'+iPlot+'_41p53fb.root'
+lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
+templateDir = os.getcwd()+'/templates_R'+str(year)+'_Xtrig_2020_3_20/'+cutString
+combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
-rebinCombine = False #else rebins theta templates
+rebinCombine = True #else rebins theta templates
 doStatShapes = False
 doPDF = False
 doMURF = True
@@ -52,10 +59,10 @@ if sigName=='X53X53':
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
 	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 bkgProcList = ['ttbb','ttcc','ttjj','top','ewk','qcd'] #put the most dominant process first
-era = "13TeV"
+era = "13TeV_R"+str(year)
 
 minNbins=1 #min number of bins to be merged
-stat = 1.1 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 statThres = 0.05 #statistical uncertainty threshold on total background to assign BB nuisances -- enter 0.0 to assign BB for all bins
 #if len(sys.argv)>1: stat=float(sys.argv[1])
 singleBinCR = False
@@ -249,6 +256,12 @@ for rfile in rfiles:
 					newMname = rebinnedHists[hist].GetName().replace('__trigeff','__mutrigeff')
 					rebinnedHists[newMname] = rebinnedHists[hist].Clone(newMname)
 					rebinnedHists[newMname].Write()
+			
+			#Add additional shift histograms to be able to uncorrelate them across years
+			if hist.endswith(upTag) or hist.endswith(downTag):
+				newEname = rebinnedHists[hist].GetName().replace(upTag,'_'+era+upTag).replace(downTag,'_'+era+downTag)
+				rebinnedHists[newEname] = rebinnedHists[hist].Clone(newEname)
+				rebinnedHists[newEname].Write()
 			yieldHistName = hist
 			if not rebinCombine: yieldHistName = hist.replace('_sig','_'+rfile.split('_')[-2])
 			yieldsAll[yieldHistName] = rebinnedHists[hist].Integral()
@@ -360,11 +373,22 @@ for rfile in rfiles:
 				muRFcorrdNewDnHist.Write()
 				yieldsAll[muRFcorrdNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewUpHist.Integral()
 				yieldsAll[muRFcorrdNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewDnHist.Integral()
+				
 				#Decorrelate muRF systematic ("muRFcorrdNew" still need to be removed in doThetaLimits.py!):
 				muRFcorrdNewUpHist2 = muRFcorrdNewUpHist.Clone(hist.replace('muR'+upTag,proc_+newMuRFName+upTag))
 				muRFcorrdNewDnHist2 = muRFcorrdNewDnHist.Clone(hist.replace('muR'+upTag,proc_+newMuRFName+downTag))
 				muRFcorrdNewUpHist2.Write()
 				muRFcorrdNewDnHist2.Write()
+				
+				#Add additional shift histograms to be able to uncorrelate them across years
+				muRFcorrdNewUpHist3 = muRFcorrdNewUpHist.Clone(hist.replace('muR'+upTag,proc_+newMuRFName+'_'+era+upTag))
+				muRFcorrdNewDnHist3 = muRFcorrdNewDnHist.Clone(hist.replace('muR'+upTag,proc_+newMuRFName+'_'+era+downTag))
+				muRFcorrdNewUpHist3.Write()
+				muRFcorrdNewDnHist3.Write()
+				muRFcorrdNewUpHist4 = muRFcorrdNewUpHist.Clone(hist.replace('muR'+upTag,newMuRFName+'_'+era+upTag))
+				muRFcorrdNewDnHist4 = muRFcorrdNewDnHist.Clone(hist.replace('muR'+upTag,newMuRFName+'_'+era+downTag))
+				muRFcorrdNewUpHist4.Write()
+				muRFcorrdNewDnHist4.Write()
 
 		#constructing PSweights
 		if doPSWeights:
@@ -399,14 +423,22 @@ for rfile in rfiles:
 				PSwgtNewDnHist.Write()
 				yieldsAll[PSwgtNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = PSwgtNewUpHist.Integral()
 				yieldsAll[PSwgtNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = PSwgtNewDnHist.Integral()
+				
 				#Decorrelate muRF systematic ("muRFcorrdNew" still need to be removed in doThetaLimits.py!):
 				PSwgtNewUpHist2 = PSwgtNewUpHist.Clone(hist.replace('isr'+upTag,proc_+newPSwgtName+upTag))
 				PSwgtNewDnHist2 = PSwgtNewDnHist.Clone(hist.replace('isr'+upTag,proc_+newPSwgtName+downTag))
 				PSwgtNewUpHist2.Write()
 				PSwgtNewDnHist2.Write()
 
-
-
+				#Add additional shift histograms to be able to uncorrelate them across years
+				PSwgtNewUpHist3 = PSwgtNewUpHist.Clone(hist.replace('isr'+upTag,proc_+newPSwgtName+'_'+era+upTag))
+				PSwgtNewDnHist3 = PSwgtNewDnHist.Clone(hist.replace('isr'+upTag,proc_+newPSwgtName+'_'+era+downTag))
+				PSwgtNewUpHist3.Write()
+				PSwgtNewDnHist3.Write()
+				PSwgtNewUpHist4 = PSwgtNewUpHist.Clone(hist.replace('isr'+upTag,newPSwgtName+'_'+era+upTag))
+				PSwgtNewDnHist4 = PSwgtNewDnHist.Clone(hist.replace('isr'+upTag,newPSwgtName+'_'+era+downTag))
+				PSwgtNewUpHist4.Write()
+				PSwgtNewDnHist4.Write()
 
 		#Constructing PDF shapes
 		if doPDF:
@@ -431,6 +463,12 @@ for rfile in rfiles:
 				pdfNewDnHist.Write()
 				yieldsAll[pdfNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewUpHist.Integral()
 				yieldsAll[pdfNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewDnHist.Integral()
+
+				#Add additional shift histograms to be able to uncorrelate them across years
+				pdfNewUpHist2 = pdfNewUpHist.Clone(hist.replace('pdf0',newPDFName+'_'+era+upTag))
+				pdfNewDnHist2 = pdfNewDnHist.Clone(hist.replace('pdf0',newPDFName+'_'+era+downTag))
+				pdfNewUpHist2.Write()
+				pdfNewDnHist2.Write()
 			
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()

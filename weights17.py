@@ -211,7 +211,7 @@ xsec['TTZH'] = 0.001253 # from McM
 xsec['TTZZ'] = 0.001572 # from McM
 
 #4 Tops
-xsec['TTTTM690'] = 0.012 # from Freya et al., in McM: 0.008213
+xsec['TTTTM690'] = 0.012 # from https://arxiv.org/pdf/1711.02116.pdf, in McM: 0.008213
 
 # Calculate lumi normalization weights
 weight = {}
