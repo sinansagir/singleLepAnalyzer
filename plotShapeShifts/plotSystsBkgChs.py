@@ -13,12 +13,17 @@ tdrstyle.setTDRStyle()
 rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
-lumi = 41.5
 iPlot = 'HT'
-lumiStr = '41p53fb'
+year=2017
+if year==2017:
+	lumiStr = '41p53fb'
+	lumi=41.5 #for plots
+else:
+	lumiStr = '59p97fb'
+	lumi=59.97 #for plots
 sig1 = 'TTTTM690' #  choose the 1st signal to plot
 isRebinned = '_rebinned_stat0p3'
-tempVersion = 'templates_onlyHOTcats2pb6pj_DeepCSV_PSsig_2020_1_29/'
+tempVersion = 'templates_R'+str(year)+'_Xtrig_2020_3_20/'
 cutString = ''
 saveDir = 'bkgIndChannels'
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
@@ -32,17 +37,15 @@ nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
 njetslist = ['5','6','7','8','9','10p']
-# nhottlist = ['0p']
-nbtaglist = ['2p']
-njetslist = ['6p']
-systematics = ['pileup','prefire','muRFcorrdNew','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','hdamp','ue','PSwgtNew'] # 'ht','trigeff'
-#systematics = ['hotstat','hotcspur','hotclosure','hdamp','ue'] # 'ht','trigeff'
-#systematics = ['PSwgtNew'] # 'ht','trigeff'
+# nbtaglist = ['2p']
+# njetslist = ['6p']
+systematics = ['pileup','prefire','muRFcorrdNew','toppt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','hdamp','ue','PSwgtNew']#,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] # 'ht','trigeff'
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 RFile = rt.TFile(templateFile)
 
 for syst in systematics:
+	if not os.path.exists(outDir+tempVersion+'/'+saveDir+'/'+syst): os.system('mkdir '+outDir+tempVersion+'/'+saveDir+'/'+syst)
 	for cat in catList:
 		Prefix = iPlot+'_'+lumiStr+'_'+cat+'__'+bkgList[0]
 		print Prefix+'__'+syst
@@ -275,9 +278,9 @@ for syst in systematics:
 		chLatex.DrawLatex(0.45, 0.78, tagString)
 		chLatex.DrawLatex(0.45, 0.72, tagString2)
 
-# 		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+cat+'.pdf')
-# 		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+cat+'.eps')
-		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+cat+'.png')
+# 		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'/'+syst+'_'+cat+'.pdf')
+# 		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'/'+syst+'_'+cat+'.eps')
+		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'/'+syst+'_'+cat+'.png')
 
 RFile.Close()
 

@@ -10,7 +10,7 @@ outputDir = thisDir+'/'
 
 year=2018
 region='SR' #PS,SR,TTCR,WJCR
-categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
+categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
@@ -20,50 +20,52 @@ elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
 pfix+='_R'+str(year)+'_'
-pfix+='Xtrig_2020_3_20'#+date#+'_'+time
+pfix+='Xtrig_2020_4_25'#+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 'HT',
-'ST',
-'minMlb',
-
-'lepPt',
-'lepEta',
-'deltaRjet1',
-'deltaRjet2',
-'deltaRjet3',
-'JetEta',
-'JetPt',
-'Jet1Pt',
-'Jet2Pt',
-'Jet3Pt',
-'Jet4Pt',
-'Jet5Pt',
-'Jet6Pt',
-'MET',
-'NJets',
-'NDCSVBJets',
-'mindeltaR',
-'PtRel',
-'MTlmet',
-'minMlj',
-'lepIso',
-'Bjet1Pt',
-'METphi',
-'lepPhi',
-'JetPhi',
-'NresolvedTops1p',
-'NresolvedTops2p',
-'NresolvedTops5p',
-'NresolvedTops10p',
-'HOTtPt',
-'HOTtEta',
-'HOTtPhi',
-'HOTtMass',
-'HOTtDisc',
-'HOTtDRmax',
-'HOTtDThetaMax',
-'HOTtDThetaMin',
+# 'ST',
+# 'minMlb',
+# 
+# 'lepPt',
+# 'lepEta',
+# 'deltaRjet1',
+# 'deltaRjet2',
+# 'deltaRjet3',
+# 'JetEta',
+# 'JetPt',
+# 'Jet1Pt',
+# 'Jet2Pt',
+# 'Jet3Pt',
+# 'Jet4Pt',
+# 'Jet5Pt',
+# 'Jet6Pt',
+# 'MET',
+# 'NJets',
+# 'NDCSVBJets',
+# 'mindeltaR',
+# 'PtRel',
+# 'MTlmet',
+# 'minMlj',
+# 'lepIso',
+# 'Bjet1Pt',
+# 'METphi',
+# 'lepPhi',
+# 'JetPhi',
+# 'NresolvedTops1p',
+# 'NresolvedTops2p',
+# 'NresolvedTops5p',
+# 'NresolvedTops10p',
+# 'HOTtPt',
+# 'HOTtEta',
+# 'HOTtPhi',
+# 'HOTtMass',
+# 'HOTtDisc',
+# 'HOTtDRmax',
+# 'HOTtDThetaMax',
+# 'HOTtDThetaMin',
+# 'topMass',
+# 'topPt',
 
 # 'NWJets',
 # 'NTJets',
@@ -94,15 +96,14 @@ nhottlist = ['0','1p']
 nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
-njetslist = ['5','6','7','8','9','10p']
-# nbtaglist = ['2p']
-# njetslist = ['6p']
+njetslist = ['6','7','8','9','10p']
 if not categorize: 	
 	nhottlist = ['0p']
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
-	njetslist = ['4p','6p']#,'4','5','6','7','8','9','10p','10','11','12p']
+	njetslist = ['4p']
+	njetslist = ['4p']
 catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 	
 outDir = outputDir+pfix

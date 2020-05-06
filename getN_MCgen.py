@@ -1,7 +1,7 @@
 import os,sys
 import ROOT as rt
 
-inputDir  = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_031920_step1hadds/nominal/'
+inputDir  = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_042520_step1hadds/nominal/'
 rootfiles = os.popen('ls '+inputDir)
 
 for file in rootfiles:

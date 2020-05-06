@@ -75,46 +75,33 @@ def add_systematics(cb):
 	print '>> Adding systematic uncertainties...'
 	
 	signal = cb.cp().signals().process_set()
-	bkg = ['ttbb', 'ttcc', 'ttjj', 'top', 'ewk', 'qcd']
 	
-	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'lumi_$ERA', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.025)(['13TeV_R2017'], 1.023)(['13TeV_R2018'], 1.025)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
-	cb.cp().process(signal + bkg).channel(chnsE).AddSyst(cb, 'leptonSFEl', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.03)(['13TeV_R2017'], 1.03)(['13TeV_R2018'], 1.03)) # 1.5% el id/iso + 2.5% trigger ~ 3%
-	cb.cp().process(signal + bkg).channel(chnsM).AddSyst(cb, 'leptonSFMu', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.03)(['13TeV_R2017'], 1.03)(['13TeV_R2018'], 1.03)) # 1% mu id/iso + 2.5% trigger ~ 3%
-	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'jec_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # This one is being studied in B2G-19-001/AN2018_322_v7 (take the uncorrelated one to be conservative!)
-	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'jer_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_$ERA', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.025)(['13TeV_R2017'], 1.023)(['13TeV_R2018'], 1.025)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	cb.cp().process(signal + allbkgs).channel(chnsE).AddSyst(cb, 'leptonSFEl', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.03)(['13TeV_R2017'], 1.03)(['13TeV_R2018'], 1.03)) # 1.5% el id/iso + 2.5% trigger ~ 3%
+	cb.cp().process(signal + allbkgs).channel(chnsM).AddSyst(cb, 'leptonSFMu', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.03)(['13TeV_R2017'], 1.03)(['13TeV_R2018'], 1.03)) # 1% mu id/iso + 2.5% trigger ~ 3%
+	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'ttHF_$ERA', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.15)(['13TeV_R2017'], 1.15)(['13TeV_R2018'], 1.15)) # Uncorrelated; 
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jec_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # This one is being studied in B2G-19-001/AN2018_322_v7 (take the uncorrelated one to be conservative!)
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jer_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	if year=='2017':
-		cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'prefire', 'shape', ch.SystMap()(1.0))
-	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'pileup', 'shape', ch.SystMap()(1.0)) # Correlated: https://hypernews.cern.ch/HyperNews/CMS/get/b2g/1381.html
-	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'btag_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
-	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'mistag_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
-	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'hotstat_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
-	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'hotcspur_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
-	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'hotclosure_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
-	cb.cp().process(['ttbb', 'ttcc', 'ttjj']).channel(chns).AddSyst(cb, 'toppt', 'shape', ch.SystMap()(1.0)) # Correlated; Ex: B2G-19-003/AN2015_174_v14 (since it is assumed that the affect of this correction should be consistent across years)
-	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'ttbbmuRFcorrdNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-	cb.cp().process(['ttcc']).channel(chns).AddSyst(cb, 'ttccmuRFcorrdNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-	cb.cp().process(['ttjj']).channel(chns).AddSyst(cb, 'ttjjmuRFcorrdNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'topmuRFcorrdNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-	cb.cp().process(['ewk']).channel(chns).AddSyst(cb, 'ewkmuRFcorrdNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-	cb.cp().process(['qcd']).channel(chns).AddSyst(cb, 'qcdmuRFcorrdNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
+		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'prefire', 'shape', ch.SystMap()(1.0))
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'pileup', 'shape', ch.SystMap()(1.0)) # Correlated: https://hypernews.cern.ch/HyperNews/CMS/get/b2g/1381.html
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'btag_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'mistag_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'hotstat_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'hotcspur_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'hotclosure_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
+	for proc in allbkgs:
+		if proc in ttbkgs: cb.cp().process([proc]).channel(chns).AddSyst(cb, 'ttmuRFcorrdNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
+		else: cb.cp().process([proc]).channel(chns).AddSyst(cb, proc+'muRFcorrdNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
 	cb.cp().process(signal).channel(chns).AddSyst(cb, 'TTTTM690muRFcorrdNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'ttbbPSwgtNew_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
-	cb.cp().process(['ttcc']).channel(chns).AddSyst(cb, 'ttccPSwgtNew_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
-	cb.cp().process(['ttjj']).channel(chns).AddSyst(cb, 'ttjjPSwgtNew_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
-	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'topPSwgtNew_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
-	cb.cp().process(['ewk']).channel(chns).AddSyst(cb, 'ewkPSwgtNew_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
-	cb.cp().process(['qcd']).channel(chns).AddSyst(cb, 'qcdPSwgtNew_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+	for proc in allbkgs:
+		if proc in ttbkgs: cb.cp().process([proc]).channel(chns).AddSyst(cb, 'ttPSwgtNew_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+		else: cb.cp().process([proc]).channel(chns).AddSyst(cb, proc+'PSwgtNew_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 	cb.cp().process(signal).channel(chns).AddSyst(cb, 'TTTTM690PSwgtNew_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
-# 	cb.cp().process(['ttbb', 'ttcc', 'ttjj']).channel(chns).AddSyst(cb, 'ue', 'shape', ch.SystMap()(1.0))
-# 	cb.cp().process(['ttbb', 'ttcc', 'ttjj']).channel(chns).AddSyst(cb, 'hdamp', 'shape', ch.SystMap()(1.0))
-# 	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'pdfNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-# 	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'tau32', 'shape', ch.SystMap()(1.0))
-# 	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'jmst', 'shape', ch.SystMap()(1.0))
-# 	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'jmrt', 'shape', ch.SystMap()(1.0))
-# 	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'tau21', 'shape', ch.SystMap()(1.0))
-# 	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'jmsW', 'shape', ch.SystMap()(1.0))
-# 	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'jmrW', 'shape', ch.SystMap()(1.0))
-# 	cb.cp().process(signal + bkg).channel(chns).AddSyst(cb, 'tau21pt', 'shape', ch.SystMap()(1.0))
+# 	cb.cp().process(ttbkgs).channel(chns).AddSyst(cb, 'ue', 'shape', ch.SystMap()(1.0))
+# 	cb.cp().process(ttbkgs).channel(chns).AddSyst(cb, 'hdamp', 'shape', ch.SystMap()(1.0))
+# 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'pdfNew', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
+# 	cb.cp().process(ttbkgs).channel(chns).AddSyst(cb, 'toppt', 'shape', ch.SystMap()(1.0)) # Correlated; Ex: B2G-19-003/AN2015_174_v14 (since it is assumed that the affect of this correction should be consistent across years)
 
 
 def add_autoMCstat(cb):
@@ -135,12 +122,6 @@ def add_autoMCstat(cb):
 		os.chdir(thisDir)
 
 
-def combine_cards(cb):
-	print '>> Combining cards from individual cats...'
-	
-	thisDir = os.getcwd()
-
-
 def go(cb):
 	add_processes_and_observations(cb)
 	add_systematics(cb)
@@ -155,18 +136,21 @@ if __name__ == '__main__':
 	cb = ch.CombineHarvester()
 	#cb.SetVerbosity(20)
 	
-	year = '2017'
+	year = '2018'
 	era = '13TeV_R'+year
 	lumiStr = '41p53fb'
 	if year=='2018': lumiStr = '59p97fb'
 
-	saveKey = '_corrd'
+	tag = '_ttHFupLFdown'
+	saveKey = '_ttHF'+tag
 	fileDir = '/user_data/ssagir/CMSSW_10_2_10/src/singleLepAnalyzer/fourtops/makeTemplates/'
-	template = 'R'+year+'_Xtrig_2020_3_20'
+	template = 'R'+year+'_Xtrig_2020_4_25'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)
-	os.system('cp '+fileDir+'templates_'+template+'/templates_HT_'+lumiStr+'_rebinned_stat0p3.root ./limits_'+template+saveKey+'/')
-	rfile = './limits_'+template+saveKey+'/templates_HT_'+lumiStr+'_rebinned_stat0p3.root'
+	os.system('cp '+fileDir+'templates_'+template+'/templates_HT_'+lumiStr+tag+'_rebinned_stat0p3.root ./limits_'+template+saveKey+'/')
+	rfile = './limits_'+template+saveKey+'/templates_HT_'+lumiStr+tag+'_rebinned_stat0p3.root'
 	
+	ttbkgs = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
+	allbkgs = ttbkgs + ['top','ewk','qcd']
 	dataName = 'data_obs'
 	tfile = TFile(rfile)
 	allHistNames = [k.GetName() for k in tfile.GetListOfKeys() if not (k.GetName().endswith('Up') or k.GetName().endswith('Down'))]

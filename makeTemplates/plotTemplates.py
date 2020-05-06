@@ -12,7 +12,7 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-year=2018
+year=2017
 if year==2017:
 	from weights17 import *
 	lumi=41.5 #for plots
@@ -22,7 +22,7 @@ else:
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 	
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
+isCategorized=0
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
@@ -30,9 +30,9 @@ if region=='SR': pfix='templates_R'+str(year)
 elif region=='WJCR': pfix='wjets_R'+str(year)
 elif region=='TTCR': pfix='ttbar_R'+str(year)
 if not isCategorized: pfix='kinematics_'+region+'_R'+str(year)
-templateDir=os.getcwd()+'/'+pfix+'_Xtrig_2pb6pj_2020_3_29/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_Xtrig_2020_4_20/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_rebinned_stat1p1' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig='TTTTM690' #  choose the 1st signal to plot
@@ -42,15 +42,14 @@ scaleSignals = False
 sigScaleFact = 20 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-bkgProcList = ['ttbb','ttcc','ttjj','top','ewk','qcd']
+bkgProcList = ['tt2b','tt1b','ttbb','ttcc','ttjj','top','ewk','qcd']
 #bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
 if '53' in sig: bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOrange-5,'TTJets':rt.kRed-9,'T':rt.kRed-5,'WJets':rt.kBlue-7,'ZJets':rt.kBlue-1,'VV':rt.kBlue+5,'qcd':rt.kOrange-5} #X53X53
-elif 'TTTT' in sig: bkgHistColors = {'tt2b':rt.kRed,'ttbb':rt.kRed-5,'ttb':rt.kRed-3,'ttcc':rt.kRed-3,'ttjj':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'TTTT' in sig: bkgHistColors = {'tt2b':rt.kRed,'ttbb':rt.kRed-5,'tt1b':rt.kRed-3,'ttcc':rt.kRed-3,'ttjj':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','prefire','toppt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgtNew','muRFcorrdNew']#,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #,'hdamp','ue','pdfNew', 'ht','trigeff'
-#if 'muRFcorrdNew' not in systematicList: saveKey='_noQ2'
+systematicList = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgtNew','muRFcorrdNew']#,'pdfNew','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
 doAllSys = True
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
@@ -77,14 +76,12 @@ nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
 njetslist = ['6','7','8','9','10p']
-nbtaglist = ['2p']
-njetslist = ['6p']
 if not isCategorized: 	
 	nhottlist = ['0p']
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
-	njetslist = ['4p','6p']#,'4','5','6','7','8','9','10p','10','11','12p']
+	njetslist = ['4p']	
 if 'YLD' in iPlot:
 	doNormByBinWidth = False
 	nhottlist = ['0p']
@@ -98,10 +95,11 @@ tagList = []
 for tag in tagListTemp:#check the "skip" function in utils module to see if you want to remove specific categories there!!!
 	if not skip(('dummy',)+tag) or 'YLD' in iPlot: tagList.append(tag)
 
-lumiSys = 0.0#23 # lumi uncertainty
+lumiSys = 0.025 # lumi uncertainty
+if year==2017: lumiSys = 0.023
 trigSys = 0.0 # trigger uncertainty
-lepIdSys = 0.0#3 # lepton id uncertainty
-lepIsoSys = 0.0#1 # lepton isolation uncertainty
+lepIdSys = 0.03 # lepton id uncertainty
+lepIsoSys = 0.0 # lepton isolation uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total e/m values are close
 
 for tag in tagList:
@@ -512,8 +510,16 @@ for tag in tagList:
 		except: pass
 		try: leg.AddEntry(bkghists['ttcc'+catStr],"t#bar{t}+c(c)","f")
 		except: pass
-		try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b(b)","f")
-		except: pass
+		if 'tt2b' not in bkgProcList:
+			try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b(b)","f")
+			except: pass
+		else:
+			try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b#bar{b}","f")
+			except: pass
+			try: leg.AddEntry(bkghists['tt1b'+catStr],"t#bar{t}+b","f")
+			except: pass
+			try: leg.AddEntry(bkghists['tt2b'+catStr],"t#bar{t}+2B","f")
+			except: pass
 		leg.AddEntry(hsig,sigleg+scaleFactStr,"l")
 		leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
 		leg.Draw("same")
@@ -935,8 +941,16 @@ for tag in tagList:
 	except: pass
 	try: legmerged.AddEntry(bkghistsmerged['ttccisL'+tagStr],"t#bar{t}+c(c)","f")
 	except: pass
-	try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}+b(b)","f")
-	except: pass
+	if 'tt2b' not in bkgProcList:
+		try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}+b(b)","f")
+		except: pass
+	else:
+		try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}+b#bar{b}","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['tt1bisL'+tagStr],"t#bar{t}+b","f")
+		except: pass
+		try: legmerged.AddEntry(bkghistsmerged['tt2bisL'+tagStr],"t#bar{t}+2B","f")
+		except: pass
 	legmerged.AddEntry(hsigmerged,sigleg+scaleFactStr,"l")
 	legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
 	legmerged.Draw("same")
