@@ -10,7 +10,7 @@ from utils import *
 from ROOT import *
 start_time = time.time()
 
-year=2017
+year=2018
 if year==2017:
 	from weights17 import *
 else:
@@ -39,8 +39,8 @@ iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-templateDir = os.getcwd()+'/templates_R'+str(year)+'_Xtrig_2020_3_20/'+cutString
-combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
+templateDir = os.getcwd()+'/templates_R'+str(year)+'_Xtrig_2020_4_25/'+cutString
+combinefile = 'templates_'+iPlot+'_'+lumiStr+'_ttHFupLFdown.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = True #else rebins theta templates
@@ -58,7 +58,8 @@ sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='X53X53': 
 	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
 	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
-bkgProcList = ['ttbb','ttcc','ttjj','top','ewk','qcd'] #put the most dominant process first
+ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
+bkgProcList = ttProcList + ['top','ewk','qcd'] #put the most dominant process first
 era = "13TeV_R"+str(year)
 
 minNbins=1 #min number of bins to be merged
@@ -82,14 +83,15 @@ else: #theta
 
 addCRsys = False
 addShapes = False
-lumiSys = 0.0#25 #lumi uncertainty
+lumiSys = 0.025 # lumi uncertainty
+if year==2017: lumiSys = 0.023
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
-elIdSys = 0.0#2 #electron id uncertainty
-muIdSys = 0.0#3 #muon id uncertainty
-elIsoSys = 0.0#1 #electron isolation uncertainty
-muIsoSys = 0.0#1 #muon isolation uncertainty
-htRwtSys = 0.#15
+elIdSys = 0.03 #electron id uncertainty
+muIdSys = 0.03 #muon id uncertainty
+elIsoSys = 0.0 #electron isolation uncertainty
+muIsoSys = 0.0 #muon isolation uncertainty
+htRwtSys = 0.0
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2)
 
@@ -344,6 +346,7 @@ for rfile in rfiles:
 			newMuRFName = 'muRFcorrdNew'
 			for hist in muRUphists:
 				proc_ = hist.split('__')[1]
+				if proc_ in ttProcList: proc_ = 'tt'
 				muRFcorrdNewUpHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+upTag))
 				muRFcorrdNewDnHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+downTag))
 				histList = [
@@ -396,6 +399,7 @@ for rfile in rfiles:
 			newPSwgtName = 'PSwgtNew'
 			for hist in isrUphists:
 				proc_ = hist.split('__')[1]
+				if proc_ in ttProcList: proc_ = 'tt'
 				PSwgtNewUpHist = rebinnedHists[hist].Clone(hist.replace('isr'+upTag,newPSwgtName+upTag))
 				PSwgtNewDnHist = rebinnedHists[hist].Clone(hist.replace('isr'+upTag,newPSwgtName+downTag))
 				histList = [
@@ -501,18 +505,21 @@ for chn in channels:
 	if chn.split('_')[4+rebinCombine] not in nbtaglist: nbtaglist.append(chn.split('_')[4+rebinCombine])
 	if chn.split('_')[5+rebinCombine] not in njetslist: njetslist.append(chn.split('_')[5+rebinCombine])
 
-procNames={
-           'ttbb':'t$\\bar{\\text{t}}$+b(b)',
-           'ttcc':'t$\\bar{\\text{t}}$+c(c)',
-           'ttjj':'t$\\bar{\\text{t}}$+j(j)',
-           'top':'TOP',
-           'ewk':'EWK',
-           'qcd':'QCD',
-           'DATA':'Data',
-           'data_obs':'Data',
-           'totBkg':'Total bkg',
-           'dataOverBkg':'Data/Bkg',
-           }
+procNames={}
+procNames['dataOverBkg'] = 'Data/Bkg'
+procNames['totBkg'] = 'Total bkg'
+procNames['data_obs'] = 'Data'
+procNames['DATA'] = 'Data'
+procNames['top']  = 'TOP'
+procNames['ewk']  = 'EWK'
+procNames['qcd']  = 'QCD'
+procNames['ttcc'] = 't$\\bar{\\text{t}}$+c(c)'
+procNames['ttjj'] = 't$\\bar{\\text{t}}$+j(j)'
+procNames['ttbj'] = 't$\\bar{\\text{t}}$+b(j)'
+procNames['ttbb'] = 't$\\bar{\\text{t}}$+b$\\bar{\\text{b}}$'
+procNames['tt1b'] = 't$\\bar{\\text{t}}$+b'
+procNames['tt2b'] = 't$\\bar{\\text{t}}$+2B'
+procNames['ttnobb'] = 't$\\bar{\\text{t}}$+no b$\\bar{\\text{b}}$'
 for sig in sigProcList: 
 	if 'left' in sig:  procNames[sig]='LH \\xft ('+str(float(sig[7:-4])/1000)+' \\TeV)'
 	elif 'right' in sig: procNames[sig]='RH \\xft ('+str(float(sig[7:-5])/1000)+' \\TeV)'

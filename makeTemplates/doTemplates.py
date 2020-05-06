@@ -12,13 +12,13 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-year=2017
+year=2018
 if year==2017:
 	from weights17 import *
 else:
 	from weights18 import *
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-saveKey = ''#'_noTTHFsplit'
+saveKey = '_ttHFupLFdown'
 region='SR' #PS,SR,TTCR,WJCR
 isCategorized=1
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
@@ -27,13 +27,14 @@ if region=='TTCR': pfix='ttbar_'
 if region=='WJCR': pfix='wjets_'
 if not isCategorized: pfix='kinematics_'+region+'_'
 pfix+='R'+str(year)+'_'
-pfix+='Xtrig_2020_3_20'
+pfix+='Xtrig_2020_4_25'
 outDir = os.getcwd()+'/'+pfix+'/'+cutString
 
 writeSummaryHists = True
 scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
-scaleLumi = False
-lumiScaleCoeff = 36200./36459.
+lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
+ttHFsf = 4.7/3.9 # from TOP-18-002, set it to 1, if no ttHFsf is wanted.
+ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
 doAllSys = True
 doHDsys = True
 doUEsys = True
@@ -44,17 +45,19 @@ if not doAllSys:
 	doPDF = False
 if doPDF: writeSummaryHists = False
 addCRsys = False
-systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure'] # 'ht','trigeff'
+systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 zero = 1E-12
 removeThreshold = 0.015 # If a process/totalBkg is less than the threshold, the process will be removed in the output files!
+if not isCategorized: removeThreshold = 0.0
 
 doJetRwt = False
 doTTmtt = False
 doTTinc = False
-bkgGrupList = ['ttbb','ttcc','ttjj','top','ewk','qcd']
-bkgProcList = ['ttbb','ttcc','ttjj','T','TTV','TTXY','WJets','ZJets','VV','qcd']
+bkgTTBarList = ['ttnobb','ttbb']
+bkgGrupList = bkgTTBarList+['top','ewk','qcd']
+bkgProcList = ['ttjj','ttcc','ttbb','tt1b','tt2b','T','TTV','TTXY','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets'] = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800']
 if year==2017:
@@ -65,9 +68,13 @@ if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']]
 bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
 TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet9bin','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9']
+bkgProcs['tt1b']  = [tt+'TT1b' for tt in TTlist]
+bkgProcs['tt2b']  = [tt+'TT2b' for tt in TTlist]
+bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
 bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
+bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 if year==2017:
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
 elif year==2018:
@@ -95,17 +102,19 @@ bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']] 
 bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']#+bkgProcs['TTJets']
-#bkgProcs['top']+= bkgProcs['ttbb']+bkgProcs['ttcc']+bkgProcs['ttjj']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV']
-dataList = ['DataE','DataM','DataJ']
+dataList = ['DataE','DataM']#,'DataJ']
 
 htProcs = ['ewk','WJets']
-topptProcs = ['ttbb','ttcc','ttjj']
-for hf in ['bb','cc','jj']:
+topptProcs = ['ttjj','ttcc','ttbb','tt1b','tt2b','ttbj','ttnobb']
+for hf in ['jj','cc','bb','1b','2b']:
 	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupTT'+hf]
 	bkgProcs['tt'+hf+'_hddn'] = ['TTJetsHadHDAMPdnTT'+hf,'TTJets2L2nuHDAMPdnTT'+hf,'TTJetsSemiLepHDAMPdnTT'+hf]
 	bkgProcs['tt'+hf+'_ueup'] = ['TTJetsHadUEupTT'+hf,'TTJets2L2nuUEupTT'+hf,'TTJetsSemiLepUEupTT'+hf]
 	bkgProcs['tt'+hf+'_uedn'] = ['TTJetsHadUEdnTT'+hf,'TTJets2L2nuUEdnTT'+hf,'TTJetsSemiLepUEdnTT'+hf]
+for syst in ['hdup','hddn','ueup','uedn']:
+	bkgProcs['ttbj_'+syst] = bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
+	bkgProcs['ttnobb_'+syst] = bkgProcs['ttjj_'+syst] + bkgProcs['ttcc_'+syst]+bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 
 whichSignal = 'TTTT' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
@@ -129,26 +138,25 @@ nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
 njetslist = ['6','7','8','9','10p']
-# nbtaglist = ['2p']
-# njetslist = ['6p']#,'7p','8p','9p','10p']
 if not isCategorized: 	
 	nhottlist = ['0p']
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
-	njetslist = ['4p','6p']#,'4','5','6','7','8','9','10p','10','11','12p']
-	
+	njetslist = ['4p']
+	njetslist = ['4p']	
 #check the "skip" function in utils module to see if you want to remove specific categories there!!!
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 tagList = ['nHOT'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(('dummy',)+item)]
 
-lumiSys = 0.0#25 #lumi uncertainty
+lumiSys = 0.025 # lumi uncertainty
+if year==2017: lumiSys = 0.023
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
-elIdSys = 0.0#2 #electron id uncertainty
-muIdSys = 0.0#3 #muon id uncertainty
-elIsoSys = 0.0#1 #electron isolation uncertainty
-muIsoSys = 0.0#1 #muon isolation uncertainty
+elIdSys = 0.03 #electron id uncertainty
+muIdSys = 0.03 #muon id uncertainty
+elIsoSys = 0.0 #electron isolation uncertainty
+muIsoSys = 0.0 #muon isolation uncertainty
 
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
@@ -302,6 +310,51 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				yieldStatErrTable[histoPrefix]['totBkg'] += sum([hists[proc+i].GetBinError(ibin)**2 for proc in bkgGrupList])
 			for key in yieldStatErrTable[histoPrefix].keys(): yieldStatErrTable[histoPrefix][key] = math.sqrt(yieldStatErrTable[histoPrefix][key])
 
+		#scale tt+bb (and optionally scale down tt+nobb)
+		if ttHFsf!=1 and 'ttbb' in bkgTTBarList:
+			print "       SCALING tt+bb BY A FACTOR OF",ttHFsf
+			for signal in sigList:
+				for cat in catList:
+					i=BRconfStr+cat
+					Nttbb = hists['ttbb'+i].Integral()
+					Nttnobb = 0.
+					for tt in bkgTTBarList:
+						if tt!='ttbb': Nttnobb += hists[tt+i].Integral()
+					ttLFsf_ = ttLFsf
+					if ttLFsf==-1: ttLFsf_ = 1. + ( 1-ttHFsf ) * ( Nttbb/Nttnobb )
+					hists['ttbb'+i].Scale(ttHFsf)
+					for tt in bkgTTBarList:
+						if tt!='ttbb': hists[tt+i].Scale(ttLFsf_)
+					if doAllSys:
+						for syst in systematicList:
+							hists['ttbb'+i+syst+'Up'].Scale(ttHFsf)
+							hists['ttbb'+i+syst+'Down'].Scale(ttHFsf)
+							for tt in bkgTTBarList:
+								if tt!='ttbb': #scale down tt+nobb
+									hists[tt+i+syst+'Up'].Scale(ttLFsf_)
+									hists[tt+i+syst+'Down'].Scale(ttLFsf_)
+					if doPDF:
+						for pdfInd in range(100): 
+							hists['ttbb'+i+'pdf'+str(pdfInd)].Scale(ttHFsf)
+							for tt in bkgTTBarList:
+								if tt!='ttbb': #scale down tt+nobb
+									hists[tt+i+'pdf'+str(pdfInd)].Scale(ttLFsf_)
+					if doHDsys:
+						hists['ttbb'+i+'hdUp'].Scale(ttHFsf)
+						hists['ttbb'+i+'hdDown'].Scale(ttHFsf)
+						for tt in bkgTTBarList:
+							if tt!='ttbb': #scale down tt+nobb
+								hists[tt+i+'hdUp'].Scale(ttLFsf_)
+								hists[tt+i+'hdDown'].Scale(ttLFsf_)
+					if doUEsys:
+						hists['ttbb'+i+'ueUp'].Scale(ttHFsf)
+						hists['ttbb'+i+'ueDown'].Scale(ttHFsf)
+						for tt in bkgTTBarList:
+							if tt!='ttbb': #scale down tt+nobb
+								hists[tt+i+'ueUp'].Scale(ttLFsf_)
+								hists[tt+i+'ueDown'].Scale(ttLFsf_)
+			
+		
 		#scale signal cross section to 1pb
 		if scaleSignalXsecTo1pb:
 			print "       SCALING SIGNAL TEMPLATES TO 1pb ..."
@@ -331,7 +384,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				i=BRconfStr+cat
 				totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 				for proc in bkgGrupList+[signal]:
-					if proc in bkgGrupList and hists[proc+i].Integral()/totBkg_ < removeThreshold:
+					if proc in bkgGrupList and hists[proc+i].Integral()/totBkg_ <= removeThreshold:
 						print proc+i,"IS EMPTY OR < "+str(removeThreshold*100)+"% OF TOTAL BKG! SKIPPING ..."
 						continue
 					hists[proc+i].Write()
@@ -380,7 +433,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						hists[signal+i+'pdf'+str(pdfInd)].Write()
 			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
-				if hists[proc+i].Integral()/totBkg_ < removeThreshold:
+				if hists[proc+i].Integral()/totBkg_ <= removeThreshold:
 					print proc+i,"IS EMPTY OR < "+str(removeThreshold*100)+"% OF TOTAL BKG! SKIPPING ..."
 					continue
 				hists[proc+i].SetName(hists[proc+i].GetName().replace('fb_','fb_'+postTag))
@@ -679,7 +732,6 @@ for iPlot in iPlotList:
 	sighists  = {}
 	if len(sys.argv)>1 and iPlot!=sys.argv[1]: continue
 	print "LOADING DISTRIBUTION: "+iPlot
-	#if iPlot=="Tau32Nm1" or iPlot=="SoftDropMassNm1t" or iPlot=="SoftDropMass" or iPlot=="Tau21Nm1" or iPlot=="SoftDropMassNm1W": continue
 	#if iPlot!="HT": continue
 	for cat in catList:
 		print "         ",cat[2:]
@@ -688,15 +740,10 @@ for iPlot in iPlotList:
 		sighists.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))
 	
 	#Re-scale lumi
-	if scaleLumi:
+	if lumiScaleCoeff!=1.:
+		print "       SCALING LUMINOSITY BY A FACTOR OF",lumiScaleCoeff
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
-		
-	#Temporary fix:
-# 	for key in bkghists.keys(): 
-# 		if 'TTJetsSemiLepHDAMP' in key or 'TTJetsSemiLepUE' in key:
-# 			print 'Scaling by x2:',key
-# 			bkghists[key].Scale(2.)
 	
 	#Rebin
 	if rebinBy>0:
@@ -709,12 +756,12 @@ for iPlot in iPlotList:
  	print "       CORRECTING NEGATIVE BINS ..."
  	count=0
  	for bkg in bkghists.keys(): 
- 		if count%10000==0: print "       ",round(count*100/len(bkghists.keys()))
+ 		if count%100000==0: print "       ",round(count*100/len(bkghists.keys()))
  		negBinCorrection(bkghists[bkg])
  		count+=1
  	count=0
  	for sig in sighists.keys(): 
- 		if count%10000==0: print "       ",round(count*100/len(sighists.keys()))
+ 		if count%100000==0: print "       ",round(count*100/len(sighists.keys()))
  		negBinCorrection(sighists[sig])
  		count+=1
 
@@ -722,19 +769,19 @@ for iPlot in iPlotList:
  	print "       CORRECTING OVER(UNDER)FLOW BINS ..."
  	count=0
  	for data in datahists.keys(): 
- 		if count%10000==0: print "       ",round(count*100/len(datahists.keys()))
+ 		if count%100000==0: print "       ",round(count*100/len(datahists.keys()))
  		overflow(datahists[data])
  		underflow(datahists[data])
  		count+=1
  	count=0
  	for bkg in bkghists.keys():
- 		if count%10000==0: print "       ",round(count*100/len(bkghists.keys()))
+ 		if count%100000==0: print "       ",round(count*100/len(bkghists.keys()))
  		overflow(bkghists[bkg])
  		underflow(bkghists[bkg])
  		count+=1
  	count=0
  	for sig in sighists.keys():
- 		if count%10000==0: print "       ",round(count*100/len(sighists.keys()))
+ 		if count%100000==0: print "       ",round(count*100/len(sighists.keys()))
  		overflow(sighists[sig])
  		underflow(sighists[sig])
  		count+=1

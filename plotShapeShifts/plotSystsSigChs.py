@@ -13,12 +13,17 @@ tdrstyle.setTDRStyle()
 rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
-lumi = 41.5
 iPlot = 'HT'
-lumiStr = '41p53fb'
+year=2018
+if year==2017:
+	lumiStr = '41p53fb'
+	lumi=41.5 #for plots
+else:
+	lumiStr = '59p97fb'
+	lumi=59.97 #for plots
 sig1 = 'TTTTM690' #  choose the 1st signal to plot
 isRebinned = '_rebinned_stat0p3'
-tempVersion = 'templates_onlyHOTcats_2019_12_30/'
+tempVersion = 'templates_R'+str(year)+'_Xtrig_2020_3_20/'
 cutString = ''
 templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
@@ -29,8 +34,10 @@ nhottlist = ['0','1p']
 nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
-njetslist = ['5','6','7','8','9','9p','10p']
-systematics = ['pileup','prefire','muRFcorrdNew','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer'] #,'pdfNew', 'ht','trigeff'
+njetslist = ['6','7','8','9','10p']
+# nbtaglist = ['2p']
+# njetslist = ['6p']
+systematics = ['pileup','prefire','muRFcorrdNew','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgtNew']#,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] # 'ht','trigeff'
 
 signameList = ['TTTTM690']
 
@@ -39,6 +46,7 @@ catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4
 for signal in signameList:
 	RFile = rt.TFile(templateFile.replace(signameList[0],signal))
 	for syst in systematics:
+		if not os.path.exists(outDir+tempVersion+'/signalIndChannels/'+syst): os.system('mkdir '+outDir+tempVersion+'/signalIndChannels/'+syst)
 		for cat in catList:
 			if (syst=='q2' or syst=='toppt'):
 				print "Do you expect to have "+syst+" for your signal? FIX ME IF SO! I'll skip this systematic"
@@ -118,8 +126,8 @@ for signal in signameList:
 				pullUp.SetBinError(iBin,math.sqrt(pullUp.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 			pullUp.Divide(hNm)
 			pullUp.SetTitle('')
-			pullUp.SetFillColor(2)
-			pullUp.SetLineColor(2)
+			pullUp.SetFillColor(rt.kWhite)
+			pullUp.SetLineColor(rt.kRed)
 
 			#pullUp.GetXaxis().SetTitle(histName)
 			pullUp.GetXaxis().SetLabelSize(.15)
@@ -141,8 +149,8 @@ for signal in signameList:
 				pullDown.SetBinError(iBin,math.sqrt(pullDown.GetBinError(iBin)**2+hNm.GetBinError(iBin)**2))
 			pullDown.Divide(hNm)
 			pullDown.SetTitle('')
-			pullDown.SetFillColor(4)
-			pullDown.SetLineColor(4)
+			pullDown.SetFillColor(rt.kWhite)
+			pullDown.SetLineColor(rt.kBlue)
 
 			#pullDown.GetXaxis().SetTitle(histName)
 			pullDown.GetXaxis().SetLabelSize(.15)
@@ -235,8 +243,8 @@ for signal in signameList:
 			chLatex.DrawLatex(0.45, 0.78, tagString)
 			chLatex.DrawLatex(0.45, 0.72, tagString2)
 		
-			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.pdf')
-			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.png')
-			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+signal+'_'+cat+'.eps')
+			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'/'+syst+'_'+signal+'_'+cat+'.pdf')
+			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'/'+syst+'_'+signal+'_'+cat+'.png')
+			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'/'+syst+'_'+signal+'_'+cat+'.eps')
 	RFile.Close()
 
