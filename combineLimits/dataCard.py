@@ -111,16 +111,20 @@ def add_autoMCstat(cb):
 	for chn in ['cmb']+chns:
 		chnDir = os.getcwd()+'/limits_'+template+saveKey+'/'+chn+'/690/'
 		os.chdir(chnDir)
-		if chn=='cmb': os.system('combineCards.py TTTT_*.txt > DataCard.txt')
 		files = [x for x in os.listdir(chnDir) if '.txt' in x]
 		for ifile in files:
 			with open(chnDir+ifile, 'a') as chnfile: chnfile.write('* autoMCStats 1.')
-			print '*'*20
-			print 'Making workspace from', chnDir+ifile
-			cmd = 'text2workspace.py '+chnDir+ifile+' -v 1 -m 690 --no-b-only'
-			os.system(cmd)
 		os.chdir(thisDir)
 
+
+def create_workspace(cb):
+	print '>> Creating workspace...'
+	
+	for chn in ['cmb']+chns:
+		chnDir = os.getcwd()+'/limits_'+template+saveKey+'/'+chn+'/*'
+		cmd = 'combineTool.py -M T2W -i '+chnDir+' -o workspace.root --parallel 4'
+		os.system(cmd)
+		
 
 def go(cb):
 	add_processes_and_observations(cb)
@@ -129,6 +133,7 @@ def go(cb):
 	#add_bbb(cb)
 	rename_and_write(cb)
 	add_autoMCstat(cb)
+	create_workspace(cb)
 	#print_cb(cb)
 
 
@@ -136,13 +141,13 @@ if __name__ == '__main__':
 	cb = ch.CombineHarvester()
 	#cb.SetVerbosity(20)
 	
-	year = '2018'
+	year = '2017'
 	era = '13TeV_R'+year
 	lumiStr = '41p53fb'
 	if year=='2018': lumiStr = '59p97fb'
 
 	tag = '_ttHFupLFdown'
-	saveKey = '_ttHF'+tag
+	saveKey = tag
 	fileDir = '/user_data/ssagir/CMSSW_10_2_10/src/singleLepAnalyzer/fourtops/makeTemplates/'
 	template = 'R'+year+'_Xtrig_2020_4_25'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)
