@@ -12,15 +12,15 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-year=2018
+year=2017
 if year==2017:
 	from weights17 import *
 else:
 	from weights18 import *
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-saveKey = '_ttHFupLFdown'
+saveKey = ''#'_ttHFupLFdown'
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
+isCategorized=0
 cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 if region=='SR': pfix='templates_'
 if region=='TTCR': pfix='ttbar_'
@@ -33,9 +33,9 @@ outDir = os.getcwd()+'/'+pfix+'/'+cutString
 writeSummaryHists = True
 scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
-ttHFsf = 4.7/3.9 # from TOP-18-002, set it to 1, if no ttHFsf is wanted.
+ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
 ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
-doAllSys = True
+doAllSys = False
 doHDsys = True
 doUEsys = True
 doPDF = False
@@ -74,11 +74,11 @@ bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
 bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
-bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 if year==2017:
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
 elif year==2018:
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
+bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 if doTTmtt:
 	saveKey+='_mtt'
 	TTlist = ['TTJetsHad0','TTJetsHad700','TTJetsHad1000','TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000']
@@ -144,7 +144,6 @@ if not isCategorized:
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
-	njetslist = ['4p']	
 #check the "skip" function in utils module to see if you want to remove specific categories there!!!
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 tagList = ['nHOT'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(('dummy',)+item)]

@@ -103,7 +103,6 @@ if not categorize:
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
-	njetslist = ['4p']
 catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 	
 outDir = outputDir+pfix

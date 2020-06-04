@@ -28,7 +28,7 @@ def skip165(cat):
 	elif (cat[0]=='0') and (cat[1]=='1p') and (cat[2]=='0p' or cat[2]=='1' or cat[2]=='2p'): return True
 	elif (cat[0]=='1p') and (cat[1]=='0') and (cat[2]=='0p' or cat[2]=='1' or cat[2]=='2p'): return True
 	elif (cat[0]=='1p') and (cat[1]=='1p') and (cat[2]!='0p'): return True
-	elif (cat[0]=='1p') and (cat[1]=='1p') and (cat[4]=='4'): return True
+	elif (cat[0]=='1p') and (cat[1]=='1p' or cat[2]=='1p') and (cat[4]=='4'): return True
 	else: return False
 tags['165cats']  = ['_nHOT'+tag[0]+'_nT'+tag[1]+'_nW'+tag[2]+'_nB'+tag[3]+'_nJ'+tag[4]+'_' for tag in tagList_ if not skip165(tag)]
 nWtaglist_ = ['0','0p','1p']
@@ -38,7 +38,7 @@ def skip144(cat):
 	elif (cat[0]=='0') and (cat[1]=='1p') and (cat[2]=='0p'): return True
 	elif (cat[0]=='1p') and (cat[1]=='0') and (cat[2]=='0p'): return True
 	elif (cat[0]=='1p') and (cat[1]=='1p') and (cat[2]!='0p'): return True
-	elif (cat[0]=='1p') and (cat[1]=='1p') and (cat[4]=='4'): return True
+	elif (cat[0]=='1p') and (cat[1]=='1p' or cat[2]=='1p') and (cat[4]=='4'): return True
 	else: return False
 tags['144cats']  = ['_nHOT'+tag[0]+'_nT'+tag[1]+'_nW'+tag[2]+'_nB'+tag[3]+'_nJ'+tag[4]+'_' for tag in tagList_ if not skip144(tag)]
 def skip102(cat):
@@ -83,8 +83,8 @@ nWtaglist_ = ['0','1p']
 tagList_=list(itertools.product(nhottlist_,nttaglist_,nWtaglist_,nbtaglist_,njetslist_))
 tags['onlyW30']  = ['_nHOT'+tag[0]+'_nT'+tag[1]+'_nW'+tag[2]+'_nB'+tag[3]+'_nJ'+tag[4]+'_' for tag in tagList_]
 
-for tag in tags.keys():
-	print tag,len(tags[tag])
+# for tag in tags.keys():
+# 	print tag,len(tags[tag])
 
 # nttaglist = ['0','1p']
 # nWtaglist = ['0','0p','1p']

@@ -30,9 +30,9 @@ if region=='SR': pfix='templates_R'+str(year)
 elif region=='WJCR': pfix='wjets_R'+str(year)
 elif region=='TTCR': pfix='ttbar_R'+str(year)
 if not isCategorized: pfix='kinematics_'+region+'_R'+str(year)
-templateDir=os.getcwd()+'/'+pfix+'_Xtrig_2020_4_20/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_Xtrig_2020_4_25/'+cutString+'/'
 
-isRebinned='_rebinned_stat1p1' #post for ROOT file names
+isRebinned=''#'_rebinned_stat1p1' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig='TTTTM690' #  choose the 1st signal to plot
@@ -42,10 +42,10 @@ scaleSignals = False
 sigScaleFact = 20 #put -1 if auto-scaling wanted
 tempsig='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-bkgProcList = ['tt2b','tt1b','ttbb','ttcc','ttjj','top','ewk','qcd']
-#bkgProcList = ['TTJets','T','WJets','ZJets','VV','qcd']
+bkgTTBarList = ['ttnobb','ttbb'] # ['ttbb','ttbj','ttcc','ttjj']
+bkgProcList = bkgTTBarList+['top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOrange-5,'TTJets':rt.kRed-9,'T':rt.kRed-5,'WJets':rt.kBlue-7,'ZJets':rt.kBlue-1,'VV':rt.kBlue+5,'qcd':rt.kOrange-5} #X53X53
-elif 'TTTT' in sig: bkgHistColors = {'tt2b':rt.kRed,'ttbb':rt.kRed-5,'tt1b':rt.kRed-3,'ttcc':rt.kRed-3,'ttjj':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'TTTT' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
@@ -506,20 +506,22 @@ for tag in tagList:
 		except: pass
 		try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
 		except: pass
+		try: leg.AddEntry(bkghists['ttnobb'+catStr],"t#bar{t}+!b#bar{b}","f")
+		except: pass
 		try: leg.AddEntry(bkghists['ttjj'+catStr],"t#bar{t}+j(j)","f")
 		except: pass
 		try: leg.AddEntry(bkghists['ttcc'+catStr],"t#bar{t}+c(c)","f")
 		except: pass
-		if 'tt2b' not in bkgProcList:
+		if 'tt2b' not in bkgProcList and 'ttnobb' not in bkgProcList:
 			try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b(b)","f")
 			except: pass
 		else:
 			try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b#bar{b}","f")
 			except: pass
-			try: leg.AddEntry(bkghists['tt1b'+catStr],"t#bar{t}+b","f")
-			except: pass
-			try: leg.AddEntry(bkghists['tt2b'+catStr],"t#bar{t}+2B","f")
-			except: pass
+		try: leg.AddEntry(bkghists['tt1b'+catStr],"t#bar{t}+b","f")
+		except: pass
+		try: leg.AddEntry(bkghists['tt2b'+catStr],"t#bar{t}+2B","f")
+		except: pass
 		leg.AddEntry(hsig,sigleg+scaleFactStr,"l")
 		leg.AddEntry(bkgHTgerr,"Bkg uncert","f")
 		leg.Draw("same")
@@ -937,20 +939,22 @@ for tag in tagList:
 	except: pass
 	try: legmerged.AddEntry(bkghistsmerged['topisL'+tagStr],"TOP","f")
 	except: pass
+	try: legmerged.AddEntry(bkghistsmerged['ttnobbisL'+tagStr],"t#bar{t}+!b#bar{b}","f")
+	except: pass
 	try: legmerged.AddEntry(bkghistsmerged['ttjjisL'+tagStr],"t#bar{t}+j(j)","f")
 	except: pass
 	try: legmerged.AddEntry(bkghistsmerged['ttccisL'+tagStr],"t#bar{t}+c(c)","f")
 	except: pass
-	if 'tt2b' not in bkgProcList:
+	if 'tt2b' not in bkgProcList and 'ttnobb' not in bkgProcList:
 		try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}+b(b)","f")
 		except: pass
 	else:
 		try: legmerged.AddEntry(bkghistsmerged['ttbbisL'+tagStr],"t#bar{t}+b#bar{b}","f")
 		except: pass
-		try: legmerged.AddEntry(bkghistsmerged['tt1bisL'+tagStr],"t#bar{t}+b","f")
-		except: pass
-		try: legmerged.AddEntry(bkghistsmerged['tt2bisL'+tagStr],"t#bar{t}+2B","f")
-		except: pass
+	try: legmerged.AddEntry(bkghistsmerged['tt1bisL'+tagStr],"t#bar{t}+b","f")
+	except: pass
+	try: legmerged.AddEntry(bkghistsmerged['tt2bisL'+tagStr],"t#bar{t}+2B","f")
+	except: pass
 	legmerged.AddEntry(hsigmerged,sigleg+scaleFactStr,"l")
 	legmerged.AddEntry(bkgHTgerrmerged,"Bkg uncert","f")
 	legmerged.Draw("same")

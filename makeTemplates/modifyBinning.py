@@ -137,6 +137,7 @@ for hist in datahists:
 			print "WARNING! Skipping this process!!!!"
 			pass
 
+totNbins = 0
 xbinsListTemp = {}
 for chn in totBkgHists.keys():
 	if 'isE' not in chn: continue
@@ -185,6 +186,7 @@ for chn in totBkgHists.keys():
 		for iBin in range(1,Nbins+1): 
 			xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
 		xbinsListTemp[chn.replace('isE','isM')] = xbinsListTemp[chn]
+	totNbins+=len(xbinsListTemp[chn])
 
 tfile.Close()
 
@@ -196,6 +198,8 @@ for chn in xbinsListTemp.keys():
 	for bin in range(len(xbinsListTemp[chn])): xbinsList[chn].append(xbinsListTemp[chn][len(xbinsListTemp[chn])-1-bin])
 	if 'isCR' in chn and singleBinCR: xbinsList[chn] = [xbinsList[chn][0],xbinsList[chn][-1]]
 	print chn,"=",xbinsList[chn]
+print "//"*40
+print "==> Total number of bins =",totNbins
 print "//"*40
 
 xbins = {}
