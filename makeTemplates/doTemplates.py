@@ -13,48 +13,27 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 year=2017
-if year==2017:
-	from weights17 import *
-else:
-	from weights18 import *
-lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-saveKey = ''#'_ttHFupLFdown'
-region='SR' #PS,SR,TTCR,WJCR
-isCategorized=0
-cutString=''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
-if region=='SR': pfix='templates_'
-if region=='TTCR': pfix='ttbar_'
-if region=='WJCR': pfix='wjets_'
-if not isCategorized: pfix='kinematics_'+region+'_'
-pfix+='R'+str(year)+'_'
-pfix+='Xtrig_2020_4_25'
-outDir = os.getcwd()+'/'+pfix+'/'+cutString
+saveKey = '_ttHFupLFdown'
+cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
+theDir = 'templates_R'+str(year)+'_Xtrig_2020_4_25'
+outDir = os.getcwd()+'/'+theDir+'/'+cutString
 
 writeSummaryHists = True
 scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
 lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
 ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
 ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
-doAllSys = False
+doAllSys = True
 doHDsys = True
 doUEsys = True
 doPDF = False
-if not doAllSys: 
-	doHDsys = False
-	doUEsys = False
-	doPDF = False
-if doPDF: writeSummaryHists = False
 addCRsys = False
 systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 zero = 1E-12
 removeThreshold = 0.015 # If a process/totalBkg is less than the threshold, the process will be removed in the output files!
-if not isCategorized: removeThreshold = 0.0
 
-doJetRwt = False
-doTTmtt = False
-doTTinc = False
 bkgTTBarList = ['ttnobb','ttbb']
 bkgGrupList = bkgTTBarList+['top','ewk','qcd']
 bkgProcList = ['ttjj','ttcc','ttbb','tt1b','tt2b','T','TTV','TTXY','WJets','ZJets','VV','qcd']
@@ -64,7 +43,6 @@ if year==2017:
 	bkgProcs['WJets']+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25002','WJetsMG25003','WJetsMG25004']
 elif year==2018:
 	bkgProcs['WJets']+= ['WJetsMG1200','WJetsMG2500']
-if doJetRwt: bkgProcs['WJets'] = [proc+'JSF' for proc in bkgProcs['WJets']] 
 bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
 TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet9bin','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9']
@@ -79,33 +57,16 @@ if year==2017:
 elif year==2018:
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
 bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
-if doTTmtt:
-	saveKey+='_mtt'
-	TTlist = ['TTJetsHad0','TTJetsHad700','TTJetsHad1000','TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000']
-	TTlist+= ['TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000']
-	TTlist+= ['TTJets700mtt','TTJets1000mtt']
-	bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
-	bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
-	bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLep0']
-	bkgProcs['ttjj'] += ['TTJetsSemiLep0TTjj'+tt for tt in ['1','2','3','4']]
-elif doTTinc:
-	saveKey+='_TTinc'
-	TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9']
-	bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
-	bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
-	bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLep0']
-	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4']]
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 if year==2017: bkgProcs['T']+= ['Tbs']
 bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
-if doJetRwt: bkgProcs['qcd'] = [proc+'JSF' for proc in bkgProcs['qcd']] 
 bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']#+bkgProcs['TTJets']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV']
 dataList = ['DataE','DataM']#,'DataJ']
 
-htProcs = ['ewk','WJets']
+htProcs = ['ewk','WJets','qcd']
 topptProcs = ['ttjj','ttcc','ttbb','tt1b','tt2b','ttbj','ttnobb']
 for hf in ['jj','cc','bb','1b','2b']:
 	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupTT'+hf]
@@ -132,21 +93,18 @@ BRs['TZ']=[0.5,0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-isEMlist  = ['E','M']
-nhottlist = ['0','1p']
-nttaglist = ['0p']
-nWtaglist = ['0p']
-nbtaglist = ['2','3','4p']
-njetslist = ['6','7','8','9','10p']
-if not isCategorized: 	
-	nhottlist = ['0p']
-	nttaglist = ['0p']
-	nWtaglist = ['0p']
-	nbtaglist = ['2p']
-	njetslist = ['4p']
-#check the "skip" function in utils module to see if you want to remove specific categories there!!!
-catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
-tagList = ['nHOT'+item[0]+'_nT'+item[1]+'_nW'+item[2]+'_nB'+item[3]+'_nJ'+item[4] for item in list(itertools.product(nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(('dummy',)+item)]
+if year==2017:
+	from weights17 import *
+else:
+	from weights18 import *
+
+lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
+if theDir.startswith('kinematics'): removeThreshold = 0.0
+if not doAllSys: 
+	doHDsys = False
+	doUEsys = False
+	doPDF = False
+if doPDF: writeSummaryHists = False
 
 lumiSys = 0.025 # lumi uncertainty
 if year==2017: lumiSys = 0.023
@@ -160,6 +118,16 @@ muIsoSys = 0.0 #muon isolation uncertainty
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 
+isEMlist = ['E','M']
+catList = ['is'+x for x in os.walk(outDir).next()[1] if x.startswith('E_') or x.startswith('M_')]
+catList.sort()
+tagList = [x[4:] for x in catList if 'isE' in x]
+nhottlist = list(set([x.split('_')[0] for x in tagList]))
+nttaglist = list(set([x.split('_')[1] for x in tagList]))
+nWtaglist = list(set([x.split('_')[2] for x in tagList]))
+nbtaglist = list(set([x.split('_')[3] for x in tagList]))
+njetslist = list(set([x.split('_')[4] for x in tagList]))
+
 for tag in tagList:
 	modTag = tag[tag.find('nT'):tag.find('nJ')-3]
 	modelingSys['data_'+modTag] = 0.
@@ -167,9 +135,7 @@ for tag in tagList:
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module 
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
-	
-if 'CR' in region: postTag = 'isCR_'
-else: postTag = 'isSR_'
+
 ###########################################################
 #################### CATEGORIZATION #######################
 ###########################################################
@@ -417,52 +383,52 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 			i=BRconfStr+cat
 			for signal in sigList:
 				mass = [str(mass) for mass in massList if str(mass) in signal][0]
-				hists[signal+i].SetName(hists[signal+i].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass))
+				hists[signal+i].SetName(hists[signal+i].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass))
 				hists[signal+i].Write()
 				if doAllSys:
 					for syst in systematicList:
 						if syst=='toppt' or syst=='ht': continue
-						hists[signal+i+syst+'Up'].SetName(hists[signal+i+syst+'Up'].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__plus','Up'))
-						hists[signal+i+syst+'Down'].SetName(hists[signal+i+syst+'Down'].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__minus','Down'))
+						hists[signal+i+syst+'Up'].SetName(hists[signal+i+syst+'Up'].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__plus','Up'))
+						hists[signal+i+syst+'Down'].SetName(hists[signal+i+syst+'Down'].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__minus','Down'))
 						hists[signal+i+syst+'Up'].Write()
 						hists[signal+i+syst+'Down'].Write()
 				if doPDF:
 					for pdfInd in range(100): 
-						hists[signal+i+'pdf'+str(pdfInd)].SetName(hists[signal+i+'pdf'+str(pdfInd)].GetName().replace('fb_','fb_'+postTag).replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass))
+						hists[signal+i+'pdf'+str(pdfInd)].SetName(hists[signal+i+'pdf'+str(pdfInd)].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass))
 						hists[signal+i+'pdf'+str(pdfInd)].Write()
 			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
 				if hists[proc+i].Integral()/totBkg_ <= removeThreshold:
 					print proc+i,"IS EMPTY OR < "+str(removeThreshold*100)+"% OF TOTAL BKG! SKIPPING ..."
 					continue
-				hists[proc+i].SetName(hists[proc+i].GetName().replace('fb_','fb_'+postTag))
+				hists[proc+i].SetName(hists[proc+i].GetName())
 				if hists[proc+i].Integral() == 0: hists[proc+i].SetBinContent(1,zero)
 				hists[proc+i].Write()
 				if doAllSys:
 					for syst in systematicList:
 						if syst=='toppt' and proc not in topptProcs: continue
 						if syst=='ht' and proc not in htProcs: continue
-						hists[proc+i+syst+'Up'].SetName(hists[proc+i+syst+'Up'].GetName().replace('fb_','fb_'+postTag).replace('__plus','Up'))
-						hists[proc+i+syst+'Down'].SetName(hists[proc+i+syst+'Down'].GetName().replace('fb_','fb_'+postTag).replace('__minus','Down'))
+						hists[proc+i+syst+'Up'].SetName(hists[proc+i+syst+'Up'].GetName().replace('__plus','Up'))
+						hists[proc+i+syst+'Down'].SetName(hists[proc+i+syst+'Down'].GetName().replace('__minus','Down'))
 						hists[proc+i+syst+'Up'].Write()
 						hists[proc+i+syst+'Down'].Write()
 				if doPDF:
 					for pdfInd in range(100): 
-						hists[proc+i+'pdf'+str(pdfInd)].SetName(hists[proc+i+'pdf'+str(pdfInd)].GetName().replace('fb_','fb_'+postTag))
+						hists[proc+i+'pdf'+str(pdfInd)].SetName(hists[proc+i+'pdf'+str(pdfInd)].GetName())
 						hists[proc+i+'pdf'+str(pdfInd)].Write()
 				if doHDsys:
 					if proc+'_hdup' not in bkgProcs.keys(): continue
-					hists[proc+i+'hdUp'].SetName(hists[proc+i+'hdUp'].GetName().replace('fb_','fb_'+postTag).replace('__plus','Up'))
-					hists[proc+i+'hdDown'].SetName(hists[proc+i+'hdDown'].GetName().replace('fb_','fb_'+postTag).replace('__minus','Down'))
+					hists[proc+i+'hdUp'].SetName(hists[proc+i+'hdUp'].GetName().replace('__plus','Up'))
+					hists[proc+i+'hdDown'].SetName(hists[proc+i+'hdDown'].GetName().replace('__minus','Down'))
 					hists[proc+i+'hdUp'].Write()
 					hists[proc+i+'hdDown'].Write()
 				if doUEsys:
 					if proc+'_ueup' not in bkgProcs.keys(): continue
-					hists[proc+i+'ueUp'].SetName(hists[proc+i+'ueUp'].GetName().replace('fb_','fb_'+postTag).replace('__plus','Up'))
-					hists[proc+i+'ueDown'].SetName(hists[proc+i+'ueDown'].GetName().replace('fb_','fb_'+postTag).replace('__minus','Down'))
+					hists[proc+i+'ueUp'].SetName(hists[proc+i+'ueUp'].GetName().replace('__plus','Up'))
+					hists[proc+i+'ueDown'].SetName(hists[proc+i+'ueDown'].GetName().replace('__minus','Down'))
 					hists[proc+i+'ueUp'].Write()
 					hists[proc+i+'ueDown'].Write()
-			hists['data'+i].SetName(hists['data'+i].GetName().replace('fb_','fb_'+postTag).replace('DATA','data_obs'))
+			hists['data'+i].SetName(hists['data'+i].GetName().replace('DATA','data_obs'))
 			hists['data'+i].Write()
 		combineRfile.Close()
 
@@ -590,15 +556,15 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		for isEM in isEMlist:
 			if isEM=='E': corrdSys = elcorrdSys
 			if isEM=='M': corrdSys = mucorrdSys
-			for nttag in nttaglist:
+			for thetag in nhottlist:
 				table.append(['break'])
-				table.append(['','is'+isEM+'_nT'+nttag+'_yields'])
+				table.append(['','is'+isEM+'_'+thetag+'_yields'])
 				table.append(['break'])
-				table.append(['YIELDS']+[cat for cat in catList if 'is'+isEM in cat and 'nT'+nttag in cat]+['\\\\'])
+				table.append(['YIELDS']+[cat for cat in catList if 'is'+isEM in cat and thetag in cat]+['\\\\'])
 				for proc in bkgGrupList+['totBkg','data','dataOverBkg']+sigList:
 					row = [proc]
 					for cat in catList:
-						if not ('is'+isEM in cat and 'nT'+nttag in cat): continue
+						if not ('is'+isEM in cat and thetag in cat): continue
 						modTag = cat[cat.find('nT'):cat.find('nJ')-3]
 						histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 						yieldtemp = 0.
@@ -634,15 +600,15 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					table.append(row)
 		
 		#yields for PAS tables (yields in e/m channels combined)
-		for nttag in nttaglist:
+		for thetag in nhottlist:
 			table.append(['break'])
-			table.append(['','isL_nT'+nttag+'_yields'])
+			table.append(['','isL_'+thetag+'_yields'])
 			table.append(['break'])
-			table.append(['YIELDS']+[cat.replace('isE','isL') for cat in catList if 'isE' in cat and 'nT'+nttag in cat]+['\\\\'])
+			table.append(['YIELDS']+[cat.replace('isE','isL') for cat in catList if 'isE' in cat and thetag in cat]+['\\\\'])
 			for proc in bkgGrupList+['totBkg','data','dataOverBkg']+sigList:
 				row = [proc]
 				for cat in catList:
-					if not ('isE' in cat and 'nT'+nttag in cat): continue
+					if not ('isE' in cat and thetag in cat): continue
 					modTag = cat[cat.find('nT'):cat.find('nJ')-3]
 					histoPrefixE = discriminant+'_'+lumiStr+'_'+cat
 					histoPrefixM = histoPrefixE.replace('isE','isM')
@@ -711,17 +677,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+saveKey+'.txt','w')
 		printTable(table,out)
 
-def findfiles(path, filtre):
-    for root, dirs, files in os.walk(path):
-        for f in fnmatch.filter(files, filtre):
-            yield os.path.join(root, f)
-
-iPlotList = []
-for file in findfiles(outDir+'/'+catList[0][2:]+'/', '*.p'):
-    if 'bkghists' not in file: continue
-    if not os.path.exists(file.replace('bkghists','datahists')): continue
-    if not os.path.exists(file.replace('bkghists','sighists')): continue
-    iPlotList.append(file.split('/')[-1].replace('bkghists_','')[:-2])
+iPlotList = [x.replace('bkghists_','')[:-2] for x in os.listdir(outDir+'/'+catList[0][2:]) if 'bkghists_' in x and '.p' in x]
 
 print "WORKING DIR:",outDir
 print "Templates:",iPlotList
