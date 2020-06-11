@@ -79,7 +79,7 @@ def add_systematics(cb):
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_$ERA', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.025)(['13TeV_R2017'], 1.023)(['13TeV_R2018'], 1.025)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	cb.cp().process(signal + allbkgs).channel(chnsE).AddSyst(cb, 'leptonSFEl_$ERA', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.03)(['13TeV_R2017'], 1.03)(['13TeV_R2018'], 1.03)) # 1.5% el id/iso + 2.5% trigger ~ 3%
 	cb.cp().process(signal + allbkgs).channel(chnsM).AddSyst(cb, 'leptonSFMu_$ERA', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.03)(['13TeV_R2017'], 1.03)(['13TeV_R2018'], 1.03)) # 1% mu id/iso + 2.5% trigger ~ 3%
-	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'ttHF_$ERA', 'lnN', ch.SystMap('era')(['13TeV_R2016'], 1.13)(['13TeV_R2017'], 1.13)(['13TeV_R2018'], 1.13)) # Uncorrelated; from TOP-18-002 (v34) Table 4, sqrt(0.2^2+0.6^2)/4.7 ~ 0.134565 ~ 0.13
+	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'ttHF', 'lnN', ch.SystMap()(1.13)) # Uncorrelated; from TOP-18-002 (v34) Table 4, sqrt(0.2^2+0.6^2)/4.7 ~ 0.134565 ~ 0.13
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jec_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # This one is being studied in B2G-19-001/AN2018_322_v7 (take the uncorrelated one to be conservative!)
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jer_$ERA', 'shape', ch.SystMap('era')(['13TeV_R2016'], 1.0)(['13TeV_R2017'], 1.0)(['13TeV_R2018'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	if year=='2017':
