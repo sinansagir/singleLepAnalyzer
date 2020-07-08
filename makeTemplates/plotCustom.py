@@ -4,7 +4,7 @@ import os,sys,time,math,pickle,itertools
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 import ROOT as rt
-from weights import *
+#from weights import *
 from modSyst import *
 from utils import *
 import CMS_lumi, tdrstyle
@@ -12,29 +12,35 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-lumi = 41.3 #for plots
+year=2018
+if year==2017:
+	from weights17 import *
+	lumi=41.5 #for plots
+else:
+	from weights18 import *
+	lumi=59.97 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
 iPlot='YLD'
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
-templateDir=os.getcwd()+'/'+pfix+'_syst_2019_10_8/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_R'+str(year)+'_Xtrig_2020_4_25/'+cutString+'/'
 plotLimits = False
 limitFile = '/user_data/ssagir/HTB_limits_2016/templates_2016_11_26/nB1_nJ3/limits_templates_HT_HTBM200_36p0fb_rebinned_stat0p3_expected.txt'
 
-isRebinned = '_nB2'#'_rebinned_stat0p3'
+isRebinned = ''#'_rebinned_stat0p3'
 saveKey = '' # tag for plot names
 
 mass = '690'
-sig1 = '4TM690' # choose the 1st signal to plot
+sig1 = 'TTTTM690' # choose the 1st signal to plot
 sig1leg='t#bar{t}t#bar{t}'
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-bkgProcList = ['ttbb','ttcc','ttjj','top','ewk','qcd']
-bkgHistColors = {'tt2b':rt.kRed,'ttbb':rt.kRed-5,'ttb':rt.kRed-3,'ttcc':rt.kRed-3,'ttjj':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+bkgProcList = ['ttbj','ttbb','ttcc','ttjj','top','ewk','qcd']
+bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 
 yLog = True
-plotProc = 'SoB'#sig,bkg,SoB,'ttbar','wjets','top','ewk','qcd'
+plotProc = 'bkg'#sig,bkg,SoB,'ttbar','wjets','top','ewk','qcd'
 if len(sys.argv)>1: plotProc=str(sys.argv[1])
 doBkgFraction = True #set plotProc to "bkg"
 doNegSigFrac = False
@@ -180,19 +186,44 @@ for tag in tagList:
 			if doBkgFraction: 
 				stackbkgHTfrac = rt.THStack("stackbkgHTfrac","")
 				for proc in bkgProcList:
+					bkghists[proc+catStr].SetLineColor(bkgHistColors[proc])
+					bkghists[proc+catStr].SetFillColor(bkgHistColors[proc])
+					bkghists[proc+catStr].SetLineWidth(2)
+					bkghists[proc+catStr].GetXaxis().LabelsOption("v")
 					bkghists[proc+catStr].Divide(bkgHT)
 					bkghists[proc+catStr].Scale(100)
 					try: stackbkgHTfrac.Add(bkghists[proc+catStr])
 					except: pass
 
 				bkgHT.GetYaxis().SetTitle("N_{process}/N_{tot Bkg}")
-				for proc in bkgProcList:
-					try: 
-						bkghists[proc+catStr].SetLineColor(bkgHistColors[proc])
-						bkghists[proc+catStr].SetFillColor(bkgHistColors[proc])
-						bkghists[proc+catStr].SetLineWidth(2)
-					except: pass
-				stackbkgHTfrac.Draw("HIST")
+				bkghists[bkgProcList[0]+catStr].SetMaximum(140)
+				bkghists[bkgProcList[0]+catStr].Draw("HIST")
+				stackbkgHTfrac.Draw("SAMEHIST")
+				
+				leg = rt.TLegend(0.55,0.72,0.95,0.88)
+				leg.SetShadowColor(0)
+				leg.SetFillColor(0)
+				leg.SetFillStyle(0)
+				leg.SetLineColor(0)
+				leg.SetLineStyle(0)
+				leg.SetBorderSize(0) 
+				leg.SetNColumns(3)
+				leg.SetTextFont(62)#42)
+				try: leg.AddEntry(bkghists['qcd'+catStr],"QCD","f")
+				except: pass
+				try: leg.AddEntry(bkghists['ewk'+catStr],"EWK","f")
+				except: pass
+				try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
+				except: pass
+				try: leg.AddEntry(bkghists['ttbj'+catStr],"t#bar{t}+b(j)","f")
+				except: pass
+				try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b(b)","f")
+				except: pass
+				try: leg.AddEntry(bkghists['ttcc'+catStr],"t#bar{t}+c(c)","f")
+				except: pass
+				try: leg.AddEntry(bkghists['ttjj'+catStr],"t#bar{t}+j(j)","f")
+				except: pass
+				leg.Draw("same")
 			else:
 				formatUpperHist(bkgHT)
 				bkgHT.GetYaxis().SetTitle("N_{Tot Bkg}")
@@ -200,6 +231,7 @@ for tag in tagList:
 				bkgHT.SetFillColor(2)
 				bkgHT.SetLineWidth(2)
 				bkgHT.Draw("HIST")
+
 		elif plotProc in bkgProcList:
 			formatUpperHist(bkghists[plotProc+catStr])
 			bkghists[plotProc+catStr].GetYaxis().SetTitle("N_{"+plotProc+"}")
@@ -403,6 +435,8 @@ for tag in tagList:
 			try: leg.AddEntry(bkghistsmerged['ewk'+'isL'+tagStr],"EWK","f")
 			except: pass
 			try: leg.AddEntry(bkghistsmerged['top'+'isL'+tagStr],"TOP","f")
+			except: pass
+			try: leg.AddEntry(bkghistsmerged['ttbj'+'isL'+tagStr],"t#bar{t}+b(j)","f")
 			except: pass
 			try: leg.AddEntry(bkghistsmerged['ttbb'+'isL'+tagStr],"t#bar{t}+b(b)","f")
 			except: pass

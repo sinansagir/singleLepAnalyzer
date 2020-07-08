@@ -39,7 +39,7 @@ iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-templateDir = os.getcwd()+'/templates_R'+str(year)+'_Xtrig_2020_4_25/'+cutString
+templateDir = os.getcwd()+'/templates_R'+str(year)+'_Xtrig_2020_7_6/'+cutString
 combinefile = 'templates_'+iPlot+'_'+lumiStr+'_ttHFupLFdown.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
@@ -502,12 +502,13 @@ nWtaglist=[]
 nbtaglist=[]
 njetslist=[]
 for chn in channels:
-	if chn.split('_')[0+rebinCombine] not in isEMlist: isEMlist.append(chn.split('_')[0+rebinCombine])
-	if chn.split('_')[1+rebinCombine] not in nhottlist: nhottlist.append(chn.split('_')[1+rebinCombine])
-	if chn.split('_')[2+rebinCombine] not in nttaglist: nttaglist.append(chn.split('_')[2+rebinCombine])
-	if chn.split('_')[3+rebinCombine] not in nWtaglist: nWtaglist.append(chn.split('_')[3+rebinCombine])
-	if chn.split('_')[4+rebinCombine] not in nbtaglist: nbtaglist.append(chn.split('_')[4+rebinCombine])
-	if chn.split('_')[5+rebinCombine] not in njetslist: njetslist.append(chn.split('_')[5+rebinCombine])
+	print chn
+	if chn.split('_')[0] not in isEMlist: isEMlist.append(chn.split('_')[0])
+	if chn.split('_')[1] not in nhottlist: nhottlist.append(chn.split('_')[1])
+	if chn.split('_')[2] not in nttaglist: nttaglist.append(chn.split('_')[2])
+	if chn.split('_')[3] not in nWtaglist: nWtaglist.append(chn.split('_')[3])
+	if chn.split('_')[4] not in nbtaglist: nbtaglist.append(chn.split('_')[4])
+	if chn.split('_')[5] not in njetslist: njetslist.append(chn.split('_')[5])
 
 procNames={}
 procNames['dataOverBkg'] = 'Data/Bkg'
@@ -517,17 +518,17 @@ procNames['DATA'] = 'Data'
 procNames['top']  = 'TOP'
 procNames['ewk']  = 'EWK'
 procNames['qcd']  = 'QCD'
-procNames['ttcc'] = 't$\\bar{\\text{t}}$+c(c)'
-procNames['ttjj'] = 't$\\bar{\\text{t}}$+j(j)'
-procNames['ttbj'] = 't$\\bar{\\text{t}}$+b(j)'
-procNames['ttbb'] = 't$\\bar{\\text{t}}$+b$\\bar{\\text{b}}$'
-procNames['tt1b'] = 't$\\bar{\\text{t}}$+b'
-procNames['tt2b'] = 't$\\bar{\\text{t}}$+2B'
-procNames['ttnobb'] = 't$\\bar{\\text{t}}$+no b$\\bar{\\text{b}}$'
+procNames['ttcc'] = '\\ttbar+ c(c)'
+procNames['ttjj'] = '\\ttbar+ j(j)'
+procNames['ttbj'] = '\\ttbar+ b(j)'
+procNames['ttbb'] = '$\\ttbar+\\bbbar$'
+procNames['tt1b'] = '\\ttbar+ b'
+procNames['tt2b'] = '\\ttbar+ 2B'
+procNames['ttnobb'] = '$\\ttbar+!\\bbbar$'
 for sig in sigProcList: 
 	if 'left' in sig:  procNames[sig]='LH \\xft ('+str(float(sig[7:-4])/1000)+' \\TeV)'
 	elif 'right' in sig: procNames[sig]='RH \\xft ('+str(float(sig[7:-5])/1000)+' \\TeV)'
-	else: procNames[sig]='t$\\bar{\\text{t}}$t$\\bar{\\text{t}}$'
+	else: procNames[sig]='\\fourt'
 
 print "List of systematics for "+bkgProcList[0]+" process and "+channels[0]+" channel:"
 print "        ",sorted([hist[hist.find(bkgProcList[0]+'__')+len(bkgProcList[0])+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+bkgProcList[0]+'__' in hist and upTag in hist])# and 'muRF' not in hist
@@ -771,18 +772,17 @@ out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.roo
 printTable(table,out)
 
 print "       WRITING SUMMARY TEMPLATES: "
-lumiStr = combinefile.split('_')[-1][:-7]
 for signal in sigProcList:
 	print "              ... "+signal
-	yldRfileName = templateDir+'/templates_'+iPlot+'YLD_'+signal+'_'+lumiStr+'fb_rebinned_stat'+str(stat).replace('.','p')+'.root'
+	yldRfileName = templateDir+'/'+combinefile.replace(iPlot,iPlot+'YLD_'+signal).replace('.root','_rebinned_stat'+str(stat).replace('.','p')+'.root')
 	yldRfile = TFile(yldRfileName,'RECREATE')
 	for isEM in isEMlist:		
 		for proc in bkgProcList+[dataName,signal]:
 			yldHists = {}
-			yldHists[isEM+proc]=TH1F(iPlot+'YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA'),'',len(channels)/2,0,len(channels)/2)
+			yldHists[isEM+proc]=TH1F(iPlot+'YLD_'+lumiStr+'_'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA'),'',len(channels)/2,0,len(channels)/2)
 			systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
 			for syst in systematicList:
-				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud]=TH1F(iPlot+'YLD_'+lumiStr+'fb_'+isEM+'_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
+				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud]=TH1F(iPlot+'YLD_'+lumiStr+'_'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
 			ibin = 1
 			for chn in channels:
 				if isEM not in chn: continue
