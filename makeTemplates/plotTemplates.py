@@ -12,7 +12,7 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-year=2017
+year=2018
 if year==2017:
 	from weights17 import *
 	lumi=41.5 #for plots
@@ -22,7 +22,7 @@ else:
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 	
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
+isCategorized=0
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
@@ -30,9 +30,9 @@ if region=='SR': pfix='templates_R'+str(year)
 elif region=='WJCR': pfix='wjets_R'+str(year)
 elif region=='TTCR': pfix='ttbar_R'+str(year)
 if not isCategorized: pfix='kinematics_'+region+'_R'+str(year)
-templateDir=os.getcwd()+'/'+pfix+'_Xtrig_2020_4_25/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_Xtrig_lepPt20_2020_7_16/'+cutString+'/'
 
-isRebinned='_ttHFupLFdown_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_rebinned_stat1p1' #post for ROOT file names
 saveKey = '' # tag for plot names
 
 sig='TTTTM690' #  choose the 1st signal to plot
@@ -143,7 +143,8 @@ def formatUpperHist(histogram,histogramBkg):
 		histogram.SetMinimum(0.015)
 	if yLog:
 		uPad.SetLogy()
-		histogram.SetMaximum(2e2*histogramBkg.GetMaximum())
+		if 'YLD' in iPlot: histogram.SetMaximum(2e5*histogramBkg.GetMaximum())
+		else: histogram.SetMaximum(2e2*histogramBkg.GetMaximum())
 	else: 
 		if 'YLD' in iPlot: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
 		else: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
@@ -285,6 +286,7 @@ for catEStr in catsElist:
 				q2list=[]
 				if doQ2sys: q2list=['q2']
 				for syst in systematicList+q2list:
+					if 'BJetsNoSF' in iPlot and (syst=='btag' or syst=='mistag'): continue
 					for proc in bkgProcList:
 						try:
 							errorPlus = systHists[proc+catStr+syst+upTag].GetBinContent(ibin)-bkghists[proc+catStr].GetBinContent(ibin)
@@ -653,7 +655,7 @@ for catEStr in catsElist:
 		if doOneBand: savePrefix+='_totBand'
 
 		c1.SaveAs(savePrefix+'.png')
-# 		c1.SaveAs(savePrefix+'.pdf')
+		c1.SaveAs(savePrefix+'.pdf')
 # 		c1.SaveAs(savePrefix+'.eps')
 # 		c1.SaveAs(savePrefix+'.root')
 # 		c1.SaveAs(savePrefix+'.C')
@@ -725,6 +727,7 @@ for catEStr in catsElist:
 			q2list=[]
 			if doQ2sys: q2list=['q2']
 			for syst in systematicList+q2list:
+				if 'BJetsNoSF' in iPlot and (syst=='btag' or syst=='mistag'): continue
 				for proc in bkgProcList:
 					try:
 						errorPlus = systHists[proc+catLStr+syst+upTag].GetBinContent(ibin)-bkghistsmerged[proc+catLStr].GetBinContent(ibin)
@@ -1068,7 +1071,7 @@ for catEStr in catsElist:
 	if doOneBand: savePrefixmerged+='_totBand'
 
 	c1merged.SaveAs(savePrefixmerged+'.png')
-# 	c1merged.SaveAs(savePrefixmerged+'.pdf')
+	c1merged.SaveAs(savePrefixmerged+'.pdf')
 # 	c1merged.SaveAs(savePrefixmerged+'.eps')
 # 	c1merged.SaveAs(savePrefixmerged+'.root')
 # 	c1merged.SaveAs(savePrefixmerged+'.C')

@@ -24,7 +24,7 @@ lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 iPlot='YLD'
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
-templateDir=os.getcwd()+'/'+pfix+'_R'+str(year)+'_Xtrig_2020_4_25/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_R'+str(year)+'_Xtrig_lepPt20_2020_7_16/'+cutString+'/'
 plotLimits = False
 limitFile = '/user_data/ssagir/HTB_limits_2016/templates_2016_11_26/nB1_nJ3/limits_templates_HT_HTBM200_36p0fb_rebinned_stat0p3_expected.txt'
 
@@ -36,8 +36,9 @@ sig1 = 'TTTTM690' # choose the 1st signal to plot
 sig1leg='t#bar{t}t#bar{t}'
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-bkgProcList = ['ttbj','ttbb','ttcc','ttjj','top','ewk','qcd']
-bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+bkgTTBarList = ['ttbb','ttnobb'] #['ttjj','ttcc','ttbb','ttbj']
+bkgProcList = bkgTTBarList+['top','ewk','qcd']
+bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 
 yLog = True
 plotProc = 'bkg'#sig,bkg,SoB,'ttbar','wjets','top','ewk','qcd'
@@ -215,13 +216,21 @@ for tag in tagList:
 				except: pass
 				try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
 				except: pass
-				try: leg.AddEntry(bkghists['ttbj'+catStr],"t#bar{t}+b(j)","f")
+				try: leg.AddEntry(bkghists['ttnobb'+catStr],"t#bar{t}+!b#bar{b}","f")
 				except: pass
-				try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b(b)","f")
+				try: leg.AddEntry(bkghists['ttjj'+catStr],"t#bar{t}+j(j)","f")
 				except: pass
 				try: leg.AddEntry(bkghists['ttcc'+catStr],"t#bar{t}+c(c)","f")
 				except: pass
-				try: leg.AddEntry(bkghists['ttjj'+catStr],"t#bar{t}+j(j)","f")
+				if 'tt2b' not in bkgProcList and 'ttnobb' not in bkgProcList:
+					try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b(b)","f")
+					except: pass
+				else:
+					try: leg.AddEntry(bkghists['ttbb'+catStr],"t#bar{t}+b#bar{b}","f")
+					except: pass
+				try: leg.AddEntry(bkghists['tt1b'+catStr],"t#bar{t}+b","f")
+				except: pass
+				try: leg.AddEntry(bkghists['tt2b'+catStr],"t#bar{t}+2B","f")
 				except: pass
 				leg.Draw("same")
 			else:
@@ -316,7 +325,7 @@ for tag in tagList:
 			else: savePrefix+='_'+sig1+'_SoB'
 
 		c1.SaveAs(savePrefix+".png")
-		#c1.SaveAs(savePrefix+".pdf")
+		c1.SaveAs(savePrefix+".pdf")
 		#c1.SaveAs(savePrefix+".eps")
 		for proc in bkgProcList:
 			try: del bkghists[proc+catStr]
@@ -436,13 +445,21 @@ for tag in tagList:
 			except: pass
 			try: leg.AddEntry(bkghistsmerged['top'+'isL'+tagStr],"TOP","f")
 			except: pass
-			try: leg.AddEntry(bkghistsmerged['ttbj'+'isL'+tagStr],"t#bar{t}+b(j)","f")
+			try: leg.AddEntry(bkghistsmerged['ttnobb'+tagStr],"t#bar{t}+!b#bar{b}","f")
 			except: pass
-			try: leg.AddEntry(bkghistsmerged['ttbb'+'isL'+tagStr],"t#bar{t}+b(b)","f")
+			try: leg.AddEntry(bkghistsmerged['ttjj'+tagStr],"t#bar{t}+j(j)","f")
 			except: pass
-			try: leg.AddEntry(bkghistsmerged['ttcc'+'isL'+tagStr],"t#bar{t}+c(c)","f")
+			try: leg.AddEntry(bkghistsmerged['ttcc'+tagStr],"t#bar{t}+c(c)","f")
 			except: pass
-			try: leg.AddEntry(bkghistsmerged['ttjj'+'isL'+tagStr],"t#bar{t}+j(j)","f")
+			if 'tt2b' not in bkghistsmerged and 'ttnobb' not in bkgProcList:
+				try: leg.AddEntry(bkghistsmerged['ttbb'+tagStr],"t#bar{t}+b(b)","f")
+				except: pass
+			else:
+				try: leg.AddEntry(bkghistsmerged['ttbb'+tagStr],"t#bar{t}+b#bar{b}","f")
+				except: pass
+			try: leg.AddEntry(bkghistsmerged['tt1b'+tagStr],"t#bar{t}+b","f")
+			except: pass
+			try: leg.AddEntry(bkghistsmerged['tt2b'+tagStr],"t#bar{t}+2B","f")
 			except: pass
 			leg.Draw("same")
 		else:
@@ -552,7 +569,7 @@ for tag in tagList:
 		else: savePrefixmerged+='_'+sig1+'_SoB'
 
 	c1merged.SaveAs(savePrefixmerged+".png")
-	#c1merged.SaveAs(savePrefixmerged+".pdf")
+	c1merged.SaveAs(savePrefixmerged+".pdf")
 	#c1merged.SaveAs(savePrefixmerged+".eps")
 	for proc in bkgProcList:
 		try: del bkghistsmerged[proc+'isL'+tagStr]

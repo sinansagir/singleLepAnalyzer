@@ -10,7 +10,7 @@ from utils import *
 from ROOT import *
 start_time = time.time()
 
-year=2018
+year=2017
 if year==2017:
 	from weights17 import *
 else:
@@ -39,8 +39,8 @@ iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-templateDir = os.getcwd()+'/templates_R'+str(year)+'_Xtrig_2020_7_6/'+cutString
-combinefile = 'templates_'+iPlot+'_'+lumiStr+'_ttHFupLFdown.root'
+templateDir = os.getcwd()+'/templates_R'+str(year)+'_Xtrig_lepPt20_2020_7_16/'+cutString
+combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = True #else rebins theta templates
@@ -782,7 +782,7 @@ for signal in sigProcList:
 			yldHists[isEM+proc]=TH1F(iPlot+'YLD_'+lumiStr+'_'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA'),'',len(channels)/2,0,len(channels)/2)
 			systematicList = sorted([hist[hist.find(proc)+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
 			for syst in systematicList:
-				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud]=TH1F(iPlot+'YLD_'+lumiStr+'_'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
+				for ud in ['__plus','__minus']: yldHists[isEM+proc+syst+ud]=TH1F(iPlot+'YLD_'+lumiStr+'_'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data_obs','DATA')+'__'+syst+ud,'',len(channels)/2,0,len(channels)/2)
 			ibin = 1
 			for chn in channels:
 				if isEM not in chn: continue
@@ -820,15 +820,15 @@ for signal in sigProcList:
 				yldHists[isEM+proc].SetBinError(ibin,yldErrTemp)
 				yldHists[isEM+proc].GetXaxis().SetBinLabel(ibin,binStr)
 				for syst in systematicList:
-					for ud in [upTag,downTag]:
-						try: yldTemp = yieldsAll[histoPrefix+proc+'__'+syst+ud]
+					for ud in ['__plus','__minus']:
+						try: yldTemp = yieldsAll[histoPrefix+proc+'__'+syst+ud.replace('__plus','Up').replace('__minus','Down')]
 						except: yldTemp = 0
 						yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yldTemp)
 						yldHists[isEM+proc+syst+ud].GetXaxis().SetBinLabel(ibin,binStr)
 				ibin+=1
 			yldHists[isEM+proc].Write()
 			for syst in systematicList:
-				for ud in [upTag,downTag]: yldHists[isEM+proc+syst+ud].Write()
+				for ud in ['__plus','__minus']: yldHists[isEM+proc+syst+ud].Write()
 	yldRfile.Close()
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))

@@ -80,7 +80,7 @@ for opt, arg in opts:
 	elif opt == '--njets': njetslist = [str(arg)]
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep'+year+'_Oct2019_4t_042520_step1hadds/nominal'
+step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep'+year+'_Oct2019_4t_071420_step1hadds/nominal'
 
 bkgList = [
 		  'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
@@ -106,7 +106,7 @@ elif year=='2018':
 	bkgList+= ['WJetsMG1200','WJetsMG2500']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 
-dataList = ['DataE','DataM','DataJ']
+dataList = ['DataE','DataM']#,'DataJ']
 
 whichSignal = 'TTTT' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
@@ -186,7 +186,8 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'Jet4PtBins':('theJetPt_JetSubCalc_PtOrdered[3]',linspace(0,2000,21).tolist(),';p_{T}(j_{4}) [GeV]'),
 	'Jet5PtBins':('theJetPt_JetSubCalc_PtOrdered[4]',linspace(0,2000,21).tolist(),';p_{T}(j_{5}) [GeV]'),
 	'Jet6PtBins':('theJetPt_JetSubCalc_PtOrdered[5]',linspace(0,2000,21).tolist(),';p_{T}(j_{6}) [GeV]'),
-	'MET'   :('corr_met_MultiLepCalc',linspace(0, 1000, 51).tolist(),';#slash{E}_{T} [GeV]'),
+	#'MET'   :('corr_met_MultiLepCalc',linspace(0, 1000, 51).tolist(),';#slash{E}_{T} [GeV]'),
+	'MET'   :('corr_met_MultiLepCalc',linspace(0, 1000, 51).tolist(),';p_{T}^{miss} [GeV]'),
 	'NJets' :('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 jet multiplicity'),
 	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
 	'NBJetsNoSF':('NJetsCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
@@ -310,7 +311,7 @@ for cat in catList:
 	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
 	for data in dataList: 
 		tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
-		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region))
 		if catInd==nCats: 
 			del tFileData[data]
 			del tTreeData[data]
@@ -340,9 +341,9 @@ for cat in catList:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
 					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
-		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region))
 		if 'TTJets' in bkg and len(ttFlvs)!=0:
-			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region))
 		if catInd==nCats: 
 			del tFileBkg[bkg]
 			del tTreeBkg[bkg]
@@ -357,7 +358,7 @@ for cat in catList:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
 					tFileBkg[hdamp+syst+ud],tTreeBkg[hdamp+syst+ud]=None,None
-			bkghists.update(analyze(tTreeBkg,hdamp,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+			bkghists.update(analyze(tTreeBkg,hdamp,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region))
 			if catInd==nCats: 
 				del tFileBkg[hdamp]
 				del tTreeBkg[hdamp]
@@ -367,7 +368,7 @@ for cat in catList:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
 					tFileBkg[ue+syst+ud],tTreeBkg[ue+syst+ud]=None,None
-			bkghists.update(analyze(tTreeBkg,ue,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+			bkghists.update(analyze(tTreeBkg,ue,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region))
 			if catInd==nCats: 
 				del tFileBkg[ue]
 				del tTreeBkg[ue]
@@ -399,7 +400,7 @@ for cat in catList:
 					for ud in ['Up','Down']:
 						print "        "+syst+ud
 						tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
-			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,isCategorized))
+			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region))
 			if catInd==nCats: 
 				del tFileSig[sig+decay]
 				del tTreeSig[sig+decay]

@@ -13,7 +13,7 @@ negative MC weights, ets) applied below should be checked!
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,region,isCategorized):
+def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,region):
 	print "*****"*20
 	print "*****"*20
 	print "DISTRIBUTION:", iPlot
@@ -56,7 +56,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	if process.startswith('TTJetsSemiLepNjet9'): cut += ' && (isHTgt500Njetge9 == 1)'
 
 	# Define weights
-	TrigSF   = '1'#'triggerSF'
+	TrigSF   = 'triggerXSF'
 	TrigSFUp = '1'
 	TrigSFDn = '1'
 	cut += ' && DataPastTriggerX == 1 && MCPastTriggerX == 1' # CROSS triggers (i.e., VLQ triggers)
@@ -64,15 +64,6 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	#cut += ' && DataPastTrigger == 1 && MCLepPastTrigger == 1' # Lep triggers only
 	#cut += ' && DataHadPastTrigger == 1 && MCHadPastTrigger == 1' # Had triggers only
 	#if 'Data' not in process: cut += ' && MCLepPastTrigger == 0' # Had triggers only
-
-	jetSFstr   = '1'
-	jetSFstrUp = '1'
-	jetSFstrDn = '1'
-# 	if (process!='WJetsMG' and 'WJetsMG' in process):
-# 		jetSFstr = 'HTSF_Pol'
-# 		jetSFstrUp = 'HTSF_PolUp'
-# 		jetSFstrDn = 'HTSF_PolDn'
-# 		#jetSFstr = str(genHTweight[process])
 
 	weightStr = '1'
 	#Update here as needed!!!!!!
@@ -83,7 +74,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	topPt13TeVstr = '1'
 	if 'TTJets' in process: topPt13TeVstr = 'topPtWeight13TeV'
 	if 'Data' not in process:
-		weightStr          += ' * '+jetSFstr+' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
+		weightStr          += ' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
 		weightTriggerUpStr  = weightStr.replace(TrigSF,'('+TrigSF+'+'+TrigSF+'Uncert)')
 		weightTriggerDownStr= weightStr.replace(TrigSF,'('+TrigSF+'-'+TrigSF+'Uncert)')
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
@@ -102,8 +93,6 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 		weightFsrDownStr    = 'renormPSWeights[3] * '+weightStr
 		weighttopptUpStr    = '('+topPt13TeVstr+') * '+weightStr
 		weighttopptDownStr  = '(1/'+topPt13TeVstr+') * '+weightStr
-		weightjsfUpStr      = weightStr.replace(jetSFstr,jetSFstrUp)
-		weightjsfDownStr    = weightStr.replace(jetSFstr,jetSFstrDn)
 
 	# For N-1 tagging cuts
 	sdmassvar='theJetAK8SoftDropCorr_JetSubCalc_PtOrdered'
@@ -123,6 +112,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	nttagLJMETname = 'NJetsTtagged'
 	nWtagLJMETname = 'NJetsWtagged'
 	nbtagLJMETname = 'NJetsCSVwithSF_MultiLepCalc' # _MultiLepCalc version uses DeepCSV and _JetSubCalc version uses DeepFlv in Oct2019 production!
+	if 'BJets' in iPlot: nbtagLJMETname = plotTreeName
 	njetsLJMETname = 'NJets_JetSubCalc'
 
 	nhottCut = ''
@@ -232,8 +222,6 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'fsrDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightFsrDownStr+'*('+fullcut+')', 'GOFF')
 # 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptUp_'      +lumiStr+'fb_'+catStr+'_'+process+flv, weighttopptUpStr+'*('+fullcut+')', 'GOFF')
 # 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptDown_'    +lumiStr+'fb_'+catStr+'_'+process+flv, weighttopptDownStr+'*('+fullcut+')', 'GOFF')
-# 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'htUp_'         +lumiStr+'fb_'+catStr+'_'+process+flv, weighthtUpStr+'*('+fullcut+')', 'GOFF')
-# 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'htDown_'       +lumiStr+'fb_'+catStr+'_'+process+flv, weighthtDownStr+'*('+fullcut+')', 'GOFF')
 
 
 		# Change the plot name itself for shifts if needed
