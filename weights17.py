@@ -109,7 +109,7 @@ nRun['TTZZ'] = 199363.0 # from integral, file TTZZ_TuneCP5_13TeV-madgraph-pythia
 
 #4 tops
 #nRun['TTTTM690'] = 373734.0 # from 1M generated events, file TTTT_TuneCP5_13TeV-amcatnlo-pythia8_hadd.root
-nRun['TTTTM690'] = 849964.0 # from file TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_hadd.root
+nRun['tttt'] = 849964.0 # from file TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_hadd.root
 
 # Cross sections for MC samples (in pb) -- most unchanged for 2017
 xsec={}
@@ -211,7 +211,7 @@ xsec['TTZH'] = 0.001253 # from McM
 xsec['TTZZ'] = 0.001572 # from McM
 
 #4 Tops
-xsec['TTTTM690'] = 0.012 # from https://arxiv.org/pdf/1711.02116.pdf, in McM: 0.008213
+xsec['tttt'] = 0.012 # from https://arxiv.org/pdf/1711.02116.pdf, in McM: 0.008213
 
 # Calculate lumi normalization weights
 weight = {}

@@ -14,23 +14,26 @@ rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
 iPlot = 'HT'
-year=2017
-if year==2017:
+year='R18'
+if year=='R17':
 	lumiStr = '41p53fb'
 	lumi=41.5 #for plots
 else:
 	lumiStr = '59p97fb'
 	lumi=59.97 #for plots
-sig1 = 'TTTTM690' #  choose the 1st signal to plot
+sig1 = 'tttt' #  choose the 1st signal to plot
 isRebinned = '_rebinned_stat0p3'
-tempVersion = 'templates_R'+str(year)+'_Xtrig_2020_3_20/'
+useCombine = True
+tempVersion = 'templates_'+year+'_Xtrig_2020_7_29/'
 cutString = ''
 saveDir = 'bkgIndChannels'
-templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
+if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+lumiStr+isRebinned+'.root'
+else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
-bkgList = ['ttbb','ttcc','ttjj','top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
+bkgTTBarList = ['ttnobb','ttbb'] #['ttjj','ttcc','ttbb','ttbj']
+bkgList = bkgTTBarList+['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
 isEMlist  = ['E','M']
 nhottlist = ['0','1p']
 nttaglist = ['0p']
@@ -39,10 +42,16 @@ nbtaglist = ['2','3','4p']
 njetslist = ['5','6','7','8','9','10p']
 # nbtaglist = ['2p']
 # njetslist = ['6p']
-systematics = ['pileup','prefire','muRFcorrdNew','toppt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','hdamp','ue','PSwgtNew']#,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] # 'ht','trigeff'
+systematics = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf','hdamp','ue']#,'ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 RFile = rt.TFile(templateFile)
+if useCombine:
+	upTag = 'Up'
+	downTag = 'Down'
+else: #theta
+	upTag = '__plus'
+	downTag = '__minus'
 
 for syst in systematics:
 	if not os.path.exists(outDir+tempVersion+'/'+saveDir+'/'+syst): os.system('mkdir '+outDir+tempVersion+'/'+saveDir+'/'+syst)
@@ -54,8 +63,8 @@ for syst in systematics:
 			print bkgList[0]+" NOT FOUND for category "+cat
 			continue
 		try:
-			hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
-			hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+			hUp = RFile.Get(Prefix+'__'+syst+upTag).Clone()
+			hDn = RFile.Get(Prefix+'__'+syst+downTag).Clone()
 		except:
 			print "No shape for",bkgList[0],cat,syst
 			hUp = RFile.Get(Prefix).Clone()
@@ -69,7 +78,7 @@ for syst in systematics:
 				print "No nominal for",bkg,cat,syst
 				pass
 			try:
-				htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+'__plus').Clone()
+				htempUp = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+upTag).Clone()
 				hUp.Add(htempUp)
 			except:
 				print "No shape for",bkg,cat,syst
@@ -81,7 +90,7 @@ for syst in systematics:
 					pass
 			
 			try:
-				htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+'__minus').Clone()
+				htempDown = RFile.Get(Prefix.replace(bkgList[0],bkg)+'__'+syst+downTag).Clone()
 				hDn.Add(htempDown)
 			except:
 				print "No shape for",bkg,cat,syst
@@ -278,9 +287,7 @@ for syst in systematics:
 		chLatex.DrawLatex(0.45, 0.78, tagString)
 		chLatex.DrawLatex(0.45, 0.72, tagString2)
 
-# 		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'/'+syst+'_'+cat+'.pdf')
-# 		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'/'+syst+'_'+cat+'.eps')
+		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'/'+syst+'_'+cat+'.pdf')
 		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'/'+syst+'_'+cat+'.png')
-
+		#canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'/'+syst+'_'+cat+'.eps')
 RFile.Close()
-

@@ -5,8 +5,8 @@ samples = {
 'DataM':'SingleMuon',
 'DataJ':'JetHT',
 
-#'TTTTM690':'TTTT_TuneCP5_13TeV-amcatnlo-pythia8',
-'TTTTM690':'TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8',
+#'tttt':'TTTT_TuneCP5_13TeV-amcatnlo-pythia8',
+'tttt':'TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8',
 
 'DYMG200':'DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8',
 'DYMG400':'DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8',

@@ -12,21 +12,21 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-year=2017
-saveKey = '_ttHFupLFdown'
+year='R17'
+saveKey = ''#'_ttHFupLFdown'
 cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
-theDir = 'templates_R'+str(year)+'_Xtrig_2020_4_25'
+theDir = 'templates_'+year+'_25GeVbin_2020_7_30'
 outDir = os.getcwd()+'/'+theDir+'/'+cutString
 
 writeSummaryHists = True
-scaleSignalXsecTo1pb = False # this has to be "True" if you are making templates for limit calculation!!!!!!!!
+scaleSignalXsecTo1pb = False # !!!!!Make sure you know signal x-sec used in input files to this script. If this is True, it will scale signal histograms by 1/x-sec in weights.py!!!!!
 lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
 ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
 ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
 doAllSys = True
 doHDsys = True
 doUEsys = True
-doPDF = False
+doPDF = True
 addCRsys = False
 systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
@@ -39,9 +39,9 @@ bkgGrupList = bkgTTBarList+['top','ewk','qcd']
 bkgProcList = ['ttjj','ttcc','ttbb','tt1b','tt2b','T','TTV','TTXY','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets'] = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800']
-if year==2017:
+if year=='R17':
 	bkgProcs['WJets']+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25002','WJetsMG25003','WJetsMG25004']
-elif year==2018:
+elif year=='R18':
 	bkgProcs['WJets']+= ['WJetsMG1200','WJetsMG2500']
 bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
@@ -52,13 +52,13 @@ bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
 bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
-if year==2017:
+if year=='R17':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
-elif year==2018:
+elif year=='R18':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
 bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
-if year==2017: bkgProcs['T']+= ['Tbs']
+if year=='R17': bkgProcs['T']+= ['Tbs']
 bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
@@ -77,9 +77,10 @@ for syst in ['hdup','hddn','ueup','uedn']:
 	bkgProcs['ttbj_'+syst] = bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 	bkgProcs['ttnobb_'+syst] = bkgProcs['ttjj_'+syst] + bkgProcs['ttcc_'+syst]+bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 
-whichSignal = 'TTTT' #HTB, TT, BB, or X53X53
+whichSignal = 'tttt' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
+if whichSignal=='tttt': sigList = [whichSignal]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
@@ -93,7 +94,7 @@ BRs['TZ']=[0.5,0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-if year==2017:
+if year=='R17':
 	from weights17 import *
 else:
 	from weights18 import *
@@ -104,10 +105,10 @@ if not doAllSys:
 	doHDsys = False
 	doUEsys = False
 	doPDF = False
-if doPDF: writeSummaryHists = False
+# if doPDF: writeSummaryHists = False
 
 lumiSys = 0.025 # lumi uncertainty
-if year==2017: lumiSys = 0.023
+if year=='R17': lumiSys = 0.023
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
 elIdSys = 0.03 #electron id uncertainty
@@ -135,6 +136,9 @@ for tag in tagList:
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module 
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
+
+def gettime():
+	return str(round((time.time() - start_time)/60,2))+'mins'
 
 ###########################################################
 #################### CATEGORIZATION #######################
@@ -165,7 +169,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		#Initialize dictionaries for histograms
 		hists={}
 		for cat in catList:
-			print "              processing cat: "+cat
+			print "              processing cat: "+cat,gettime()
 			histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 			i=BRconfStr+cat
 
@@ -241,6 +245,8 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					for bkg in bkgProcs[proc+'_uedn']:
 						if bkg!=bkgProcs[proc+'_uedn'][0]: hists[proc+i+'ueDown'].Add(bkghists[histoPrefix+'_'+bkg])
 		
+			for hist in hists.keys(): hists[hist].SetDirectory(0)
+			
 			#+/- 1sigma variations of shape systematics
 			if doAllSys:
 				for syst in systematicList:
@@ -277,7 +283,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 
 		#scale tt+bb (and optionally scale down tt+nobb)
 		if ttHFsf!=1 and 'ttbb' in bkgTTBarList:
-			print "       SCALING tt+bb BY A FACTOR OF",ttHFsf
+			print "       SCALING tt+bb BY A FACTOR OF",ttHFsf,gettime()
 			for signal in sigList:
 				for cat in catList:
 					i=BRconfStr+cat
@@ -322,7 +328,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		
 		#scale signal cross section to 1pb
 		if scaleSignalXsecTo1pb:
-			print "       SCALING SIGNAL TEMPLATES TO 1pb ..."
+			print "       SCALING SIGNAL TEMPLATES TO 1pb ...",gettime()
 			for signal in sigList:
 				for cat in catList:
 					i=BRconfStr+cat
@@ -342,7 +348,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		#Theta templates:
 		print "       WRITING THETA TEMPLATES: "
 		for signal in sigList:
-			print "              ... "+signal
+			print "              ... "+signal,gettime()
 			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+saveKey+'.root'
 			thetaRfile = TFile(thetaRfileName,'RECREATE')
 			for cat in catList:
@@ -350,7 +356,9 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 				for proc in bkgGrupList+[signal]:
 					if proc in bkgGrupList and hists[proc+i].Integral()/totBkg_ <= removeThreshold:
-						print proc+i,"IS EMPTY OR < "+str(removeThreshold*100)+"% OF TOTAL BKG! SKIPPING ..."
+						print proc+i,'IS',
+						if hists[proc+i].Integral()==0: print 'EMPTY! SKIPPING ...'
+						else: print '< '+str(removeThreshold*100)+'% OF TOTAL BKG! SKIPPING ...'
 						continue
 					hists[proc+i].Write()
 					if doAllSys:
@@ -379,27 +387,31 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		combineRfileName = outDir+'/templates_'+discriminant+BRconfStr+'_'+lumiStr+saveKey+'.root'
 		combineRfile = TFile(combineRfileName,'RECREATE')
 		for cat in catList:
-			print "              ... "+cat
+			print "              ... "+cat,gettime()
 			i=BRconfStr+cat
 			for signal in sigList:
-				mass = [str(mass) for mass in massList if str(mass) in signal][0]
-				hists[signal+i].SetName(hists[signal+i].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass))
+				massList_ = ['M'+str(mass) for mass in massList if str(mass) in signal]
+				if len(massList_)==0: mass=''
+				else: mass=massList_[0]
+				hists[signal+i].SetName(hists[signal+i].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+mass))
 				hists[signal+i].Write()
 				if doAllSys:
 					for syst in systematicList:
 						if syst=='toppt' or syst=='ht': continue
-						hists[signal+i+syst+'Up'].SetName(hists[signal+i+syst+'Up'].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__plus','Up'))
-						hists[signal+i+syst+'Down'].SetName(hists[signal+i+syst+'Down'].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass).replace('__minus','Down'))
+						hists[signal+i+syst+'Up'].SetName(hists[signal+i+syst+'Up'].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+mass).replace('__plus','Up'))
+						hists[signal+i+syst+'Down'].SetName(hists[signal+i+syst+'Down'].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+mass).replace('__minus','Down'))
 						hists[signal+i+syst+'Up'].Write()
 						hists[signal+i+syst+'Down'].Write()
 				if doPDF:
 					for pdfInd in range(100): 
-						hists[signal+i+'pdf'+str(pdfInd)].SetName(hists[signal+i+'pdf'+str(pdfInd)].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+'M'+mass))
+						hists[signal+i+'pdf'+str(pdfInd)].SetName(hists[signal+i+'pdf'+str(pdfInd)].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+mass))
 						hists[signal+i+'pdf'+str(pdfInd)].Write()
 			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
 				if hists[proc+i].Integral()/totBkg_ <= removeThreshold:
-					print proc+i,"IS EMPTY OR < "+str(removeThreshold*100)+"% OF TOTAL BKG! SKIPPING ..."
+					print proc+i,'IS',
+					if hists[proc+i].Integral()==0: print 'EMPTY! SKIPPING ...'
+					else: print '< '+str(removeThreshold*100)+'% OF TOTAL BKG! SKIPPING ...'
 					continue
 				hists[proc+i].SetName(hists[proc+i].GetName())
 				if hists[proc+i].Integral() == 0: hists[proc+i].SetBinContent(1,zero)
@@ -435,7 +447,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		print "       WRITING SUMMARY TEMPLATES: "
 		for signal in sigList:
 			if not writeSummaryHists: break
-			print "              ... "+signal
+			print "              ... "+signal,gettime()
 			yldRfileName = outDir+'/templates_YLD_'+signal+BRconfStr+'_'+lumiStr+saveKey+'.root'
 			yldRfile = TFile(yldRfileName,'RECREATE')
 			for isEM in isEMlist:	
@@ -516,12 +528,14 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						yldHists[isEM+proc+'ueDown'].Write()
 			yldRfile.Close()
 				
+		print "       PRODUCING YIELD TABLES: ",gettime()
 		table = []
 		table.append(['CUTS:',cutString])
 		table.append(['break'])
 		table.append(['break'])
 		
 		#yields without background grouping
+		print "              yields without background grouping",gettime()
 		table.append(['YIELDS']+[proc for proc in bkgProcList+['data']])
 		for cat in catList:
 			row = [cat]
@@ -533,6 +547,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		table.append(['break'])
 		
 		#yields with top,ewk,qcd grouping
+		print "              yields with background grouping",gettime()
 		table.append(['YIELDS']+[proc for proc in bkgGrupList+['data']])
 		for cat in catList:
 			row = [cat]
@@ -544,6 +559,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 		table.append(['break'])
 		
 		#yields for signals
+		print "              yields for signals",gettime()
 		table.append(['YIELDS']+[proc for proc in sigList])
 		for cat in catList:
 			row = [cat]
@@ -553,6 +569,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 			table.append(row)
 
 		#yields for AN tables (yields in e/m channels)
+		print "              yields in e/m channels",gettime()
 		for isEM in isEMlist:
 			if isEM=='E': corrdSys = elcorrdSys
 			if isEM=='M': corrdSys = mucorrdSys
@@ -600,6 +617,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					table.append(row)
 		
 		#yields for PAS tables (yields in e/m channels combined)
+		print "              yields in e/m channels combined",gettime()
 		for thetag in nhottlist:
 			table.append(['break'])
 			table.append(['','isL_'+thetag+'_yields'])
@@ -651,6 +669,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				table.append(row)
 
 		#systematics
+		print "              systematics",gettime()
 		if doAllSys:
 			table.append(['break'])
 			table.append(['','Systematics'])
@@ -673,9 +692,17 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						table.append(row)
 				table.append(['break'])
 			
-		if not addCRsys: out=open(outDir+'/yields_noCRunc_'+discriminant+BRconfStr+'_'+lumiStr+saveKey+'.txt','w')
+		print "              writing table",gettime()
+		if addCRsys: out=open(outDir+'/yields_addCRunc_'+discriminant+BRconfStr+'_'+lumiStr+saveKey+'.txt','w')
 		else: out=open(outDir+'/yields_'+discriminant+BRconfStr+'_'+lumiStr+saveKey+'.txt','w')
 		printTable(table,out)
+		out.close()
+	print "       CLEANING UP ... ",gettime()
+	for hist in hists.keys(): del hists[hist]
+	for hist in datahists.keys(): del datahists[hist]
+	for hist in sighists.keys(): del sighists[hist]
+	for hist in bkghists.keys(): del bkghists[hist]
+	return
 
 iPlotList = [x.replace('bkghists_','')[:-2] for x in os.listdir(outDir+'/'+catList[0][2:]) if 'bkghists_' in x and '.p' in x]
 
@@ -686,29 +713,29 @@ for iPlot in iPlotList:
 	bkghists  = {}
 	sighists  = {}
 	if len(sys.argv)>1 and iPlot!=sys.argv[1]: continue
-	print "LOADING DISTRIBUTION: "+iPlot
+	print "LOADING DISTRIBUTION: "+iPlot,gettime()
 	#if iPlot!="HT": continue
 	for cat in catList:
-		print "         ",cat[2:]
+		print "         ",cat[2:],gettime()
 		datahists.update(pickle.load(open(outDir+'/'+cat[2:]+'/datahists_'+iPlot+'.p','rb')))
 		bkghists.update(pickle.load(open(outDir+'/'+cat[2:]+'/bkghists_'+iPlot+'.p','rb')))
 		sighists.update(pickle.load(open(outDir+'/'+cat[2:]+'/sighists_'+iPlot+'.p','rb')))
 	
 	#Re-scale lumi
 	if lumiScaleCoeff!=1.:
-		print "       SCALING LUMINOSITY BY A FACTOR OF",lumiScaleCoeff
+		print "       SCALING LUMINOSITY BY A FACTOR OF",lumiScaleCoeff,gettime()
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
 	
 	#Rebin
 	if rebinBy>0:
-		print "       REBINNING HISTOGRAMS: MERGING",rebinBy,"BINS ..."
+		print "       REBINNING HISTOGRAMS: MERGING",rebinBy,"BINS ...",gettime()
 		for data in datahists.keys(): datahists[data] = datahists[data].Rebin(rebinBy)
 		for bkg in bkghists.keys():   bkghists[bkg] = bkghists[bkg].Rebin(rebinBy)
 		for sig in sighists.keys():   sighists[sig] = sighists[sig].Rebin(rebinBy)
 
  	#Negative Bin Correction
- 	print "       CORRECTING NEGATIVE BINS ..."
+ 	print "       CORRECTING NEGATIVE BINS ...",gettime()
  	count=0
  	for bkg in bkghists.keys(): 
  		if count%100000==0: print "       ",round(count*100/len(bkghists.keys()))
@@ -721,7 +748,7 @@ for iPlot in iPlotList:
  		count+=1
 
  	#OverFlow Correction
- 	print "       CORRECTING OVER(UNDER)FLOW BINS ..."
+ 	print "       CORRECTING OVER(UNDER)FLOW BINS ...",gettime()
  	count=0
  	for data in datahists.keys(): 
  		if count%100000==0: print "       ",round(count*100/len(datahists.keys()))
@@ -741,7 +768,7 @@ for iPlot in iPlotList:
  		underflow(sighists[sig])
  		count+=1
 
-	print "       MAKING CATEGORIES FOR TOTAL SIGNALS ..."
+	print "       STRATING TO PRODUCE TEMPLATES ...",gettime()
 	makeCatTemplates(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))

@@ -14,18 +14,20 @@ rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
 iPlot = 'HT'
-year=2018
-if year==2017:
+year='R18'
+if year=='R17':
 	lumiStr = '41p53fb'
 	lumi=41.5 #for plots
 else:
 	lumiStr = '59p97fb'
 	lumi=59.97 #for plots
-sig1 = 'TTTTM690' #  choose the 1st signal to plot
+sig1 = 'tttt' #  choose the 1st signal to plot
 isRebinned = '_rebinned_stat0p3'
-tempVersion = 'templates_R'+str(year)+'_Xtrig_2020_3_20/'
+useCombine = True
+tempVersion = 'templates_'+year+'_Xtrig_2020_7_29/'
 cutString = ''
-templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
+if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+lumiStr+isRebinned+'.root'
+else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signalIndChannels'): os.system('mkdir '+outDir+tempVersion+'/signalIndChannels')
 
@@ -37,12 +39,18 @@ nbtaglist = ['2','3','4p']
 njetslist = ['6','7','8','9','10p']
 # nbtaglist = ['2p']
 # njetslist = ['6p']
-systematics = ['pileup','prefire','muRFcorrdNew','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgtNew']#,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] # 'ht','trigeff'
+systematics = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
 
-signameList = ['TTTTM690']
+signameList = ['tttt']
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
-
+if useCombine:
+	upTag = 'Up'
+	downTag = 'Down'
+else: #theta
+	upTag = '__plus'
+	downTag = '__minus'
+	
 for signal in signameList:
 	RFile = rt.TFile(templateFile.replace(signameList[0],signal))
 	for syst in systematics:
@@ -51,11 +59,12 @@ for signal in signameList:
 			if (syst=='q2' or syst=='toppt'):
 				print "Do you expect to have "+syst+" for your signal? FIX ME IF SO! I'll skip this systematic"
 				continue
-			Prefix = iPlot+'_'+lumiStr+'_'+cat+'__sig'
+			if useCombine: Prefix = iPlot+'_'+lumiStr+'_'+cat+'__'+signal
+			else: Prefix = iPlot+'_'+lumiStr+'_'+cat+'__sig'
 			print Prefix+'__'+syst
 			hNm = RFile.Get(Prefix).Clone()
-			hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
-			hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+			hUp = RFile.Get(Prefix+'__'+syst+upTag).Clone()
+			hDn = RFile.Get(Prefix+'__'+syst+downTag).Clone()
 			hNm.Draw()
 			hUp.Draw()
 			hDn.Draw()
@@ -243,8 +252,7 @@ for signal in signameList:
 			chLatex.DrawLatex(0.45, 0.78, tagString)
 			chLatex.DrawLatex(0.45, 0.72, tagString2)
 		
-			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'/'+syst+'_'+signal+'_'+cat+'.pdf')
+			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'/'+syst+'_'+signal+'_'+cat+'.pdf')
 			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'/'+syst+'_'+signal+'_'+cat+'.png')
 			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'/'+syst+'_'+signal+'_'+cat+'.eps')
 	RFile.Close()
-

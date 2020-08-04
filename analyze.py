@@ -313,5 +313,5 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 			print 'Processing PDF',i+1,'/ 100 ...'
 			tTree[process].Draw(plotTreeName+' >> '+iPlot+'pdf'+str(i)+'_'+lumiStr+'fb_'+catStr+'_'+process+flv, 'pdfWeights['+str(i)+'] * '+weightStr+'*('+fullcut+')', 'GOFF')
 	
-	for key in hists.keys(): hists[key].SetDirectory(0)	
+	for hist in hists.keys(): hists[hist].SetDirectory(0)
 	return hists

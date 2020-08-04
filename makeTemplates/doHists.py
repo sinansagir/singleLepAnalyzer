@@ -24,7 +24,7 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 gROOT.SetBatch(1)
 start_time = time.time()
 
-year = '2017'
+year = 'R17'
 iPlot = 'HT' #choose a discriminant from plotList below!
 region = 'PS'
 isCategorized = 0
@@ -80,7 +80,7 @@ for opt, arg in opts:
 	elif opt == '--njets': njetslist = [str(arg)]
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep'+year+'_Oct2019_4t_071420_step1hadds/nominal'
+step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_4t_072820_step1hadds/nominal'
 
 bkgList = [
 		  'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
@@ -99,18 +99,19 @@ bkgList = [
           'WW','WZ','ZZ',
 		  'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
-if year=='2017':
+if year=='R17':
 	bkgList+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004',
 			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs']
-elif year=='2018':
+elif year=='R18':
 	bkgList+= ['WJetsMG1200','WJetsMG2500']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 
 dataList = ['DataE','DataM']#,'DataJ']
 
-whichSignal = 'TTTT' #HTB, TT, BB, or X53X53
+whichSignal = 'tttt' #HTB, TT, BB, or X53X53
 massList = [690]#range(800,1600+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
+if whichSignal=='tttt': sigList = [whichSignal]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
@@ -275,7 +276,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'isHTgt500Njetge9':('isHTgt500Njetge9',linspace(0,2,3).tolist(),';isHTgt500Njetge9'),
 	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 jet multiplicity',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
 
-	'HT':('AK4HT',linspace(0, 4000, 101).tolist(),';H_{T} [GeV]'),
+	'HT':('AK4HT',linspace(0, 3000, 121).tolist(),';H_{T} [GeV]'),
 	'ST':('AK4HTpMETpLepPt',linspace(0, 4000, 101).tolist(),';S_{T} [GeV]'),
 	'minMlb':('minMleppBjet',linspace(0, 1000, 101).tolist(),';min[M(l,b)] [GeV]'),
 	'minMlbSBins':('minMleppBjet',linspace(0, 1000, 1001).tolist(),';min[M(l,b)] [GeV]'),

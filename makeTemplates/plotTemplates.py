@@ -12,8 +12,8 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-year=2018
-if year==2017:
+year='R18'
+if year=='R17':
 	from weights17 import *
 	lumi=41.5 #for plots
 else:
@@ -22,22 +22,22 @@ else:
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 	
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=0
+isCategorized=1
 iPlot='HT'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
-if region=='SR': pfix='templates_R'+str(year)
-elif region=='WJCR': pfix='wjets_R'+str(year)
-elif region=='TTCR': pfix='ttbar_R'+str(year)
-if not isCategorized: pfix='kinematics_'+region+'_R'+str(year)
-templateDir=os.getcwd()+'/'+pfix+'_Xtrig_lepPt20_2020_7_16/'+cutString+'/'
+if region=='SR': pfix='templates_'+year
+elif region=='WJCR': pfix='wjets_'+year
+elif region=='TTCR': pfix='ttbar_'+year
+if not isCategorized: pfix='kinematics_'+region+'_'+year
+templateDir=os.getcwd()+'/'+pfix+'_25GeVbin_2020_7_30/'+cutString+'/'
 
-isRebinned='_rebinned_stat1p1' #post for ROOT file names
+isRebinned='_50GeV_100GeVnB2_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
 
-sig='TTTTM690' #  choose the 1st signal to plot
+sig='tttt' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
-scaleSignalsToXsec = False
+scaleSignalsToXsec = False # !!!!!Make sure you know signal x-sec used in input files to this script. If this is True, it will scale signal histograms by x-sec in weights.py!!!!!
 scaleSignals = False
 sigScaleFact = 20 #put -1 if auto-scaling wanted
 useCombineTemplates = True
@@ -46,11 +46,11 @@ sigfile='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 bkgTTBarList = ['ttnobb','ttbb'] #['ttjj','ttcc','ttbb','ttbj']
 bkgProcList = bkgTTBarList+['top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'top':rt.kRed-9,'ewk':rt.kBlue-7,'qcd':rt.kOrange-5,'TTJets':rt.kRed-9,'T':rt.kRed-5,'WJets':rt.kBlue-7,'ZJets':rt.kBlue-1,'VV':rt.kBlue+5,'qcd':rt.kOrange-5} #X53X53
-elif 'TTTT' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgtNew','muRFcorrdNew']#,'pdfNew','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+systematicList = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
 doAllSys = True
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
@@ -95,7 +95,7 @@ datahists = [k.GetName() for k in RFile.GetListOfKeys() if '__'+dataName in k.Ge
 catsElist = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isE_' in hist]
 
 lumiSys = 0.025 # lumi uncertainty
-if year==2017: lumiSys = 0.023
+if year=='R17': lumiSys = 0.023
 trigSys = 0.0 # trigger uncertainty
 lepIdSys = 0.03 # lepton id uncertainty
 lepIsoSys = 0.0 # lepton isolation uncertainty

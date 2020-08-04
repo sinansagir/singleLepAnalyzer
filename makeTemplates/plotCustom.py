@@ -12,8 +12,8 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-year=2018
-if year==2017:
+year='R17'
+if year=='R17':
 	from weights17 import *
 	lumi=41.5 #for plots
 else:
@@ -21,18 +21,18 @@ else:
 	lumi=59.97 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-iPlot='YLD'
+iPlot='HTYLD'
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
-templateDir=os.getcwd()+'/'+pfix+'_R'+str(year)+'_Xtrig_lepPt20_2020_7_16/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_'+year+'_Xtrig_2020_7_29/'+cutString+'/'
 plotLimits = False
 limitFile = '/user_data/ssagir/HTB_limits_2016/templates_2016_11_26/nB1_nJ3/limits_templates_HT_HTBM200_36p0fb_rebinned_stat0p3_expected.txt'
 
-isRebinned = ''#'_rebinned_stat0p3'
+isRebinned = '_rebinned_stat0p3'
 saveKey = '' # tag for plot names
 
 mass = '690'
-sig1 = 'TTTTM690' # choose the 1st signal to plot
+sig1 = 'tttt' # choose the 1st signal to plot
 sig1leg='t#bar{t}t#bar{t}'
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
@@ -46,7 +46,7 @@ if len(sys.argv)>1: plotProc=str(sys.argv[1])
 doBkgFraction = True #set plotProc to "bkg"
 doNegSigFrac = False
 doEfficiency = False
-scaleXsec = False
+scaleXsec = False # !!!!!Make sure you know signal x-sec used in input files to this script. If this is True, it will scale signal histograms by x-sec in weights.py!!!!!
 if plotProc=='SoB' or doBkgFraction: yLog = False
 zero = 1E-12
 

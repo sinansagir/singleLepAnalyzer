@@ -8,7 +8,7 @@ from utils import *
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
 
-year=2018
+year='R17'
 region='SR' #PS,SR,TTCR,WJCR
 categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
 
@@ -19,8 +19,7 @@ if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_R'+str(year)+'_'
-pfix+='Xtrig_2020_4_25'#+date#+'_'+time
+pfix+='_'+year+'_25GeVbin_2020_7_30'#+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 'HT',
@@ -43,6 +42,9 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 'MET',
 # 'NJets',
 # 'NDCSVBJets',
+# 'NBJets',
+# 'NBJetsNoSF',
+# 'NDCSVBJetsNoSF',
 # 'mindeltaR',
 # 'PtRel',
 # 'MTlmet',
@@ -107,10 +109,10 @@ catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglis
 	
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
-if year==2017: 
+if year=='R17': 
 	os.system('cp ../weights17.py ../weights.py')
 	os.system('cp ../samples17.py ../samples.py')
-elif year==2018: 
+elif year=='R18': 
 	os.system('cp ../weights18.py ../weights.py')
 	os.system('cp ../samples18.py ../samples.py')
 os.system('cp ../analyze.py ../weights.py ../samples.py ../utils.py doHists.py doCondorTemplates.py doCondorTemplates.sh '+outDir+'/')

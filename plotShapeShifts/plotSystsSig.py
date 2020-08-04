@@ -13,40 +13,56 @@ tdrstyle.setTDRStyle()
 rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
-lumi = 41.5
 iPlot = 'HT'
-lumiStr = '41p53fb'
-sig1 = '4TM690' #  choose the 1st signal to plot
+year='R17'
+if year=='R17':
+	lumiStr = '41p53fb'
+	lumi=41.5 #for plots
+else:
+	lumiStr = '59p97fb'
+	lumi=59.97 #for plots
+sig1 = 'tttt' #  choose the 1st signal to plot
 isRebinned = '_rebinned_stat0p3'
-tempVersion = 'templates_syst4_2019_9_24/'
+useCombine = True
+tempVersion = 'templates_'+year+'_Xtrig_2020_7_29/'
 cutString = ''
-templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
+if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+lumiStr+isRebinned+'.root'
+else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
 if not os.path.exists(outDir+tempVersion+'/signals'): os.system('mkdir '+outDir+tempVersion+'/signals')
 
 isEMlist  = ['E','M']
-nhottlist = ['0','0p','1p']
-nttaglist = ['0','0p','1p']
-nWtaglist = ['0','0p','1p','1','2p']
-nbtaglist = ['2','3','3p','4p']
-njetslist = ['4','5','6','7','8','9','9p','10p']
-systematics = ['pileup','prefire','muRFcorrdNew','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','pdfNew'] #, 'ht','trigeff'
+nhottlist = ['0','1p']
+nttaglist = ['0p']
+nWtaglist = ['0p']
+nbtaglist = ['2','3','4p']
+njetslist = ['6','7','8','9','10p']
+# nbtaglist = ['2p']
+# njetslist = ['6p']
+systematics = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
 
-signameList = ['4TM690']
+signameList = ['tttt']
 
-catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip_75cats(item)]
-
+catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
+if useCombine:
+	upTag = 'Up'
+	downTag = 'Down'
+else: #theta
+	upTag = '__plus'
+	downTag = '__minus'
+	
 for signal in signameList:
 	RFile = rt.TFile(templateFile.replace(signameList[0],signal))
 	for syst in systematics:
 		if (syst=='q2' or syst=='toppt'):
 			print "Do you expect to have "+syst+" for your signal? FIX ME IF SO! I'll skip this systematic"
 			continue
-		Prefix = iPlot+'_'+lumiStr+'_'+catList[0]+'__sig'
+		if useCombine: Prefix = iPlot+'_'+lumiStr+'_'+catList[0]+'__'+signal
+		else: Prefix = iPlot+'_'+lumiStr+'_'+catList[0]+'__sig'
 		print Prefix+'__'+syst
 		hNm = RFile.Get(Prefix).Clone()
-		hUp = RFile.Get(Prefix+'__'+syst+'__plus').Clone()
-		hDn = RFile.Get(Prefix+'__'+syst+'__minus').Clone()
+		hUp = RFile.Get(Prefix+'__'+syst+upTag).Clone()
+		hDn = RFile.Get(Prefix+'__'+syst+downTag).Clone()
 		for cat in catList:
 			if cat==catList[0]: continue
 			try: 
@@ -57,7 +73,7 @@ for signal in signameList:
 				pass
 				
 			try:
-				htempUp = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+'__plus').Clone()
+				htempUp = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+upTag).Clone()
 				hUp.Add(htempUp)
 			except:
 				print "No shape for",signal,cat,syst
@@ -69,7 +85,7 @@ for signal in signameList:
 					pass
 		
 			try:
-				htempDown = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+'__minus').Clone()
+				htempDown = RFile.Get(Prefix.replace(catList[0],cat)+'__'+syst+downTag).Clone()
 				hDn.Add(htempDown)
 			except:
 				print "No shape for",signal,cat,syst
@@ -229,6 +245,5 @@ for signal in signameList:
 
 		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.pdf')
 		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.png')
-		canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.root')
+		#canv.SaveAs(tempVersion+'/signals/'+syst+'_'+signal+'.eps')
 	RFile.Close()
-
