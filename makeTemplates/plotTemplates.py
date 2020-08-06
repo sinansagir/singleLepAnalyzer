@@ -99,7 +99,9 @@ if year=='R17': lumiSys = 0.023
 trigSys = 0.0 # trigger uncertainty
 lepIdSys = 0.03 # lepton id uncertainty
 lepIsoSys = 0.0 # lepton isolation uncertainty
-corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total e/m values are close
+njetSys = 0.048
+if year=='R17': njetSys = 0.075
+corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2+njetSys**2) #cheating while total e/m values are close
 
 for catEStr in catsElist:
 	modTag = catEStr[catEStr.find('nT'):catEStr.find('nJ')-3]
