@@ -36,11 +36,11 @@ else:
 	from weights18 import *
 
 iPlot='HT'
-saveKey = '_50GeV_100GeVnB2'
+saveKey = ''#'_50GeV_100GeVnB2'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-templateDir = os.getcwd()+'/templates_'+year+'_25GeVbin_2020_7_30/'+cutString
+templateDir = os.getcwd()+'/templates_'+year+'_njet_2020_8_6/'+cutString
 combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
@@ -51,14 +51,14 @@ doMURF = True
 doPSWeights = True
 normalizeTheorySystSig = True #normalize renorm/fact, PDF and ISR/FSR systematics to nominal templates for signals
 normalizeTheorySystBkg = False #normalize renorm/fact, PDF and ISR/FSR systematics to nominal templates for backgrounds
-#X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
+#tttt, X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 sigName = 'tttt' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
 massList = [690]
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='tttt': sigProcList = [sigName]
-if sigName=='X53X53': 
-	sigProcList = [sigName+chiral+'M'+str(mass) for mass in massList for chiral in ['left','right']]
-	if not rebinCombine: sigProcList = [sigName+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
+if sigName=='X53': 
+	sigProcList = [sigName+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
+	sigProcList+= [sigName+'RHM'+str(mass) for mass in range(900,1700+1,100)]
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 bkgProcList = ttProcList + ['top','ewk','qcd'] #put the most dominant process first
 
@@ -73,8 +73,8 @@ zero = 1E-12
 xMin = 0
 xMax = 1e9
 
-if iPlot=='HT': 
-	minNbins=2 #min 50GeV bin width (_nB2_ categories are set to min 100GeV bin width below)
+if iPlot=='HT' and stat<1.: 
+	minNbins=2 #(assuming initial hists are 25 GeV bins) min 50GeV bin width (_nB2_ categories are set to min 100GeV bin width below)
 	xMin = 500
 	xMax = 3000
 
@@ -98,12 +98,17 @@ muIdSys = 0.03 #muon id uncertainty
 elIsoSys = 0.0 #electron isolation uncertainty
 muIsoSys = 0.0 #muon isolation uncertainty
 htRwtSys = 0.0
-elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**2)
-mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2)
+njetSys = 0.048
+if year=='R17': njetSys = 0.075
+elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**2+njetSys**2)
+mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2+njetSys**2)
 
 removalKeys = {} # True == keep, False == remove
 removalKeys['jsf__'] = False
 
+def gettime():
+	return str(round((time.time() - start_time)/60,2))+'mins'
+	
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
         for f in fnmatch.filter(files, filtre):
@@ -166,7 +171,7 @@ for chn in totBkgHists.keys():
 		totDataTempBinErrSquared_E += dataHists_[chn].GetBinError(Nbins+1-iBin)**2
 		totDataTempBinErrSquared_M += dataHists_[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
 		nBinsMerged+=1
-		#if nBinsMerged<minNbins or (('nB2_nJ6' in chn or 'nB2_nJ7' in chn or 'nB2_nJ8' in chn or 'nB2_nJ9' in chn) and nBinsMerged<4 and iPlot=='HT'): continue
+		#if nBinsMerged<minNbins: continue
 		if nBinsMerged<minNbins or ('_nB2_' in chn and nBinsMerged<4 and iPlot=='HT'): continue
 		if totTempBinContent_E>0. and totTempBinContent_M>0.:
 			if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
@@ -202,8 +207,10 @@ for chn in xbinsListTemp.keys():
 	xbinsList[chn] = []
 	for ibin in range(len(xbinsListTemp[chn])): xbinsList[chn].append(xbinsListTemp[chn][len(xbinsListTemp[chn])-1-ibin])
 	if 'isCR' in chn and singleBinCR: xbinsList[chn] = [xbinsList[chn][0],xbinsList[chn][-1]]
+	xMax = xbinsList[chn][-2]+(500-xbinsList[chn][-2]%500)
 	if xMin>xbinsList[chn][0]: xbinsList[chn][0] = xMin
 	if xMax<xbinsList[chn][-1]: xbinsList[chn][-1] = xMax
+	print xbinsList[chn]
 	for ibin in range(1,len(xbinsList[chn])-1):
 		if xbinsList[chn][ibin]<=xbinsList[chn][0] or xbinsList[chn][ibin]>=xbinsList[chn][-1]: del xbinsList[chn][ibin]
 	print chn,"=",xbinsList[chn]
@@ -229,7 +236,7 @@ for rfile in rfiles:
 
 	print "PROGRESS:"
 	for chn in channels:
-		print "         ",chn
+		print "         ",chn,gettime()
 		rebinnedHists = {}
 		#Rebinning histograms
 		for hist in allhists[chn]:
@@ -238,13 +245,12 @@ for rfile in rfiles:
 			overflow(rebinnedHists[hist])
 			underflow(rebinnedHists[hist])
 			if '__pdf' in hist:
-				if upTag not in hist or downTag not in hist: continue
+				if upTag not in hist and downTag not in hist: continue
 			if '__mu' in hist or '__isr' in hist or '__fsr' in hist: continue
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
 			if '__toppt'+downTag in hist and symmetrizeTopPtShift:
 				for ibin in range(1, rebinnedHists[hist].GetNbinsX()+1):
 					rebinnedHists[hist].SetBinContent(ibin, 2.*rebinnedHists[hist.replace('__toppt'+downTag,'')].GetBinContent(ibin)-rebinnedHists[hist.replace('__toppt'+downTag,'__toppt'+upTag)].GetBinContent(ibin))
-			#rebinnedHists[hist].SetName(hist.replace('4T','TTTT'))
 			rebinnedHists[hist].Write()
 			if '__trigeff' in hist:
 				if 'isE' in hist: 
@@ -318,8 +324,8 @@ for rfile in rfiles:
 					nBBnuis['bkg']+=1
 				for sig in sigProcList:
 					sigNameNoMass = sigName
-					if 'left' in sig: sigNameNoMass = sigName+'left'
-					if 'right' in sig: sigNameNoMass = sigName+'right'
+					if 'LH' in sig: sigNameNoMass = sigName+'LH'
+					if 'RH' in sig: sigNameNoMass = sigName+'RH'
 					val = rebinnedHists[chnHistName.replace(dataName,sig)].GetBinContent(ibin)
 					if val==0: #This is not a sensitive bin, so no need for stat shape??
 						if not quiet: print "WARNING: "+sig+" has zero content in "+chn+" channel and bin#"+str(ibin)+". I won't assign shape shifts for this bin!!!"
@@ -365,7 +371,6 @@ for rfile in rfiles:
 
 					muRFUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
 					muRFDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
-				#if ('sig__mu' in hist and normalizeRENORM) or (rebinCombine and '__'+sigName in hist and '__mu' in hist and normalizeRENORM): #normalize the renorm/fact shapes to nominal
 				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
 					muRFUpHist.Scale(histList[0].Integral()/(muRFUpHist.Integral()+zero))
 					muRFDnHist.Scale(histList[0].Integral()/(muRFDnHist.Integral()+zero))
@@ -416,10 +421,9 @@ for rfile in rfiles:
 
 					PSwgtUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
 					PSwgtDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
-				#if ('sig__isr' in hist and normalizePSWeights) or (rebinCombine and '__'+sigName in hist and '__isr' in hist and normalizePSWeights): #normalize the renorm/fact shapes to nominal
 				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
-					PSwgtUpHist.Scale(histList[0].Integral()/PSwgtUpHist.Integral())
-					PSwgtDnHist.Scale(histList[0].Integral()/PSwgtDnHist.Integral())
+					PSwgtUpHist.Scale(histList[0].Integral()/(PSwgtUpHist.Integral()+zero))
+					PSwgtDnHist.Scale(histList[0].Integral()/(PSwgtDnHist.Integral()+zero))
 				PSwgtUpHist.Write()
 				PSwgtDnHist.Write()
 				yieldsAll[PSwgtUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = PSwgtUpHist.Integral()
@@ -456,11 +460,10 @@ for rfile in rfiles:
 					pdfDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
 					pdfUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
 					pdfDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
-				#if ('sig__pdf' in hist and normalizePDF) or (rebinCombine and '__'+sigName in hist and '__pdf' in hist and normalizePDF): #normalize the renorm/fact shapes to nominal
 				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
 					nominalInt = rebinnedHists[hist[:hist.find('__pdf')]].Integral()
-					pdfUpHist.Scale(nominalInt/pdfUpHist.Integral())
-					pdfDnHist.Scale(nominalInt/pdfDnHist.Integral())
+					pdfUpHist.Scale(nominalInt/(pdfUpHist.Integral()+zero))
+					pdfDnHist.Scale(nominalInt/(pdfDnHist.Integral()+zero))
 				pdfUpHist.Write()
 				pdfDnHist.Write()
 				yieldsAll[pdfUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfUpHist.Integral()
@@ -471,7 +474,7 @@ for rfile in rfiles:
 				pdfDnHist2 = pdfDnHist.Clone(hist.replace('pdf0',PDFName+'_'+year+downTag))
 				pdfUpHist2.Write()
 				pdfDnHist2.Write()
-			
+
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()
 	iRfile+=1
@@ -520,8 +523,8 @@ procNames['tt1b'] = '\\ttbar+ b'
 procNames['tt2b'] = '\\ttbar+ 2B'
 procNames['ttnobb'] = '$\\ttbar+!\\bbbar$'
 for sig in sigProcList: 
-	if 'left' in sig:  procNames[sig]='LH \\xft ('+str(float(sig[7:-4])/1000)+' \\TeV)'
-	elif 'right' in sig: procNames[sig]='RH \\xft ('+str(float(sig[7:-5])/1000)+' \\TeV)'
+	if 'LH' in sig:  procNames[sig]='LH \\xft ('+str(float(sig[6:])/1000)+' \\TeV)'
+	elif 'RH' in sig: procNames[sig]='RH \\xft ('+str(float(sig[6:])/1000)+' \\TeV)'
 	else: procNames[sig]='\\fourt'
 
 print "List of systematics for "+bkgProcList[0]+" process and "+channels[0]+" channel:"
@@ -591,10 +594,7 @@ for isEM in isEMlist:
 								except:
 									print "Missing",proc,"for channel:",chn
 									pass
-								if proc in sigProcList:
-									signal=proc
-									if 'left' in signal: signal=proc.replace('left','')+'left'
-									if 'right' in signal: signal=proc.replace('right','')+'right'
+								if signal in sigProcList:
 									if scaleSignalsToXsec:
 										yieldtemp*=xsec[signal]
 										yielderrtemp*=xsec[signal]**2
@@ -689,10 +689,7 @@ for nhott in nhottlist:
 							except:
 								print "Missing",proc,"for channel:",chn.replace('isE','isM')
 								pass
-							if proc in sigProcList:
-								signal=proc
-								if 'left' in signal: signal=proc.replace('left','')+'left'
-								if 'right' in signal: signal=proc.replace('right','')+'right'
+							if signal in sigProcList:
 								if scaleSignalsToXsec:
 									yieldtempE*=xsec[signal]
 									yieldtempM*=xsec[signal]

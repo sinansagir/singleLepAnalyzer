@@ -24,7 +24,7 @@ lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 iPlot='HTYLD'
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
-templateDir=os.getcwd()+'/'+pfix+'_'+year+'_Xtrig_2020_7_29/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_'+year+'_njet_2020_8_6/'+cutString+'/'
 plotLimits = False
 limitFile = '/user_data/ssagir/HTB_limits_2016/templates_2016_11_26/nB1_nJ3/limits_templates_HT_HTBM200_36p0fb_rebinned_stat0p3_expected.txt'
 
@@ -36,8 +36,8 @@ sig1 = 'tttt' # choose the 1st signal to plot
 sig1leg='t#bar{t}t#bar{t}'
 tempsig='templates_'+iPlot+'_'+sig1+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-bkgTTBarList = ['ttbb','ttnobb'] #['ttjj','ttcc','ttbb','ttbj']
-bkgProcList = bkgTTBarList+['top','ewk','qcd']
+ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
+bkgProcList = ttProcList+['top','ewk','qcd']
 bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 
 yLog = True
