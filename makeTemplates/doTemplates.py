@@ -15,7 +15,7 @@ start_time = time.time()
 year='R17'
 saveKey = ''#'_ttHFupLFdown'
 cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
-theDir = 'templates_'+year+'_25GeVbin_2020_7_30'
+theDir = 'templates_'+year+'_njet_2020_8_6'
 outDir = os.getcwd()+'/'+theDir+'/'+cutString
 
 writeSummaryHists = True
@@ -34,9 +34,10 @@ rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebi
 zero = 1E-12
 removeThreshold = 0.015 # If a process/totalBkg is less than the threshold, the process will be removed in the output files!
 
-bkgTTBarList = ['ttnobb','ttbb']
-bkgGrupList = bkgTTBarList+['top','ewk','qcd']
-bkgProcList = ['ttjj','ttcc','ttbb','tt1b','tt2b','T','TTV','TTXY','WJets','ZJets','VV','qcd']
+ttbarGrupList = ['ttnobb','ttbb']
+bkgGrupList = ttbarGrupList+['top','ewk','qcd']
+ttbarProcList = ['ttjj','ttcc','ttbb','tt1b','tt2b']
+bkgProcList = ttbarProcList+['T','TTV','TTXY','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets'] = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800']
 if year=='R17':
@@ -77,11 +78,13 @@ for syst in ['hdup','hddn','ueup','uedn']:
 	bkgProcs['ttbj_'+syst] = bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 	bkgProcs['ttnobb_'+syst] = bkgProcs['ttjj_'+syst] + bkgProcs['ttcc_'+syst]+bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 
-whichSignal = 'tttt' #HTB, TT, BB, or X53X53
+whichSignal = 'tttt' #HTB, TT, BB, X53 or tttt
 massList = [690]#range(800,1600+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='tttt': sigList = [whichSignal]
-if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
+if whichSignal=='X53': 
+	sigList = [whichSignal+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
+	sigList+= [whichSignal+'RHM'+str(mass) for mass in range(900,1700+1,100)]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 else: decays = [''] #there is only one possible decay mode!
@@ -115,9 +118,11 @@ elIdSys = 0.03 #electron id uncertainty
 muIdSys = 0.03 #muon id uncertainty
 elIsoSys = 0.0 #electron isolation uncertainty
 muIsoSys = 0.0 #muon isolation uncertainty
+njetSys = 0.048
+if year=='R17': njetSys = 0.075
 
-elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)
-mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
+elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+njetSys**2)
+mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+njetSys**2)
 
 isEMlist = ['E','M']
 catList = ['is'+x for x in os.walk(outDir).next()[1] if x.startswith('E_') or x.startswith('M_')]
@@ -246,7 +251,48 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						if bkg!=bkgProcs[proc+'_uedn'][0]: hists[proc+i+'ueDown'].Add(bkghists[histoPrefix+'_'+bkg])
 		
 			for hist in hists.keys(): hists[hist].SetDirectory(0)
-			
+
+			#scale tt+bb (and optionally scale down tt+nobb)
+			if ttHFsf!=1 and 'ttbb' in ttbarGrupList:
+				print "                     SCALING tt+bb BY A FACTOR OF",ttHFsf,gettime()
+				Nttbb = hists['ttbb'+i].Integral()
+				Nttnobb = 0.
+				for tt in ttbarGrupList:
+					if tt!='ttbb': Nttnobb += hists[tt+i].Integral()
+				ttLFsf_ = ttLFsf
+				if ttLFsf==-1: ttLFsf_ = 1. + ( 1-ttHFsf ) * ( Nttbb/Nttnobb )
+				hists['ttbb'+i].Scale(ttHFsf)
+				for tt in list(set(ttbarProcList+ttbarGrupList)):
+					if tt!='ttbb': hists[tt+i].Scale(ttLFsf_)
+				if doAllSys:
+					for syst in systematicList:
+						hists['ttbb'+i+syst+'Up'].Scale(ttHFsf)
+						hists['ttbb'+i+syst+'Down'].Scale(ttHFsf)
+						for tt in list(set(ttbarProcList+ttbarGrupList)):
+							if tt!='ttbb': #scale down tt+nobb
+								hists[tt+i+syst+'Up'].Scale(ttLFsf_)
+								hists[tt+i+syst+'Down'].Scale(ttLFsf_)
+				if doPDF:
+					for pdfInd in range(100): 
+						hists['ttbb'+i+'pdf'+str(pdfInd)].Scale(ttHFsf)
+						for tt in list(set(ttbarProcList+ttbarGrupList)):
+							if tt!='ttbb': #scale down tt+nobb
+								hists[tt+i+'pdf'+str(pdfInd)].Scale(ttLFsf_)
+				if doHDsys:
+					hists['ttbb'+i+'hdUp'].Scale(ttHFsf)
+					hists['ttbb'+i+'hdDown'].Scale(ttHFsf)
+					for tt in list(set(ttbarProcList+ttbarGrupList)):
+						if tt!='ttbb': #scale down tt+nobb
+							hists[tt+i+'hdUp'].Scale(ttLFsf_)
+							hists[tt+i+'hdDown'].Scale(ttLFsf_)
+				if doUEsys:
+					hists['ttbb'+i+'ueUp'].Scale(ttHFsf)
+					hists['ttbb'+i+'ueDown'].Scale(ttHFsf)
+					for tt in list(set(ttbarProcList+ttbarGrupList)):
+						if tt!='ttbb': #scale down tt+nobb
+							hists[tt+i+'ueUp'].Scale(ttLFsf_)
+							hists[tt+i+'ueDown'].Scale(ttLFsf_)
+										
 			#+/- 1sigma variations of shape systematics
 			if doAllSys:
 				for syst in systematicList:
@@ -279,52 +325,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 			for ibin in range(1,hists[bkgGrupList[0]+i].GetXaxis().GetNbins()+1):
 				for proc in bkgGrupList+bkgProcList+sigList+['data']: yieldStatErrTable[histoPrefix][proc] += hists[proc+i].GetBinError(ibin)**2
 				yieldStatErrTable[histoPrefix]['totBkg'] += sum([hists[proc+i].GetBinError(ibin)**2 for proc in bkgGrupList])
-			for key in yieldStatErrTable[histoPrefix].keys(): yieldStatErrTable[histoPrefix][key] = math.sqrt(yieldStatErrTable[histoPrefix][key])
-
-		#scale tt+bb (and optionally scale down tt+nobb)
-		if ttHFsf!=1 and 'ttbb' in bkgTTBarList:
-			print "       SCALING tt+bb BY A FACTOR OF",ttHFsf,gettime()
-			for signal in sigList:
-				for cat in catList:
-					i=BRconfStr+cat
-					Nttbb = hists['ttbb'+i].Integral()
-					Nttnobb = 0.
-					for tt in bkgTTBarList:
-						if tt!='ttbb': Nttnobb += hists[tt+i].Integral()
-					ttLFsf_ = ttLFsf
-					if ttLFsf==-1: ttLFsf_ = 1. + ( 1-ttHFsf ) * ( Nttbb/Nttnobb )
-					hists['ttbb'+i].Scale(ttHFsf)
-					for tt in bkgTTBarList:
-						if tt!='ttbb': hists[tt+i].Scale(ttLFsf_)
-					if doAllSys:
-						for syst in systematicList:
-							hists['ttbb'+i+syst+'Up'].Scale(ttHFsf)
-							hists['ttbb'+i+syst+'Down'].Scale(ttHFsf)
-							for tt in bkgTTBarList:
-								if tt!='ttbb': #scale down tt+nobb
-									hists[tt+i+syst+'Up'].Scale(ttLFsf_)
-									hists[tt+i+syst+'Down'].Scale(ttLFsf_)
-					if doPDF:
-						for pdfInd in range(100): 
-							hists['ttbb'+i+'pdf'+str(pdfInd)].Scale(ttHFsf)
-							for tt in bkgTTBarList:
-								if tt!='ttbb': #scale down tt+nobb
-									hists[tt+i+'pdf'+str(pdfInd)].Scale(ttLFsf_)
-					if doHDsys:
-						hists['ttbb'+i+'hdUp'].Scale(ttHFsf)
-						hists['ttbb'+i+'hdDown'].Scale(ttHFsf)
-						for tt in bkgTTBarList:
-							if tt!='ttbb': #scale down tt+nobb
-								hists[tt+i+'hdUp'].Scale(ttLFsf_)
-								hists[tt+i+'hdDown'].Scale(ttLFsf_)
-					if doUEsys:
-						hists['ttbb'+i+'ueUp'].Scale(ttHFsf)
-						hists['ttbb'+i+'ueDown'].Scale(ttHFsf)
-						for tt in bkgTTBarList:
-							if tt!='ttbb': #scale down tt+nobb
-								hists[tt+i+'ueUp'].Scale(ttLFsf_)
-								hists[tt+i+'ueDown'].Scale(ttLFsf_)
-			
+			for key in yieldStatErrTable[histoPrefix].keys(): yieldStatErrTable[histoPrefix][key] = math.sqrt(yieldStatErrTable[histoPrefix][key])			
 		
 		#scale signal cross section to 1pb
 		if scaleSignalXsecTo1pb:
@@ -390,21 +391,18 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 			print "              ... "+cat,gettime()
 			i=BRconfStr+cat
 			for signal in sigList:
-				massList_ = ['M'+str(mass) for mass in massList if str(mass) in signal]
-				if len(massList_)==0: mass=''
-				else: mass=massList_[0]
-				hists[signal+i].SetName(hists[signal+i].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+mass))
+				hists[signal+i].SetName(hists[signal+i].GetName().replace('__sig','__'+signal))
 				hists[signal+i].Write()
 				if doAllSys:
 					for syst in systematicList:
 						if syst=='toppt' or syst=='ht': continue
-						hists[signal+i+syst+'Up'].SetName(hists[signal+i+syst+'Up'].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+mass).replace('__plus','Up'))
-						hists[signal+i+syst+'Down'].SetName(hists[signal+i+syst+'Down'].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+mass).replace('__minus','Down'))
+						hists[signal+i+syst+'Up'].SetName(hists[signal+i+syst+'Up'].GetName().replace('__sig','__'+signal).replace('__plus','Up'))
+						hists[signal+i+syst+'Down'].SetName(hists[signal+i+syst+'Down'].GetName().replace('__sig','__'+signal).replace('__minus','Down'))
 						hists[signal+i+syst+'Up'].Write()
 						hists[signal+i+syst+'Down'].Write()
 				if doPDF:
 					for pdfInd in range(100): 
-						hists[signal+i+'pdf'+str(pdfInd)].SetName(hists[signal+i+'pdf'+str(pdfInd)].GetName().replace('__sig','__'+signal.replace('M'+mass,'')+mass))
+						hists[signal+i+'pdf'+str(pdfInd)].SetName(hists[signal+i+'pdf'+str(pdfInd)].GetName().replace('__sig','__'+signal))
 						hists[signal+i+'pdf'+str(pdfInd)].Write()
 			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
@@ -768,7 +766,7 @@ for iPlot in iPlotList:
  		underflow(sighists[sig])
  		count+=1
 
-	print "       STRATING TO PRODUCE TEMPLATES ...",gettime()
+	print "       STARTING TO PRODUCE TEMPLATES ...",gettime()
 	makeCatTemplates(datahists,sighists,bkghists,iPlot)
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))

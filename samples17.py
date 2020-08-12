@@ -8,6 +8,26 @@ samples = {
 #'tttt':'TTTT_TuneCP5_13TeV-amcatnlo-pythia8',
 'tttt':'TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8',
 
+'X53LHM900':'X53X53_M-900_LH_TuneCP5_13TeV-madgraph-pythia8',
+'X53LHM1000':'X53X53_M-1000_LH_TuneCP5_13TeV-madgraph-pythia8',
+'X53LHM1100':'X53X53_M-1100_LH_TuneCP5_13TeV-madgraph-pythia8',
+'X53LHM1200':'X53X53_M-1200_LH_TuneCP5_13TeV-madgraph-pythia8',
+'X53LHM1300':'X53X53_M-1300_LH_TuneCP5_13TeV-madgraph-pythia8',
+'X53LHM1400':'X53X53_M-1400_LH_TuneCP5_13TeV-madgraph-pythia8',
+'X53LHM1500':'X53X53_M-1500_LH_TuneCP5_13TeV-madgraph-pythia8',
+'X53LHM1600':'X53X53_M-1600_LH_TuneCP5_13TeV-madgraph-pythia8',
+'X53LHM1700':'X53X53_M-1700_LH_TuneCP5_13TeV-madgraph-pythia8',
+
+'X53RHM900':'X53X53_M-900_RH_TuneCP5_13TeV-madgraph-pythia8',
+'X53RHM1000':'X53X53_M-1000_RH_TuneCP5_13TeV-madgraph-pythia8',
+'X53RHM1100':'X53X53_M-1100_RH_TuneCP5_13TeV-madgraph-pythia8',
+'X53RHM1200':'X53X53_M-1200_RH_TuneCP5_13TeV-madgraph-pythia8',
+'X53RHM1300':'X53X53_M-1300_RH_TuneCP5_13TeV-madgraph-pythia8',
+'X53RHM1400':'X53X53_M-1400_RH_TuneCP5_13TeV-madgraph-pythia8',
+'X53RHM1500':'X53X53_M-1500_RH_TuneCP2_13TeV-madgraph-pythia8', #2018- CP5 
+'X53RHM1600':'X53X53_M-1600_RH_TuneCP5_13TeV-madgraph-pythia8',
+'X53RHM1700':'X53X53_M-1700_RH_TuneCP5_13TeV-madgraph-pythia8',
+
 'DYMG200':'DYJetsToLL_M-50_HT-200to400_TuneCP5_13TeV-madgraphMLM-pythia8',
 'DYMG400':'DYJetsToLL_M-50_HT-400to600_TuneCP5_13TeV-madgraphMLM-pythia8',
 'DYMG600':'DYJetsToLL_M-50_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8',
