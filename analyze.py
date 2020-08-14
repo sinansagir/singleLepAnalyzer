@@ -74,25 +74,92 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	topPt13TeVstr = '1'
 	if 'TTJets' in process: topPt13TeVstr = 'topPtWeight13TeV'
 
-	njetStr = '1'
+	njetStr = '1.0'
+	njetUpStr = '1.0'
+	njetDownStr = '1.0'
 	if 'TTJets' in process:
 		if '17' in year:
 			njetStr= '( \
 1.0*(NJets_JetSubCalc<4)+\
-1.08025377451*(NJets_JetSubCalc==4)+\
-1.06234822531*(NJets_JetSubCalc==5)+\
-1.09355645604*(NJets_JetSubCalc>=6)\
+1.12779346603*(NJets_JetSubCalc==4)+\
+1.10224224563*(NJets_JetSubCalc==5)+\
+1.07566620169*(NJets_JetSubCalc==6)+\
+1.1090459291*(NJets_JetSubCalc==7)+\
+1.21705307722*(NJets_JetSubCalc==8)+\
+1.2377932283*(NJets_JetSubCalc>=9)\
 )'
+
+			njetUpStr= '( \
+1.0*(NJets_JetSubCalc<4)+\
+1.170273*(NJets_JetSubCalc==4)+\
+1.149062*(NJets_JetSubCalc==5)+\
+1.127395*(NJets_JetSubCalc==6)+\
+1.167798*(NJets_JetSubCalc==7)+\
+1.283264*(NJets_JetSubCalc==8)+\
+1.317837*(NJets_JetSubCalc>=9)\
+)'
+
+			njetDownStr= '( \
+1.0*(NJets_JetSubCalc<4)+\
+1.085313*(NJets_JetSubCalc==4)+\
+1.055422*(NJets_JetSubCalc==5)+\
+1.023938*(NJets_JetSubCalc==6)+\
+1.050294*(NJets_JetSubCalc==7)+\
+1.150842*(NJets_JetSubCalc==8)+\
+1.157749*(NJets_JetSubCalc>=9)\
+)'
+
+
+
 		elif '18' in year:
 			njetStr= '( \
 1.0*(NJets_JetSubCalc<4)+\
-1.04092777146*(NJets_JetSubCalc==4)+\
-1.01002610312*(NJets_JetSubCalc==5)+\
-1.01089700843*(NJets_JetSubCalc>=6)\
+1.04255538925*(NJets_JetSubCalc==4)+\
+1.0136971949*(NJets_JetSubCalc==5)+\
+0.98448056055*(NJets_JetSubCalc==6)+\
+1.04462767888*(NJets_JetSubCalc==7)+\
+1.09013888621*(NJets_JetSubCalc==8)+\
+1.2000888232*(NJets_JetSubCalc>=9)\
 )'
 
+			njetUpStr= '( \
+1.0*(NJets_JetSubCalc<4)+\
+1.081074*(NJets_JetSubCalc==4)+\
+1.054547*(NJets_JetSubCalc==5)+\
+1.028719*(NJets_JetSubCalc==6)+\
+1.092726*(NJets_JetSubCalc==7)+\
+1.143971*(NJets_JetSubCalc==8)+\
+1.262353*(NJets_JetSubCalc>=9)\
+)'
+
+			njetDownStr= '( \
+1.0*(NJets_JetSubCalc<4)+\
+1.004037*(NJets_JetSubCalc==4)+\
+0.972847*(NJets_JetSubCalc==5)+\
+0.940242*(NJets_JetSubCalc==6)+\
+0.996529*(NJets_JetSubCalc==7)+\
+1.036307*(NJets_JetSubCalc==8)+\
+1.137824*(NJets_JetSubCalc>=9)\
+)'
+# 		if '17' in year:
+# 			njetStr= '( \
+# 1.0*(NJets_JetSubCalc<4)+\
+# 1.08025377451*(NJets_JetSubCalc==4)+\
+# 1.06234822531*(NJets_JetSubCalc==5)+\
+# 1.09355645604*(NJets_JetSubCalc>=6)\
+# )'
+# 		elif '18' in year:
+# 			njetStr= '( \
+# 1.0*(NJets_JetSubCalc<4)+\
+# 1.04092777146*(NJets_JetSubCalc==4)+\
+# 1.01002610312*(NJets_JetSubCalc==5)+\
+# 1.01089700843*(NJets_JetSubCalc>=6)\
+# )'
+
 	if 'Data' not in process:
-		weightStr          += ' * '+TrigSF+' * '+njetStr+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
+		weightStr          += ' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
+		weightStrNoNjet = weightStr
+		weightStr = njetStr + ' * ' + weightStr
 		weightTriggerUpStr  = weightStr.replace(TrigSF,'('+TrigSF+'+'+TrigSF+'Uncert)')
 		weightTriggerDownStr= weightStr.replace(TrigSF,'('+TrigSF+'-'+TrigSF+'Uncert)')
 		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
@@ -111,6 +178,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 		weightFsrDownStr    = 'renormPSWeights[3] * '+weightStr
 		weighttopptUpStr    = '('+topPt13TeVstr+') * '+weightStr
 		weighttopptDownStr  = '(1/'+topPt13TeVstr+') * '+weightStr
+		weightNjetUpStr     = njetUpStr + ' * ' + weightStrNoNjet
+		weightNjetDownStr   = njetDownStr + ' * ' + weightStrNoNjet
 
 	# For N-1 tagging cuts
 	sdmassvar='theJetAK8SoftDropCorr_JetSubCalc_PtOrdered'
@@ -209,7 +278,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	if isPlot2D: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process+flv]  = TH2D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process+flv,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process+flv]  = TH1D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process+flv,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure']#,'toppt'
+		systList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','njet']#,'toppt'
 		for syst in systList:
 			for ud in ['Up','Down']:
 				if isPlot2D: hists[iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process+flv] = TH2D(iPlot+syst+ud+'_'+lumiStr+'fb_'+catStr+'_'+process+flv,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
@@ -240,6 +309,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'fsrDown_'      +lumiStr+'fb_'+catStr+'_'+process, weightFsrDownStr+'*('+fullcut+')', 'GOFF')
 # 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptUp_'      +lumiStr+'fb_'+catStr+'_'+process+flv, weighttopptUpStr+'*('+fullcut+')', 'GOFF')
 # 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'topptDown_'    +lumiStr+'fb_'+catStr+'_'+process+flv, weighttopptDownStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'njetUp_'     +lumiStr+'fb_'+catStr+'_'+process+flv, weightNjetUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'njetDown_'   +lumiStr+'fb_'+catStr+'_'+process+flv, weightNjetDownStr+'*('+fullcut+')', 'GOFF')
 
 
 		# Change the plot name itself for shifts if needed
