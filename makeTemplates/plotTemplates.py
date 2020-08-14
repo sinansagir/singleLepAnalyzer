@@ -50,7 +50,7 @@ elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+systematicList = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf','njet']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
 doAllSys = True
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
@@ -99,9 +99,9 @@ if year=='R17': lumiSys = 0.023
 trigSys = 0.0 # trigger uncertainty
 lepIdSys = 0.03 # lepton id uncertainty
 lepIsoSys = 0.0 # lepton isolation uncertainty
-njetSys = 0.048
-if year=='R17': njetSys = 0.075
-corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2+njetSys**2) #cheating while total e/m values are close
+# njetSys = 0.048
+# if year=='R17': njetSys = 0.075
+corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)#+njetSys**2) #cheating while total e/m values are close
 
 for catEStr in catsElist:
 	modTag = catEStr[catEStr.find('nT'):catEStr.find('nJ')-3]
