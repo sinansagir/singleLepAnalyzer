@@ -93,29 +93,71 @@ def normByBinWidth(h):
 
 def negBinCorrection(h): #set negative bin contents to zero and adjust the normalization
 	norm0=h.Integral()
-	for iBin in range(0,h.GetNbinsX()+2):
-		if h.GetBinContent(iBin)<0: 
-			h.SetBinContent(iBin,0)
-			h.SetBinError(iBin,0)
+	if h.GetNbinsY()>1: #2D histogram
+		for xBin in range(0,h.GetNbinsX()+2):
+			for yBin in range(0,h.GetNbinsY()+2):
+				if h.GetBinContent(xBin,yBin)<0: 
+					h.SetBinContent(xBin,yBin,0)
+					h.SetBinError(xBin,yBin,0)
+	else: #1D histogram
+		for iBin in range(0,h.GetNbinsX()+2):
+			if h.GetBinContent(iBin)<0: 
+				h.SetBinContent(iBin,0)
+				h.SetBinError(iBin,0)
 	if h.Integral()!=0 and norm0>0: h.Scale(norm0/h.Integral())
 
 def overflow(h):
 	nBinsX=h.GetXaxis().GetNbins()
-	content=h.GetBinContent(nBinsX)+h.GetBinContent(nBinsX+1)
-	error=math.sqrt(h.GetBinError(nBinsX)**2+h.GetBinError(nBinsX+1)**2)
-	h.SetBinContent(nBinsX,content)
-	h.SetBinError(nBinsX,error)
-	h.SetBinContent(nBinsX+1,0)
-	h.SetBinError(nBinsX+1,0)
-
+	nBinsY=h.GetYaxis().GetNbins()
+	if nBinsY>1: #2D histogram
+		for xBin in range(0,nBinsX+2):
+			content=h.GetBinContent(xBin,nBinsY)+h.GetBinContent(xBin,nBinsY+1)
+			error=math.sqrt(h.GetBinError(xBin,nBinsY)**2+h.GetBinError(xBin,nBinsY+1)**2)
+			h.SetBinContent(xBin,nBinsY,content)
+			h.SetBinError(xBin,nBinsY,error)
+			h.SetBinContent(xBin,nBinsY+1,0)
+			h.SetBinError(xBin,nBinsY+1,0)
+		for yBin in range(0,nBinsY+2):
+			content=h.GetBinContent(nBinsX,yBin)+h.GetBinContent(nBinsX+1,yBin)
+			error=math.sqrt(h.GetBinError(nBinsX,yBin)**2+h.GetBinError(nBinsX+1,yBin)**2)
+			h.SetBinContent(nBinsX,yBin,content)
+			h.SetBinError(nBinsX,yBin,error)
+			h.SetBinContent(nBinsX+1,yBin,0)
+			h.SetBinError(nBinsX+1,yBin,0)
+	else: #1D histogram
+		content=h.GetBinContent(nBinsX)+h.GetBinContent(nBinsX+1)
+		error=math.sqrt(h.GetBinError(nBinsX)**2+h.GetBinError(nBinsX+1)**2)
+		h.SetBinContent(nBinsX,content)
+		h.SetBinError(nBinsX,error)
+		h.SetBinContent(nBinsX+1,0)
+		h.SetBinError(nBinsX+1,0)
+		
 def underflow(h):
-	content=h.GetBinContent(1)+h.GetBinContent(0)
-	error=math.sqrt(h.GetBinError(1)**2+h.GetBinError(0)**2)
-	h.SetBinContent(1,content)
-	h.SetBinError(1,error)
-	h.SetBinContent(0,0)
-	h.SetBinError(0,0)
-	    
+	nBinsX=h.GetXaxis().GetNbins()
+	nBinsY=h.GetYaxis().GetNbins()
+	if nBinsY>1: #2D histogram
+		for xBin in range(0,nBinsX+2):
+			content=h.GetBinContent(xBin,1)+h.GetBinContent(xBin,0)
+			error=math.sqrt(h.GetBinError(xBin,1)**2+h.GetBinError(xBin,0)**2)
+			h.SetBinContent(xBin,1,content)
+			h.SetBinError(xBin,1,error)
+			h.SetBinContent(xBin,0,0)
+			h.SetBinError(xBin,0,0)
+		for yBin in range(0,nBinsY+2):
+			content=h.GetBinContent(1,yBin)+h.GetBinContent(0,yBin)
+			error=math.sqrt(h.GetBinError(1,yBin)**2+h.GetBinError(0,yBin)**2)
+			h.SetBinContent(1,yBin,content)
+			h.SetBinError(1,yBin,error)
+			h.SetBinContent(0,yBin,0)
+			h.SetBinError(0,yBin,0)
+	else: #1D histogram
+		content=h.GetBinContent(1)+h.GetBinContent(0)
+		error=math.sqrt(h.GetBinError(1)**2+h.GetBinError(0)**2)
+		h.SetBinContent(1,content)
+		h.SetBinError(1,error)
+		h.SetBinContent(0,0)
+		h.SetBinError(0,0)
+			    
 ##############################################################################
 #Printing tables
 

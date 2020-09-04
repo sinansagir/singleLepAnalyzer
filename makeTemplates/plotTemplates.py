@@ -30,7 +30,7 @@ if region=='SR': pfix='templates_'+year
 elif region=='WJCR': pfix='wjets_'+year
 elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
-templateDir=os.getcwd()+'/'+pfix+'_njet_2020_8_6/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_nonjetsf_2020_8_20/'+cutString+'/'
 
 isRebinned='_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names
@@ -39,18 +39,19 @@ sig='tttt' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
 scaleSignalsToXsec = False # !!!!!Make sure you know signal x-sec used in input files to this script. If this is True, it will scale signal histograms by x-sec in weights.py!!!!!
 scaleSignals = False
-sigScaleFact = 20 #put -1 if auto-scaling wanted
+sigScaleFact = 10 #put -1 if auto-scaling wanted
 useCombineTemplates = True
 sigfile='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
+if iPlot=='HTYLD': ttProcList = ['ttbb','ttnobb']
 bkgProcList = ttProcList+['top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf','njet']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+systematicList = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 doAllSys = True
 doQ2sys  = False
 if not doAllSys: doQ2sys = False
@@ -63,7 +64,7 @@ blind = True
 if blind: doOneBand = False
 if not isCategorized: blind = False
 yLog  = True
-if yLog: scaleSignals = False
+# if yLog: scaleSignals = False
 doRealPull = False
 if doRealPull: doOneBand=False
 compareShapes = False
@@ -140,12 +141,13 @@ def formatUpperHist(histogram,histogramBkg):
 	histogram.GetYaxis().CenterTitle()
 	histogram.SetMinimum(0.0000101)
 	if region=='PS': histogram.SetMinimum(0.0101)
-	if scaleSignalsToXsec and isCategorized: histogram.SetMinimum(0.000000101)
 	if not yLog: 
 		histogram.SetMinimum(0.015)
 	if yLog:
 		uPad.SetLogy()
-		if 'YLD' in iPlot: histogram.SetMaximum(2e5*histogramBkg.GetMaximum())
+		if 'YLD' in iPlot: 
+			histogram.SetMaximum(2e3*histogramBkg.GetMaximum())
+			histogram.SetMinimum(0.101)
 		else: histogram.SetMaximum(2e2*histogramBkg.GetMaximum())
 	else: 
 		if 'YLD' in iPlot: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())

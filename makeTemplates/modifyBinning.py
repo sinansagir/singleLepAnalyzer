@@ -40,7 +40,7 @@ saveKey = ''#'_50GeV_100GeVnB2'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-templateDir = os.getcwd()+'/templates_'+year+'_njet_2020_8_6/'+cutString
+templateDir = os.getcwd()+'/templates_'+year+'_nonjetsf_2020_8_20/'+cutString
 combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
@@ -61,6 +61,7 @@ if sigName=='X53':
 	sigProcList+= [sigName+'RHM'+str(mass) for mass in range(900,1700+1,100)]
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 bkgProcList = ttProcList + ['top','ewk','qcd'] #put the most dominant process first
+removeSystFromYields = ['hdamp','ue','njet','njetsf'] #list of systematics to be removed from yield errors
 
 minNbins=1 #min number of bins to be merged
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
@@ -70,14 +71,23 @@ singleBinCR = False
 symmetrizeTopPtShift = False
 scaleSignalsToXsec = False # !!!!!Make sure you know signal x-sec used in input files to this script. If this is True, it will scale signal histograms by x-sec in weights.py!!!!!
 zero = 1E-12
-xMin = 0
+xMin = -1e9
 xMax = 1e9
 
-if iPlot=='HT' and stat<1.: 
+if iPlot.startswith('HT') and stat<1.: 
 	minNbins=2 #(assuming initial hists are 25 GeV bins) min 50GeV bin width (_nB2_ categories are set to min 100GeV bin width below)
-	xMin = 500
+	xMin = 0
+	if iPlot=='HT': xMin = 500
 	xMax = 3000
-
+if iPlot=='maxJJJpt' and stat<1.: 
+	minNbins=2 #(assuming initial hists are 15 GeV bins) min 30GeV bin width
+	xMin = 0
+	xMax = 3000
+if iPlot=='ST' and stat<1.: 
+	minNbins=2 #(assuming initial hists are 15 GeV bins) min 30GeV bin width
+	xMin = 500
+	xMax = 4000
+		
 if rebinCombine:
 	dataName = 'data_obs'
 	upTag = 'Up'
@@ -98,10 +108,10 @@ muIdSys = 0.03 #muon id uncertainty
 elIsoSys = 0.0 #electron isolation uncertainty
 muIsoSys = 0.0 #muon isolation uncertainty
 htRwtSys = 0.0
-njetSys = 0.048
-if year=='R17': njetSys = 0.075
-elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**2+njetSys**2)
-mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2+njetSys**2)
+#njetSys = 0.048
+#if year=='R17': njetSys = 0.075
+elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**2)#+njetSys**2)
+mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2)#+njetSys**2)
 
 removalKeys = {} # True == keep, False == remove
 removalKeys['jsf__'] = False
@@ -172,7 +182,7 @@ for chn in totBkgHists.keys():
 		totDataTempBinErrSquared_M += dataHists_[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
 		nBinsMerged+=1
 		#if nBinsMerged<minNbins: continue
-		if nBinsMerged<minNbins or ('_nB2_' in chn and nBinsMerged<4 and iPlot=='HT'): continue
+		if nBinsMerged<minNbins or ('_nB2_' in chn and nBinsMerged<4 and (iPlot.startswith('HT') or iPlot=='ST')): continue
 		if totTempBinContent_E>0. and totTempBinContent_M>0.:
 			if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
 				totTempBinContent_E = 0.
@@ -207,10 +217,9 @@ for chn in xbinsListTemp.keys():
 	xbinsList[chn] = []
 	for ibin in range(len(xbinsListTemp[chn])): xbinsList[chn].append(xbinsListTemp[chn][len(xbinsListTemp[chn])-1-ibin])
 	if 'isCR' in chn and singleBinCR: xbinsList[chn] = [xbinsList[chn][0],xbinsList[chn][-1]]
-	xMax = xbinsList[chn][-2]+(500-xbinsList[chn][-2]%500)
+	if (iPlot.startswith('HT') or iPlot=='maxJJJpt' or iPlot=='ST') and stat<1.: xMax = xbinsList[chn][-2]+(500-xbinsList[chn][-2]%500)
 	if xMin>xbinsList[chn][0]: xbinsList[chn][0] = xMin
-	if xMax<xbinsList[chn][-1]: xbinsList[chn][-1] = xMax
-	print xbinsList[chn]
+	if xMax<xbinsList[chn][-1] and xMin!=xMax: xbinsList[chn][-1] = xMax
 	for ibin in range(1,len(xbinsList[chn])-1):
 		if xbinsList[chn][ibin]<=xbinsList[chn][0] or xbinsList[chn][ibin]>=xbinsList[chn][-1]: del xbinsList[chn][ibin]
 	print chn,"=",xbinsList[chn]
@@ -529,6 +538,7 @@ for sig in sigProcList:
 
 print "List of systematics for "+bkgProcList[0]+" process and "+channels[0]+" channel:"
 print "        ",sorted([hist[hist.find(bkgProcList[0]+'__')+len(bkgProcList[0])+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+bkgProcList[0]+'__' in hist and upTag in hist])# and 'muRF' not in hist
+print "        following will be removed from yield errors:",sorted(removeSystFromYields)
 
 def getShapeSystUnc(proc,chn):
 	if not addShapes: return 0
@@ -538,6 +548,7 @@ def getShapeSystUnc(proc,chn):
 	histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
 	nomHist = histoPrefix+proc
 	for syst in systematicList:
+		if syst in removeSystFromYields: continue
 		for ud in [upTag,downTag]:
 			shpHist = histoPrefix+proc+'__'+syst+ud
 			shift = yieldsAll[shpHist]/(yieldsAll[nomHist]+zero)-1
