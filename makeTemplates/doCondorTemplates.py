@@ -19,10 +19,12 @@ if region=='TTCR': pfix='ttbar'
 elif region=='WJCR': pfix='wjets'
 else: pfix='templates'
 if not categorize: pfix='kinematics_'+region
-pfix+='_'+year+'_25GeVbin_2020_7_30'#+date#+'_'+time
+pfix+='_'+year+'_nonjetsf_2020_8_20'#+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 'HT',
+# 'HTb',
+# 'maxJJJpt',
 # 'ST',
 # 'minMlb',
 # 
@@ -91,6 +93,10 @@ iPlotList = [#distribution name as defined in "doHists.py"
 # 'NDCSVBJetsNoSF',
 # 'Wjet1Pt',
 # 'Tjet1Pt',
+
+# 'HT_vs_HTb',
+# 'HT_vs_maxJJJpt',
+# 'HTb_vs_maxJJJpt',
 ]
 
 isEMlist  = ['E','M']

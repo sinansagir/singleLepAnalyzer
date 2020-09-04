@@ -25,11 +25,11 @@ def add_processes_and_observations(cb, prefix='tttt'):
 def add_shapes(cb):
 	print '>> Extracting histograms from input root files...'
 	for chn in chns:
-		bkg_pattern = 'HT_'+lumiStr+'_%s$BIN__$PROCESS' % chn
+		bkg_pattern = iPlot+'_'+lumiStr+'_%s$BIN__$PROCESS' % chn
 		cb.cp().channel([chn]).era([era]).backgrounds().ExtractShapes(
 			rfile, bkg_pattern, bkg_pattern + '__$SYSTEMATIC')
 		
-		sig_pattern = 'HT_'+lumiStr+'_%s$BIN__$PROCESS$MASS' % chn
+		sig_pattern = iPlot+'_'+lumiStr+'_%s$BIN__$PROCESS$MASS' % chn
 		if 'isCR' not in chn:
 			cb.cp().channel([chn]).era([era]).signals().ExtractShapes(
 				rfile, sig_pattern, sig_pattern + '__$SYSTEMATIC')
@@ -71,15 +71,14 @@ def print_cb(cb):
 		print
 
 
-def add_systematics(cb):
-	print '>> Adding systematic uncertainties...'
+def add_standard_systematics(cb):
+	print '>> Adding standard systematic uncertainties...'
 	
 	signal = cb.cp().signals().process_set()
 	
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.025)(['R17'], 1.023)(['R18'], 1.025)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	cb.cp().process(signal + allbkgs).channel(chnsE).AddSyst(cb, 'SFel_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.03)(['R17'], 1.03)(['R18'], 1.03)) # 1.5% el id/iso + 2.5% trigger ~ 3%
 	cb.cp().process(signal + allbkgs).channel(chnsM).AddSyst(cb, 'SFmu_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.03)(['R17'], 1.03)(['R18'], 1.03)) # 1% mu id/iso + 2.5% trigger ~ 3%
-	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'ttHF', 'lnN', ch.SystMap()(1.13)) # Uncorrelated; from TOP-18-002 (v34) Table 4, sqrt(0.2^2+0.6^2)/4.7 ~ 0.134565 ~ 0.13
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jec_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # This one is being studied in B2G-19-001/AN2018_322_v7 (take the uncorrelated one to be conservative!)
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jer_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	if era=='R17':
@@ -99,33 +98,77 @@ def add_systematics(cb):
 		else: cb.cp().process([proc]).channel(chns).AddSyst(cb, 'PSwgt_'+proc+'_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 	cb.cp().process(signal).channel(chns).AddSyst(cb, 'PSwgt_tttt_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'pdf', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-	# cb.cp().process(ttbkgs).channel(chns_njet[6]+chns_njet[7]+chns_njet[8]+chns_njet[9]+chns_njet[10]).AddSyst(cb, "nJet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.075)(['R18'], 1.048))
-	cb.cp().process(ttbkgs).channel(chns_njet[6]).AddSyst(cb, "n6Jet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0517285300268)(['R18'], 1.0442383872209))
-	cb.cp().process(ttbkgs).channel(chns_njet[7]).AddSyst(cb, "n7Jet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0587524161036)(['R18'], 1.0480985065135))
-	cb.cp().process(ttbkgs).channel(chns_njet[8]).AddSyst(cb, "n8Jet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0662112889662)(['R18'], 1.0538322999767))
-	cb.cp().process(ttbkgs).channel(chns_njet[9]+chns_njet[10]).AddSyst(cb, "n9pJet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0800438168504)(['R18'], 1.0622643813546))
 # 	cb.cp().process(ttbkgs).channel(chns).AddSyst(cb, 'ue', 'shape', ch.SystMap()(1.0))
 # 	cb.cp().process(ttbkgs).channel(chns).AddSyst(cb, 'hdamp', 'shape', ch.SystMap()(1.0))
 # 	cb.cp().process(ttbkgs).channel(chns).AddSyst(cb, 'toppt', 'shape', ch.SystMap()(1.0)) # Correlated; Ex: B2G-19-003/AN2015_174_v14 (since it is assumed that the affect of this correction should be consistent across years)
 
 
+def add_HF_systematics(cb):
+	print '>> Adding HF systematic uncertainties...'
+	
+	signal = cb.cp().signals().process_set()
+	
+	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'ttHF', 'lnN', ch.SystMap()(1.13)) # Uncorrelated; from TOP-18-002 (v34) Table 4, sqrt(0.2^2+0.6^2)/4.7 ~ 0.134565 ~ 0.13
+
+
+def add_Njet4to6p_systematics(cb):
+	print '>> Adding Njet 4-6+ systematic uncertainties with measured priors...'
+	
+	signal = cb.cp().signals().process_set()
+	
+	cb.cp().process(ttbkgs).channel(chns_njet[6]+chns_njet[7]+chns_njet[8]+chns_njet[9]+chns_njet[10]).AddSyst(cb, "nJet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.075)(['R18'], 1.048))
+
+
+def add_Njet4to9p_systematics(cb):
+	print '>> Adding Njet 4-9+ systematic uncertainties with measured priors...'
+	
+	signal = cb.cp().signals().process_set()
+	
+	cb.cp().process(ttbkgs).channel(chns_njet[6]).AddSyst(cb, "n6Jet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0517285300268)(['R18'], 1.0442383872209))
+	cb.cp().process(ttbkgs).channel(chns_njet[7]).AddSyst(cb, "n7Jet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0587524161036)(['R18'], 1.0480985065135))
+	cb.cp().process(ttbkgs).channel(chns_njet[8]).AddSyst(cb, "n8Jet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0662112889662)(['R18'], 1.0538322999767))
+	cb.cp().process(ttbkgs).channel(chns_njet[9]+chns_njet[10]).AddSyst(cb, "n9pJet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0800438168504)(['R18'], 1.0622643813546))
+
+
+def add_Njet4to9p_50p_systematics(cb):
+	print '>> Adding Njet 4-9+ systematic uncertainties with 50% priors...'
+	
+	signal = cb.cp().signals().process_set()
+	
+	cb.cp().process(ttbkgs).channel(chns_njet[6]).AddSyst(cb, "n6Jet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.50)(['R17'], 1.50)(['R18'], 1.50))
+	cb.cp().process(ttbkgs).channel(chns_njet[7]).AddSyst(cb, "n7Jet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.50)(['R17'], 1.50)(['R18'], 1.50))
+	cb.cp().process(ttbkgs).channel(chns_njet[8]).AddSyst(cb, "n8Jet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.50)(['R17'], 1.50)(['R18'], 1.50))
+	cb.cp().process(ttbkgs).channel(chns_njet[9]+chns_njet[10]).AddSyst(cb, "n9pJet_$ERA", "lnN", ch.SystMap('era')(['R16'], 1.50)(['R17'], 1.50)(['R18'], 1.50))
+
+
+def add_Njet4to9p_Delta_systematics(cb):
+	print '>> Adding Njet 4-9+ systematic uncertainties with Delta(SF, noSF) priors...'
+	
+	signal = cb.cp().signals().process_set()
+	
+	cb.cp().process(ttbkgs).channel(chns).AddSyst(cb, 'njetsf_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
+
+
+def add_Njet4to9p_50p_centValSF_systematics(cb): #PLACEHOLDER, IT IS NOT SET UP CORRECTLY YET!!!
+	print '>> Adding Njet 4-9+ systematic uncertainties with 50% priors and central value set to Njet scale factors...'
+	
+	signal = cb.cp().signals().process_set()
+	
+	cb.cp().process(ttbkgs).channel(chns_njet[6]).AddSyst(cb, "n6Jet_$ERA", "lnN", ch.SystMapAsymm('era')(['R16'], 1.0, 1.0)(['R17'], 0.57566620169, 1.57566620169)(['R18'], 0.48448056055, 1.48448056055))
+	cb.cp().process(ttbkgs).channel(chns_njet[7]).AddSyst(cb, "n7Jet_$ERA", "lnN", ch.SystMapAsymm('era')(['R16'], 1.0, 1.0)(['R17'], 0.60904592910, 1.60904592910)(['R18'], 0.54462767888, 1.54462767888))
+	cb.cp().process(ttbkgs).channel(chns_njet[8]).AddSyst(cb, "n8Jet_$ERA", "lnN", ch.SystMapAsymm('era')(['R16'], 1.0, 1.0)(['R17'], 0.71705307722, 1.71705307722)(['R18'], 0.59013888621, 1.59013888621))
+	cb.cp().process(ttbkgs).channel(chns_njet[9]+chns_njet[10]).AddSyst(cb, "n9pJet_$ERA", "lnN", ch.SystMapAsymm('era')(['R16'], 1.0, 1.0)(['R17'], 0.7377932283, 1.7377932283)(['R18'], 0.7000888232, 1.7000888232))
+
+
 def add_autoMCstat(cb):
 	print '>> Adding autoMCstats...'
-	
-	thisDir = os.getcwd()
-	for chn in ['cmb']+chns:
-		chnDir = os.getcwd()+'/limits_'+template+saveKey+'/'+chn+'/'
-		os.chdir(chnDir)
-		files = [x for x in os.listdir(chnDir) if '.txt' in x]
-		for ifile in files:
-			with open(chnDir+ifile, 'a') as chnfile: chnfile.write('* autoMCStats 1.')
-		os.chdir(thisDir)
+	cb.AddDatacardLineAtEnd('* autoMCStats 1.')
 
 
 def create_workspace(cb):
 	print '>> Creating workspace...'
 	
-	for chn in ['cmb']+chns:
+	for chn in ['cmb']:#+chns:
 		chnDir = os.getcwd()+'/limits_'+template+saveKey+'/'+chn+'/'
 		cmd = 'combineTool.py -M T2W -i '+chnDir+' -o workspace.root --parallel 4'
 		os.system(cmd)
@@ -133,11 +176,13 @@ def create_workspace(cb):
 
 def go(cb):
 	add_processes_and_observations(cb)
-	add_systematics(cb)
+	add_standard_systematics(cb)
+	add_HF_systematics(cb)
+	#add_Njet4to9p_systematics(cb)
 	add_shapes(cb)
 	#add_bbb(cb)
-	rename_and_write(cb)
 	add_autoMCstat(cb)
+	rename_and_write(cb)
 	create_workspace(cb)
 	#print_cb(cb)
 
@@ -146,16 +191,17 @@ if __name__ == '__main__':
 	cb = ch.CombineHarvester()
 	#cb.SetVerbosity(20)
 	
-	era = 'R17'
+	iPlot='HT'
+	era = 'R18'
 	lumiStr = '41p53fb'
 	if era=='R18': lumiStr = '59p97fb'
-	tag = '_50GeV_100GeVnB2'
-	saveKey = tag
+	tag = ''#'_50GeV_100GeVnB2'
+	saveKey = '_nonjetsyt'#'_Njet50pct_centValSF'
 	fileDir = '/user_data/ssagir/CMSSW_10_2_10/src/singleLepAnalyzer/fourtops/makeTemplates/'
-	template = era+'_25GeVbin_2020_7_30'
+	template = era+'_nonjetsf_lepPt20_2020_9_3'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)
-	os.system('cp '+fileDir+'templates_'+template+'/templates_HT_'+lumiStr+tag+'_rebinned_stat0p3.root ./limits_'+template+saveKey+'/')
-	rfile = './limits_'+template+saveKey+'/templates_HT_'+lumiStr+tag+'_rebinned_stat0p3.root'
+	os.system('cp '+fileDir+'templates_'+template+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3.root ./limits_'+template+saveKey+'/')
+	rfile = './limits_'+template+saveKey+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3.root'
 	
 	ttbkgs = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 	allbkgs = ttbkgs + ['top','ewk','qcd']

@@ -15,7 +15,7 @@ start_time = time.time()
 year='R17'
 saveKey = ''#'_ttHFupLFdown'
 cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
-theDir = 'templates_'+year+'_njet_2020_8_6'
+theDir = 'kinematics_SR_'+year+'_nonjetsf_2020_8_31'
 outDir = os.getcwd()+'/'+theDir+'/'+cutString
 
 writeSummaryHists = True
@@ -28,7 +28,7 @@ doHDsys = True
 doUEsys = True
 doPDF = True
 addCRsys = False
-systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','njet'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
+systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 zero = 1E-12
@@ -118,12 +118,14 @@ elIdSys = 0.03 #electron id uncertainty
 muIdSys = 0.03 #muon id uncertainty
 elIsoSys = 0.0 #electron isolation uncertainty
 muIsoSys = 0.0 #muon isolation uncertainty
-njetSys = 0.048
-if year=='R17': njetSys = 0.075
+#njetSys = 0.048
+#if year=='R17': njetSys = 0.075
+elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2)#+njetSys**2)
+mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)#+njetSys**2)
 
-elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+njetSys**2)
-mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+njetSys**2)
-
+if not os.path.exists(outDir): 
+	print outDir,'DOES NOT EXIST!!!'
+	os._exit(1)
 isEMlist = ['E','M']
 catList = ['is'+x for x in os.walk(outDir).next()[1] if x.startswith('E_') or x.startswith('M_')]
 catList.sort()

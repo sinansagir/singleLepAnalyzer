@@ -79,8 +79,9 @@ for opt, arg in opts:
 	elif opt == '--nbtag': nbtaglist = [str(arg)]
 	elif opt == '--njets': njetslist = [str(arg)]
 
-lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_4t_072820_step1hadds/nominal'
+lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
+#step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_4t_072820_step1hadds/nominal'
+step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_4t_07282020_step2/nominal'
 
 bkgList = [
 		  'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
@@ -277,9 +278,14 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'HOTtDThetaMin':('topDThetaMin_HOTTaggerCalc',linspace(0,1,51).tolist(),';resolved t-tagged jet DThetaMin'),
 	'isHTgt500Njetge9':('isHTgt500Njetge9',linspace(0,2,3).tolist(),';isHTgt500Njetge9'),
 	'NJets_vs_NBJets':('NJets_JetSubCalc:NJetsCSV_JetSubCalc',linspace(0, 15, 16).tolist(),';AK4 jet multiplicity',linspace(0, 10, 11).tolist(),';b-tagged jet multiplicity'),
+	'HT_vs_HTb':('AK4HT:HT_bjets',linspace(0, 3000, 121).tolist(),';H_{T} [GeV]',linspace(0, 3000, 121).tolist(),';H_{T}^{b} [GeV]'),
+	'HT_vs_maxJJJpt':('AK4HT:maxJJJpt',linspace(0, 3000, 121).tolist(),';H_{T} [GeV]',linspace(0, 1500, 101).tolist(),';max[p_{T}^{jjj}] [GeV]'),
+	'HTb_vs_maxJJJpt':('HT_bjets:maxJJJpt',linspace(0, 3000, 121).tolist(),';H_{T}^{b} [GeV]',linspace(0, 1500, 101).tolist(),';max[p_{T}^{jjj}] [GeV]'),
 
+	'maxJJJpt':('maxJJJpt',linspace(0, 1500, 101).tolist(),';max[p_{T}^{jjj}] [GeV]'),
+	'HTb':('HT_bjets',linspace(0, 3000, 121).tolist(),';H_{T}^{b} [GeV]'),
 	'HT':('AK4HT',linspace(0, 3000, 121).tolist(),';H_{T} [GeV]'),
-	'ST':('AK4HTpMETpLepPt',linspace(0, 4000, 101).tolist(),';S_{T} [GeV]'),
+	'ST':('AK4HTpMETpLepPt',linspace(0, 4000, 161).tolist(),';S_{T} [GeV]'),
 	'minMlb':('minMleppBjet',linspace(0, 1000, 101).tolist(),';min[M(l,b)] [GeV]'),
 	'minMlbSBins':('minMleppBjet',linspace(0, 1000, 1001).tolist(),';min[M(l,b)] [GeV]'),
 	'BDT':('BDT',linspace(-1, 1, 201).tolist(),';BDT'),
