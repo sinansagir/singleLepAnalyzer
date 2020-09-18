@@ -1,23 +1,19 @@
 import os,sys,datetime,itertools
 
-#Basic kinematic cuts optimization configuration (w/o shapes) -- ST -- x53x53/2016 dataset (Total jobs submitted: 2340):
-lepPtCutList  = [30]
-jet1PtCutList = [200]
-jet2PtCutList = [50]
-metCutList    = [80]
-njetsCutList  = [5]
-nbjetsCutList = [0]
-jet3PtCutList = [0]
-jet4PtCutList = [0]
-jet5PtCutList = [0]
-drCutList     = [1]
-Wjet1PtCutList= [0]
-bjet1PtCutList= [0]
-htCutList     = [0]
-stCutList     = [0]
-minMlbCutList = [0]
+year='R17'
 
-cutConfigs = list(itertools.product(lepPtCutList,jet1PtCutList,jet2PtCutList,metCutList,njetsCutList,nbjetsCutList,jet3PtCutList,jet4PtCutList,jet5PtCutList,drCutList,Wjet1PtCutList,bjet1PtCutList,htCutList,stCutList,minMlbCutList))
+elPtCutList = [50]
+muPtCutList = [50]
+metCutList = [60]
+mtCutList = [60]
+jet1PtCutList = [0]
+jet2PtCutList = [0]
+jet3PtCutList = [0]
+AK4HTCutList = [510]
+AK4HTbCutList = [0]
+maxJJJptCutList = [0]
+
+cutConfigs = list(itertools.product(elPtCutList,muPtCutList,metCutList,mtCutList,jet1PtCutList,jet2PtCutList,jet3PtCutList,AK4HTCutList,AK4HTbCutList,maxJJJptCutList))
 
 thisDir = os.getcwd()
 outputDir = thisDir+'/'
@@ -25,31 +21,34 @@ outputDir = thisDir+'/'
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
-pfix='templates_ST'
-pfix+='_'+date#+'_'+time
+pfix='templates_'+date#+'_'+time
 
 outDir = outputDir+pfix
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
+if year=='R17': 
+	os.system('cp ../weights17.py ../weights.py')
+	os.system('cp ../samples17.py ../samples.py')
+elif year=='R18': 
+	os.system('cp ../weights18.py ../weights.py')
+	os.system('cp ../samples18.py ../samples.py')
+os.system('cp ../analyze.py ../weights.py ../samples.py ../utils.py ../modSyst.py doHistsOpt.py doCondorTemplatesOpt.py doCondorTemplatesOpt.sh '+outDir+'/')
+os.chdir(outDir)
+
 
 count=0
 for conf in cutConfigs:
-	lepPtCut,jet1PtCut,jet2PtCut,metCut,njetsCut,nbjetsCut,jet3PtCut,jet4PtCut,jet5PtCut,drCut,Wjet1PtCut,bjet1PtCut,htCut,stCut,minMlbCut=conf[0],conf[1],conf[2],conf[3],conf[4],conf[5],conf[6],conf[7],conf[8],conf[9],conf[10],conf[11],conf[12],conf[13],conf[14]
-	if jet2PtCut >= jet1PtCut or jet3PtCut >= jet1PtCut or jet4PtCut >= jet1PtCut or jet5PtCut >= jet1PtCut: continue
-	if jet3PtCut >= jet2PtCut or jet4PtCut >= jet2PtCut or jet5PtCut >= jet2PtCut: continue
-	if (jet4PtCut >= jet3PtCut or jet5PtCut >= jet3PtCut) and jet3PtCut!=0: continue
-	if jet5PtCut >= jet4PtCut and jet4PtCut!=0: continue
-	cutString = 'lep'+str(int(lepPtCut))+'_MET'+str(int(metCut))+'_NJets'+str(int(njetsCut))+'_NBJets'+str(int(nbjetsCut))+'_DR'+str(drCut)
-	cutString+= '_1jet'+str(int(jet1PtCut))+'_2jet'+str(int(jet2PtCut))+'_3jet'+str(int(jet3PtCut))#+'_4jet'+str(int(jet4PtCut))+'_5jet'+str(int(jet5PtCut))
-	#cutString+= '_1Wjet'+str(Wjet1PtCut)+'_1bjet'+str(bjet1PtCut)+'_HT'+str(htCut)+'_ST'+str(stCut)+'_minMlb'+str(minMlbCut)
-	os.chdir(outDir)
+	elPtCut,muPtCut,metCut,mtCut,jet1PtCut,jet2PtCut,jet3PtCut,AK4HTCut,AK4HTbCut,maxJJJptCut=conf[0],conf[1],conf[2],conf[3],conf[4],conf[5],conf[6],conf[7],conf[8],conf[9]
+	if jet2PtCut > jet1PtCut or jet3PtCut > jet1PtCut or jet3PtCut > jet2PtCut: continue
+	cutString = 'el'+str(int(elPtCut))+'_mu'+str(int(muPtCut))+'_MET'+str(int(metCut))+'_MT'+str(int(mtCut))
+	cutString+= '_HT'+str(AK4HTCut)
+	cutString+= '_HTb'+str(AK4HTbCut)+'_3Jpt'+str(maxJJJptCut)
 	print cutString
 	if not os.path.exists(outDir+'/'+cutString): os.system('mkdir '+cutString)
 	os.chdir(cutString)
 
-	dict={'dir':outputDir,'lepPtCut':lepPtCut,'jet1PtCut':jet1PtCut,'jet2PtCut':jet2PtCut,
-		  'metCut':metCut,'njetsCut':njetsCut,'nbjetsCut':nbjetsCut,'jet3PtCut':jet3PtCut,
-		  'jet4PtCut':jet4PtCut,'jet5PtCut':jet5PtCut,'drCut':drCut,'Wjet1PtCut':Wjet1PtCut,
-		  'bjet1PtCut':bjet1PtCut,'htCut':htCut,'stCut':stCut,'minMlbCut':minMlbCut}
+	dict={'dir':outDir,'elPtCut':elPtCut,'muPtCut':muPtCut,'metCut':metCut,'mtCut':mtCut,
+		  'jet1PtCut':jet1PtCut,'jet2PtCut':jet2PtCut,'jet3PtCut':jet3PtCut,'AK4HTCut':AK4HTCut,
+		  'AK4HTbCut':AK4HTbCut,'maxJJJptCut':maxJJJptCut}
 
 	jdf=open('condor.job','w')
 	jdf.write(
@@ -58,14 +57,11 @@ Executable = %(dir)s/doCondorTemplatesOpt.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 request_memory = 3072
-
-arguments      = ""
-
 Output = condor.out
 Error = condor.err
 Log = condor.log
 Notification = Error
-Arguments = %(dir)s %(lepPtCut)s %(jet1PtCut)s %(jet2PtCut)s %(metCut)s %(njetsCut)s %(nbjetsCut)s %(jet3PtCut)s %(jet4PtCut)s %(jet5PtCut)s %(drCut)s %(Wjet1PtCut)s %(bjet1PtCut)s %(htCut)s %(stCut)s %(minMlbCut)s
+Arguments = %(dir)s %(elPtCut)s %(muPtCut)s %(metCut)s %(mtCut)s %(jet1PtCut)s %(jet2PtCut)s %(jet3PtCut)s %(AK4HTCut)s %(AK4HTbCut)s %(maxJJJptCut)s
 
 Queue 1"""%dict)
 	jdf.close()
