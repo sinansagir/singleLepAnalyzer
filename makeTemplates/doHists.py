@@ -296,7 +296,7 @@ print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
-catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
+catList = ['is'+cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5] for cat in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 nCats  = len(catList)
 
 shapesFiles = ['jec','jer']
@@ -306,7 +306,7 @@ tFileData = {}
 catInd = 1
 for cat in catList:
 	if not runData: break
-	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
+	catDir = catList[2:]
 	datahists = {}
 	if len(sys.argv)>1: outDir=sys.argv[1]
 	else: 
@@ -317,10 +317,9 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
-	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
 	for data in dataList: 
 		tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
-		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,year))
+		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
 		if catInd==nCats: 
 			del tFileData[data]
 			del tTreeData[data]
@@ -332,7 +331,7 @@ tFileBkg = {}
 catInd = 1
 for cat in catList:
 	if not runBkgs: break
-	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
+	catDir = catList[2:]
 	bkghists  = {}
 	if len(sys.argv)>1: outDir=sys.argv[1]
 	else: 
@@ -343,16 +342,15 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
-	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
 	for bkg in bkgList: 
 		tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
 		if doAllSys:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
 					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
-		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,year))
+		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
 		if 'TTJets' in bkg and len(ttFlvs)!=0:
-			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,year))
+			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
 		if catInd==nCats: 
 			del tFileBkg[bkg]
 			del tTreeBkg[bkg]
@@ -367,7 +365,7 @@ for cat in catList:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
 					tFileBkg[hdamp+syst+ud],tTreeBkg[hdamp+syst+ud]=None,None
-			bkghists.update(analyze(tTreeBkg,hdamp,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,year))
+			bkghists.update(analyze(tTreeBkg,hdamp,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
 			if catInd==nCats: 
 				del tFileBkg[hdamp]
 				del tTreeBkg[hdamp]
@@ -377,7 +375,7 @@ for cat in catList:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
 					tFileBkg[ue+syst+ud],tTreeBkg[ue+syst+ud]=None,None
-			bkghists.update(analyze(tTreeBkg,ue,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,year))
+			bkghists.update(analyze(tTreeBkg,ue,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
 			if catInd==nCats: 
 				del tFileBkg[ue]
 				del tTreeBkg[ue]
@@ -389,7 +387,7 @@ tFileSig = {}
 catInd = 1
 for cat in catList:
 	if not runSigs: break
-	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
+	catDir = catList[2:]
 	sighists  = {}
 	if len(sys.argv)>1: outDir=sys.argv[1]
 	else:
@@ -400,7 +398,6 @@ for cat in catList:
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
 		outDir+='/'+catDir
 		if not os.path.exists(outDir): os.system('mkdir '+outDir)
-	category = {'isEM':cat[0],'nhott':cat[1],'nttag':cat[2],'nWtag':cat[3],'nbtag':cat[4],'njets':cat[5]}
 	for sig in sigList: 
 		for decay in decays: 
 			tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
@@ -409,7 +406,7 @@ for cat in catList:
 					for ud in ['Up','Down']:
 						print "        "+syst+ud
 						tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
-			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,year))
+			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
 			if catInd==nCats: 
 				del tFileSig[sig+decay]
 				del tTreeSig[sig+decay]

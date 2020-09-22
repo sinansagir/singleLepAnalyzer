@@ -2,12 +2,12 @@ import os,sys,datetime,itertools
 
 year='R17'
 
-elPtCutList = [50]
-muPtCutList = [50]
-metCutList = [60]
-mtCutList = [60]
-jet1PtCutList = [0]
-jet2PtCutList = [0]
+elPtCutList = [80]
+muPtCutList = [80]
+metCutList = [100]
+mtCutList = [0]
+jet1PtCutList = [450]
+jet2PtCutList = [150]
 jet3PtCutList = [0]
 AK4HTCutList = [510]
 AK4HTbCutList = [0]

@@ -41,11 +41,11 @@ lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_4t_07282020_step2/nominal'
 
 isEMlist  = ['E','M']
-nhottlist = ['0','1p']
-nttaglist = ['0p']
-nWtaglist = ['0p']
-nbtaglist = ['2','3','4p']
-njetslist = ['6','7','8','9','10p']
+nhottlist = ['0p']
+nttaglist = ['0','1p']
+nWtaglist = ['0','1p']
+nbtaglist = ['1','2p']
+njetslist = ['4p']
 if not isCategorized: 
 	nhottlist = ['0p']
 	nttaglist = ['0p']
@@ -82,7 +82,7 @@ ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 
 dataList = ['DataE','DataM']#,'DataJ']
 
-whichSignal = 'tttt' #HTB, TT, BB, X53 or tttt
+whichSignal = 'X53' #HTB, TT, BB, X53 or tttt
 massList = [690]#range(800,1600+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='tttt': sigList = [whichSignal]
@@ -92,6 +92,9 @@ if whichSignal=='X53':
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 else: decays = [''] #there is only one possible decay mode!
+
+if whichSignal=='X53':
+	step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_X53_082020_step1hadds/nominal'
 
 hdampList = [#hDamp samples
 'TTJets2L2nuHDAMPdnTT1b','TTJets2L2nuHDAMPdnTT2b','TTJets2L2nuHDAMPdnTTbb','TTJets2L2nuHDAMPdnTTcc','TTJets2L2nuHDAMPdnTTjj',
@@ -241,17 +244,6 @@ for hf in ['jj','cc','bb','1b','2b']:
 for syst in ['hdup','hddn','ueup','uedn']:
 	bkgProcs['ttbj_'+syst] = bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 	bkgProcs['ttnobb_'+syst] = bkgProcs['ttjj_'+syst] + bkgProcs['ttcc_'+syst]+bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
-
-whichSignal = 'tttt' #HTB, TT, BB, X53 or tttt
-massList = [690]#range(800,1600+1,100)
-sigList = [whichSignal+'M'+str(mass) for mass in massList]
-if whichSignal=='tttt': sigList = [whichSignal]
-if whichSignal=='X53': 
-	sigList = [whichSignal+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
-	sigList+= [whichSignal+'RHM'+str(mass) for mass in range(900,1700+1,100)]
-if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
-elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
-else: decays = [''] #there is only one possible decay mode!
 
 doBRScan = False
 BRs={}
@@ -880,77 +872,62 @@ tFileSig = {}
 datahists = {}
 bkghists = {}
 sighists = {}
-catInd = 1
-for cat in catList:
-	category = {'isEM':cat.split('_')[0][2:],
-				'nhott':cat.split('_')[1][4:],
-				'nttag':cat.split('_')[2][2:],
-				'nWtag':cat.split('_')[3][2:],
-				'nbtag':cat.split('_')[4][2:],
-				'njets':cat.split('_')[5][2:]}
-	for data in dataList: 
-		tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
-		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,year))
-		if catInd==nCats: 
-			del tFileData[data]
-			del tTreeData[data]
+for data in dataList: 
+	tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
+	for cat in catList:
+		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+	del tFileData[data]
+	del tTreeData[data]
 
-	for bkg in bkgList: 
-		tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
+for bkg in bkgList: 
+	tFileBkg[bkg],tTreeBkg[bkg]=readTree(step1Dir+'/'+samples[bkg]+'_hadd.root')
+	if doAllSys:
+		for syst in shapesFiles:
+			for ud in ['Up','Down']:
+				tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
+	for cat in catList:
+		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+		if 'TTJets' in bkg and len(ttFlvs)!=0:
+			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+	del tFileBkg[bkg]
+	del tTreeBkg[bkg]
+	if doAllSys:
+		for syst in shapesFiles:
+			for ud in ['Up','Down']: 
+				del tFileBkg[bkg+syst+ud]
+				del tTreeBkg[bkg+syst+ud]
+if doHDsys: 
+	for hdamp in hdampList: 
+		tFileBkg[hdamp],tTreeBkg[hdamp]=readTree(step1Dir+'/'+samples[hdamp]+'_hadd.root')
+		for cat in catList:
+			bkghists.update(analyze(tTreeBkg,hdamp,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+		del tFileBkg[hdamp]
+		del tTreeBkg[hdamp]
+if doUEsys: 
+	for ue in ueList: 
+		tFileBkg[ue],tTreeBkg[ue]=readTree(step1Dir+'/'+samples[ue]+'_hadd.root')
+		for cat in catList:
+			bkghists.update(analyze(tTreeBkg,ue,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+		del tFileBkg[ue]
+		del tTreeBkg[ue]
+	
+for sig in sigList: 
+	for decay in decays: 
+		tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
 		if doAllSys:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
-		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,year))
-		if 'TTJets' in bkg and len(ttFlvs)!=0:
-			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,year))
-		if catInd==nCats: 
-			del tFileBkg[bkg]
-			del tTreeBkg[bkg]
-		if doAllSys and catInd==nCats:
+					print "        "+syst+ud
+					tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
+		for cat in catList:
+			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+		del tFileSig[sig+decay]
+		del tTreeSig[sig+decay]
+		if doAllSys:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']: 
-					del tFileBkg[bkg+syst+ud]
-					del tTreeBkg[bkg+syst+ud]
-	if doHDsys: 
-		for hdamp in hdampList: 
-			tFileBkg[hdamp],tTreeBkg[hdamp]=readTree(step1Dir+'/'+samples[hdamp]+'_hadd.root')
-			for syst in shapesFiles:
-				for ud in ['Up','Down']:
-					tFileBkg[hdamp+syst+ud],tTreeBkg[hdamp+syst+ud]=None,None
-			bkghists.update(analyze(tTreeBkg,hdamp,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,year))
-			if catInd==nCats: 
-				del tFileBkg[hdamp]
-				del tTreeBkg[hdamp]
-	if doUEsys: 
-		for ue in ueList: 
-			tFileBkg[ue],tTreeBkg[ue]=readTree(step1Dir+'/'+samples[ue]+'_hadd.root')
-			for syst in shapesFiles:
-				for ud in ['Up','Down']:
-					tFileBkg[ue+syst+ud],tTreeBkg[ue+syst+ud]=None,None
-			bkghists.update(analyze(tTreeBkg,ue,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],category,region,year))
-			if catInd==nCats: 
-				del tFileBkg[ue]
-				del tTreeBkg[ue]
-	
-	for sig in sigList: 
-		for decay in decays: 
-			tFileSig[sig+decay],tTreeSig[sig+decay]=readTree(step1Dir+'/'+samples[sig+decay]+'_hadd.root')
-			if doAllSys:
-				for syst in shapesFiles:
-					for ud in ['Up','Down']:
-						print "        "+syst+ud
-						tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
-			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],category,region,year))
-			if catInd==nCats: 
-				del tFileSig[sig+decay]
-				del tTreeSig[sig+decay]
-			if doAllSys and catInd==nCats:
-				for syst in shapesFiles:
-					for ud in ['Up','Down']: 
-						del tFileSig[sig+decay+syst+ud]
-						del tTreeSig[sig+decay+syst+ud]
-	catInd+=1
+					del tFileSig[sig+decay+syst+ud]
+					del tTreeSig[sig+decay+syst+ud]
 
 #Negative Bin Correction
 print "       CORRECTING NEGATIVE BINS ...",gettime()
