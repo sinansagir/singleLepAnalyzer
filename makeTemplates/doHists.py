@@ -296,7 +296,7 @@ print "         LJMET Variable:",plotList[iPlot][0]
 print "         X-AXIS TITLE  :",plotList[iPlot][2]
 print "         BINNING USED  :",plotList[iPlot][1]
 
-catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
+catList = ['is'+cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5] for cat in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 nCats  = len(catList)
 
 shapesFiles = ['jec','jer']
@@ -306,7 +306,7 @@ tFileData = {}
 catInd = 1
 for cat in catList:
 	if not runData: break
-	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
+	catDir = catList[2:]
 	datahists = {}
 	if len(sys.argv)>1: outDir=sys.argv[1]
 	else: 
@@ -331,7 +331,7 @@ tFileBkg = {}
 catInd = 1
 for cat in catList:
 	if not runBkgs: break
-	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
+	catDir = catList[2:]
 	bkghists  = {}
 	if len(sys.argv)>1: outDir=sys.argv[1]
 	else: 
@@ -387,7 +387,7 @@ tFileSig = {}
 catInd = 1
 for cat in catList:
 	if not runSigs: break
-	catDir = cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5]
+	catDir = catList[2:]
 	sighists  = {}
 	if len(sys.argv)>1: outDir=sys.argv[1]
 	else:
