@@ -13,7 +13,7 @@ negative MC weights, ets) applied below should be checked!
 
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 
-def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,region,year):
+def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catStr,region,year):
 	print "*****"*20
 	print "*****"*20
 	print "DISTRIBUTION:", iPlot, year
@@ -34,13 +34,12 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	print "/////"*5
 
 	# Define categories
-	isEM  = category['isEM']
-	nhott = category['nhott']
-	nttag = category['nttag']
-	nWtag = category['nWtag']
-	nbtag = category['nbtag']
-	njets = category['njets']
-	catStr = 'is'+isEM+'_nHOT'+nhott+'_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag+'_nJ'+njets
+	isEM  = catStr.split('_')[0][2:]
+	nhott = catStr.split('_')[1][4:]
+	nttag = catStr.split('_')[2][2:]
+	nWtag = catStr.split('_')[3][2:]
+	nbtag = catStr.split('_')[4][2:]
+	njets = catStr.split('_')[5][2:]
 
 	# Define general cuts
 	cut  = '((leptonPt_MultiLepCalc > '+str(cutList['elPtCut'])+' && isElectron==1) || (leptonPt_MultiLepCalc > '+str(cutList['muPtCut'])+' && isMuon==1))'
