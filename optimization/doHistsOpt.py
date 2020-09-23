@@ -31,10 +31,10 @@ iPlot = 'HT' #choose a discriminant from plotList below!
 region = 'PS'
 isCategorized = 0
 doJetRwt= 0
-doAllSys = False
-doHDsys = True
-doUEsys = True
-doPDF = True
+doAllSys = True
+doHDsys = False
+doUEsys = False
+doPDF = False
 
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 #step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_4t_072820_step1hadds/nominal'
@@ -875,7 +875,7 @@ sighists = {}
 for data in dataList: 
 	tFileData[data],tTreeData[data]=readTree(step1Dir+'/'+samples[data]+'_hadd.root')
 	for cat in catList:
-		datahists.update(analyze(tTreeData,data,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+		datahists.update(analyze(tTreeData,data,'',cutList,False,doPDF,iPlot,plotList[iPlot],cat,region,year))
 	del tFileData[data]
 	del tTreeData[data]
 
@@ -886,9 +886,9 @@ for bkg in bkgList:
 			for ud in ['Up','Down']:
 				tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
 	for cat in catList:
-		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doPDF,iPlot,plotList[iPlot],cat,region,year))
 		if 'TTJets' in bkg and len(ttFlvs)!=0:
-			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doPDF,iPlot,plotList[iPlot],cat,region,year))
 	del tFileBkg[bkg]
 	del tTreeBkg[bkg]
 	if doAllSys:
@@ -900,14 +900,14 @@ if doHDsys:
 	for hdamp in hdampList: 
 		tFileBkg[hdamp],tTreeBkg[hdamp]=readTree(step1Dir+'/'+samples[hdamp]+'_hadd.root')
 		for cat in catList:
-			bkghists.update(analyze(tTreeBkg,hdamp,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+			bkghists.update(analyze(tTreeBkg,hdamp,'',cutList,False,doPDF,iPlot,plotList[iPlot],cat,region,year))
 		del tFileBkg[hdamp]
 		del tTreeBkg[hdamp]
 if doUEsys: 
 	for ue in ueList: 
 		tFileBkg[ue],tTreeBkg[ue]=readTree(step1Dir+'/'+samples[ue]+'_hadd.root')
 		for cat in catList:
-			bkghists.update(analyze(tTreeBkg,ue,'',cutList,False,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+			bkghists.update(analyze(tTreeBkg,ue,'',cutList,False,doPDF,iPlot,plotList[iPlot],cat,region,year))
 		del tFileBkg[ue]
 		del tTreeBkg[ue]
 	
@@ -917,10 +917,9 @@ for sig in sigList:
 		if doAllSys:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
-					print "        "+syst+ud
 					tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
 		for cat in catList:
-			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doJetRwt,iPlot,plotList[iPlot],cat,region,year))
+			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doPDF,iPlot,plotList[iPlot],cat,region,year))
 		del tFileSig[sig+decay]
 		del tTreeSig[sig+decay]
 		if doAllSys:
