@@ -12,10 +12,10 @@ from utils import *
 gROOT.SetBatch(1)
 start_time = time.time()
 
-year='R17'
+year=sys.argv[1]
 saveKey = ''#'_ttHFupLFdown'
 cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
-theDir = 'kinematics_SR_'+year+'_nonjetsf_2020_8_31'
+theDir = 'templates_'+year+'_'+sys.argv[2]
 outDir = os.getcwd()+'/'+theDir+'/'+cutString
 
 writeSummaryHists = True
@@ -28,7 +28,7 @@ doHDsys = True
 doUEsys = True
 doPDF = True
 addCRsys = False
-systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
+systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 zero = 1E-12
@@ -712,7 +712,7 @@ for iPlot in iPlotList:
 	datahists = {}
 	bkghists  = {}
 	sighists  = {}
-	if len(sys.argv)>1 and iPlot!=sys.argv[1]: continue
+	# if len(sys.argv)>1 and iPlot!=sys.argv[1]: continue
 	print "LOADING DISTRIBUTION: "+iPlot,gettime()
 	#if iPlot!="HT": continue
 	for cat in catList:

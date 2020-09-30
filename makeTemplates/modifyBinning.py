@@ -29,18 +29,18 @@ start_time = time.time()
 # -- Use "removalKeys" to remove specific systematics from the output file.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-year='R17'
+year=sys.argv[1]
 if year=='R17':
 	from weights17 import *
 else:
 	from weights18 import *
 
-iPlot='HT'
+iPlot=sys.argv[2]
 saveKey = ''#'_50GeV_100GeVnB2'
-if len(sys.argv)>1: iPlot=str(sys.argv[1])
+# if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-templateDir = os.getcwd()+'/templates_'+year+'_nonjetsf_2020_8_20/'+cutString
+templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]+'/'+cutString
 combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
@@ -87,6 +87,10 @@ if iPlot=='ST' and stat<1.:
 	minNbins=2 #(assuming initial hists are 15 GeV bins) min 30GeV bin width
 	xMin = 500
 	xMax = 4000
+if iPlot=='BDT' and stat<1.: 
+	minNbins=2 #(assuming initial hists are 15 GeV bins) min 30GeV bin width
+	xMin = -1
+	xMax = 1
 		
 if rebinCombine:
 	dataName = 'data_obs'
@@ -182,7 +186,7 @@ for chn in totBkgHists.keys():
 		totDataTempBinErrSquared_M += dataHists_[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
 		nBinsMerged+=1
 		#if nBinsMerged<minNbins: continue
-		if nBinsMerged<minNbins or ('_nB2_' in chn and nBinsMerged<4 and (iPlot.startswith('HT') or iPlot=='ST')): continue
+		if nBinsMerged<minNbins or ('_nB2_' in chn and nBinsMerged<4 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')): continue
 		if totTempBinContent_E>0. and totTempBinContent_M>0.:
 			if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
 				totTempBinContent_E = 0.
