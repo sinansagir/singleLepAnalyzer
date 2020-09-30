@@ -62,6 +62,7 @@ try:
 	                                              "nWtag=",
 	                                              "nbtag=",
 	                                              "njets=",
+	                                              "step1dir=",
 	                                              ])
 	print opts,args
 except getopt.GetoptError as err:
@@ -80,10 +81,12 @@ for opt, arg in opts:
 	elif opt == '--nWtag': nWtaglist = [str(arg)]
 	elif opt == '--nbtag': nbtaglist = [str(arg)]
 	elif opt == '--njets': njetslist = [str(arg)]
+	elif opt == '--step1dir': step1dir = str(arg)
 
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 #step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_4t_072820_step1hadds/nominal'
-step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_4t_07282020_step2/nominal'
+# step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_4t_07282020_step2/nominal'
+step1Dir = step1dir+'/nominal'
 
 bkgList = [
 		  'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
@@ -143,7 +146,8 @@ runBkgs = True
 runSigs = True
 
 #cutList = {'elPtCut':35,'muPtCut':30,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':300}
-cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
+# cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
+cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
 #cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
 
 cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))

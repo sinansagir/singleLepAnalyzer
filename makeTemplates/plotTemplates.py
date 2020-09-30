@@ -12,7 +12,7 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-year='R17'
+year=sys.argv[1]
 if year=='R17':
 	from weights17 import *
 	lumi=41.5 #for plots
@@ -23,14 +23,14 @@ lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 	
 region='SR' #PS,SR,TTCR,WJCR
 isCategorized=1
-iPlot='HT'
-if len(sys.argv)>1: iPlot=str(sys.argv[1])
+iPlot=sys.argv[2]
+# if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
 if region=='SR': pfix='templates_'+year
 elif region=='WJCR': pfix='wjets_'+year
 elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
-templateDir=os.getcwd()+'/'+pfix+'_nonjetsf_2020_8_20/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
 isRebinned='_rebinned_stat0p3' #post for ROOT file names
 saveKey = '' # tag for plot names

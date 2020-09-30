@@ -191,14 +191,14 @@ if __name__ == '__main__':
 	cb = ch.CombineHarvester()
 	#cb.SetVerbosity(20)
 	
-	iPlot='HT'
-	era = 'R18'
+	iPlot= sys.argv[2]#'HT'
+	era = sys.argv[1]#'R18'
 	lumiStr = '41p53fb'
 	if era=='R18': lumiStr = '59p97fb'
 	tag = ''#'_50GeV_100GeVnB2'
-	saveKey = '_nonjetsyt'#'_Njet50pct_centValSF'
-	fileDir = '/user_data/ssagir/CMSSW_10_2_10/src/singleLepAnalyzer/fourtops/makeTemplates/'
-	template = era+'_nonjetsf_lepPt20_2020_9_3'
+	saveKey = '_'+iPlot#'_Njet50pct_centValSF'
+	fileDir = '/home/eusai/4t/singleLepAnalyzer/makeTemplates/'
+	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)
 	os.system('cp '+fileDir+'templates_'+template+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3.root ./limits_'+template+saveKey+'/')
 	rfile = './limits_'+template+saveKey+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3.root'
@@ -230,5 +230,4 @@ if __name__ == '__main__':
 	for chn in chns: cats[chn] = [(0, '')]
 	
 	masses = ch.ValsFromRange('690')
-	go(cb)
-
+	go
