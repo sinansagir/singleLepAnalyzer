@@ -13,7 +13,7 @@ negative MC weights, ets) applied below should be checked!
 
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 
-def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,region,year):
+def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,region,year):
 	print "*****"*20
 	print "*****"*20
 	print "DISTRIBUTION:", iPlot, year
@@ -34,13 +34,12 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	print "/////"*5
 
 	# Define categories
-	isEM  = category['isEM']
-	nhott = category['nhott']
-	nttag = category['nttag']
-	nWtag = category['nWtag']
-	nbtag = category['nbtag']
-	njets = category['njets']
-	catStr = 'is'+isEM+'_nHOT'+nhott+'_nT'+nttag+'_nW'+nWtag+'_nB'+nbtag+'_nJ'+njets
+	isEM  = catStr.split('_')[0][2:]
+	nhott = catStr.split('_')[1][4:]
+	nttag = catStr.split('_')[2][2:]
+	nWtag = catStr.split('_')[3][2:]
+	nbtag = catStr.split('_')[4][2:]
+	njets = catStr.split('_')[5][2:]
 
 	# Define general cuts
 	cut  = '((leptonPt_MultiLepCalc > '+str(cutList['elPtCut'])+' && isElectron==1) || (leptonPt_MultiLepCalc > '+str(cutList['muPtCut'])+' && isMuon==1))'
@@ -319,12 +318,13 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 
 		# Change the plot name itself for shifts if needed
 		# hot-tagging:
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotstatUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotstatUp+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotstatDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotstatDn+')', 'GOFF')		
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotcspurUp_'    +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotcspurUp+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotcspurDown_'  +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotcspurDn+')', 'GOFF')		
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotclosureUp_'  +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotclosureUp+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotclosureDown_'+lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotclosureDn+')', 'GOFF')		
+		if nhott!='0p':
+			tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotstatUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotstatUp+')', 'GOFF')
+			tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotstatDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotstatDn+')', 'GOFF')		
+			tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotcspurUp_'    +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotcspurUp+')', 'GOFF')
+			tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotcspurDown_'  +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotcspurDn+')', 'GOFF')		
+			tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotclosureUp_'  +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotclosureUp+')', 'GOFF')
+			tTree[process].Draw(plotTreeName+' >> '+iPlot+'hotclosureDown_'+lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_hotclosureDn+')', 'GOFF')		
 
 		# t-tagging:
 		TAU32upName = plotTreeName
@@ -389,10 +389,11 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 			MISTAGupName = MISTAGupName+'_lSFup'
 			MISTAGdnName = MISTAGdnName+'_lSFdn'
 		print 'BTAG SHIFT LJMET NAMES:',BTAGupName,BTAGdnName,MISTAGupName,MISTAGdnName
-		tTree[process].Draw(BTAGupName+' >> '+iPlot+'btagUp_'  +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_btagUp+')', 'GOFF')
-		tTree[process].Draw(BTAGdnName+' >> '+iPlot+'btagDown_'+lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_btagDn+')', 'GOFF')
-		tTree[process].Draw(MISTAGupName+' >> '+iPlot+'mistagUp_'  +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_mistagUp+')', 'GOFF')
-		tTree[process].Draw(MISTAGdnName+' >> '+iPlot+'mistagDown_'+lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_mistagDn+')', 'GOFF')
+		if nbtag!='0p':
+			tTree[process].Draw(BTAGupName+' >> '+iPlot+'btagUp_'  +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_btagUp+')', 'GOFF')
+			tTree[process].Draw(BTAGdnName+' >> '+iPlot+'btagDown_'+lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_btagDn+')', 'GOFF')
+			tTree[process].Draw(MISTAGupName+' >> '+iPlot+'mistagUp_'  +lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_mistagUp+')', 'GOFF')
+			tTree[process].Draw(MISTAGdnName+' >> '+iPlot+'mistagDown_'+lumiStr+'_'+catStr+'_'+process+flv, weightStr+'*('+cut_mistagDn+')', 'GOFF')
 
 		if tTree[process+'jecUp']:
 			print 'Processing JEC ...'
@@ -402,11 +403,12 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 			print 'Processing JER ...'
 			tTree[process+'jerUp'].Draw(plotTreeName   +' >> '+iPlot+'jerUp_'  +lumiStr+'_'+catStr+'_' +process+flv, weightStr+'*('+fullcut+')', 'GOFF')
 			tTree[process+'jerDown'].Draw(plotTreeName +' >> '+iPlot+'jerDown_'+lumiStr+'_'+catStr+'_' +process+flv, weightStr+'*('+fullcut+')', 'GOFF')
-		print 'Processing PDF ...'
-		for i in range(100): 
-			print i+1,
-			tTree[process].Draw(plotTreeName+' >> '+iPlot+'pdf'+str(i)+'_'+lumiStr+'_'+catStr+'_'+process+flv, 'pdfWeights['+str(i)+'] * '+weightStr+'*('+fullcut+')', 'GOFF')
-		print '/ 100 ... PDF done.'
+		if doPDF:
+			print 'Processing PDF ...'
+			for i in range(100): 
+				print i+1,
+				tTree[process].Draw(plotTreeName+' >> '+iPlot+'pdf'+str(i)+'_'+lumiStr+'_'+catStr+'_'+process+flv, 'pdfWeights['+str(i)+'] * '+weightStr+'*('+fullcut+')', 'GOFF')
+			print '/ 100 ... PDF done.'
 	
 	for hist in hists.keys(): hists[hist].SetDirectory(0)
 	return hists
