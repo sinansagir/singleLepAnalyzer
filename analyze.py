@@ -77,70 +77,70 @@ def analyze(tTree,process,flv,cutList,doAllSys,doJetRwt,iPlot,plotDetails,catego
 	njetStr = '1.0'
 	njetUpStr = '1.0'
 	njetDownStr = '1.0'
-	if 'TTJets' in process:
-		if '17' in year:
-			njetStr= '( \
-1.0*(NJets_JetSubCalc<4)+\
-1.12779346603*(NJets_JetSubCalc==4)+\
-1.10224224563*(NJets_JetSubCalc==5)+\
-1.07566620169*(NJets_JetSubCalc==6)+\
-1.1090459291*(NJets_JetSubCalc==7)+\
-1.21705307722*(NJets_JetSubCalc==8)+\
-1.2377932283*(NJets_JetSubCalc>=9)\
-)'
+# 	if 'TTJets' in process:
+# 		if '17' in year:
+# 			njetStr= '( \
+# 1.0*(NJets_JetSubCalc<4)+\
+# 1.12779346603*(NJets_JetSubCalc==4)+\
+# 1.10224224563*(NJets_JetSubCalc==5)+\
+# 1.07566620169*(NJets_JetSubCalc==6)+\
+# 1.1090459291*(NJets_JetSubCalc==7)+\
+# 1.21705307722*(NJets_JetSubCalc==8)+\
+# 1.2377932283*(NJets_JetSubCalc>=9)\
+# )'
 
-			njetUpStr= '( \
-1.0*(NJets_JetSubCalc<4)+\
-1.170273*(NJets_JetSubCalc==4)+\
-1.149062*(NJets_JetSubCalc==5)+\
-1.127395*(NJets_JetSubCalc==6)+\
-1.167798*(NJets_JetSubCalc==7)+\
-1.283264*(NJets_JetSubCalc==8)+\
-1.317837*(NJets_JetSubCalc>=9)\
-)'
+# 			njetUpStr= '( \
+# 1.0*(NJets_JetSubCalc<4)+\
+# 1.170273*(NJets_JetSubCalc==4)+\
+# 1.149062*(NJets_JetSubCalc==5)+\
+# 1.127395*(NJets_JetSubCalc==6)+\
+# 1.167798*(NJets_JetSubCalc==7)+\
+# 1.283264*(NJets_JetSubCalc==8)+\
+# 1.317837*(NJets_JetSubCalc>=9)\
+# )'
 
-			njetDownStr= '( \
-1.0*(NJets_JetSubCalc<4)+\
-1.085313*(NJets_JetSubCalc==4)+\
-1.055422*(NJets_JetSubCalc==5)+\
-1.023938*(NJets_JetSubCalc==6)+\
-1.050294*(NJets_JetSubCalc==7)+\
-1.150842*(NJets_JetSubCalc==8)+\
-1.157749*(NJets_JetSubCalc>=9)\
-)'
+# 			njetDownStr= '( \
+# 1.0*(NJets_JetSubCalc<4)+\
+# 1.085313*(NJets_JetSubCalc==4)+\
+# 1.055422*(NJets_JetSubCalc==5)+\
+# 1.023938*(NJets_JetSubCalc==6)+\
+# 1.050294*(NJets_JetSubCalc==7)+\
+# 1.150842*(NJets_JetSubCalc==8)+\
+# 1.157749*(NJets_JetSubCalc>=9)\
+# )'
 
 
 
-		elif '18' in year:
-			njetStr= '( \
-1.0*(NJets_JetSubCalc<4)+\
-1.04255538925*(NJets_JetSubCalc==4)+\
-1.0136971949*(NJets_JetSubCalc==5)+\
-0.98448056055*(NJets_JetSubCalc==6)+\
-1.04462767888*(NJets_JetSubCalc==7)+\
-1.09013888621*(NJets_JetSubCalc==8)+\
-1.2000888232*(NJets_JetSubCalc>=9)\
-)'
+# 		elif '18' in year:
+# 			njetStr= '( \
+# 1.0*(NJets_JetSubCalc<4)+\
+# 1.04255538925*(NJets_JetSubCalc==4)+\
+# 1.0136971949*(NJets_JetSubCalc==5)+\
+# 0.98448056055*(NJets_JetSubCalc==6)+\
+# 1.04462767888*(NJets_JetSubCalc==7)+\
+# 1.09013888621*(NJets_JetSubCalc==8)+\
+# 1.2000888232*(NJets_JetSubCalc>=9)\
+# )'
 
-			njetUpStr= '( \
-1.0*(NJets_JetSubCalc<4)+\
-1.081074*(NJets_JetSubCalc==4)+\
-1.054547*(NJets_JetSubCalc==5)+\
-1.028719*(NJets_JetSubCalc==6)+\
-1.092726*(NJets_JetSubCalc==7)+\
-1.143971*(NJets_JetSubCalc==8)+\
-1.262353*(NJets_JetSubCalc>=9)\
-)'
+# 			njetUpStr= '( \
+# 1.0*(NJets_JetSubCalc<4)+\
+# 1.081074*(NJets_JetSubCalc==4)+\
+# 1.054547*(NJets_JetSubCalc==5)+\
+# 1.028719*(NJets_JetSubCalc==6)+\
+# 1.092726*(NJets_JetSubCalc==7)+\
+# 1.143971*(NJets_JetSubCalc==8)+\
+# 1.262353*(NJets_JetSubCalc>=9)\
+# )'
 
-			njetDownStr= '( \
-1.0*(NJets_JetSubCalc<4)+\
-1.004037*(NJets_JetSubCalc==4)+\
-0.972847*(NJets_JetSubCalc==5)+\
-0.940242*(NJets_JetSubCalc==6)+\
-0.996529*(NJets_JetSubCalc==7)+\
-1.036307*(NJets_JetSubCalc==8)+\
-1.137824*(NJets_JetSubCalc>=9)\
-)'
+# 			njetDownStr= '( \
+# 1.0*(NJets_JetSubCalc<4)+\
+# 1.004037*(NJets_JetSubCalc==4)+\
+# 0.972847*(NJets_JetSubCalc==5)+\
+# 0.940242*(NJets_JetSubCalc==6)+\
+# 0.996529*(NJets_JetSubCalc==7)+\
+# 1.036307*(NJets_JetSubCalc==8)+\
+# 1.137824*(NJets_JetSubCalc>=9)\
+# )'
 # 		if '17' in year:
 # 			njetStr= '( \
 # 1.0*(NJets_JetSubCalc<4)+\
