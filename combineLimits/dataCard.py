@@ -230,4 +230,4 @@ if __name__ == '__main__':
 	for chn in chns: cats[chn] = [(0, '')]
 	
 	masses = ch.ValsFromRange('690')
-	go
+	go(cb)
