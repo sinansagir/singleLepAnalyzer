@@ -1,29 +1,36 @@
-import os,sys,datetime,itertools
+import os,sys,datetime,itertools,math
 
 thisDir = os.getcwd()
 if thisDir[-13:] == 'makeTemplates': runDir = thisDir[:-13]
 else: runDir = thisDir
 if os.getcwd()[-17:] == 'singleLepAnalyzer': os.chdir(os.getcwd()+'/makeTemplates/')
 outputDir = thisDir+'/'
-region='SR' #PS,SR,TTCR,WJCR
-categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
+## UNDERLINED
+region='PS' #PS,SR,TTCR,WJCR
+## 0 OR 1 ONE BOARD
+categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix = 'templates'+region
 if not categorize: pfix='kinematics'+region
-pfix+='_July2019_BB_Trained_MVA'
+## REMEMBER TO CHANGE
+pfix+='_Test3_PS_noTrigg_noPrefire'
 
 iPlotList = [#distribution name as defined in "doHists.py"
-	'ST',
-	'Tp2Mass',
-	#'Tp2MDnn',
-	#'Tp2MST',
-	'DnnTprime',
+	#'NBDeepJets',
+	#'lepPhi',
+	#For Signal Region Templates -> FSRT
+	#'ST',
+	#'DnnTprime',
+	#'DnnTTbar',
+	#'DnnWJets',
 	#'HT',
+	
+	#'HTNtag', #-> Not part of this block it's own entity
 
-	# Require 3 AK8s
+	#Require 3 AK8s -> R3
 	#'Tp2Mass',
         #'Tp1Mass',
         #'Tp2Pt',
@@ -35,7 +42,9 @@ iPlotList = [#distribution name as defined in "doHists.py"
         #'Tp1deltaR',
         #'Tp2deltaR',
 
-        #'probSumDecay',  	###Don't require 3 AK8s
+	
+        #Don't require 3 AK8s -> DR3
+	#'probSumDecay',  	
         #'probSumFour',
         #'probb',
         #'probh',
@@ -49,8 +58,8 @@ iPlotList = [#distribution name as defined in "doHists.py"
         #'nT',
         #'nW', 
         #'nZ',
-	
-	#Not algorithm dependent
+	#
+	##Not algorithm dependent -> NAD
 	#'DnnTprime',
 	#'DnnWJets',
 	#'DnnTTbar',
@@ -77,7 +86,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'PtRel',
 	#'mindeltaRAK8',
 	#'PtRelAK8',
-	#'lepEta',
+	'lepEta',
 	#'lepIso',
 	#'JetEta',
 	#'JetEtaAK8',
@@ -85,6 +94,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'minMlb',
 	#'METmod',
 	#'minDPhiMetJet',
+	#'Tau21',
 
 	## Not plotting for now
 	#'Tau21Nm1',
@@ -169,7 +179,7 @@ if categorize:
 			 #'notV2W0Z0H0T','notV2pW0Z0H1pT','notV2pW0Z1pH0pT','notV2pW1pZ0pH0pT',
 			 #'notV1W0Z0H0T','notV1W0Z1H0T','notV1W0Z0H1pT','notV1W0Z1H1pT','notV1W0Z2pH0pT','notV1W1Z0H0pT','notV1W1Z1pH0pT','notV1W2pZ0pH0pT',
 			 #'notV0W0Z0H0T','notV0W0Z1H0T','notV0W0Z0H1pT','notV0W0Z1H1pT','notV0W0Z2pH0pT','notV0W1Z0H0pT','notV0W1Z1pH0pT','notV0W2pZ0pH0pT']
-	elif 'CR' in region: taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtH','notVtZ','notVbW','notV']
+	elif 'CR' in region: taglist=['dnnLargeT','dnnLargeH','dnnLargeZ','dnnLargeW','dnnLargeB','dnnLargeJttbar','dnnLargeJwjet']
 	else: taglist = ['all']
 
 outDir = outputDir+pfix+'/'
