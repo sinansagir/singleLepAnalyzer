@@ -5,7 +5,7 @@
 #done
 
 #Tp2Mass DnnTprime Tp2MDnn 
-for iPlot in DnnTprime; do #ST
+for iPlot in DnnBprime; do #ST
 #for iPlot in minMlb ST minMlj; do
 #for iPlot in deltaRAK8; do
 #for iPlot in minMlbST ST; do
@@ -17,7 +17,7 @@ for iPlot in DnnTprime; do #ST
     #python -u modifyBinning.py $iPlot templatesSR_Apr22Dnn0p9 0.3
     #python -u modifyBinning.py $iPlot templatesSR_July_MVA_Update_Round2 0.3
     #python -u modifyBinning.py $iPlot templatesSR_July2019_BB_Trained_MVA 0.3
-    python -u modifyBinning.py $iPlot templatesSR_October2019_TT_Rerun 0.3
+    python -u modifyBinning.py $iPlot templatesSR_April2020_BB 0.3
 
     # python -u modifyBinning.py $iPlot kinematics_PS_NewEl 1.1
     # python -u modifyBinning.py $iPlot higgs_ARC 0.3

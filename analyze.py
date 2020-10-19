@@ -86,9 +86,9 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	if 'Data' not in process: 
 		# replaced isoSF, MuTrkSF with 1
 		if 'TTM' in process or 'BBM' in process:
-			weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * pdfNewNominalWeight * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc))'
+			weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * pdfNewNominalWeight * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * muPtSF'
 		else:
-			weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc))'
+			weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * muPtSF'
 
 		weightTrigEffElUpStr  = weightStr.replace(TrigEff,TrigEffElUp)
                 weightTrigEffElDownStr= weightStr.replace(TrigEff,TrigEffElDn)

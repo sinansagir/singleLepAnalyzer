@@ -41,8 +41,8 @@ combinefile = 'yields_'+iPlot+'_41p530fb.root'
 rebin4chi2 = False #include data in requirements
 rebinCombine = False #else rebins theta templates
 
-normalizeRENORM = False #only for signals
-normalizePDF    = False #only for signals
+normalizeRENORM = True #only for signals
+normalizePDF    = True #only for signals
 #X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 sigName = 'TT'
 if 'BB' in folder:
@@ -470,7 +470,6 @@ for isEM in isEMlist:
 					else: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2
 					yielderrtemp += (corrdSys*yieldtemp)**2
 				yielderrtemp = math.sqrt(yielderrtemp)
-				print "yieldsAll: ",yieldsAll
 				if proc==dataName: row.append(' & '+str(int(yieldsAll[histoPrefix+proc])))
 				else: row.append(' & '+str(round_sig(yieldtemp,5))+' $\pm$ '+str(round_sig(yielderrtemp,2)))
 			row.append('\\\\')

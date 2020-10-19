@@ -13,11 +13,11 @@ start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
-region='SR' #PS,SR,TTCR,WJCR
-isCategorized=True
+region='PS' #PS,SR,TTCR,WJCR
+isCategorized=False
 pfix='templates'+region
 if not isCategorized: pfix='kinematics'+region
-pfix+='_October2019_TT_Rerun'
+pfix+='_April2020_BB'
 outDir = os.getcwd()+'/'+pfix+'/'
 
 scaleSignalXsecTo1pb = True # this has to be "True" if you are making templates for limit calculation!!!!!!!!
@@ -33,7 +33,7 @@ bkgGrupList = ['top','ewk','qcd']
 bkgProcList = ['TTJets','WJets','ZJets','qcd','TTV','T']
 bkgProcs = {}
 bkgProcs['WJets']  = ['WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500']#'WJetsMG200',
-bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
+bkgProcs['ZJets']  = ['DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
 bkgProcs['TTV']    = ['TTWl','TTZl','TTHB','TTHnoB']#,'TTWq']#,'TTZq']
 bkgProcs['TTJets'] = ['TTJetsSemiLep0','TTJetsSemiLep700','TTJetsSemiLep1000','TTJetsHad0','TTJetsHad700','TTJetsHad1000',
@@ -51,7 +51,7 @@ dataList = [
 
 topptProcs = ['top','TTJets']
 
-whichSignal = 'TT' #HTB, TT, BB, or X53X53
+whichSignal = 'BB' #HTB, TT, BB, or X53X53
 massList = range(1000,1800+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays

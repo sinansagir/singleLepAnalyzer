@@ -5,23 +5,24 @@ if thisDir[-13:] == 'makeTemplates': runDir = thisDir[:-13]
 else: runDir = thisDir
 if os.getcwd()[-17:] == 'singleLepAnalyzer': os.chdir(os.getcwd()+'/makeTemplates/')
 outputDir = thisDir+'/'
-region='SR' #PS,SR,TTCR,WJCR
-categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
+region='PS' #PS,SR,TTCR,WJCR
+categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
 time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix = 'templates'+region
 if not categorize: pfix='kinematics'+region
-pfix+='_July2019_BB_Trained_MVA'
+pfix+='_April2020_TT'
 
 iPlotList = [#distribution name as defined in "doHists.py"
-	'ST',
-	'Tp2Mass',
-	#'Tp2MDnn',
-	#'Tp2MST',
-	'DnnTprime',
-	#'HT',
+
+	#WJCR, TTCR, and SR not categorized
+	#'DnnTTbar',
+	#'DnnWJets',
+
+	#Signal is categorized
+	#'DnnTprime',
 
 	# Require 3 AK8s
 	#'Tp2Mass',
@@ -45,11 +46,11 @@ iPlotList = [#distribution name as defined in "doHists.py"
         #'probz',
         #'dnnLargest',
         #'nB',
-        #'nH', 
+        #'nH',
         #'nT',
-        #'nW', 
+        #'nW',
         #'nZ',
-	
+
 	#Not algorithm dependent
 	#'DnnTprime',
 	#'DnnWJets',
@@ -66,7 +67,9 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'JetPt', 
 	#'MET',   
 	#'NJets', 
-	#'NBJets',
+	'NBJets',
+	#'NBDeepJets',
+	#'NBDeepJetsNoSF',
 	#'NJetsAK8',
 	#'JetPtAK8',
 	#'lepPt', 
@@ -86,7 +89,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'METmod',
 	#'minDPhiMetJet',
 
-	## Not plotting for now
+	# Not plotting for now
 	#'Tau21Nm1',
 	#'Tau32Nm1',
 	#'SoftDropHNm1',
@@ -112,7 +115,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'Jet6PtBins',
 	#'NBJetsNotH',
 	#'NBJetsNotPH',
-	#'NBJetsNoSF',
+	'NBJetsNoSF',
 	#'NWJets',
 	#'PuppiNWJets',
 	#'NTJets',
