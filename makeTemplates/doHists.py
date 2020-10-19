@@ -43,6 +43,7 @@ where <shape> is for example "JECUp". hadder.py can be used to prepare input fil
 --Check the set of cuts in "analyze.py"
 """
 
+## , 'WJetsMG2500' ,
 bkgList = [
 	'DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
 	'WJetsMG400','WJetsMG600','WJetsMG800','WJetsMG1200','WJetsMG2500',
@@ -59,6 +60,7 @@ dataList = [
 
 whichSignal = 'TT' #HTB, TT, BB, or X53X53
 massList = range(1000,1800+1,100)
+if whichSignal=='BB': massList.append(900)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
@@ -147,6 +149,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'NPV'   :('nPV_MultiLepCalc',linspace(0, 100, 101).tolist(),';PV multiplicity;'),
 	'NTrue'   :('nTrueInteractions_MultiLepCalc',linspace(0, 100, 101).tolist(),';MC pileup multiplicity;'),
 	'lepPt' :('leptonPt_MultiLepCalc',linspace(0, 1000, 51).tolist(),';Lepton p_{T} [GeV];'),
+	 THIS IS THE TESTER BOII
 	'lepEta':('leptonEta_MultiLepCalc',linspace(-4, 4, 41).tolist(),';Lepton #eta;'),
 	'JetEta':('theJetEta_JetSubCalc_PtOrdered',linspace(-4, 4, 41).tolist(),';AK4 Jet #eta;'),
 	'JetPt' :('theJetPt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';jet p_{T} [GeV];'),
@@ -202,9 +205,16 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'PtRelAK8':('ptRel_lepAK8',linspace(0,500,51).tolist(),';p_{T,rel}(l, closest AK8 jet) [GeV]'),
 
 	'HT':('AK4HT',linspace(0, 5000, nbins).tolist(),';H_{T} (GeV);'),
+	'HTNtag':('AK4HT',linspace(0, 5000, nbins).tolist(),';H_{T} (GeV);'),
 	'ST':('AK4HTpMETpLepPt',linspace(0, 5000, nbins).tolist(),';S_{T} (GeV);'),
 	'minMlb':('minMleppBjet',linspace(0, xmax, nbins).tolist(),';min[M(l,b)] (GeV);'),
 	'minMlbST':('minMleppBjet',linspace(0, xmax, nbins).tolist(),';min[M(l,b)] (GeV);'), #analyze.py will use ST for H tag bins
+	
+	## From Dr. Hogan, 15June2020
+	'NBJets':('NJetsDeepCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
+        'NBDeepJets':('NJetsDeepFlavwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
+        'NBJetsNoSF':('NJetsDeepCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
+        'NBDeepJetNoSF':('NJetsDeepFlav_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;')
 	}
 
 print "PLOTTING:",iPlot

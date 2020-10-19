@@ -31,49 +31,57 @@ start_time = time.time()
 
 iPlot='HTNtag'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
+
 folder = 'templatesCR_June2020TT'
 if len(sys.argv)>2: folder=str(sys.argv[2])
-cutString = ''
-templateDir = os.getcwd()+'/'+folder+'/'+cutString
+inputfolder = '/uscms_data/d3/bluetke/MVATraining/CMSSW_10_2_16/src/singleLepAnalyzer/makeTemplates/'+folder
+
+stat_saved = 0.15 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+if len(sys.argv)>3: stat_saved=float(sys.argv[3])
+singleBinCR = False
+
+FullMu = True
+if len(sys.argv)>4: FullMu=bool(eval(sys.argv[4]))
+
+rebinCombine = True #else rebins theta templates ## COME SET TO TRUE WHEN DOING SR OR CR isCatagorized
+#print "rebin combine Before: ", rebinCombine
+if len(sys.argv)>5: rebinCombine=bool(eval(sys.argv[5])) 
+
+year = '2017'
+if len(sys.argv)>6: year = str(sys.argv[6])
+
+if year == '2016': lumi = '35p867'
+elif year == '2017': lumi = '41p53'
+elif year == '2018': lumi = '59p69'
+
+templateDir = os.getcwd()+'/'+folder+'/'
 print "templateDir: ",templateDir
 combinefile = 'Combine.root'
-thetafile = 'templates_'+iPlot+'_41p53fb.root'
+thetafile = 'templates_'+iPlot+'_'+lumi+'.root'
 
-rebin4chi2 = False #include data in requirements
+rebin4chi2 = False
+if 'templatesCR' in folder: rebin4chi2 = True #include data in requirements
 
 normalizeRENORM = True #only for signals
 normalizePDF    = True #only for signals
 if 'kinematics' in folder:
 	normalizeRENORM = False #only for signals
 	normalizePDF    = False #only for signals
-#X53X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 
-sigName = 'BB' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
-
+sigName = 'TT' 
 if 'BB' in folder:
 	sigName = 'BB'
-massList = range(1000,1800+1,100)
+massList = range(900,1800+1,100)
 if sigName == 'BB': massList.append(900)
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 
 bkgProcList = ['top','ewk','qcd'] #put the most dominant process first
 era = "13TeV"
 
-stat_saved = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
-if len(sys.argv)>3: stat_saved=float(sys.argv[3])
-singleBinCR = False
-
-FullMu = False
-if len(sys.argv)>4: FullMu=bool(eval(sys.argv[4]))
-
-rebinCombine = False #else rebins theta templates ## COME SET TO TRUE WHEN DOING SR OR CR isCatagorized
-#print "rebin combine Before: ", rebinCombine
-if len(sys.argv)>5: rebinCombine=bool(eval(sys.argv[5])) 
-	
 if rebinCombine:
 	dataName = 'data_obs'
 	upTag = 'Up'
-	downTag = 'Down'
+	downTag = 'Down' ####Check this
 else: #theta
 	dataName = 'DATA'
 	upTag = '__plus'
@@ -83,7 +91,8 @@ print "rebin combine:", rebinCombine
 print "FullMu: ", FullMu
 addCRsys = False
 addShapes = True
-lumiSys = math.sqrt(0.023**2) #lumi uncertainty plus higgs prop
+lumiSys = 0.025 #lumi uncertainty
+if year == '2017': lumisys = 0.023
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
 elIdSys = 0.02 #electron id uncertainty
@@ -96,11 +105,15 @@ mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2)
 removalKeys = {} # True == keep, False == remove
 removalKeys['__btag']    = True
 removalKeys['__ltag']  = True
-removalKeys['__trigeff'] = True
+removalKeys['__trigeff'] = False
 removalKeys['__muR']       = False
 removalKeys['__muF']       = False
 if 'kinematics' not in folder: removalKeys['__muRFcorrd'] = False
 removalKeys['__jsf'] = True
+removalKeys['__jec'] = False
+removalKeys['__jer'] = False
+removalKeys['__pdf'] = False
+removalKeys['mis'] = False
 
 def findfiles(path, filtre):
     for root, dirs, files in os.walk(path):
@@ -109,15 +122,14 @@ def findfiles(path, filtre):
 
 #Setup the selection of the files to be rebinned:          only those that aren't rebinned and are this plot
 if 'BB' in folder:
-	if rebinCombine: rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and ('tW' in file or 'kinematics' in folder) and combinefile in file and '_'+iPlot+'_' in file.split('/')[-1]]
-	else: rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and ('tW' in file or 'kinematics' in folder) and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
+	if rebinCombine: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('tW' in file or 'kinematics' in folder) and combinefile in file and '_'+iPlot+'_' in file.split('/')[-1]]
+	else: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('tW' in file or 'kinematics' in folder) and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
 
 if 'TT' in folder:
-	if rebinCombine: rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and ('bW' in file or 'kinematics' in folder) and combinefile in file and '_'+iPlot+'_' in file.split('/')[-1]]
-	else: rfiles = [file for file in findfiles(templateDir, '*.root') if 'rebinned' not in file and ('bW' in file or 'kinematics' in folder) and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
+	if rebinCombine: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('bW' in file or 'kinematics' in folder) and combinefile in file and '_'+iPlot+'_' in file.split('/')[-1]]
+	else: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('bW' in file or 'kinematics' in folder) and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
 
-
-print "templateDir: ",templateDir
+print "inputfolder: ",inputfolder
 print "file: ",file
 print "iPlot: ",iPlot
 
@@ -139,6 +151,8 @@ for hist in datahists:
 	DataHists[channel] = tfile.Get(hist).Clone()
 	#DataHists[channel].Rebin(20)
 
+#print datahists
+
 totBkgHists = {}
 for hist in datahists:
 	channel = hist[hist.find('fb_')+3:hist.find('__')]
@@ -151,8 +165,10 @@ for hist in datahists:
 			print "WARNING! Skipping this process!!!!"
 			pass
 	#totBkgHists[channel].Rebin(20)
+
 ## Not currently using this -- it's for rebinning on signal stats.
 ##SigHists = {}
+
 # for hist in datahists:
 # 	channel = hist[hist.find('fb_')+3:hist.find('__')]
 # 	if not rebinCombine: SigHists[channel]=tfile.Get(hist.replace('__'+dataName,'__sig')).Clone()
@@ -171,16 +187,20 @@ for chn in totBkgHists.keys():
 	print 'Processing',chn
 
 	Nbins = 0
-
-	if 'notV' in chn: ## will be SR, need to skip past the taggedXXXX in case they differ
-		xbinsListTemp[chn]=[tfile.Get(datahists[4]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[4]).GetXaxis().GetNbins())]
-		Nbins = tfile.Get(datahists[4]).GetNbinsX()
-	elif 'LargeJ' in chn: ## will be CR, need to skip first 5 that are jet counts
-		xbinsListTemp[chn]=[tfile.Get(datahists[5]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[5]).GetXaxis().GetNbins())]
-		Nbins = tfile.Get(datahists[5]).GetNbinsX()
-	else: ## use the first datahist
+	if 'templates' in folder:
+		if 'notV' in chn: ## will be SR, need to skip past the taggedXXXX in case they differ
+			xbinsListTemp[chn]=[tfile.Get(datahists[4]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[4]).GetXaxis().GetNbins())]
+			Nbins = tfile.Get(datahists[4]).GetNbinsX()
+		elif 'LargeJ' in chn: ## will be CR, need to skip first 5 that are jet counts
+			xbinsListTemp[chn]=[tfile.Get(datahists[5]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[5]).GetXaxis().GetNbins())]
+			Nbins = tfile.Get(datahists[5]).GetNbinsX()
+		else: ## use the first datahist
+			xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
+			Nbins = tfile.Get(datahists[0]).GetNbinsX()
+	else:
 		xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
 		Nbins = tfile.Get(datahists[0]).GetNbinsX()
+
 	
 	totTempBinContent_E = 0.
 	totTempBinContent_M = 0.
@@ -211,7 +231,7 @@ for chn in totBkgHists.keys():
 
 		if totTempBinContent_E>0. and totTempBinContent_M>0.:
 			#if 'CR' in templateDir or 'ttbar' in templateDir or 'wjets' in templateDir or 'higgs' in templateDir or (totTempSigContent_E>0. and totTempSigContent_M>0):
-			#if rebin4chi2 and (totTempDataContent_E == 0 or totTempDataContent_M == 0): continue
+			if rebin4chi2 and (totTempDataContent_E == 0 or totTempDataContent_M == 0): continue
 			if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
 				if not rebin4chi2 or (math.sqrt(totTempDataErrSquared_E)/totTempDataContent_E<=stat and math.sqrt(totTempDataErrSquared_M)/totTempDataContent_M<=stat):
 					totTempBinContent_E = 0.
@@ -229,7 +249,8 @@ for chn in totBkgHists.keys():
 
 	## Going right to left -- if the last entry isn't 0 add it
 	if iPlot != 'DnnTprime' and iPlot != 'DnnBprime' and 'SR' in folder and xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
-	if 'Large' in chn and 'LargeJ' not in chn and 'templatesCR' in folder and xbinsListTemp[chn][-1]!=1: xbinsListTemp[chn].append(1)	
+	if 'Large' in chn and 'LargeJ' not in chn and 'templatesCR' in folder and xbinsListTemp[chn][-1]!=1: xbinsListTemp[chn].append(1)
+
 
 	if (iPlot == 'DnnTprime' or iPlot == 'DnnBprime') and 'templatesSR' in folder:
 		if xbinsListTemp[chn][-1]>0.5: xbinsListTemp[chn].append(0.5)
@@ -270,34 +291,40 @@ for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 
 #os._exit(1)
 
-### Updated for 2017, JH August 2019
+### Updated for 2017, JH August 2019. symmetric Hessian PDF version August 2020
 muSFsUp = {'TTM1000':0.744,'TTM1100':0.747,'TTM1200':0.742,'TTM1300':0.741,'TTM1400':0.738,'TTM1500':0.740,'TTM1600':0.735,'TTM1700':0.721,'TTM1800':0.746}
 muSFsDn = {'TTM1000':1.312,'TTM1100':1.306,'TTM1200':1.315,'TTM1300':1.316,'TTM1400':1.322,'TTM1500':1.319,'TTM1600':1.329,'TTM1700':1.354,'TTM1800':1.311}
-pdfSFsUp = {'TTM1000':0.997,'TTM1100':0.996,'TTM1200':0.995,'TTM1300':0.994,'TTM1400':0.991,'TTM1500':0.986,'TTM1600':0.984,'TTM1700':0.980,'TTM1800':0.966}
-pdfSFsDn = {'TTM1000':1.005,'TTM1100':1.007,'TTM1200':1.008,'TTM1300':1.011,'TTM1400':1.015,'TTM1500':1.022,'TTM1600':1.027,'TTM1700':1.031,'TTM1800':1.050}
+pdfSFsUp = {'TTM1000':0.945,'TTM1100':0.908,'TTM1200':0.894,'TTM1300':0.856,'TTM1400':0.811,'TTM1500':0.732,'TTM1600':0.660,'TTM1700':0.590,'TTM1800':0.383}
+pdfSFsDn = {'TTM1000':1.055,'TTM1100':1.092,'TTM1200':1.106,'TTM1300':1.144,'TTM1400':1.189,'TTM1500':1.268,'TTM1600':1.340,'TTM1700':1.410,'TTM1800':1.617}
+pdfSFsSym = {'TTM1000':0.055,'TTM1100':0.092,'TTM1200':0.106,'TTM1300':0.144,'TTM1400':0.189,'TTM1500':0.268,'TTM1600':0.340,'TTM1700':0.410,'TTM1800':0.617}
 
 if sigName == 'BB':
 	muSFsUp = {'BBM900':0.742,'BBM1000':0.742,'BBM1100':0.743,'BBM1200':0.742,'BBM1300':0.741,'BBM1400':0.739,'BBM1500':0.735,'BBM1600':0.735,'BBM1700':0.733,'BBM1800':0.731}
 	muSFsDn = {'BBM900':1.315,'BBM1000':1.315,'BBM1100':1.314,'BBM1200':1.316,'BBM1300':1.318,'BBM1400':1.321,'BBM1500':1.329,'BBM1600':1.329,'BBM1700':1.331,'BBM1800':1.337}
-	pdfSFsUp = {'BBM900':0.997,'BBM1000':0.997,'BBM1100':0.997,'BBM1200':0.996,'BBM1300':0.994,'BBM1400':0.991,'BBM1500':0.987,'BBM1600':0.984,'BBM1700':0.979,'BBM1800':0.970}
-	pdfSFsDn = {'BBM900':1.005,'BBM1000':1.005,'BBM1100':1.006,'BBM1200':1.008,'BBM1300':1.011,'BBM1400':1.015,'BBM1500':1.019,'BBM1600':1.027,'BBM1700':1.037,'BBM1800':1.049}
+	pdfSFsUp = {'BBM900':0.950,'BBM1000':0.950,'BBM1100':0.925,'BBM1200':0.897,'BBM1300':0.857,'BBM1400':0.808,'BBM1500':0.748,'BBM1600':0.658,'BBM1700':0.551,'BBM1800':0.419}
+	pdfSFsDn = {'BBM900':1.050,'BBM1000':1.050,'BBM1100':1.075,'BBM1200':1.103,'BBM1300':1.143,'BBM1400':1.192,'BBM1500':1.252,'BBM1600':1.342,'BBM1700':1.449,'BBM1800':1.581}
+	pdfSFsSym = {'BBM900':0.050,'BBM1000':0.050,'BBM1100':0.075,'BBM1200':0.103,'BBM1300':0.143,'BBM1400':0.192,'BBM1500':0.252,'BBM1600':0.342,'BBM1700':0.449,'BBM1800':0.581}
 
-print muSFsUp.keys()
 
 iRfile=0
 yieldsAll = {}
 yieldsErrsAll = {}
 yieldsSystErrsAll = {}
 stat = stat_saved
+binValue=0
 for rfile in rfiles: 
 	print "REBINNING FILE:",rfile
 	tfiles = {}
 	outputRfiles = {}
 	tfiles[iRfile] = TFile(rfile)	
 	if not rebin4chi2: 
-		if not FullMu: outputRfiles[iRfile] = TFile(rfile.replace('.root','_BKGNORM_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
-		else: outputRfiles[iRfile] = TFile(rfile.replace('.root','_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
-	else: outputRfiles[iRfile] = TFile(rfile.replace('.root','_chi2_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
+		if not FullMu: outputRfiles[iRfile] = TFile(rfile.replace(inputfolder,templateDir).replace('.root','_BKGNORM_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
+		else: outputRfiles[iRfile] = TFile(rfile.replace(inputfolder,templateDir).replace('.root','_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
+	else: 
+		if not FullMu: outputRfiles[iRfile] = TFile(rfile.replace(inputfolder,templateDir).replace('.root','_chi2_BKGNORM_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
+		else: outputRfiles[iRfile] = TFile(rfile.replace(inputfolder,templateDir).replace('.root','_chi2_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
+
+                
 
 	signame = rfile.split('/')[-1].split('_')[2]
 
@@ -314,10 +341,18 @@ for rfile in rfiles:
 			#temphist=tfiles[iRfile].Get(hist).Rebin(20)
 			rebinnedHists[hist] = tfiles[iRfile].Get(hist).Rebin(len(xbins[chn])-1,hist,xbins[chn])
 			rebinnedHists[hist].SetDirectory(0)
-			if '__pdf' in hist:
-				if 'Up' not in hist or 'Down' not in hist: continue
+
+                        # scale Combine signals down to expected xsec for injection tests
+                        if rebinCombine and '__'+sigName in hist: 
+                                signame = hist.split('__')[1]
+                                rebinnedHists[hist].Scale(100.0/1000) ## try 100fb instead...
+                                #rebinnedHists[hist].Scale(xsec[signame]) ## huge fail, can't fit anything in 2016
+
+			if '__pdf' in hist and upTag not in hist and downTag not in hist: continue
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
+
 			rebinnedHists[hist].Write()
+#			print 'Rebinning hist: ',hist
 
 			if 'W0p5' in rfile or 'kinematics' in folder:
 				yieldHistName = hist
@@ -369,7 +404,6 @@ for rfile in rfiles:
 				muRFcorrdNewUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
 				muRFcorrdNewDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
 			if ('sig__mu' in hist and normalizeRENORM) or (rebinCombine and '__'+sigName in hist and '__mu' in hist and normalizeRENORM): #normalize the renorm/fact shapes to nominal
-
 				if rebinCombine and '__'+sigName in hist: 
 					signame = hist.split('__')[1]
 					if sigName not in signame: print "DIDNT GET SIGNAME",signame
@@ -378,9 +412,18 @@ for rfile in rfiles:
 				scalefactorDn = muSFsDn[signame]
 				muRFcorrdNewUpHist.Scale(scalefactorUp) #drop down .7
 				muRFcorrdNewDnHist.Scale(scalefactorDn) #raise up 1.3
- 				# renormNomHist = tfiles[iRfile].Get(hist[:hist.find('__mu')]).Clone()
-				# muRFcorrdNewUpHist.Scale(renormNomHist.Integral()/muRFcorrdNewUpHist.Integral())
-				# muRFcorrdNewDnHist.Scale(renormNomHist.Integral()/muRFcorrdNewDnHist.Integral())
+
+                                if rebinCombine:
+                                        for iBin in range(1,muRFcorrdNewUpHist.GetNbinsX()+1):
+                                                binValueUp = muRFcorrdNewUpHist.GetBinContent(iBin)
+                                                if binValueUp == 0:            ##Check if bin content is zero
+                                                        muRFcorrdNewUpHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                        muRFcorrdNewUpHist.SetBinError(iBin,math.sqrt(1e-6))
+                                                binValueDn = muRFcorrdNewDnHist.GetBinContent(iBin)
+                                                if binValueDn == 0:            ##Check if bin content is zero
+                                                        muRFcorrdNewDnHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                        muRFcorrdNewDnHist.SetBinError(iBin,math.sqrt(1e-6))
+
 
 			if ('sig__mu' not in hist and '__'+sigName not in hist and normalizeRENORM and not FullMu):
  				renormNomHist = histList[0]
@@ -389,44 +432,106 @@ for rfile in rfiles:
 
 			muRFcorrdNewUpHist.Write()
 			muRFcorrdNewDnHist.Write()
+
 			yieldsAll[muRFcorrdNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewUpHist.Integral()
 			yieldsAll[muRFcorrdNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFcorrdNewDnHist.Integral()
 
 		#Constructing PDF shapes
 		pdfUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'pdf0' in k.GetName() and chn in k.GetName()]
-		newPDFName = 'pdfNew'
+		if year == '2016': newPDFName = 'pdfNew'+year
+		else: newPDFName = 'pdfNew20172018'
+
 		for hist in pdfUphists:
+                        #print '------------------------ new pdf hist',hist,' ------------------------'
 			pdfNewUpHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+upTag))
 			pdfNewDnHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+downTag))
-			for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
-				weightList = [rebinnedHists[hist.replace('pdf0','pdf'+str(pdfInd))].GetBinContent(ibin) for pdfInd in range(100)]
-				indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
-				indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
-				pdfNewUpHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinContent(ibin))
-				pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
-				pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
-				pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
-			if ('sig__pdf' in hist and normalizePDF) or (rebinCombine and '__'+sigName in hist and '__pdf' in hist and normalizePDF): #normalize the renorm/fact shapes to nominal
-				if rebinCombine and '__'+sigName in hist: 
-					signame = hist.split('__')[1]
-					if sigName not in signame: print "DIDNT GET SIGNAME",signame
-				scalefactorUp = pdfSFsUp[signame]
-				scalefactorDn = pdfSFsDn[signame]
+			centralHist = rebinnedHists[hist.replace('__pdf0','')]
 
-				pdfNewUpHist.Scale(scalefactorUp)
-				pdfNewDnHist.Scale(scalefactorDn)
-				#pdfNewUpHist.Scale(renormNomHist.Integral()/pdfNewUpHist.Integral())
-				#pdfNewDnHist.Scale(renormNomHist.Integral()/pdfNewDnHist.Integral())
+                        scalefactorSym = 0
+                        if ('sig__pdf' in hist or (rebinCombine and '__'+sigName in hist)) and '__pdf' in hist and normalizePDF: #normalize the renorm/fact shapes to nominal
+                                if rebinCombine and '__'+sigName in hist: 
+                                        signame = hist.split('__')[1]
+                                        if sigName not in signame: print "DIDNT GET SIGNAME",signame
+                                scalefactorSym = pdfSFsSym[signame]
+
+			for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
+                                errsq = 0
+
+                                ## Hessian version: make a list of bin contents
+				weightList = [rebinnedHists[hist.replace('pdf0','pdf'+str(pdfInd))].GetBinContent(ibin) for pdfInd in range(100)]
+                                for weight in weightList:
+                                        ## sum up squares of differences to the central value
+                                        errsq += (weight - centralHist.GetBinContent(ibin))**2
+                                        
+                                ## find the percentage of the shift w.r.t the central value
+                                if centralHist.GetBinContent(ibin) != 0: shiftpct = math.sqrt(errsq)/centralHist.GetBinContent(ibin)
+                                elif math.sqrt(errsq) != 0: print 'Weird: central is 0 but not PDF unc'
+                                else: shiftpct = 0
+
+                                ## for signal, reduce the shift by the no-selection value
+                                if shiftpct != 0: 
+                                        #print '\t bin',ibin,'of',hist,': shiftpct = ',shiftpct,'- scalefactoSym',scalefactorSym,'=',shiftpct - scalefactorSym   
+                                        shiftpct = shiftpct - scalefactorSym   
+                                #else: print '\t bin',ibin,'of',hist,': shiftpct was 0, leaving it!'
+                                if abs(shiftpct) > 1: print 'WARNING: pdf shift is',shiftpct,', flooring down at 0 in bin',ibin,'of hist',hist
+
+                                ## multiply the central value by 1 +/- the shift
+                                pdfNewUpHist.SetBinContent(ibin, max(0,centralHist.GetBinContent(ibin)*(1 + shiftpct)))
+                                pdfNewDnHist.SetBinContent(ibin, max(0,centralHist.GetBinContent(ibin)*(1 - shiftpct)))
+
+                                ## This was correct in 2016 for replica errors, not for 2017-2018
+				#indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
+				#indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
+				#pdfNewUpHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinContent(ibin))
+				#pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
+				#pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
+				#pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
+                        if rebinCombine and '__'+sigName in hist: #normalize the renorm/fact shapes to nominal                                
+                                for iBin in range(1,pdfNewUpHist.GetNbinsX()+1):
+                                        binValueUp = pdfNewUpHist.GetBinContent(iBin)
+                                        if binValueUp == 0:            ##Check if bin content is zero
+                                                pdfNewUpHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                pdfNewUpHist.SetBinError(iBin,math.sqrt(1e-6))
+                                        binValueDn = pdfNewDnHist.GetBinContent(iBin)
+                                        if binValueDn == 0:            ##Check if bin content is zero
+                                                pdfNewDnHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                pdfNewDnHist.SetBinError(iBin,math.sqrt(1e-6))
+
 			pdfNewUpHist.Write()
 			pdfNewDnHist.Write()
 			yieldsAll[pdfNewUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewUpHist.Integral()
 			yieldsAll[pdfNewDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfNewDnHist.Integral()
+			
+		#Renaming uncertainties in histogram to include _R2016 and filling empty ones
+		for hist in allhists[chn]:
+                        if 'jec' in hist or 'jer' in hist or 'trig' in hist or 'mis' in hist:
+                                mytag = upTag
+                                if downTag in hist: mytag = downTag
+                                newName=year+mytag
+                                newHist = rebinnedHists[hist].Clone(hist.replace(mytag,newName).replace('trigeffEl','elTrig').replace('trigeffMu','muTrig'))
+                                if 'TTM' in newHist.GetName() or 'BBM' in newHist.GetName():
+                                        for iBin in range(1,newHist.GetNbinsX()+1):
+                                                binValue = newHist.GetBinContent(iBin)
+                                                if binValue == 0:            ##Check if bin content is zero
+                                                        newHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                        newHist.SetBinError(iBin,math.sqrt(1e-6))
+                                newHist.Write()
+                        elif 'TTM' in hist or 'BBM' in hist:
+                                if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
+                                for iBin in range(1,rebinnedHists[hist].GetNbinsX()+1):      ##Loop over bins
+                                        binValue = rebinnedHists[hist].GetBinContent(iBin)
+                                        if binValue == 0:            ##Check if bin content is zero
+                                                rebinnedHists[hist].SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                rebinnedHists[hist].SetBinError(iBin,math.sqrt(1e-6))
+                                rebinnedHists[hist].Write()
 
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()
 	iRfile+=1
 tfile.Close()
 print ">> Rebinning Done!"
+
+
 
 for chn in channels:
 	modTag = chn[chn.find('is'):]
@@ -625,9 +730,7 @@ for proc in bkgProcList+sigProcList:
 postFix = ''
 if addShapes: postFix+='_addShps'
 if not addCRsys: postFix+='_noCRunc'
-
 if rebinCombine: out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
-elif FullMu: out=open(templateDir+'/'+thetafile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'_FullMuTrue'+'.txt','w')
 else: out=open(templateDir+'/'+thetafile.replace('templates','yields').replace('.root','_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
 
 printTable(table,out)
@@ -691,6 +794,7 @@ printTable(table,out)
 # 	yldRfile.Close()
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
+
 
 
 
