@@ -55,11 +55,23 @@ trainings=[
 ]
 
 combinations = [
-'66vars_4j_pt20_BDT',
-'66vars_6j_pt20_BDT',
-'73vars_4j_pt20_BDT',
-'73vars_6j_pt20_BDT'
- ]
+{
+	'variable':'BDT',
+	'postfix':'66vars_4j_pt20'
+},
+{
+	'variable':'BDT',
+	'postfix':'66vars_6j_pt20'
+},
+{
+	'variable':'BDT',
+	'postfix':'73vars_4j_pt20'
+},
+{
+	'variable':'BDT',
+	'postfix':'73vars_6j_pt20'
+}
+]
 
 #which step would you like to run?
 #1 doCondorTemplates
@@ -183,8 +195,8 @@ Queue 1\n')
 
 if step==5:
 	os.chdir('combineLimits')
-	for combo in combinations:
-
+	for c in combinations:
+		combo=c['postfix']+'_'+c['variable']
 		shell_name = 'cfg/condor_step5_'+combo+'.sh'
 		shell=open(shell_name,'w')
 		shell.write(
@@ -216,14 +228,18 @@ Queue 1\n')
 		os.system('condor_submit '+jdf_name)
 	os.chdir('..')
 
-def printlim(spec,year,variable):
+def printlim(spec,year,variable,isComb):
 
 	inputDir='limits_'+year+'_'+spec+'_'+variable
-
 	sigFile = inputDir+'/sig.txt'
+	limFile = inputDir+'/asy.txt'
+	if isComb:
+		inputDir='BDTcomb/'
+		sigFile = inputDir+'/sig_'+spec+'_'+variable+'.txt'
+		limFile = inputDir+'/asy_'+spec+'_'+variable+'.txt'
+
 	sigData = open(sigFile,'r').read()
 	siglines = sigData.split('\n')
-	limFile = inputDir+'/asy.txt'
 	limData = open(limFile,'r').read()
 	limlines = limData.split('\n')
 	theSig = ''
@@ -238,38 +254,21 @@ def printlim(spec,year,variable):
 		if line.startswith('Expected 97.5%:'): theLim[4] = "{:.2f}".format(float(line.split()[-1])*12)
 	print year+' , '+variable+' , '+spec+' , '+theSig+' , '+theLim[0]+' , '+theLim[1]+' , '+theLim[2]+' , '+theLim[3]+' , '+theLim[4]
 
-def printcombolim(combo):
-
-	inputDir='BDTcomb/'
-
-	sigFile = inputDir+'/sig_'+combo+'.txt'
-	sigData = open(sigFile,'r').read()
-	siglines = sigData.split('\n')
-	limFile = inputDir+'/asy_'+combo+'.txt'
-	limData = open(limFile,'r').read()
-	limlines = limData.split('\n')
-	theSig = ''
-	theLim = ['']*5
-	for line in siglines:
-		if line.startswith('Significance:'): theSig = line.split()[-1]
-	for line in limlines:
-		if line.startswith('Expected  2.5%:'): theLim[0] =  "{:.2f}".format(float(line.split()[-1])*12)
-		if line.startswith('Expected 16.0%:'): theLim[1] = "{:.2f}".format(float(line.split()[-1])*12)
-		if line.startswith('Expected 50.0%:'): theLim[2] = "{:.2f}".format(float(line.split()[-1])*12)
-		if line.startswith('Expected 84.0%:'): theLim[3] = "{:.2f}".format(float(line.split()[-1])*12)
-		if line.startswith('Expected 97.5%:'): theLim[4] = "{:.2f}".format(float(line.split()[-1])*12)
-	print '17+18 , BDT , '+combo+' , '+theSig+' , '+theLim[0]+' , '+theLim[1]+' , '+theLim[2]+' , '+theLim[3]+' , '+theLim[4]
 
 if step==6:
 	print 'Year , Var , Specifications , Significance , -2sigma, -1sigma, central, +1sigma, +2sigma'
 	os.chdir('combineLimits')
 	for train in trainings:
-		printlim(train['postfix'] , train['year'] , train['variable'])
+		printlim(train['postfix'] , train['year'] , train['variable'],False)
 	for combo in combinations:
-		printcombolim(combo)
+		printlim(combo['postfix'],'R17+18',combo['variable'],True)
 	os.chdir('..')
-# python makeTemplates/doCondorTemplates.py R17 BDT 40vars_6j /mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_05182020_step3_wenyu/BDT_SepRank6j73vars2017year40top_40vars_mDepth2_4j_year2018/
-# python makeTemplates/doTemplates.py R17 40vars_6j
-# python makeTemplates/modifyBinning.py R17 BDT 40vars_6j
-# python makeTemplates/plotTemplates.py R17 BDT 40vars_6j
-# python combineLimits/dataCard.py R17 BDT 40vars_6j
+
+# standalone commands
+# in makeTemplates:
+# python doCondorTemplates.py R17 BDT 40vars_6j /mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_05182020_step3_wenyu/BDT_SepRank6j73vars2017year40top_40vars_mDepth2_4j_year2018/
+# python doTemplates.py R17 40vars_6j
+# python modifyBinning.py R17 BDT 40vars_6j
+# python plotTemplates.py R17 BDT 40vars_6j
+# in combineLimits:
+# python dataCard.py R17 BDT 40vars_6j
