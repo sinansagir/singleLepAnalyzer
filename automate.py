@@ -63,10 +63,11 @@ combinations = [
 
 #which step would you like to run?
 #1 doCondorTemplates
-#2 doTemplates + modifyBinning + plotTemplates
-#3 dataCard + limit + significance
-#4 combination limit + significance
-#5 print results
+#2 doTemplates
+#3 modifyBinning + plotTemplates
+#4 dataCard + limit + significance
+#5 combination limit + significance
+#6 print results
 step=1
 
 if step==1:
@@ -86,9 +87,7 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
 cd /home/eusai/4t/CMSSW_10_2_16_UL/src\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
-python doTemplates.py '+train['year']+' '+train['postfix']+'\n\
-python modifyBinning.py '+train['year']+' '+train['variable']+' '+train['postfix']+'\n\
-python plotTemplates.py '+train['year']+' '+train['variable']+' '+train['postfix']+'\n')
+python doTemplates.py '+train['year']+' '+train['postfix']+'\n')
 		shell.close()
 		jdf_name = 'condor_step2_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.job'
 		jdf=open(jdf_name,'w')
@@ -109,8 +108,9 @@ Queue 1\n')
 	os.chdir('..')
 
 
+
 if step==3:
-	os.chdir('combineLimits')
+	os.chdir('makeTemplates')
 	for train in trainings:
 		shell_name = 'condor_step3_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.sh'
 		shell=open(shell_name,'w')
@@ -120,11 +120,8 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
 cd /home/eusai/4t/CMSSW_10_2_16_UL/src\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
-python dataCard.py '+train['year']+' '+train['variable']+' '+train['postfix']+'\n\
-cd limits_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'\n\
-combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig.txt\n\
-combine -M AsymptoticLimits cmb/workspace.root --run=blind --cminDefaultMinimizerStrategy 0 &> asy.txt\n\
-cd ..\n')
+python modifyBinning.py '+train['year']+' '+train['variable']+' '+train['postfix']+'\n\
+python plotTemplates.py '+train['year']+' '+train['variable']+' '+train['postfix']+'\n')
 		shell.close()
 		jdf_name = 'condor_step3_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.job'
 		jdf=open(jdf_name,'w')
@@ -145,11 +142,48 @@ Queue 1\n')
 	os.chdir('..')
 
 
+
 if step==4:
+	os.chdir('combineLimits')
+	for train in trainings:
+		shell_name = 'condor_step4_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.sh'
+		shell=open(shell_name,'w')
+		shell.write(
+'#!/bin/bash\n\
+source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
+cd /home/eusai/4t/CMSSW_10_2_16_UL/src\n\
+eval `scramv1 runtime -sh`\n\
+cd '+os.getcwd()+'\n\
+python dataCard.py '+train['year']+' '+train['variable']+' '+train['postfix']+'\n\
+cd limits_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'\n\
+combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig.txt\n\
+combine -M AsymptoticLimits cmb/workspace.root --run=blind --cminDefaultMinimizerStrategy 0 &> asy.txt\n\
+cd ..\n')
+		shell.close()
+		jdf_name = 'condor_step4_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.job'
+		jdf=open(jdf_name,'w')
+		jdf.write(
+'universe = vanilla\n\
+Executable = '+os.getcwd()+'/'+shell_name+'\n\
+Should_Transfer_Files = YES\n\
+WhenToTransferOutput = ON_EXIT\n\
+request_memory = 3072\n\
+Output = '+os.getcwd()+'/log/'+shell_name.split('.')[0]+'.out\n\
+Error = '+os.getcwd()+'/log/'+shell_name.split('.')[0]+'.err\n\
+Log = '+os.getcwd()+'/log/'+shell_name.split('.')[0]+'.log\n\
+Notification = Error\n\
+Arguments = \n\
+Queue 1\n')
+		jdf.close()
+		os.system('condor_submit '+jdf_name)
+	os.chdir('..')
+
+
+if step==5:
 	os.chdir('combineLimits')
 	for combo in combinations:
 
-		shell_name = 'condor_step4_'+combo+'.sh'
+		shell_name = 'condor_step5_'+combo+'.sh'
 		shell=open(shell_name,'w')
 		shell.write(
 '#!/bin/bash\n\
@@ -162,7 +196,7 @@ text2workspace.py  BDTcomb/'+combo+'.txt  -o BDTcomb/'+combo+'.root\n\
 combine -M Significance BDTcomb/'+combo+'.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_'+combo+'.txt\n\
 combine -M AsymptoticLimits BDTcomb/'+combo+'.root --run=blind --cminDefaultMinimizerStrategy 0 &> BDTcomb/asy_'+combo+'.txt\n')
 		shell.close()
-		jdf_name = 'condor_step4_'+combo+'.job'
+		jdf_name = 'condor_step5_'+combo+'.job'
 		jdf=open(jdf_name,'w')
 		jdf.write(
 'universe = vanilla\n\
@@ -224,7 +258,7 @@ def printcombolim(combo):
 		if line.startswith('Expected 97.5%:'): theLim[4] = "{:.2f}".format(float(line.split()[-1])*12)
 	print '17+18 , BDT , '+combo+' , '+theSig+' , '+theLim[0]+' , '+theLim[1]+' , '+theLim[2]+' , '+theLim[3]+' , '+theLim[4]
 
-if step==5:
+if step==6:
 	print 'Year , Var , Specifications , Significance , -2sigma, -1sigma, central, +1sigma, +2sigma'
 	os.chdir('combineLimits')
 	for train in trainings:
