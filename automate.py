@@ -4,50 +4,50 @@ trainings=[
 
 {
 'year':'R17',
-'variable':'BDT',
+'variable':['BDT','HT'],
 'postfix':'66vars_4j_pt20',
 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_66vars_mDepth2_4j_year2017/'
 },
 {
 'year':'R17',
-'variable':'BDT',
+'variable':['BDT','HT'],
 'postfix':'66vars_6j_pt20',
 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_66vars_mDepth2_6j_year2017/'
 },
 {
 'year':'R17',
-'variable':'BDT',
+'variable':['BDT','HT'],
 'postfix':'73vars_4j_pt20',
 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_73vars_mDepth2_4j_year2017/'
 },
 {
 'year':'R17',
-'variable':'BDT',
+'variable':['BDT','HT'],
 'postfix':'73vars_6j_pt20',
 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_73vars_mDepth2_6j_year2017/'
 },
 
 {
 'year':'R18',
-'variable':'BDT',
+'variable':['BDT','HT'],
 'postfix':'66vars_4j_pt20',
 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_66vars_mDepth2_4j_year2018/'
 },
 {
 'year':'R18',
-'variable':'BDT',
+'variable':['BDT','HT'],
 'postfix':'66vars_6j_pt20',
 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_66vars_mDepth2_6j_year2018/'
 },
 {
 'year':'R18',
-'variable':'BDT',
+'variable':['BDT','HT'],
 'postfix':'73vars_4j_pt20',
 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_73vars_mDepth2_4j_year2018/'
 },
 {
 'year':'R18',
-'variable':'BDT',
+'variable':['BDT','HT'],
 'postfix':'73vars_6j_pt20',
 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_73vars_mDepth2_6j_year2018/'
 },
@@ -79,7 +79,7 @@ if step==1:
 if step==2:
 	os.chdir('makeTemplates')
 	for train in trainings:
-		shell_name = 'cfg/condor_step2_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.sh'
+		shell_name = 'cfg/condor_step2_'+train['year']+'_'+train['postfix']+'.sh'
 		shell=open(shell_name,'w')
 		shell.write(
 '#!/bin/bash\n\
@@ -89,7 +89,7 @@ eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 python doTemplates.py '+train['year']+' '+train['postfix']+'\n')
 		shell.close()
-		jdf_name = 'cfg/condor_step2_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.job'
+		jdf_name = 'cfg/condor_step2_'+train['year']+'_'+train['postfix']+'.job'
 		jdf=open(jdf_name,'w')
 		jdf.write(
 'universe = vanilla\n\
@@ -112,20 +112,21 @@ Queue 1\n')
 if step==3:
 	os.chdir('makeTemplates')
 	for train in trainings:
-		shell_name = 'cfg/condor_step3_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.sh'
-		shell=open(shell_name,'w')
-		shell.write(
+		for v in train['variable']:
+			shell_name = 'cfg/condor_step3_'+train['year']+'_'+train['postfix']+'_'+v+'.sh'
+			shell=open(shell_name,'w')
+			shell.write(
 '#!/bin/bash\n\
 source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
 cd /home/eusai/4t/CMSSW_10_2_16_UL/src\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
-python modifyBinning.py '+train['year']+' '+train['variable']+' '+train['postfix']+'\n\
-python plotTemplates.py '+train['year']+' '+train['variable']+' '+train['postfix']+'\n')
-		shell.close()
-		jdf_name = 'cfg/condor_step3_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.job'
-		jdf=open(jdf_name,'w')
-		jdf.write(
+python modifyBinning.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+python plotTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n')
+			shell.close()
+			jdf_name = 'cfg/condor_step3_'+train['year']+'_'+train['postfix']+'_'+v+'.job'
+			jdf=open(jdf_name,'w')
+			jdf.write(
 'universe = vanilla\n\
 Executable = '+os.getcwd()+'/'+shell_name+'\n\
 Should_Transfer_Files = YES\n\
@@ -137,8 +138,8 @@ Log = '+os.getcwd()+'/log/'+shell_name.split('.')[0].split('/')[1]+'.log\n\
 Notification = Error\n\
 Arguments = \n\
 Queue 1\n')
-		jdf.close()
-		os.system('condor_submit '+jdf_name)
+			jdf.close()
+			os.system('condor_submit '+jdf_name)
 	os.chdir('..')
 
 
@@ -146,23 +147,24 @@ Queue 1\n')
 if step==4:
 	os.chdir('combineLimits')
 	for train in trainings:
-		shell_name = 'cfg/condor_step4_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.sh'
-		shell=open(shell_name,'w')
-		shell.write(
+		for v in train['variable']:
+			shell_name = 'cfg/condor_step4_'+train['year']+'_'+train['postfix']+'_'+v+'.sh'
+			shell=open(shell_name,'w')
+			shell.write(
 '#!/bin/bash\n\
 source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
 cd /home/eusai/4t/CMSSW_10_2_16_UL/src\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
-python dataCard.py '+train['year']+' '+train['variable']+' '+train['postfix']+'\n\
-cd limits_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'\n\
+python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+cd limits_'+train['year']+'_'+train['postfix']+'_'+v+'\n\
 combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig.txt\n\
 combine -M AsymptoticLimits cmb/workspace.root --run=blind --cminDefaultMinimizerStrategy 0 &> asy.txt\n\
 cd ..\n')
-		shell.close()
-		jdf_name = 'cfg/condor_step4_'+train['year']+'_'+train['postfix']+'_'+train['variable']+'.job'
-		jdf=open(jdf_name,'w')
-		jdf.write(
+			shell.close()
+			jdf_name = 'cfg/condor_step4_'+train['year']+'_'+train['postfix']+'_'+v+'.job'
+			jdf=open(jdf_name,'w')
+			jdf.write(
 'universe = vanilla\n\
 Executable = '+os.getcwd()+'/'+shell_name+'\n\
 Should_Transfer_Files = YES\n\
@@ -174,8 +176,8 @@ Log = '+os.getcwd()+'/log/'+shell_name.split('.')[0].split('/')[1]+'.log\n\
 Notification = Error\n\
 Arguments = \n\
 Queue 1\n')
-		jdf.close()
-		os.system('condor_submit '+jdf_name)
+			jdf.close()
+			os.system('condor_submit '+jdf_name)
 	os.chdir('..')
 
 
