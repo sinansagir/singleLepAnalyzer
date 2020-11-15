@@ -24,7 +24,7 @@ else:
 sig1 = 'tttt' #  choose the 1st signal to plot
 isRebinned = '_rebinned_stat0p3'
 useCombine = True
-tempVersion = 'templates_'+year+'_njet_2020_8_17/'
+tempVersion = 'templates_'+year+'_HEM1516syst_201108/'
 cutString = ''
 saveDir = 'bkgIndChannels'
 if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+lumiStr+isRebinned+'.root'
@@ -42,7 +42,9 @@ nbtaglist = ['2','3','4p']
 njetslist = ['6','7','8','9','10p']
 # nbtaglist = ['2p']
 # njetslist = ['6p']
-systematics = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf','hdamp','ue','njet']#,'njetsf']#,'ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+systematics = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf','hdamp','ue','njet','njetsf']#,'ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+if year=='R17': systematics += ['prefire']
+# if year=='R18': systematics += ['hem']
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 RFile = rt.TFile(templateFile)
@@ -56,7 +58,7 @@ else: #theta
 nBinsBkg = 0
 for cat in catList:
 	if 'isE' not in cat: continue
-	Prefix = iPlot+'_'+lumiStr+'_'+cat+'__'+bkgList[1]
+	Prefix = iPlot+'_'+lumiStr+'_'+cat+'__'+bkgList[0]
 	print Prefix
 	nBinsBkg += RFile.Get(Prefix).GetNbinsX()
 
@@ -68,6 +70,7 @@ for em in isEMlist:
 		comboHists['bkg'+em+syst+'Dn']=rt.TH1F('bkg'+em+syst+'Dn','Bin #',nBinsBkg,0,nBinsBkg)
 		ibin = 0
 		for cat in catList:
+			if 'is'+em not in cat: continue
 			Prefix = iPlot+'_'+lumiStr+'_'+cat+'__'+bkgList[0]
 			print Prefix+'__'+syst
 			try: hNm = RFile.Get(Prefix).Clone()
@@ -244,8 +247,8 @@ for em in isEMlist:
 		legend.SetLineColor(0);
 		legend.SetTextSize(0.05);
 		legend.AddEntry(comboHists['bkg'+em],'bkg','l')
-		legend.AddEntry(comboHists['bkg'+em+syst+'Up'],syst.replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Up','l')
-		legend.AddEntry(comboHists['bkg'+em+syst+'Dn'],syst.replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Down','l')
+		legend.AddEntry(comboHists['bkg'+em+syst+'Up'],syst.replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Up','l')
+		legend.AddEntry(comboHists['bkg'+em+syst+'Dn'],syst.replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Down','l')
 
 		legend.Draw('same')
 

@@ -284,7 +284,9 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	if isPlot2D: hists[iPlot+'_'+lumiStr+'_'+catStr+'_'+process+flv]  = TH2D(iPlot+'_'+lumiStr+'_'+catStr+'_'+process+flv,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[iPlot+'_'+lumiStr+'_'+catStr+'_'+process+flv]  = TH1D(iPlot+'_'+lumiStr+'_'+catStr+'_'+process+flv,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf']#,'toppt'
+		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf']#,'toppt'
+		if '17' in year: systList += ['prefire']
+		if '18' in year: systList += ['hem']
 		for syst in systList:
 			for ud in ['Up','Down']:
 				if isPlot2D: hists[iPlot+syst+ud+'_'+lumiStr+'_'+catStr+'_'+process+flv] = TH2D(iPlot+syst+ud+'_'+lumiStr+'_'+catStr+'_'+process+flv,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
@@ -301,8 +303,9 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 # 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'triggerDown_'  +lumiStr+'_'+catStr+'_'+process+flv, weightTriggerDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'pileupUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightPileupUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'pileupDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightPileupDownStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'prefireUp_'    +lumiStr+'_'+catStr+'_'+process+flv, weightPrefireUpStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+iPlot+'prefireDown_'  +lumiStr+'_'+catStr+'_'+process+flv, weightPrefireDownStr+'*('+fullcut+')', 'GOFF')
+		if '17' in year:
+			tTree[process].Draw(plotTreeName+' >> '+iPlot+'prefireUp_'    +lumiStr+'_'+catStr+'_'+process+flv, weightPrefireUpStr+'*('+fullcut+')', 'GOFF')
+			tTree[process].Draw(plotTreeName+' >> '+iPlot+'prefireDown_'  +lumiStr+'_'+catStr+'_'+process+flv, weightPrefireDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muRFcorrdUp_'  +lumiStr+'_'+catStr+'_'+process+flv, weightmuRFcorrdUpStr  +'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muRFcorrdDown_'+lumiStr+'_'+catStr+'_'+process+flv, weightmuRFcorrdDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'muRUp_'        +lumiStr+'_'+catStr+'_'+process+flv, weightmuRUpStr+'*('+fullcut+')', 'GOFF')
@@ -411,6 +414,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 			print 'Processing JER ...'
 			tTree[process+'jerUp'].Draw(plotTreeName   +' >> '+iPlot+'jerUp_'  +lumiStr+'_'+catStr+'_' +process+flv, weightStr+'*('+fullcut+')', 'GOFF')
 			tTree[process+'jerDown'].Draw(plotTreeName +' >> '+iPlot+'jerDown_'+lumiStr+'_'+catStr+'_' +process+flv, weightStr+'*('+fullcut+')', 'GOFF')
+		if '18' in year and tTree[process+'hemUp']:
+			print 'Processing HEM15/16 ...'
+			tTree[process+'hemUp'].Draw(plotTreeName   +' >> '+iPlot+'hemUp_'  +lumiStr+'_'+catStr+'_' +process+flv, weightStr+'*('+fullcut+')', 'GOFF')
+			tTree[process+'hemDown'].Draw(plotTreeName +' >> '+iPlot+'hemDown_'+lumiStr+'_'+catStr+'_' +process+flv, weightStr+'*('+fullcut+')', 'GOFF')
 		if doPDF:
 			print 'Processing PDF ...'
 			for i in range(100): 

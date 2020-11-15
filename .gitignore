@@ -6,4 +6,6 @@ makeTemplates/cfg/*
 combineLimits/limits_*
 combineLimits/log/*
 combineLimits/cfg/*
+plotShapeShifts/templates_*
+optimization/templates_*
 *.root
