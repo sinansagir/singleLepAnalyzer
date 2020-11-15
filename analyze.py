@@ -157,6 +157,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 
 	if 'Data' not in process:
 		weightStr          += ' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
+		weightStr 	   += ' * btagCSVWeight * btagCSVRenormWeight'
 		weightStrNoNjet = weightStr
 		#weightStr = njetStr + ' * ' + weightStr #UNCOMMENT HERE TO APPLY NJET SF!!!!!!!
 		weightTriggerUpStr  = weightStr.replace(TrigSF,'('+TrigSF+'+'+TrigSF+'Uncert)')
@@ -181,6 +182,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		weightNjetDownStr   = njetDownStr + ' * ' + weightStrNoNjet
 		weightNjetSFUpStr   = njetStr + ' * ' + weightStrNoNjet
 		weightNjetSFDownStr = weightStrNoNjet
+		weightCSVshapelfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFup')
+                weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn')
+                weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup')
+                weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn')
 
 	# For N-1 tagging cuts
 	sdmassvar='theJetAK8SoftDropCorr_JetSubCalc_PtOrdered'
@@ -279,7 +284,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	if isPlot2D: hists[iPlot+'_'+lumiStr+'_'+catStr+'_'+process+flv]  = TH2D(iPlot+'_'+lumiStr+'_'+catStr+'_'+process+flv,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[iPlot+'_'+lumiStr+'_'+catStr+'_'+process+flv]  = TH1D(iPlot+'_'+lumiStr+'_'+catStr+'_'+process+flv,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','njet','njetsf']#,'toppt'
+		systList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf']#,'toppt'
 		for syst in systList:
 			for ud in ['Up','Down']:
 				if isPlot2D: hists[iPlot+syst+ud+'_'+lumiStr+'_'+catStr+'_'+process+flv] = TH2D(iPlot+syst+ud+'_'+lumiStr+'_'+catStr+'_'+process+flv,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
@@ -314,7 +319,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'njetDown_'     +lumiStr+'_'+catStr+'_'+process+flv, weightNjetDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'njetsfUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightNjetSFUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'njetsfDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightNjetSFDownStr+'*('+fullcut+')', 'GOFF')
-
+                tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapelfUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapelfUpStr+'*('+fullcut+')', 'GOFF')
+                tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapelfDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapelfDownStr+'*('+fullcut+')', 'GOFF')
+                tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapehfUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapehfUpStr+'*('+fullcut+')', 'GOFF')
+                tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapehfDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapehfDownStr+'*('+fullcut+')', 'GOFF')
 
 		# Change the plot name itself for shifts if needed
 		# hot-tagging:
