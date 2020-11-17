@@ -460,7 +460,7 @@ for rfile in rfiles:
 
 		#Constructing PDF shapes
 		if doPDF:
-			pdfUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'pdf0' in k.GetName() and chn in k.GetName()]
+			pdfUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'pdf0' in k.GetName() and chn in k.GetName() and chn+'p' not in k.GetName()]
 			PDFName = 'pdf'
 			for hist in pdfUphists:
 				pdfUpHist = rebinnedHists[hist].Clone(hist.replace('pdf0',PDFName+upTag))
