@@ -54,11 +54,12 @@ iPlotList = [#distribution name as defined in "doHists.py"
         #'probz',
         #'dnnLargest',
         #'nB',
-        #'nH', 
+        #'nH',
         #'nT',
-        #'nW', 
+        #'nW',
         #'nZ',
-	#
+
+	
 	##Not algorithm dependent -> NAD
 	#'DnnTprime',
 	#'DnnWJets',
@@ -75,7 +76,9 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'JetPt', 
 	#'MET',   
 	#'NJets', 
-	#'NBJets',
+	'NBJets',
+	#'NBDeepJets',
+	#'NBDeepJetsNoSF',
 	#'NJetsAK8',
 	#'JetPtAK8',
 	#'lepPt', 
@@ -96,7 +99,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'minDPhiMetJet',
 	#'Tau21',
 
-	## Not plotting for now
+	# Not plotting for now
 	#'Tau21Nm1',
 	#'Tau32Nm1',
 	#'SoftDropHNm1',
@@ -122,7 +125,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'Jet6PtBins',
 	#'NBJetsNotH',
 	#'NBJetsNotPH',
-	#'NBJetsNoSF',
+	'NBJetsNoSF',
 	#'NWJets',
 	#'PuppiNWJets',
 	#'NTJets',

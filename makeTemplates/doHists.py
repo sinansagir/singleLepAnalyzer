@@ -14,9 +14,9 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = 'root://cmseos.fnal.gov//store/user/bluetke/FWLJMET102X_1lep2017_June2020_step1hadds_fromjson_BL' ##Step2hadds for everything not-PS
+step1Dir = 'root://cmseos.fnal.gov//store/user/escharni/FWLJMET102X_1lep2017Dnn_Mar2020_step1hadds'
 
-iPlot = 'HT' #minMlb' #choose a discriminant from plotList below!
+iPlot = 'DnnTTbar' #minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
 region = 'PS'
 if len(sys.argv)>3: region=sys.argv[3]
@@ -163,8 +163,10 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'MET'   :('corr_met_MultiLepCalc',linspace(0, 1500, 51).tolist(),';#slash{E}_{T} [GeV];'),
 	'METmod'   :('corr_metmod_MultiLepCalc',linspace(0, 1500, 51).tolist(),';modified #slash{E}_{T} [GeV];'),
 	'NJets' :('NJets_JetSubCalc',linspace(0, 15, 16).tolist(),';jet multiplicity;'),
-	'NBJets':('NJetsCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
-	'NBJetsNoSF':('NJetsCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
+	'NBJets':('NJetsDeepCSVwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
+	'NBJetsNoSF':('NJetsDeepCSV_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
+	'NBDeepJets':('NJetsDeepFlavwithSF_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
+	'NBDeepJetsNoSF':('NJetsDeepFlav_JetSubCalc',linspace(0, 10, 11).tolist(),';b tag multiplicity;'),
 	'NJetsAK8':('NJetsAK8_JetSubCalc',linspace(0, 8, 9).tolist(),';AK8 Jet multiplicity;'),
 	'JetPtAK8':('theJetAK8Pt_JetSubCalc_PtOrdered',linspace(0, 1500, 51).tolist(),';AK8 Jet p_{T} [GeV];'),
 	'JetPtBinsAK8':('theJetAK8Pt_JetSubCalc_PtOrdered',bigbins,';AK8 Jet p_{T} [GeV];'),
