@@ -183,9 +183,9 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		weightNjetSFUpStr   = njetStr + ' * ' + weightStrNoNjet
 		weightNjetSFDownStr = weightStrNoNjet
 		weightCSVshapelfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFup')
-                weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn')
-                weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup')
-                weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn')
+		weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn')
+		weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup')
+		weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn')
 
 	# For N-1 tagging cuts
 	sdmassvar='theJetAK8SoftDropCorr_JetSubCalc_PtOrdered'
@@ -319,10 +319,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'njetDown_'     +lumiStr+'_'+catStr+'_'+process+flv, weightNjetDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'njetsfUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightNjetSFUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'njetsfDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightNjetSFDownStr+'*('+fullcut+')', 'GOFF')
-                tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapelfUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapelfUpStr+'*('+fullcut+')', 'GOFF')
-                tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapelfDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapelfDownStr+'*('+fullcut+')', 'GOFF')
-                tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapehfUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapehfUpStr+'*('+fullcut+')', 'GOFF')
-                tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapehfDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapehfDownStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapelfUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapelfUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapelfDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapelfDownStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapehfUp_'     +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapehfUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'CSVshapehfDown_'   +lumiStr+'_'+catStr+'_'+process+flv, weightCSVshapehfDownStr+'*('+fullcut+')', 'GOFF')
 
 		# Change the plot name itself for shifts if needed
 		# hot-tagging:
