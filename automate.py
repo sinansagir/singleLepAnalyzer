@@ -260,7 +260,8 @@ if step==6:
 	print 'Year , Var , Specifications , Significance , -2sigma, -1sigma, central, +1sigma, +2sigma'
 	os.chdir('combineLimits')
 	for train in trainings:
-		printlim(train['postfix'] , train['year'] , train['variable'],False)
+		for v in train['variable']:
+			printlim(train['postfix'] , train['year'] , v ,False)
 	for combo in combinations:
 		printlim(combo['postfix'],'R17+18',combo['variable'],True)
 	os.chdir('..')
