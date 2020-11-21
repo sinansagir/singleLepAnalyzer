@@ -306,6 +306,7 @@ catList = ['is'+cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_n
 nCats  = len(catList)
 
 shapesFiles = ['jec','jer']
+#if year == 'R18': shapesFiles += ['hem']
 
 tTreeData = {}
 tFileData = {}

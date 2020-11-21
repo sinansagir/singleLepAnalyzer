@@ -64,6 +64,7 @@ nRun['WJetsMG200'] = 25423155.0 # from integral , file WJetsToLNu_HT-200To400_Tu
 nRun['WJetsMG400'] = 5915969.0 # from integral , file WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8_hadd.root
 nRun['WJetsMG600'] = 19699782.0 # from integral , file WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8_hadd.root
 nRun['WJetsMG800'] = 8362254.0 # from integral , file WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8_hadd.root
+#nRun['WJetsMG800'] = 8365038.0 # (110720 step1s) from integral , file WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8_hadd.root
 nRun['WJetsMG1200'] = 7571583.0 # from integral , file WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8_hadd.root
 nRun['WJetsMG2500'] = 3191612.0 # from integral , file WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8_1_hadd.root + WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8_2_hadd.root
 
@@ -167,7 +168,7 @@ xsec['TTJetsHadUEup'] = xsec['TTJets'] * BR_TTJetsHad
 xsec['TTJetsHadHDAMPdn'] = xsec['TTJets'] * BR_TTJetsHad
 xsec['TTJetsHadHDAMPup'] = xsec['TTJets'] * BR_TTJetsHad
 
-xsec['Ts'] = 7.20/3 #(1/3 was suggested by Thomas Peiffer to account for the leptonic branching ratio)# https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
+xsec['Ts'] = 11.36/3 #(1/3 was suggested by Thomas Peiffer to account for the leptonic branching ratio)# https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['Tt'] = 136.02 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['Tbt'] = 80.95 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
 xsec['TtW'] = 35.83 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
