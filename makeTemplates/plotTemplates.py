@@ -33,6 +33,7 @@ if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
 isRebinned='_rebinned_stat0p3' #post for ROOT file names
+if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
 sig='tttt' #  choose the 1st signal to plot
@@ -47,36 +48,31 @@ ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 if iPlot=='HTYLD': ttProcList = ['ttbb','ttnobb']
 bkgProcList = ttProcList+['top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
+systematicList = ['pileup','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 systematicList+= ['CSVshapelf','CSVshapehf']
 if year == 'R17': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
 doAllSys = True
-doQ2sys  = False
-if not doAllSys: doQ2sys = False
 addCRsys = False
 doNormByBinWidth=True
-if 'rebinned' not in isRebinned or 'stat1p1' in isRebinned: doNormByBinWidth=False
-doOneBand = False
-if not doAllSys: doOneBand = True # Don't change this!
+doOneBand = True
 blind = True
-if blind: doOneBand = False
-if not isCategorized: blind = False
 yLog  = True
-# if yLog: scaleSignals = False
 doRealPull = False
-if doRealPull: doOneBand=False
 compareShapes = False
+if not isCategorized: blind = False
+if blind or doRealPull: doOneBand = False
+if not doAllSys: doOneBand = True # Don't change this!
 if compareShapes: blind,yLog,scaleSignals,sigScaleFact=True,False,False,-1
 drawYields = False
 zero = 1E-12
 
 isEMlist  = ['E','M']
-if 'YLD' in iPlot: doNormByBinWidth = False
+if 'rebinned' not in isRebinned or 'stat1p1' in isRebinned or 'YLD' in iPlot: doNormByBinWidth = False
 
 if useCombineTemplates:
 	sigName = sig
@@ -151,6 +147,8 @@ def formatUpperHist(histogram,histogramBkg):
 		if 'YLD' in iPlot: 
 			histogram.SetMaximum(2e3*histogramBkg.GetMaximum())
 			histogram.SetMinimum(0.101)
+		elif not isCategorized:
+			histogram.SetMaximum(5e6*histogramBkg.GetMaximum())
 		else: histogram.SetMaximum(2e2*histogramBkg.GetMaximum())
 	else: 
 		if 'YLD' in iPlot: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
@@ -196,7 +194,7 @@ if( iPos==0 ): CMS_lumi.relPosX = 0.12
 H_ref = 600; 
 W_ref = 800; 
 W = W_ref
-H  = H_ref
+H = H_ref
 
 iPeriod = 4 #see CMS_lumi.py module for usage!
 
@@ -211,7 +209,9 @@ R = 0.04*W_ref
 tagPosX = 0.76
 tagPosY = 0.62
 if 'Tau32' in iPlot: tagPosX = 0.58
-if not blind: tagPosY-=0.1
+if 'Eta' in iPlot: tagPosX+=0.1
+if 'HOTtDisc' in iPlot: tagPosY-=0.1
+if not blind: tagPosY-=0.13
 
 table = []
 table.append(['break'])
@@ -256,10 +256,8 @@ for catEStr in catsElist:
 			normByBinWidth(hData)
 
 		if doAllSys:
-			q2list = []
-			if doQ2sys: q2list=['q2']
 			print systematicList
-			for syst in systematicList+q2list:
+			for syst in systematicList:
 				print syst
 				for ud in [upTag,downTag]:
 					for proc in bkgProcList:
@@ -290,9 +288,7 @@ for catEStr in catsElist:
 				except: pass
 
 			if doAllSys:
-				q2list=[]
-				if doQ2sys: q2list=['q2']
-				for syst in systematicList+q2list:
+				for syst in systematicList:
 					if 'BJetsNoSF' in iPlot and (syst=='btag' or syst=='mistag'): continue
 					for proc in bkgProcList:
 						try:
@@ -492,8 +488,8 @@ for catEStr in catsElist:
 		chLatex.DrawLatex(tagPosX, tagPosY-0.06, tagString)
 		chLatex.DrawLatex(tagPosX, tagPosY-0.12, tagString2)
 
-		if drawQCD: leg = rt.TLegend(0.45,0.52,0.95,0.87)
-		if not drawQCD or blind: leg = rt.TLegend(0.45,0.64,0.95,0.89)
+		leg = rt.TLegend(0.45,0.52,0.95,0.87)
+		if blind: leg = rt.TLegend(0.45,0.64,0.95,0.89)
 		leg.SetShadowColor(0)
 		leg.SetFillColor(0)
 		leg.SetFillStyle(0)
@@ -701,9 +697,7 @@ for catEStr in catsElist:
 		normByBinWidth(hDatamerged)
 
 	if doAllSys:
-		q2list=[]
-		if doQ2sys: q2list=['q2']
-		for syst in systematicList+q2list:
+		for syst in systematicList:
 			for ud in [upTag,downTag]:
 				for proc in bkgProcList:
 					try: 
@@ -731,9 +725,7 @@ for catEStr in catsElist:
 			except: pass
 
 		if doAllSys:
-			q2list=[]
-			if doQ2sys: q2list=['q2']
-			for syst in systematicList+q2list:
+			for syst in systematicList:
 				if 'BJetsNoSF' in iPlot and (syst=='btag' or syst=='mistag'): continue
 				for proc in bkgProcList:
 					try:
@@ -904,8 +896,8 @@ for catEStr in catsElist:
 	chLatexmerged.DrawLatex(tagPosX, tagPosY-0.06, tagString)
 	chLatexmerged.DrawLatex(tagPosX, tagPosY-0.12, tagString2)
 
-	if drawQCDmerged: legmerged = rt.TLegend(0.45,0.52,0.95,0.87)
-	if not drawQCDmerged or blind: legmerged = rt.TLegend(0.45,0.64,0.95,0.89)
+	legmerged = rt.TLegend(0.45,0.52,0.95,0.87)
+	if blind: legmerged = rt.TLegend(0.45,0.64,0.95,0.89)
 	#if 'Tau32' in iPlot: legmerged = rt.TLegend(0.3,0.52,0.8,0.87)
 	legmerged.SetShadowColor(0)
 	legmerged.SetFillColor(0)

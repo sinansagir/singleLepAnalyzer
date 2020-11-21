@@ -199,17 +199,21 @@ for chn in totBkgHists.keys():
 				totDataTempBinErrSquared_M = 0.
 				nBinsMerged=0
 				xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
-	if xbinsListTemp[chn][-1]!=totBkgHists[chn].GetXaxis().GetBinLowEdge(1): xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(1))
 	if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
 		if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
 	elif totBkgHists[chn].GetBinError(1)/totBkgHists[chn].GetBinContent(1)>stat or totBkgHists[chn.replace('isE','isM')].GetBinError(1)/totBkgHists[chn.replace('isE','isM')].GetBinContent(1)>stat: 
 		if len(xbinsListTemp[chn])>2: del xbinsListTemp[chn][-2]
-	xbinsListTemp[chn.replace('isE','isM')]=xbinsListTemp[chn]
+	nBinsMerged = 0
 	if stat>1.0:
 		xbinsListTemp[chn] = [totBkgHists[chn].GetXaxis().GetBinUpEdge(totBkgHists[chn].GetXaxis().GetNbins())]
 		for iBin in range(1,Nbins+1): 
-			xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
-		xbinsListTemp[chn.replace('isE','isM')] = xbinsListTemp[chn]
+			nBinsMerged+=1
+			if nBinsMerged<minNbins: continue
+			else:
+				xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(Nbins+1-iBin))
+				nBinsMerged=0
+	if xbinsListTemp[chn][-1]!=totBkgHists[chn].GetXaxis().GetBinLowEdge(1): xbinsListTemp[chn].append(totBkgHists[chn].GetXaxis().GetBinLowEdge(1))
+	xbinsListTemp[chn.replace('isE','isM')] = xbinsListTemp[chn]
 	totNbins+=len(xbinsListTemp[chn])
 
 tfile.Close()
@@ -259,7 +263,7 @@ for rfile in rfiles:
 			underflow(rebinnedHists[hist])
 			if '__pdf' in hist:
 				if upTag not in hist and downTag not in hist: continue
-			if '__mu' in hist or '__isr' in hist or '__fsr' in hist: continue
+			if '__mu' in hist: continue
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
 			if '__toppt'+downTag in hist and symmetrizeTopPtShift:
 				for ibin in range(1, rebinnedHists[hist].GetNbinsX()+1):
