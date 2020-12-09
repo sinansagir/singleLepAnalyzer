@@ -40,6 +40,7 @@ if len(sys.argv)>7:
 BRstr=''
 if isCategorized and 'BB' in pfix: BRstr='tW0p5_bZ0p25_bH0p25_'
 elif isCategorized: BRstr='bW0p5_tZ0p25_tH0p25_'
+
 saveKey = '' # tag for plot names
 
 if 'BB' in pfix:
@@ -139,9 +140,6 @@ def formatUpperHist(histogram,th1hist):
 	highside = th1hist.GetBinLowEdge(th1hist.GetNbinsX()+1)
 	if iPlot=='dnnLargest': highside = th1hist.GetBinLowEdge(7)-0.1
 	histogram.GetXaxis().SetRangeUser(lowside,highside)
-# def formatUpperHist(histogram):
-# 	histogram.GetXaxis().SetLabelSize(0)
-# 	histogram.GetXaxis().SetRangeUser(histrange[0],histrange[1])
 	if blind == True:
 		histogram.GetXaxis().SetLabelSize(0.045)
 		histogram.GetXaxis().SetTitleSize(0.055)
@@ -165,7 +163,7 @@ def formatUpperHist(histogram,th1hist):
                 elif 'dnnLargeW' in histogram.GetName(): histogram.GetXaxis().SetTitle("N DeepAK8 W jets")
                 elif 'dnnLargeB' in histogram.GetName(): histogram.GetXaxis().SetTitle("N DeepAK8 B jets")
 	if not yLog: 
-		if region == 'SR' and isCategorized: histogram.SetMinimum(0.000101);
+		if (region == 'SR' or region=='SCR') and isCategorized: histogram.SetMinimum(0.000101);
 		else: histogram.SetMinimum(0.25)		
 	if yLog:
 		uPad.SetLogy()
@@ -436,8 +434,8 @@ for tag in tagList:
 			formatUpperHist(hsig1,hsig1)
 			hsig1.Draw("HIST")
 		if doNormByBinWidth:
-			if iPlot == 'DnnTprime': hData.GetYaxis().SetTitle("< Events / 0.01 >")
-			else: hData.GetYaxis().SetTitle("< Events / 1 GeV >")
+			if iPlot == 'DnnTprime' or (iPlot == 'HTNtag' and perNGeV < 10): hData.GetYaxis().SetTitle("< Events / "+str(perNGeV)+" >")
+			else: hData.GetYaxis().SetTitle("< Events / "+str(perNGeV)+" GeV >")
 		else: hData.GetYaxis().SetTitle("Events / bin")
 		
 		stackbkgHT.Draw("SAME HIST")

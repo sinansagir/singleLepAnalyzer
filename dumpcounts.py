@@ -80,9 +80,9 @@ for filekey in sorted(filelist.keys()):
     newpdf = hist.GetBinContent(2)
 
     if 'prime' not in filekey:
-        print(str(adjusted)+'. # from integral '+str(integral)+', file '+filekey)
+        print(str(adjusted)+' # from integral '+str(integral)+', file '+filekey)
     else:
-        print(str(newpdf)+'. # from integral '+str(integral)+', file '+filekey)
+        print(str(newpdf)+' # from integral '+str(integral)+', file '+filekey)
 
 
 

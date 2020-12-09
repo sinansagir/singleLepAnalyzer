@@ -74,6 +74,7 @@ if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass i
 print 'I made it here!'
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 if whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
+	
 
 doBRScan = False
 if isCategorized and 'SR' in region: doBRScan = True
@@ -167,7 +168,7 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			#Group data processes
 			hists['data'+i] = datahists[histoPrefix+'_'+dataList[0]].Clone(histoPrefix+'__DATA')
 			for dat in dataList:
-			      	#print 'dataList member',dat,'with integral',datahists[histoPrefix+'_'+dat].Integral()
+			      	print 'dataList member',dat,'with integral',datahists[histoPrefix+'_'+dat].Integral()
 				if dat!=dataList[0]: hists['data'+i].Add(datahists[histoPrefix+'_'+dat])
 			
 			#Group processes
