@@ -80,34 +80,37 @@ def readTreeShift(sample,shift,step1Dir):
 
 ##############################################################################
 
-def normByBinWidth(h):
+def normByBinWidth(h,perNGeV=1):
 	h.SetBinContent(0,0)
 	h.SetBinContent(h.GetNbinsX()+1,0)
 	h.SetBinError(0,0)
 	h.SetBinError(h.GetNbinsX()+1,0)
 	
 	for bin in range(1,h.GetNbinsX()+1):
-		width=float(h.GetBinWidth(bin))
-		content=h.GetBinContent(bin)
-		error=h.GetBinError(bin)
-		if width<1: width *= 100 # Dealing with plots with x range 0 to 1
-		
-		h.SetBinContent(bin, content/width)
-		h.SetBinError(bin, error/width)
+            width=float(h.GetBinWidth(bin))
+            width = width/perNGeV   # could do events / 100 GeV or such, or events / 0.01
+            
+            content=h.GetBinContent(bin)
+            error=h.GetBinError(bin)
+	
+            h.SetBinContent(bin, content/width)
+            h.SetBinError(bin, error/width)
 
-def poissonNormByBinWidth(tgae,hist):
+
+def poissonNormByBinWidth(tgae,hist,perNGeV):
 	alpha = 1. - 0.6827
 	for ibin in range(0,tgae.GetN()):
-		width = float(hist.GetBinWidth(ibin+1))
-		if width<1: width *= 100 # Dealing with plots with x range 0 to 1
-		X = tgae.GetX()[ibin]
-		N = tgae.GetY()[ibin]
-		L = 0
-		if N != 0: L = Math.gamma_quantile(alpha/2.,N,1.)
-		U = Math.gamma_quantile_c(alpha/2.,N+1,1)
-		tgae.SetPoint(ibin,X,N/width)
-		tgae.SetPointEYlow(ibin,(N-L)/width)
-		tgae.SetPointEYhigh(ibin,(U-N)/width)
+            width = float(hist.GetBinWidth(ibin+1))            
+            width = width/perNGeV   # could do events / 100 GeV or such, or events / 0.01
+            X = tgae.GetX()[ibin]
+            N = tgae.GetY()[ibin]
+            if math.isnan(N): N = 0
+            L = 0
+            if N != 0: L = Math.gamma_quantile(alpha/2.,N,1.)
+            U = Math.gamma_quantile_c(alpha/2.,N+1,1)
+            tgae.SetPoint(ibin,X,N/width)
+            tgae.SetPointEYlow(ibin,(N-L)/width)
+            tgae.SetPointEYhigh(ibin,(U-N)/width)
 
 def poissonErrors(tgae):
 	alpha = 1. - 0.6827

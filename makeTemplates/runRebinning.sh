@@ -4,8 +4,19 @@
     #python -u modifyBinning.py $iPlot kinematicsPS_Mar30 1.1
 #done
 
+python -u modifyBinning_byyear.py HTNtag templatesCR_June2020TT 0.15 True True 2017
+python -u modifyBinning_byyear.py DnnTprime templatesSR_June2020TT 0.3 True True 2017
+python -u modifyBinning_byyear.py HTNtag templatesCR_June2020BB 0.15 True True 2017
+python -u modifyBinning_byyear.py DnnBprime templatesSR_June2020BB 0.3 True True 2017
+
+#python -u modifyBinning_byyear.py HTNtag templatesCR_June2020TT 0.15 True False 2017
+#python -u modifyBinning_byyear.py DnnTprime templatesSR_June2020TT 0.3 True False 2017
+#python -u modifyBinning_byyear.py HTNtag templatesCR_June2020BB 0.15 True False 2017
+#python -u modifyBinning_byyear.py DnnBprime templatesSR_June2020BB 0.3 True False 2017
+
+
 #Tp2Mass DnnTprime Tp2MDnn 
-for iPlot in DnnBprime Bp2Mass; do #ST
+#for iPlot in DnnBprime Bp2Mass; do #ST
 #for iPlot in minMlb ST minMlj; do
 #for iPlot in deltaRAK8; do
 #for iPlot in minMlbST ST; do
@@ -16,7 +27,7 @@ for iPlot in DnnBprime Bp2Mass; do #ST
     #python -u modifyBinning.py $iPlot templatesSR_Apr22Counts 0.3
     #python -u modifyBinning.py $iPlot templatesSR_Apr22Dnn0p9 0.3
     #python -u modifyBinning.py $iPlot templatesSR_July_MVA_Update_Round2 0.3
-    python -u modifyBinning.py $iPlot templatesSR_July2019_BB_Trained_MVA 0.3
+    #python -u modifyBinning.py $iPlot templatesSR_July2019_BB_Trained_MVA 0.3
 
     # python -u modifyBinning.py $iPlot kinematics_PS_NewEl 1.1
     # python -u modifyBinning.py $iPlot higgs_ARC 0.3
@@ -35,7 +46,7 @@ for iPlot in DnnBprime Bp2Mass; do #ST
     #python -u modifyBinning_splitLess.py $iPlot templates_BB_NewEl 0.3 BB
     #python -u modifyBinning_splitLess.py $iPlot templates_NewEl 0.15
     #python -u modifyBinning_splitLess.py $iPlot control_NewEl
-done
+#done
 
 #for iPlot in HT; do
 #     echo $iPlot
