@@ -53,10 +53,12 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	
 	if region=='SCR':
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1)'
-	elif 'CR' in region: # 'CR' or 'CRinc'  certain AK8 jets and low signal node
+        elif region=='CR2j':
+                cut += ' && (NJetsAK8_JetSubCalc == 2)'
+	elif 'CR' in region: # 'CR' or 'CRinc'  certain AK8 jets and low signal node                
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnn_Tprime < '+str(cutList['dnnCut'])+')'
 		if 'TT' in region: cut += ' && (dnn_ttbar'+BBstr+' > dnn_WJets'+BBstr+')'
-		if 'WJ' in region: cut += ' && (dnn_ttbar'+BBstr+' <= dnn_WJets'+BBstr+')'
+		if 'WJ' in region: cut += ' && (dnn_ttbar'+BBstr+' <= dnn_WJets'+BBstr+')'                
 	elif 'SR' in region: # 'SR'  certain AK8 jets, mass reco, high signal node
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnn_Tprime >= '+str(cutList['dnnCut'])+')'
 	elif 'PS' in region: # 'PS'  
@@ -91,9 +93,9 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 		#jetSFstr = str(genHTweight[process])
         if 'TTJets' in process:
                 # topPtWeight13TeV, tpt_Corr, HT_Corr
-                topCorr = 'min(1.0,tpt_Corr)'#'HT_Corr'#'topPtWeight13TeV'#
-                topCorrUp = 'min(1.0,tpt_CorrUp)'#'HT_Corr'#'1'#
-                topCorrDn = 'min(1.0,tpt_CorrDn)'#'HT_Corr'#'topPtWeight13TeV'#
+                topCorr = 'HT_Corr'#'min(1.0,tpt_Corr)'#'topPtWeight13TeV'#
+                topCorrUp = 'HT_CorrUp'#'min(1.0,tpt_CorrUp)'#'1'#
+                topCorrDn = 'HT_CorrDn'#'min(1.0,tpt_CorrDn)'#'topPtWeight13TeV'#
 
 	weightStr = '1'
 	if 'Data' not in process: 
@@ -159,6 +161,17 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	if 'Tau21Nm1' in iPlot:  cut += ' && ('+soft_massvar+' > 65 && '+soft_massvar+' < 105 && '+pt_var+' > 200)'
 	if 'Tau32Nm1' in iPlot:  cut += ' && ('+soft_massvar+' > 105 && '+soft_massvar+' < 210 && '+pt_var+' > 400)'
 	if 'DoubleBNm1' in iPlot: cut += ' && ('+soft_massvar+' > 105 && '+soft_massvar+' < 135 && '+pt_var+' > 300)'
+
+        if 'probj1' in iPlot: 
+                if 'fake' not in iPlot: 
+                        cut += ' && ('+soft_massvar+'[0] < 50)'
+                else: 
+                        cut += ' && ('+soft_massvar+'[0] > 65 && '+soft_massvar+'[0] < 210 && ('+tau21var+'[0] < 0.6 || '+tau32var+'[0] < 0.65))'
+        if 'probj2' in iPlot: 
+                if 'fake' not in iPlot: 
+                        cut += ' && ('+soft_massvar+'[1] < 50)'
+                else: 
+                        cut += ' && ('+soft_massvar+'[1] > 65 && '+soft_massvar+'[1] < 210 && ('+tau21var+'[1] < 0.6 || '+tau32var+'[1] < 0.65))'
 
 	if isCategorized and ((iPlot == 'Tp2MDnn' and 'notV' in tag) or iPlot == 'DnnTprime'):
 		plotTreeName = 'dnn_Tprime'

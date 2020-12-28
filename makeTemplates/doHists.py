@@ -23,7 +23,7 @@ if len(sys.argv)>3: region=sys.argv[3]
 isCategorized = False
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 
-if 'PS' not in region: step1Dir = 'root://cmseos.fnal.gov//store/user/jmanagan/FWLJMET102X_1lep2017Dnn_Nov2020_step2hadds' ##Step2hadds for everything not-PS
+if 'PS' not in region and 'CR2j' not in region: step1Dir = 'root://cmseos.fnal.gov//store/user/jmanagan/FWLJMET102X_1lep2017Dnn_Nov2020_step2hadds' ##Step2hadds for everything not-PS
 
 doJetRwt= 1
 doTopRwt= 0
@@ -134,6 +134,10 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
         'probb':('dnn_B_DeepAK8Calc_PtOrdered',linspace(0,1,51).tolist(),';B score'),  ## replace with AlgoCalc if needed
         'probh':('dnn_H_DeepAK8Calc_PtOrdered',linspace(0,1,51).tolist(),';H score'),  ## change back for BEST
         'probj':('dnn_J_DeepAK8Calc_PtOrdered',linspace(0,1,51).tolist(),';J score'),
+        'probj1':('dnn_J_DeepAK8Calc_PtOrdered[0]',linspace(0,1,31).tolist(),';J score jet 1 (low SD mass)'),
+        'probj2':('dnn_J_DeepAK8Calc_PtOrdered[1]',linspace(0,1,31).tolist(),';J score jet 2 (low SD mass)'),
+        'probj1fake':('dnn_J_DeepAK8Calc_PtOrdered[0]',linspace(0,1,31).tolist(),';J score jet 1 (W/t)'),
+        'probj2fake':('dnn_J_DeepAK8Calc_PtOrdered[1]',linspace(0,1,31).tolist(),';J score jet 2 (W/t)'),
         'probt':('dnn_T_DeepAK8Calc_PtOrdered',linspace(0,1,51).tolist(),';t score'),
         'probw':('dnn_W_DeepAK8Calc_PtOrdered',linspace(0,1,51).tolist(),';W score'),
         'probz':('dnn_Z_DeepAK8Calc_PtOrdered',linspace(0,1,51).tolist(),';Z score'),

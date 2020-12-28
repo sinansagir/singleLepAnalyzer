@@ -32,9 +32,9 @@ start_time = time.time()
 iPlot='HTNtag'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 
-folder = 'templatesCR_June2020TT'
+folder = 'templatesCR_Nov2020TT_HTcorr'
 if len(sys.argv)>2: folder=str(sys.argv[2])
-inputfolder = '/uscms_data/d3/bluetke/MVATraining/CMSSW_10_2_16/src/singleLepAnalyzer/makeTemplates/'+folder
+inputfolder = '/uscms_data/d3/jmanagan/CMSSW_10_2_10/src/tptp_2017/makeTemplates/'+folder
 
 stat_saved = 0.15 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if len(sys.argv)>3: stat_saved=float(sys.argv[3])
@@ -126,7 +126,7 @@ if 'BB' in folder:
 	else: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('tW' in file or 'kinematics' in folder) and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
 
 if 'TT' in folder:
-	if rebinCombine: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('bW' in file or 'kinematics' in folder) and combinefile in file and '_'+iPlot+'_' in file.split('/')[-1]]
+	if rebinCombine: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('bW0p5' in file or 'kinematics' in folder) and combinefile in file and '_'+iPlot+'_' in file.split('/')[-1]]
 	else: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('bW' in file or 'kinematics' in folder) and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
 
 print "inputfolder: ",inputfolder
@@ -291,34 +291,19 @@ for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 
 #os._exit(1)
 
-### Updated for 2017, JH August 2019. symmetric Hessian PDF version August 2020
-if year == 2017:
+### Updated for 2017 PDF4LHC by Evan Nov 2020
+if year == '2017':
         muSFsUp = {'TTM1000':0.744,'TTM1100':0.747,'TTM1200':0.742,'TTM1300':0.741,'TTM1400':0.738,'TTM1500':0.740,'TTM1600':0.735,'TTM1700':0.721,'TTM1800':0.746}
         muSFsDn = {'TTM1000':1.312,'TTM1100':1.306,'TTM1200':1.315,'TTM1300':1.316,'TTM1400':1.322,'TTM1500':1.319,'TTM1600':1.329,'TTM1700':1.354,'TTM1800':1.311}
-        pdfSFsUp = {'TTM1000':0.876,'TTM1100':0.875,'TTM1200':0.871,'TTM1300':0.867,'TTM1400':0.862,'TTM1500':0.852,'TTM1600':0.841,'TTM1700':0.829,'TTM1800':0.816}
-        pdfSFsDn = {'TTM1000':1.165,'TTM1100':1.166,'TTM1200':1.174,'TTM1300':1.181,'TTM1400':1.191,'TTM1500':1.210,'TTM1600':1.232,'TTM1700':1.259,'TTM1800':1.290}
-        pdfSFsSym = {'TTM1000':0.142,'TTM1100':0.142,'TTM1200':0.148,'TTM1300':0.153,'TTM1400':0.161,'TTM1500':0.174,'TTM1600':0.189,'TTM1700':0.206,'TTM1800':0.225}
-
+        pdfSFsUp = {'TTM1000':0.954,'TTM1100':0.951,'TTM1200':0.947,'TTM1300':0.942,'TTM1400':0.936,'TTM1500':0.929,'TTM1600':0.921,'TTM1700':0.911,'TTM1800':0.898}
+        pdfSFsDn = {'TTM1000':1.050,'TTM1100':1.054,'TTM1200':1.060,'TTM1300':1.066,'TTM1400':1.073,'TTM1500':1.082,'TTM1600':1.094,'TTM1700':1.109,'TTM1800':1.128}
+        pdfSFsSym = {'TTM1000':0.048,'TTM1100':0.051,'TTM1200':0.056,'TTM1300':0.062,'TTM1400':0.068,'TTM1500':0.076,'TTM1600':0.086,'TTM1700':0.098,'TTM1800':0.113}
         if sigName == 'BB':
                 muSFsUp = {'BBM1000':0.742,'BBM1100':0.743,'BBM1200':0.742,'BBM1300':0.741,'BBM1400':0.739,'BBM1500':0.735,'BBM1600':0.735,'BBM1700':0.733,'BBM1800':0.731}
                 muSFsDn = {'BBM1000':1.315,'BBM1100':1.314,'BBM1200':1.316,'BBM1300':1.318,'BBM1400':1.321,'BBM1500':1.329,'BBM1600':1.329,'BBM1700':1.331,'BBM1800':1.337}
-                pdfSFsUp = {'BBM1000':0.876,'BBM1100':0.874,'BBM1200':0.872,'BBM1300':0.867,'BBM1400':0.862,'BBM1500':0.852,'BBM1600':0.841,'BBM1700':0.830,'BBM1800':0.816}
-                pdfSFsDn = {'BBM1000':1.165,'BBM1100':1.169,'BBM1200':1.173,'BBM1300':1.181,'BBM1400':1.191,'BBM1500':1.210,'BBM1600':1.233,'BBM1700':1.258,'BBM1800':1.291}
-                pdfSFsSym = {'BBM1000':0.142,'BBM1100':0.145,'BBM1200':0.147,'BBM1300':0.153,'BBM1400':0.161,'BBM1500':0.174,'BBM1600':0.189,'BBM1700':0.205,'BBM1800':0.226}
-
-else if year == 2018:
-	muSFsUp = {'TTM1000':0.744,'TTM1100':0.747,'TTM1200':0.742,'TTM1300':0.741,'TTM1400':0.738,'TTM1500':0.740,'TTM1600':0.735,'TTM1700':0.721,'TTM1800':0.746}
-	muSFsDn = {'TTM1000':1.312,'TTM1100':1.306,'TTM1200':1.315,'TTM1300':1.316,'TTM1400':1.322,'TTM1500':1.319,'TTM1600':1.329,'TTM1700':1.354,'TTM1800':1.311}
-	pdfSFsUp = {'TTM900':0.877,'TTM1000':0.876,'TTM1100':0.874,'TTM1200':0.871,'TTM1300':0.867,'TTM1400':0.861,'TTM1500':0.852,'TTM1600':0.841,'TTM1700':0.829,'TTM1800':0.817}
-	pdfSFsDn = {'TTM900':1.163,'TTM1000':1.165,'TTM1100':1.168,'TTM1200':1.174,'TTM1300':1.181,'TTM1400':1.192,'TTM1500':1.211,'TTM1600':1.233,'TTM1700':1.259,'TTM1800':1.290}
-	pdfSFsSym = {'TTM900':0.140,'TTM1000':0.142,'TTM1100':0.144,'TTM1200':0.149,'TTM1300':0.153,'TTM1400':0.161,'TTM1500':0.174,'TTM1600':0.189,'TTM1700':0.206,'TTM1800':0.225}
-
-	if sigName == 'BB':
-		muSFsUp = {'BBM900':0.742,'BBM1000':0.742,'BBM1100':0.743,'BBM1200':0.742,'BBM1300':0.741,'BBM1400':0.739,'BBM1500':0.735,'BBM1600':0.735,'BBM1700':0.733,'BBM1800':0.731}
-		muSFsDn = {'BBM900':1.315,'BBM1000':1.315,'BBM1100':1.314,'BBM1200':1.316,'BBM1300':1.318,'BBM1400':1.321,'BBM1500':1.329,'BBM1600':1.329,'BBM1700':1.331,'BBM1800':1.337}
-		pdfSFsUp = {'BBM900':0.877,'BBM1000':0.875,'BBM1100':0.874,'BBM1200':0.871,'BBM1300':0.867,'BBM1400':0.862,'BBM1500':0.852,'BBM1600':0.841,'BBM1700':0.830,'BBM1800':0.817}
-		pdfSFsDn = {'BBM900':1.163,'BBM1000':1.167,'BBM1100':1.168,'BBM1200':1.174,'BBM1300':1.182,'BBM1400':1.191,'BBM1500':1.210,'BBM1600':1.233,'BBM1700':1.259,'BBM1800':1.289}
-		pdfSFsSym = {'BBM900':0.140,'BBM1000':0.143,'BBM1100':0.144,'BBM1200':0.148,'BBM1300':0.154,'BBM1400':0.161,'BBM1500':0.174,'BBM1600':0.189,'BBM1700':0.206,'BBM1800':0.224}
+                pdfSFsUp = {'BBM1000':0.954,'BBM1100':0.951,'BBM1200':0.947,'BBM1300':0.942,'BBM1400':0.936,'BBM1500':0.929,'BBM1600':0.921,'BBM1700':0.911,'BBM1800':0.897}
+                pdfSFsDn = {'BBM1000':1.050,'BBM1100':1.055,'BBM1200':1.059,'BBM1300':1.066,'BBM1400':1.073,'BBM1500':1.082,'BBM1600':1.094,'BBM1700':1.108,'BBM1800':1.130}
+                pdfSFsSym = {'BBM1000':0.048,'BBM1100':0.052,'BBM1200':0.056,'BBM1300':0.061,'BBM1400':0.068,'BBM1500':0.076,'BBM1600':0.086,'BBM1700':0.098,'BBM1800':0.115}
 
 
 iRfile=0
@@ -423,11 +408,14 @@ for rfile in rfiles:
 					signame = hist.split('__')[1]
 					if sigName not in signame: print "DIDNT GET SIGNAME",signame
 
-				scalefactorUp = muSFsUp[signame]
+                                scalefactorUp = muSFsUp[signame]
 				scalefactorDn = muSFsDn[signame]
+                                #print 'Original pct up =',muRFcorrdNewUpHist.Integral()/rebinnedHists[hist[:hist.find('__mu')]].Integral(),', SF = ',scalefactorUp
+                                #print 'Original pct down =',muRFcorrdNewDnHist.Integral()/rebinnedHists[hist[:hist.find('__mu')]].Integral(),', SF = ',scalefactorDn
 				muRFcorrdNewUpHist.Scale(scalefactorUp) #drop down .7
 				muRFcorrdNewDnHist.Scale(scalefactorDn) #raise up 1.3
-
+                                
+                                
                                 if rebinCombine:
                                         for iBin in range(1,muRFcorrdNewUpHist.GetNbinsX()+1):
                                                 binValueUp = muRFcorrdNewUpHist.GetBinContent(iBin)
@@ -463,11 +451,15 @@ for rfile in rfiles:
 			centralHist = rebinnedHists[hist.replace('__pdf0','')]
 
                         scalefactorSym = 0
+                        scalefactorUp = 1
+                        scalefactorDn = 1
                         if ('sig__pdf' in hist or (rebinCombine and '__'+sigName in hist)) and '__pdf' in hist and normalizePDF: #normalize the renorm/fact shapes to nominal
                                 if rebinCombine and '__'+sigName in hist: 
                                         signame = hist.split('__')[1]
                                         if sigName not in signame: print "DIDNT GET SIGNAME",signame
                                 scalefactorSym = pdfSFsSym[signame]
+                                scalefactorUp = pdfSFsUp[signame]
+                                scalefactorDn = pdfSFsDn[signame]
 
 			for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
                                 errsq = 0
@@ -483,17 +475,12 @@ for rfile in rfiles:
                                 elif math.sqrt(errsq) != 0: print 'Weird: central is 0 but not PDF unc'
                                 else: shiftpct = 0
 
-                                ## for signal, reduce the shift by the no-selection value
-                                if shiftpct != 0: 
-                                        #print '\t bin',ibin,'of',hist,': shiftpct = ',shiftpct,'- scalefactoSym',scalefactorSym,'=',shiftpct - scalefactorSym   
-                                        shiftpct = shiftpct - scalefactorSym   
-                                #else: print '\t bin',ibin,'of',hist,': shiftpct was 0, leaving it!'
                                 if abs(shiftpct) > 1: print 'WARNING: pdf shift is',shiftpct,', flooring down at 0 in bin',ibin,'of hist',hist
 
                                 ## multiply the central value by 1 +/- the shift
                                 pdfNewUpHist.SetBinContent(ibin, max(0,centralHist.GetBinContent(ibin)*(1 + shiftpct)))
-                                pdfNewDnHist.SetBinContent(ibin, max(0,centralHist.GetBinContent(ibin)*(1 - shiftpct)))
-
+                                pdfNewDnHist.SetBinContent(ibin, max(0,centralHist.GetBinContent(ibin)*(1 - shiftpct)))                                
+                                
                                 ## This was correct in 2016 for replica errors, not for 2017-2018
 				#indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
 				#indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
@@ -501,6 +488,13 @@ for rfile in rfiles:
 				#pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
 				#pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
 				#pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
+
+                        # Do the acceptance-only correction for signal (factors are 1 otherwise)
+                        print 'Orig Up = ',pdfNewUpHist.Integral(),'scale factor = ',scalefactorUp                        
+                        pdfNewUpHist.Scale(scalefactorUp)
+                        pdfNewDnHist.Scale(scalefactorDn)
+                        print 'New Up = ',pdfNewUpHist.Integral()
+
                         if rebinCombine and '__'+sigName in hist: #normalize the renorm/fact shapes to nominal                                
                                 for iBin in range(1,pdfNewUpHist.GetNbinsX()+1):
                                         binValueUp = pdfNewUpHist.GetBinContent(iBin)
