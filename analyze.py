@@ -157,7 +157,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 
 	if 'Data' not in process:
 		weightStr          += ' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
-		weightStr 	   += ' * btagCSVWeight * btagCSVRenormWeight'
+		weightStr 	   	   += ' * btagCSVWeight * btagCSVRenormWeight'
 		weightStrNoNjet = weightStr
 		#weightStr = njetStr + ' * ' + weightStr #UNCOMMENT HERE TO APPLY NJET SF!!!!!!!
 		weightTriggerUpStr  = weightStr.replace(TrigSF,'('+TrigSF+'+'+TrigSF+'Uncert)')
@@ -285,9 +285,11 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	if isPlot2D: hists[histName]  = TH2D(histName,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[histName]  = TH1D(histName,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf']#,'toppt'
+		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf']#,'toppt'
 		if '17' in year: systList += ['prefire']
-		if '18' in year: systList += ['hem']
+		for proc in tTree.keys():
+			if proc.endswith('Up'):
+				systList.append(proc[:-2].replace(process,''))
 		for syst in systList:
 			for ud in ['Up','Down']:
 				if isPlot2D: hists[histName.replace(iPlot,iPlot+syst+ud)] = TH2D(histName.replace(iPlot,iPlot+syst+ud),yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
@@ -407,18 +409,12 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 			tTree[process].Draw(MISTAGupName+' >> '+histName.replace(iPlot,iPlot+'mistagUp')  , weightStr+'*('+cut_mistagUp+')', 'GOFF')
 			tTree[process].Draw(MISTAGdnName+' >> '+histName.replace(iPlot,iPlot+'mistagDown'), weightStr+'*('+cut_mistagDn+')', 'GOFF')
 
-		if tTree[process+'jecUp']:
-			print 'Processing JEC ...'
-			tTree[process+'jecUp'].Draw(plotTreeName   +' >> '+histName.replace(iPlot,iPlot+'jecUp')  , weightStr+'*('+fullcut+')', 'GOFF')
-			tTree[process+'jecDown'].Draw(plotTreeName +' >> '+histName.replace(iPlot,iPlot+'jecDown'), weightStr+'*('+fullcut+')', 'GOFF')
-		if tTree[process+'jerUp']:
-			print 'Processing JER ...'
-			tTree[process+'jerUp'].Draw(plotTreeName   +' >> '+histName.replace(iPlot,iPlot+'jerUp')  , weightStr+'*('+fullcut+')', 'GOFF')
-			tTree[process+'jerDown'].Draw(plotTreeName +' >> '+histName.replace(iPlot,iPlot+'jerDown'), weightStr+'*('+fullcut+')', 'GOFF')
-		if '18' in year and tTree[process+'hemUp']:
-			print 'Processing HEM15/16 ...'
-			tTree[process+'hemUp'].Draw(plotTreeName   +' >> '+histName.replace(iPlot,iPlot+'hemUp')  , weightStr+'*('+fullcut+')', 'GOFF')
-			tTree[process+'hemDown'].Draw(plotTreeName +' >> '+histName.replace(iPlot,iPlot+'hemDown'), weightStr+'*('+fullcut+')', 'GOFF')
+		for proc in tTree.keys():
+			if proc.endswith('Up') and tTree[proc]:
+				systName = proc[:-2].replace(process,'')
+				print 'Processing '+systName+' ...'
+				tTree[process+systName+'Up'].Draw(plotTreeName   +' >> '+histName.replace(iPlot,iPlot+systName+'Up')  , weightStr+'*('+fullcut+')', 'GOFF')
+				tTree[process+systName+'Down'].Draw(plotTreeName +' >> '+histName.replace(iPlot,iPlot+systName+'Down'), weightStr+'*('+fullcut+')', 'GOFF')
 		if doPDF:
 			print 'Processing PDF ...'
 			for i in range(100): 
