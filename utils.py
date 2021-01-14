@@ -52,6 +52,50 @@ def skip(cat):
 
 ##############################################################################
 		
+def smoothShape(hNm,hUp,hDn,algo='lowess',symmetrize=True):
+	hName = hNm.GetName()
+	grinUp = TGraphErrors()
+	grinDn = TGraphErrors()
+	groutUp = TGraphErrors()
+	groutDn = TGraphErrors()
+	gsUp = TGraphSmooth(hName+'_up_lowess')
+	gsDn = TGraphSmooth(hName+'_dn_lowess')
+	hsUp = hNm.Clone(hName+'__'+algo+hUp.GetName().replace(hName,'')[2:])
+	hsDn = hNm.Clone(hName+'__'+algo+hDn.GetName().replace(hName,'')[2:])
+	#hsUp.Reset()
+	#hsDn.Reset()
+	hUp_ = hUp.Clone(hName+'_up')
+	hDn_ = hDn.Clone(hName+'_dn')
+	hUp_.Divide(hNm)
+	hDn_.Divide(hNm)
+	for ibin in range(1,hNm.GetNbinsX()+1):
+		p = ibin-1
+		x = (hUp_.GetBinLowEdge(ibin)+hUp_.GetBinLowEdge(ibin+1))/2
+		yup = hUp_.GetBinContent(ibin)
+		ydn = hDn_.GetBinContent(ibin)
+		if symmetrize:
+			grinUp.SetPoint(p, x, 1+(yup-ydn)/2)
+			grinDn.SetPoint(p, x, 1-(yup-ydn)/2)
+		else:
+			grinUp.SetPoint(p, x, yup)
+			grinDn.SetPoint(p, x, ydn)
+	if algo=='super':
+		groutUp = gsUp.SmoothSuper(grinUp,"",9,0)
+		groutDn = gsDn.SmoothSuper(grinDn,"",9,0)
+	elif algo=='kern':
+		groutUp = gsUp.SmoothKern(grinUp,"normal",5.0)
+		groutDn = gsDn.SmoothKern(grinDn,"normal",5.0)
+	else:
+		groutUp = gsUp.SmoothLowess(grinUp,"",0.9)
+		groutDn = gsDn.SmoothLowess(grinDn,"",0.9)
+
+	for ibin in range(1,hNm.GetNbinsX()+1):
+		hsUp.SetBinContent(ibin, hNm.GetBinContent(ibin)*groutUp.GetY()[ibin-1])
+		hsDn.SetBinContent(ibin, hNm.GetBinContent(ibin)*groutDn.GetY()[ibin-1])
+	return hsUp,hsDn
+		
+##############################################################################
+		
 def poissonNormByBinWidth(tgae,hist):
 	confLevel = 0.6827 #1sigma
 	alpha = 1. - confLevel
