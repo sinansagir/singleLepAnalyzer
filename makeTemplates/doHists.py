@@ -30,8 +30,8 @@ region = 'PS'
 isCategorized = 0
 doJetRwt= 0
 doAllSys= True
-doHDsys = True
-doUEsys = True
+doHDsys = False
+doUEsys = False
 doPDF = True
 if not doAllSys:
 	doHDsys = False
@@ -305,7 +305,13 @@ print "         BINNING USED  :",plotList[iPlot][1]
 catList = ['is'+cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5] for cat in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 nCats  = len(catList)
 
-shapesFiles = ['jec','jer']
+shapesFiles = ['JEC','JER']#,
+# 'JEC_Total','JEC_FlavorQCD',
+# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
+# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
 #if year == 'R18': shapesFiles += ['hem']
 
 tTreeData = {}
@@ -354,7 +360,7 @@ for cat in catList:
 		if doAllSys:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
+					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst+ud.lower())+'/'+samples[bkg]+'_hadd.root')
 		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doPDF,iPlot,plotList[iPlot],cat,region,year))
 		if 'TTJets' in bkg and len(ttFlvs)!=0:
 			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doPDF,iPlot,plotList[iPlot],cat,region,year))
@@ -412,7 +418,7 @@ for cat in catList:
 				for syst in shapesFiles:
 					for ud in ['Up','Down']:
 						print "        "+syst+ud
-						tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
+						tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
 			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doPDF,iPlot,plotList[iPlot],cat,region,year))
 			if catInd==nCats: 
 				del tFileSig[sig+decay]

@@ -24,12 +24,19 @@ lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
 ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
 ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
 doAllSys = True
-doHDsys = True
-doUEsys = True
+doHDsys = False
+doUEsys = False
 doPDF = True
 addCRsys = False
-systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
+systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
 systematicList+= ['CSVshapelf','CSVshapehf']
+systematicList+= ['JEC','JER']#,
+# 'JEC_Total','JEC_FlavorQCD',
+# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
+# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
 if year == 'R17': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!

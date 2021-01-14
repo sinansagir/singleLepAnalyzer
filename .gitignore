@@ -1,4 +1,6 @@
 *.pyc
+samples.py
+weights.py
 makeTemplates/templates_*
 makeTemplates/kinematics_*
 makeTemplates/log/*
@@ -6,6 +8,8 @@ makeTemplates/cfg/*
 combineLimits/limits_*
 combineLimits/log/*
 combineLimits/cfg/*
+combineLimits/HTcomb/*
 plotShapeShifts/templates_*
+plotShapeShifts/kinematics_*
 optimization/templates_*
 *.root

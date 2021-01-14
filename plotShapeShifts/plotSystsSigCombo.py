@@ -13,8 +13,8 @@ tdrstyle.setTDRStyle()
 rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
-iPlot = 'HT'
-year='R18'
+iPlot = sys.argv[1]#'HT'
+year = 'R18'
 if year=='R17':
 	lumiStr = '41p53fb'
 	lumi=41.5 #for plots
@@ -22,14 +22,16 @@ else:
 	lumiStr = '59p97fb'
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
-isRebinned = '_rebinned_stat0p3'
 useCombine = True
-tempVersion = 'templates_'+year+'_HEM1516syst_201108/'
+tempVersion = 'templates_'+year+'_redJECs_2020_12_5'
+isRebinned = '_rebinned_stat0p3'
+if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
+saveDir = ''
 if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+lumiStr+isRebinned+'.root'
 else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-if not os.path.exists(outDir+tempVersion+'/signalIndChannels'): os.system('mkdir '+outDir+tempVersion+'/signalIndChannels')
+if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
 isEMlist  = ['E','M']
 nhottlist = ['0','1p']
@@ -37,11 +39,20 @@ nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
 njetslist = ['6','7','8','9','10p']
-# nbtaglist = ['2p']
-# njetslist = ['6p']
-systematics = ['pileup','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+if 'kinematics' in tempVersion:
+	nhottlist = ['0p']
+	nbtaglist = ['2p']
+	njetslist = ['4p']
+systematics = ['pileup','btag','mistag','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
 if year=='R17': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
+systematics+= ['JEC','JER']#,
+# 'JEC_Total','JEC_FlavorQCD',
+# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
+# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
 
 signameList = ['tttt']
 
@@ -90,6 +101,10 @@ for signal in signameList:
 # 					comboHists[signal+em].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
 # 					comboHists[signal+em+syst+'Up'].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
 # 					comboHists[signal+em+syst+'Dn'].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
+				if len(catList)==2:
+					comboHists[signal+em] = hNm.Clone(signal+em)
+					comboHists[signal+em+syst+'Up'] = hUp.Clone(signal+em+syst+'Up')
+					comboHists[signal+em+syst+'Dn'] = hDn.Clone(signal+em+syst+'Dn')
 				ibin += hNm.GetNbinsX()
 
 			canv = rt.TCanvas(signal+em,signal+em,1000,700)
@@ -137,7 +152,7 @@ for signal in signameList:
 			comboHists[signal+em+syst+'Up'].GetYaxis().SetLabelSize(0.10)
 			comboHists[signal+em+syst+'Up'].GetYaxis().SetTitleSize(0.1)
 			comboHists[signal+em+syst+'Up'].GetYaxis().SetTitleOffset(.65)
-			comboHists[signal+em+syst+'Up'].GetXaxis().SetTitle('Bin #')
+			if len(catList)!=2: comboHists[signal+em+syst+'Up'].GetXaxis().SetTitle('Bin #')
 			comboHists[signal+em+syst+'Up'].GetXaxis().SetLabelSize(0.10)
 			comboHists[signal+em+syst+'Up'].GetXaxis().SetTitleSize(0.1)
 			#comboHists[signal+em+syst+'Up'].GetXaxis().SetTitleOffset(.65)
@@ -248,8 +263,8 @@ for signal in signameList:
 			if em=='M': flvString='#mu+jets'
 			chLatex.DrawLatex(0.45, 0.84, flvString)
 	
-			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_'+signal+'.pdf')
-			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_'+signal+'.png')
-			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_'+signal+'.eps')
+			canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_'+signal+'.pdf')
+			canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_'+signal+'.png')
+			#canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_'+signal+'.eps')
 
 	RFile.Close()

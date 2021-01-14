@@ -13,8 +13,8 @@ tdrstyle.setTDRStyle()
 rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
-iPlot = 'HT'
-year='R18'
+iPlot = sys.argv[1]#'HT'
+year = 'R18'
 if year=='R17':
 	lumiStr = '41p53fb'
 	lumi=41.5 #for plots
@@ -22,11 +22,12 @@ else:
 	lumiStr = '59p97fb'
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
-isRebinned = '_rebinned_stat0p3'
 useCombine = True
-tempVersion = 'templates_'+year+'_HEM1516syst_201108/'
+tempVersion = 'templates_'+year+'_redJECs_2020_12_5'
+isRebinned = '_rebinned_stat0p3'
+if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
-saveDir = 'bkgIndChannels'
+saveDir = ''
 if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+lumiStr+isRebinned+'.root'
 else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
@@ -40,11 +41,20 @@ nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
 njetslist = ['6','7','8','9','10p']
-# nbtaglist = ['2p']
-# njetslist = ['6p']
-systematics = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf','hdamp','ue','njet','njetsf']#,'ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+if 'kinematics' in tempVersion:
+	nhottlist = ['0p']
+	nbtaglist = ['2p']
+	njetslist = ['4p']
+systematics = ['pileup','btag','mistag','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf']#,'hdamp','ue','njet','njetsf','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 if year=='R17': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
+systematics+= ['JEC','JER']#,
+# 'JEC_Total','JEC_FlavorQCD',
+# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
+# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 RFile = rt.TFile(templateFile)
@@ -123,6 +133,10 @@ for em in isEMlist:
 # 				comboHists['bkg'+em].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
 # 				comboHists['bkg'+em+syst+'Up'].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
 # 				comboHists['bkg'+em+syst+'Dn'].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
+			if len(catList)==2:
+				comboHists['bkg'+em] = hNm.Clone('bkg'+em)
+				comboHists['bkg'+em+syst+'Up'] = hUp.Clone('bkg'+em+syst+'Up')
+				comboHists['bkg'+em+syst+'Dn'] = hDn.Clone('bkg'+em+syst+'Dn')
 			ibin += hNm.GetNbinsX()
 
 		canv = rt.TCanvas('bkg'+em,'bkg'+em,1000,700)
@@ -170,7 +184,7 @@ for em in isEMlist:
 		comboHists['bkg'+em+syst+'Up'].GetYaxis().SetLabelSize(0.10)
 		comboHists['bkg'+em+syst+'Up'].GetYaxis().SetTitleSize(0.1)
 		comboHists['bkg'+em+syst+'Up'].GetYaxis().SetTitleOffset(.65)
-		comboHists['bkg'+em+syst+'Up'].GetXaxis().SetTitle('Bin #')
+		if len(catList)!=2: comboHists['bkg'+em+syst+'Up'].GetXaxis().SetTitle('Bin #')
 		comboHists['bkg'+em+syst+'Up'].GetXaxis().SetLabelSize(0.10)
 		comboHists['bkg'+em+syst+'Up'].GetXaxis().SetTitleSize(0.1)
 		#comboHists['bkg'+em+syst+'Up'].GetXaxis().SetTitleOffset(.65)
