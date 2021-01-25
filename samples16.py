@@ -4,7 +4,8 @@ samples = {
 'DataE':'SingleElectron',
 'DataM':'SingleMuon',
 
-'tttt':'TTTT_TuneCUETP8M2T4_PSweights_13TeV-amcatnlo-pythia8',
+#'tttt':'TTTT_TuneCUETP8M2T4_PSweights_13TeV-amcatnlo-pythia8',
+'tttt':'TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_correctnPartonsInBorn',
 
 'X53LHM900':'X53X53_M-900_LH_TuneCP5_13TeV-madgraph-pythia8',
 'X53LHM1000':'X53X53_M-1000_LH_TuneCP5_13TeV-madgraph-pythia8',

@@ -107,7 +107,8 @@ nRun['TTZH'] = 97800.0 # from integral, file TTZH_TuneCUETP8M2T4_13TeV-madgraph-
 nRun['TTZZ'] = 98400.0 # from integral, file TTZZ_TuneCUETP8M2T4_13TeV-madgraph-pythia8_hadd.root
 
 #4 tops
-nRun['tttt'] = 1041702.0 # from file TTTT_TuneCUETP8M2T4_PSweights_13TeV-amcatnlo-pythia8_hadd.root
+#nRun['tttt'] = 1041702.0 # from file TTTT_TuneCUETP8M2T4_PSweights_13TeV-amcatnlo-pythia8_hadd.root
+nRun['tttt'] = 3575632.0 # from file TTTT_TuneCP5_PSweights_13TeV-amcatnlo-pythia8_correctnPartonsInBorn_hadd.root
 
 nRun['X53LHM700'] = 300000.
 nRun['X53RHM700'] = 297400.

@@ -101,15 +101,17 @@ bkgList = [
 		  
 		  'Ts','Tt','Tbt','TtW','TbtW', 
 		  'TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ',
-		  'TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB',#'TTWq',
+		  'TTWl','TTZlM10','TTHB','TTHnoB',#'TTWq',
           'WW','WZ','ZZ',
 		  'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
-if year=='R17':
+if year=='R16':
+	bkgList+= ['TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','WJetsMG1200','WJetsMG2500']
+elif year=='R17':
 	bkgList+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004',
-			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs']
+			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs','TTZlM1to10']
 elif year=='R18':
-	bkgList+= ['WJetsMG1200','WJetsMG2500']
+	bkgList+= ['WJetsMG1200','WJetsMG2500','TTZlM1to10']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 
 dataList = ['DataE','DataM']#,'DataJ']
@@ -145,10 +147,11 @@ runData = True
 runBkgs = True
 runSigs = True
 
-#cutList = {'elPtCut':35,'muPtCut':30,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':300}
 # cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
-# cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
 cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
+if year=='R16': 
+	cutList['elPtCut'] = 35
+	cutList['muPtCut'] = 26
 
 cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
 cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])

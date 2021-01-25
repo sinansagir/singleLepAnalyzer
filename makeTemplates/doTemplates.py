@@ -29,7 +29,7 @@ doUEsys = False
 doPDF = True
 addCRsys = False
 systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
-systematicList+= ['CSVshapelf','CSVshapehf']
+#systematicList+= ['CSVshapelf','CSVshapehf']
 systematicList+= ['JEC','JER']#,
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
@@ -37,7 +37,7 @@ systematicList+= ['JEC','JER']#,
 # 'JEC_HF','JEC_HF_'+year.replace('R','20'),
 # 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
 # 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
-if year == 'R17': systematicList += ['prefire']
+if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
@@ -52,7 +52,7 @@ bkgProcs = {}
 bkgProcs['WJets'] = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800']
 if year=='R17':
 	bkgProcs['WJets']+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25002','WJetsMG25003','WJetsMG25004']
-elif year=='R18':
+elif year=='R16' or year=='R18':
 	bkgProcs['WJets']+= ['WJetsMG1200','WJetsMG2500']
 bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
@@ -63,14 +63,15 @@ bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
 bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
-if year=='R17':
+if year=='R16' or year=='R17':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
 elif year=='R18':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
 bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 if year=='R17': bkgProcs['T']+= ['Tbs']
-bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB']
+bkgProcs['TTV'] = ['TTWl','TTZlM10','TTHB','TTHnoB']
+if year!='R16': bkgProcs['TTV']+= ['TTZlM1to10']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']#+bkgProcs['TTJets']
@@ -107,9 +108,11 @@ BRs['TZ']=[0.5,0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-if year=='R17':
+if year=='R16':
+	from weights16 import *
+elif year=='R17':
 	from weights17 import *
-else:
+elif year=='R18':
 	from weights18 import *
 
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
@@ -272,7 +275,9 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				for tt in ttbarGrupList:
 					if tt!='ttbb': Nttnobb += hists[tt+i].Integral()
 				ttLFsf_ = ttLFsf
-				if ttLFsf==-1: ttLFsf_ = 1. + ( 1-ttHFsf ) * ( Nttbb/Nttnobb )
+				if ttLFsf==-1: 
+					ttLFsf_ = 1.
+					if Nttnobb!=0: ttLFsf_ = max( 0., 1. + ( 1-ttHFsf ) * ( Nttbb/Nttnobb ) )
 				hists['ttbb'+i].Scale(ttHFsf)
 				for tt in list(set(ttbarProcList+ttbarGrupList)):
 					if tt!='ttbb': hists[tt+i].Scale(ttLFsf_)
