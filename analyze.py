@@ -58,7 +58,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	TrigSF   = 'triggerXSF'
 	TrigSFUp = '1'
 	TrigSFDn = '1'
-	cut += ' && DataPastTriggerX == 1 && MCPastTriggerX == 1' # CROSS triggers (i.e., VLQ triggers)
+	if isEM=='M' or '16' not in year: cut += ' && DataPastTriggerX == 1 && MCPastTriggerX == 1' # CROSS triggers (i.e., VLQ triggers)
 	#cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1' # Lep+Had triggers
 	#cut += ' && DataPastTrigger == 1 && MCLepPastTrigger == 1' # Lep triggers only
 	#cut += ' && DataHadPastTrigger == 1 && MCHadPastTrigger == 1' # Had triggers only
@@ -157,7 +157,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 
 	if 'Data' not in process:
 		weightStr          += ' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
-		weightStr 	   	   += ' * btagCSVWeight * btagCSVRenormWeight'
+		if '16' in year: weightStr += ' * muTrkSF * muPtSF'
+		#weightStr 	   	   += ' * btagCSVWeight * btagCSVRenormWeight'
 		weightStrNoNjet = weightStr
 		#weightStr = njetStr + ' * ' + weightStr #UNCOMMENT HERE TO APPLY NJET SF!!!!!!!
 		weightTriggerUpStr  = weightStr.replace(TrigSF,'('+TrigSF+'+'+TrigSF+'Uncert)')
@@ -286,7 +287,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	else: hists[histName]  = TH1D(histName,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
 		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf']#,'toppt'
-		if '17' in year: systList += ['prefire']
+		if '18' not in year: systList += ['prefire']
 		for proc in tTree.keys():
 			if proc.endswith('Up'):
 				systList.append(proc[:-2].replace(process,''))
@@ -306,7 +307,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 # 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'triggerDown')   , weightTriggerDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupUp')      , weightPileupUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupDown')    , weightPileupDownStr+'*('+fullcut+')', 'GOFF')
-		if '17' in year:
+		if '18' not in year:
 			tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'prefireUp')  , weightPrefireUpStr+'*('+fullcut+')', 'GOFF')
 			tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'prefireDown'), weightPrefireDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'muRFcorrdUp')   , weightmuRFcorrdUpStr  +'*('+fullcut+')', 'GOFF')
@@ -325,10 +326,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'njetDown')      , weightNjetDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'njetsfUp')      , weightNjetSFUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'njetsfDown')    , weightNjetSFDownStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfUp')  , weightCSVshapelfUpStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfDown'), weightCSVshapelfDownStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfUp')  , weightCSVshapehfUpStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfDown'), weightCSVshapehfDownStr+'*('+fullcut+')', 'GOFF')
+# 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfUp')  , weightCSVshapelfUpStr+'*('+fullcut+')', 'GOFF')
+# 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfDown'), weightCSVshapelfDownStr+'*('+fullcut+')', 'GOFF')
+# 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfUp')  , weightCSVshapehfUpStr+'*('+fullcut+')', 'GOFF')
+# 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfDown'), weightCSVshapehfDownStr+'*('+fullcut+')', 'GOFF')
 
 		# Change the plot name itself for shifts if needed
 		# hot-tagging:

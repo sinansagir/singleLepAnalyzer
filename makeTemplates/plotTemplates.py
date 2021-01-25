@@ -13,10 +13,13 @@ rt.gROOT.SetBatch(1)
 start_time = time.time()
 
 year=sys.argv[1]
-if year=='R17':
+if year=='R16':
+	from weights16 import *
+	lumi=35.9 #for plots
+elif year=='R17':
 	from weights17 import *
 	lumi=41.5 #for plots
-else:
+elif year=='R18':
 	from weights18 import *
 	lumi=59.97 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
@@ -52,9 +55,9 @@ elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','btag','mistag','JEC','JER','PSwgt','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
-systematicList+= ['CSVshapelf','CSVshapehf']
-if year == 'R17': systematicList += ['prefire']
+systematicList = ['pileup','JEC','JER','PSwgt','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+#systematicList+= ['CSVshapelf','CSVshapehf']
+if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
 doAllSys = True
 addCRsys = False
@@ -224,6 +227,9 @@ totBkgTemp1 = {}
 totBkgTemp2 = {}
 totBkgTemp3 = {}
 for catEStr in catsElist:
+	systematicList_ = systematicList[:]
+	if 'nB0p' not in catEStr: systematicList_ += ['btag','mistag']
+	if 'nHOT0p' not in catEStr: systematicList_ += ['hotstat','hotcspur','hotclosure']
 	modTag = catEStr[catEStr.find('nT'):catEStr.find('nJ')-3]
 	for isEM in isEMlist:
 		histPrefix=iPlot+'_'+lumiInTemplates+'fb_'
@@ -256,8 +262,8 @@ for catEStr in catsElist:
 			normByBinWidth(hData)
 
 		if doAllSys:
-			print systematicList
-			for syst in systematicList:
+			print systematicList_
+			for syst in systematicList_:
 				print syst
 				for ud in [upTag,downTag]:
 					for proc in bkgProcList:
@@ -288,7 +294,7 @@ for catEStr in catsElist:
 				except: pass
 
 			if doAllSys:
-				for syst in systematicList:
+				for syst in systematicList_:
 					if 'BJetsNoSF' in iPlot and (syst=='btag' or syst=='mistag'): continue
 					for proc in bkgProcList:
 						try:
@@ -697,7 +703,7 @@ for catEStr in catsElist:
 		normByBinWidth(hDatamerged)
 
 	if doAllSys:
-		for syst in systematicList:
+		for syst in systematicList_:
 			for ud in [upTag,downTag]:
 				for proc in bkgProcList:
 					try: 
@@ -725,7 +731,7 @@ for catEStr in catsElist:
 			except: pass
 
 		if doAllSys:
-			for syst in systematicList:
+			for syst in systematicList_:
 				if 'BJetsNoSF' in iPlot and (syst=='btag' or syst=='mistag'): continue
 				for proc in bkgProcList:
 					try:

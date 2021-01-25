@@ -30,13 +30,15 @@ start_time = time.time()
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 year=sys.argv[1]
-if year=='R17':
+if year=='R16':
+	from weights16 import *
+elif year=='R17':
 	from weights17 import *
-else:
+elif year=='R18':
 	from weights18 import *
 
 iPlot=sys.argv[2]
-saveKey = '_smooth'
+saveKey = ''#'_smooth'
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
@@ -75,7 +77,9 @@ removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 minNbins=1 #min number of bins to be merged
 if iPlot=='HT' or iPlot=='lepPt': minNbins=2
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
-if 'kinematics' in templateDir: stat = 1.1
+if 'kinematics' in templateDir: 
+	stat = 1.1
+	doSmoothing = False
 statThres = 0.05 #statistical uncertainty threshold on total background to assign BB nuisances -- enter 0.0 to assign BB for all bins
 #if len(sys.argv)>1: stat=float(sys.argv[1])
 singleBinCR = False

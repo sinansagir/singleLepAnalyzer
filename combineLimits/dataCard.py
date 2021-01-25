@@ -213,10 +213,11 @@ if __name__ == '__main__':
 	iPlot= sys.argv[2]#'HT'
 	era = sys.argv[1]#'R18'
 	erajec = era.replace('R','20')
-	lumiStr = '41p53fb'
-	if era=='R18': lumiStr = '59p97fb'
+	if era=='R16': lumiStr = '35p867fb'
+	elif era=='R17': lumiStr = '41p53fb'
+	elif era=='R18': lumiStr = '59p97fb'
 	smoothAlgo = 'lowess' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
-	tag = '_smooth'
+	tag = ''#_smooth
 	saveKey = '_smoothed_'+iPlot
 	fileDir = '../makeTemplates/'
 	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'
