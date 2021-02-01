@@ -1,4 +1,4 @@
-import os,sys
+import os,sys,math
 execfile("/uscms_data/d3/jmanagan/EOSSafeUtils.py")
 
 dirlist = [ 
@@ -51,17 +51,29 @@ for sample in dirlist:
     pdfhist = rfile.Get("mcweightanalyzer/pdfcounts")
     #print('PDF nominal yield = '+str(round(pdfhist.GetBinContent(1),3)))
 
-    pdfvars = []
-    for ibin in range(1,pdfhist.GetNbinsX()+1): pdfvars.append(pdfhist.GetBinContent(ibin))
-    pdfvars.sort()
+    err_sq = 0
+    for ibin in range(2,102):
+        err_sq += (pdfhist.GetBinContent(ibin) - pdfhist.GetBinContent(1))**2
 
-    print('PDF up yield = '+str(round(pdfvars[83],3)))
-    print('PDF dn yield = '+str(round(pdfvars[15],3)))
+    shift = math.sqrt(err_sq)
+    print('NEW PDF up yield = '+str(round(pdfhist.GetBinContent(1) + shift,3)))
+    print('NEW PDF dn yield = '+str(round(pdfhist.GetBinContent(1) - shift,3)))
 
     print('MUup scale factor = '+str(round(muhist.GetBinContent(1)/muvars[6],3)))
     print('MUdn scale factor = '+str(round(muhist.GetBinContent(1)/muvars[0],3)))
-    print('PDFup scale factor = '+str(round(pdfhist.GetBinContent(1)/pdfvars[83],3)))
-    print('PDFdn scale factor = '+str(round(pdfhist.GetBinContent(1)/pdfvars[15],3)))
+    #print('NEW PDFup scale factor = '+str(round(pdfhist.GetBinContent(1)/(pdfhist.GetBinContent(1) + shift),3)))
+    #print('NEW PDFup scale factor = '+str(round(pdfhist.GetBinContent(1)/(pdfhist.GetBinContent(1) - shift),3)))
+    print('NEW PDFup scale factor = '+str(round(1 - shift/pdfhist.GetBinContent(1),3)))  #opposite mode!
+    print('NEW PDFup scale factor = '+str(round(1 + shift/pdfhist.GetBinContent(1),3)))
+
+    # pdfvars = []
+    # for ibin in range(1,pdfhist.GetNbinsX()+1): pdfvars.append(pdfhist.GetBinContent(ibin))
+    # pdfvars.sort()
+
+    # print('OLD PDF up yield = '+str(round(pdfvars[83],3)))
+    # print('OLD PDF dn yield = '+str(round(pdfvars[15],3)))
+    # print('OLD PDFup scale factor = '+str(round(pdfhist.GetBinContent(1)/pdfvars[83],3)))
+    # print('OLD PDFdn scale factor = '+str(round(pdfhist.GetBinContent(1)/pdfvars[15],3)))
 
 
 

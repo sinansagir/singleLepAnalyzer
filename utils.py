@@ -53,8 +53,9 @@ def EOSlist_root_files(Dir):
 def readTreeNominal(sample,step1Dir):
 	pathstring0 = sample+'_hadd.root'
 	pathstring1 = sample+'_1_hadd.root'
-	if not EOSpathExists(step1Dir[23:]+'/',pathstring0) and not EOSpathExists(step1Dir[23:]+'/',pathstring1): 
-		print "Error: path does not exist! Aborting ... no",pathstring0,"nor",pathstring1
+        pathstring2 = sample+'_1_hadd_0.root'
+	if not EOSpathExists(step1Dir[23:]+'/',pathstring0) and not EOSpathExists(step1Dir[23:]+'/',pathstring1) and not EOSpathExists(step1Dir[23:]+'/',pathstring2): 
+		print "Error: path does not exist! Aborting ... no",pathstring0,"nor",pathstring1,"nor",pathstring2
 		os._exit(1)
 	rootfiles = EOSlist_root_files(step1Dir[23:])	
 
@@ -67,8 +68,9 @@ def readTreeNominal(sample,step1Dir):
 def readTreeShift(sample,shift,step1Dir):	
 	pathstring0 = sample+'_hadd.root'
         pathstring1 = sample+'_1_hadd.root'
-        if not EOSpathExists(step1Dir[23:]+'/',pathstring0) and not EOSpathExists(step1Dir[23:]+'/',pathstring1):
-		print "Error: path does not exist! Aborting ... no",pathstring0,"nor",pathstring1
+        pathstring2 = sample+'_1_hadd_0.root'
+        if not EOSpathExists(step1Dir[23:]+'/',pathstring0) and not EOSpathExists(step1Dir[23:]+'/',pathstring1) and not EOSpathExists(step1Dir[23:]+'/',pathstring2):
+		print "Error: path does not exist! Aborting ... no",pathstring0,"nor",pathstring1,"nor",pathstring2
 		os._exit(1)
 	rootfiles = EOSlist_root_files(step1Dir[23:])	
 

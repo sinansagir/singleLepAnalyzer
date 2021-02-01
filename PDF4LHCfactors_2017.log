@@ -1,0 +1,140 @@
+---------------------BprimeBprime_M-1000_TuneCP5_13TeV-madgraph-pythia8--------------------------
+1011510.55. # from integral 850000.0
+error/pdfvars[0] = 0.048
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.954
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.05
+MUup SF = 0.742
+MUdn SF = 1.315
+---------------------BprimeBprime_M-1100_TuneCP5_13TeV-madgraph-pythia8--------------------------
+969137.0. # from integral 806000.0
+error/pdfvars[0] = 0.052
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.951
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.055
+MUup SF = 0.743
+MUdn SF = 1.314
+---------------------BprimeBprime_M-1200_TuneCP5_13TeV-madgraph-pythia8--------------------------
+1027818.122. # from integral 850000.0
+error/pdfvars[0] = 0.056
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.947
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.059
+MUup SF = 0.742
+MUdn SF = 1.316
+---------------------BprimeBprime_M-1300_TuneCP5_13TeV-madgraph-pythia8--------------------------
+917763.768. # from integral 758000.0
+error/pdfvars[0] = 0.061
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.942
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.066
+MUup SF = 0.741
+MUdn SF = 1.318
+---------------------BprimeBprime_M-1400_TuneCP5_13TeV-madgraph-pythia8--------------------------
+877071.614. # from integral 728000.0
+error/pdfvars[0] = 0.068
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.936
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.073
+MUup SF = 0.739
+MUdn SF = 1.321
+---------------------BprimeBprime_M-1500_TuneCP5_13TeV-madgraph-pythia8--------------------------
+804769.156. # from integral 675000.0
+error/pdfvars[0] = 0.076
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.929
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.082
+MUup SF = 0.735
+MUdn SF = 1.329
+---------------------BprimeBprime_M-1600_TuneCP5_13TeV-madgraph-pythia8--------------------------
+895604.498. # from integral 769000.0
+error/pdfvars[0] = 0.086
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.921
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.094
+MUup SF = 0.735
+MUdn SF = 1.329
+---------------------BprimeBprime_M-1700_TuneCP5_13TeV-madgraph-pythia8--------------------------
+946782.494. # from integral 842000.0
+error/pdfvars[0] = 0.098
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.911
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.108
+MUup SF = 0.733
+MUdn SF = 1.331
+---------------------BprimeBprime_M-1800_TuneCP5_13TeV-madgraph-pythia8--------------------------
+915634.724. # from integral 850000.0
+error/pdfvars[0] = 0.115
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.897
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.13
+MUup SF = 0.731
+MUdn SF = 1.337
+---------------------TprimeTprime_M-1000_TuneCP5_13TeV-madgraph-pythia8--------------------------
+1002517.455. # from integral 842000.0
+error/pdfvars[0] = 0.048
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.954
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.05
+MUup SF = 0.744
+MUdn SF = 1.312
+---------------------TprimeTprime_M-1100_TuneCP5_13TeV-madgraph-pythia8--------------------------
+895042.045. # from integral 745000.0
+error/pdfvars[0] = 0.051
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.951
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.054
+MUup SF = 0.747
+MUdn SF = 1.306
+---------------------TprimeTprime_M-1200_TuneCP5_13TeV-madgraph-pythia8--------------------------
+1003441.777. # from integral 829000.0
+error/pdfvars[0] = 0.056
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.947
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.06
+MUup SF = 0.742
+MUdn SF = 1.315
+---------------------TprimeTprime_M-1300_TuneCP5_13TeV-madgraph-pythia8--------------------------
+1026082.979. # from integral 847000.0
+error/pdfvars[0] = 0.062
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.942
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.066
+MUup SF = 0.741
+MUdn SF = 1.316
+---------------------TprimeTprime_M-1400_TuneCP5_13TeV-madgraph-pythia8--------------------------
+979603.275. # from integral 811000.0
+error/pdfvars[0] = 0.068
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.936
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.073
+MUup SF = 0.738
+MUdn SF = 1.322
+---------------------TprimeTprime_M-1500_TuneCP5_13TeV-madgraph-pythia8--------------------------
+985756.619. # from integral 827000.0
+error/pdfvars[0] = 0.076
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.929
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.082
+MUup SF = 0.74
+MUdn SF = 1.319
+---------------------TprimeTprime_M-1600_TuneCP5_13TeV-madgraph-pythia8--------------------------
+989851.281. # from integral 850000.0
+error/pdfvars[0] = 0.086
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.921
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.094
+MUup SF = 0.735
+MUdn SF = 1.329
+---------------------TprimeTprime_M-1700_TuneCP5_13TeV-madgraph-pythia8--------------------------
+939135.751. # from integral 836000.0
+error/pdfvars[0] = 0.098
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.911
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.109
+MUup SF = 0.721
+MUdn SF = 1.354
+---------------------TprimeTprime_M-1800_TuneCP5_13TeV-madgraph-pythia8--------------------------
+884660.318. # from integral 827000.0
+error/pdfvars[0] = 0.113
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.898
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.128
+MUup SF = 0.746
+MUdn SF = 1.311
+---------------------BprimeBprime_M-900_TuneCP5_13TeV-madgraph-pythia8--------------------------
+959939.583. # from integral 817000.0
+error/pdfvars[0] = 0.045
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.957
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.047
+MUup SF = 0.744
+MUdn SF = 1.312
+---------------------TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8--------------------------
+973451.162. # from integral 828000.0
+error/pdfvars[0] = 0.045
+Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.957
+Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.047
+MUup SF = 0.745
+MUdn SF = 1.311
