@@ -70,10 +70,10 @@ if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
-if len(isRebinned)>0 and 'TR' not in region: systematicList = ['pileup','prefire','jec2017','muRFcorrdNewTop','muRFcorrdNewEwk','muRFcorrdNewQCD','jsf','Teff','Tmis2017','Heff','Hmis2017','Zeff','Zmis2017','Weff','Wmis2017','Beff','Bmis2017','jer2017','pdfNew20172018','toppt','dnnJ']
+if len(isRebinned)>0 and 'TR' not in region: systematicList = ['trigeffEl','trigeffMu','pileup','prefire','jec2017','muRFcorrdNewTop','muRFcorrdNewEwk','muRFcorrdNewQCD','jsf','Teff','Tmis2017','Heff','Hmis2017','Zeff','Zmis2017','Weff','Wmis2017','Beff','Bmis2017','jer2017','pdfNew20172018','toppt','dnnJ']
 #if len(isRebinned)>0: systematicList = ['jer2017']
 #else: systematicList = ['jec']
-else: systematicList = ['muRFcorrd','pileup','prefire','jsf','jec','jer','toppt','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','btag','ltag','dnnJ']
+else: systematicList = ['muRFcorrd','trigeffEl','trigeffMu','pileup','prefire','jsf','jec','jer','toppt','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','btag','ltag','dnnJ']
 
 doAllSys = True
 print 'doAllSys: ',doAllSys,'systematicList: ',systematicList
