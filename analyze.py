@@ -58,12 +58,12 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
         elif region=='TR': # training
                 cut += ' && (NJetsAK8_JetSubCalc > 2 && isValid'+whichSig+'DecayMode_DeepAK8 == 0)' #for signal and TTbar(+X) and ST
 	elif 'CR' in region: # 'CR' or 'CRinc'  certain AK8 jets and low signal node                
-		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnn_Tprime < '+str(cutList['dnnCut'])+')'
+		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnNew_Tprime < '+str(cutList['dnnCut'])+')'
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnNew_Tprime < dnnNew_WJets'+BBstr+' && dnnNew_Tprime < dnnNew_ttbar'+BBstr+')'
-		if 'TT' in region: cut += ' && (dnn_ttbar'+BBstr+' > dnn_WJets'+BBstr+')'
-		if 'WJ' in region: cut += ' && (dnn_ttbar'+BBstr+' <= dnn_WJets'+BBstr+')'                
+		if 'TT' in region: cut += ' && (dnnNew_ttbar'+BBstr+' > dnnNew_WJets'+BBstr+')'
+		if 'WJ' in region: cut += ' && (dnnNew_ttbar'+BBstr+' <= dnnNew_WJets'+BBstr+')'                
 	elif 'SR' in region: # 'SR'  certain AK8 jets, mass reco, high signal node
-		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnn_Tprime >= '+str(cutList['dnnCut'])+')'
+		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnnNew_Tprime >= '+str(cutList['dnnCut'])+')'
                 cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnnNew_Tprime >= dnnNew_WJets'+BBstr+' && dnnNew_Tprime >= dnnNew_ttbar'+BBstr+')'
 	elif 'PS' in region: # 'PS'  
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+')'
@@ -182,7 +182,7 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
                         cut += ' && ('+soft_massvar+'[1] > 65 && '+soft_massvar+'[1] < 210 && ('+tau21var+'[1] < 0.6 || '+tau32var+'[1] < 0.65))'
 
 	if isCategorized and ((iPlot == 'Tp2MDnn' and 'notV' in tag) or iPlot == 'DnnTprime'):
-		plotTreeName = 'dnn_Tprime'
+		plotTreeName = 'dnnNew_Tprime'
 		xAxisLabel = ';DNN T score'
 		if region == 'SCR':
 			xbins = array('d', linspace(0,1,101).tolist())
@@ -243,8 +243,8 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 
 	if whichSig == 'BB':
 		plotTreeName = plotTreeName.replace('Tprime','Bprime')
-		plotTreeName = plotTreeName.replace('dnn_WJets','dnn_WJetsBB')
-		plotTreeName = plotTreeName.replace('dnn_ttbar','dnn_ttbarBB')
+		plotTreeName = plotTreeName.replace('dnnNew_WJets','dnnNew_WJetsBB')
+		plotTreeName = plotTreeName.replace('dnnNew_ttbar','dnnNew_ttbarBB')
 		iPlot = iPlot.replace('Tp','Bp')
 		iPlot = iPlot.replace('DnnWJets','DnnWJetsBB')
 		iPlot = iPlot.replace('DnnTTbar','DnnTTbarBB')
@@ -310,8 +310,8 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 				tagCut += ' && !(hadronicBprimeJetIDs_'+algo+'[0] == 3 && hadronicBprimeJetIDs_'+algo+'[1] == 5)'
 
                 # signal categories for basic tag counts
-		if 'ttbar' in tag: cut += ' && (dnn_ttbar'+BBstr+' > dnn_WJets'+BBstr+')'
-		if 'wjet' in tag: cut += ' && (dnn_ttbar'+BBstr+' <= dnn_WJets'+BBstr+')'
+		if 'ttbar' in tag: cut += ' && (dnnNew_ttbar'+BBstr+' > dnnNew_WJets'+BBstr+')'
+		if 'wjet' in tag: cut += ' && (dnnNew_ttbar'+BBstr+' <= dnnNew_WJets'+BBstr+')'
 
                 if 'dnnLargeTHZWB' in tag: cut += ' && (leptonPhi_MultiLepCalc < '+str(math.pi/2)+' && dnn_largest_DeepAK8Calc_PtOrdered[0] != 0)'
 		elif 'dnnLargeT' in tag: cut += ' && (leptonPhi_MultiLepCalc < '+str(math.pi/2)+' && dnn_largest_DeepAK8Calc_PtOrdered[0] == 1)'
