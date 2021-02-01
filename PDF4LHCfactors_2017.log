@@ -131,7 +131,7 @@ Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.957
 Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.047
 MUup SF = 0.744
 MUdn SF = 1.312
----------------------TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8--------------------------
+---------------------TprimeTprime_M-900_TuneCP5_13TeV-madgraph-pythia8--------------------------
 973451.162. # from integral 828000.0
 error/pdfvars[0] = 0.045
 Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.957

@@ -4,7 +4,7 @@ samples = {
 'DataEABCDEF':'SingleElectron',
 'DataMABCDEF':'SingleMuon',
 
-'TTM700BWBW':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_BWBW',
+'TTM900BWBW':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_BWBW', ## wrong name!!
 'TTM1000BWBW':'TprimeTprime_M-1000_TuneCP5_13TeV-madgraph-pythia8_BWBW',
 'TTM1100BWBW':'TprimeTprime_M-1100_TuneCP5_13TeV-madgraph-pythia8_BWBW',
 'TTM1200BWBW':'TprimeTprime_M-1200_TuneCP5_13TeV-madgraph-pythia8_BWBW',
@@ -15,7 +15,7 @@ samples = {
 'TTM1700BWBW':'TprimeTprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_BWBW',
 'TTM1800BWBW':'TprimeTprime_M-1800_TuneCP5_13TeV-madgraph-pythia8_BWBW',
 
-'TTM700THBW':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_THBW',
+'TTM900THBW':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_THBW',
 'TTM1000THBW':'TprimeTprime_M-1000_TuneCP5_13TeV-madgraph-pythia8_THBW',
 'TTM1100THBW':'TprimeTprime_M-1100_TuneCP5_13TeV-madgraph-pythia8_THBW',
 'TTM1200THBW':'TprimeTprime_M-1200_TuneCP5_13TeV-madgraph-pythia8_THBW',
@@ -26,7 +26,7 @@ samples = {
 'TTM1700THBW':'TprimeTprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_THBW',
 'TTM1800THBW':'TprimeTprime_M-1800_TuneCP5_13TeV-madgraph-pythia8_THBW',
 
-'TTM700TZBW':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_TZBW',
+'TTM900TZBW':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_TZBW',
 'TTM1000TZBW':'TprimeTprime_M-1000_TuneCP5_13TeV-madgraph-pythia8_TZBW',
 'TTM1100TZBW':'TprimeTprime_M-1100_TuneCP5_13TeV-madgraph-pythia8_TZBW',
 'TTM1200TZBW':'TprimeTprime_M-1200_TuneCP5_13TeV-madgraph-pythia8_TZBW',
@@ -37,7 +37,7 @@ samples = {
 'TTM1700TZBW':'TprimeTprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_TZBW',
 'TTM1800TZBW':'TprimeTprime_M-1800_TuneCP5_13TeV-madgraph-pythia8_TZBW',
 
-'TTM700TZTZ':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_TZTZ',
+'TTM900TZTZ':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_TZTZ',
 'TTM1000TZTZ':'TprimeTprime_M-1000_TuneCP5_13TeV-madgraph-pythia8_TZTZ',
 'TTM1100TZTZ':'TprimeTprime_M-1100_TuneCP5_13TeV-madgraph-pythia8_TZTZ',
 'TTM1200TZTZ':'TprimeTprime_M-1200_TuneCP5_13TeV-madgraph-pythia8_TZTZ',
@@ -48,7 +48,7 @@ samples = {
 'TTM1700TZTZ':'TprimeTprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_TZTZ',
 'TTM1800TZTZ':'TprimeTprime_M-1800_TuneCP5_13TeV-madgraph-pythia8_TZTZ',
 
-'TTM700TZTH':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_TZTH',
+'TTM900TZTH':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_TZTH',
 'TTM1000TZTH':'TprimeTprime_M-1000_TuneCP5_13TeV-madgraph-pythia8_TZTH',
 'TTM1100TZTH':'TprimeTprime_M-1100_TuneCP5_13TeV-madgraph-pythia8_TZTH',
 'TTM1200TZTH':'TprimeTprime_M-1200_TuneCP5_13TeV-madgraph-pythia8_TZTH',
@@ -59,7 +59,7 @@ samples = {
 'TTM1700TZTH':'TprimeTprime_M-1700_TuneCP5_13TeV-madgraph-pythia8_TZTH',
 'TTM1800TZTH':'TprimeTprime_M-1800_TuneCP5_13TeV-madgraph-pythia8_TZTH',
 
-'TTM700THTH':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_THTH',
+'TTM900THTH':'TprimeTprime_M-700_TuneCP5_13TeV-madgraph-pythia8_THTH',
 'TTM1000THTH':'TprimeTprime_M-1000_TuneCP5_13TeV-madgraph-pythia8_THTH',
 'TTM1100THTH':'TprimeTprime_M-1100_TuneCP5_13TeV-madgraph-pythia8_THTH',
 'TTM1200THTH':'TprimeTprime_M-1200_TuneCP5_13TeV-madgraph-pythia8_THTH',
