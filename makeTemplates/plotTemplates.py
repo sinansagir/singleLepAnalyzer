@@ -14,15 +14,15 @@ start_time = time.time()
 lumi=41.5 #for plots #56.1 #
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-iPlot='JetPt'
+iPlot='probj'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
-region='CR' #SR,TTCR,WJCR
+region='CR2j' #SR,TTCR,WJCR
 if len(sys.argv)>2: region=str(sys.argv[2])
 isCategorized=False
 if len(sys.argv)>3: isCategorized=bool(eval(sys.argv[3]))
 pfix='templates'+region
 if not isCategorized: pfix='kinematics'+region
-pfix+='_June2020TT'
+pfix+='_Nov2020TT_HTcorr'
 if len(sys.argv)>4: pfix=str(sys.argv[4])
 templateDir=os.getcwd()+'/'+pfix+'/'
 if not os.path.exists(templateDir): os.system('mkdir -p '+templateDir)
@@ -35,6 +35,8 @@ isRebinned=''#_rebinned_stat0p3' #post for ROOT file names
 if len(sys.argv)>7: 
         if 'CR' in region: 
                 isRebinned='_chi2_rebinned_stat'+str(sys.argv[7])+'_smoothedLOWESS'
+        elif 'TR' in region:
+                isRebinned='_rebinned_'+str(sys.argv[7])
         else: 
                 isRebinned='_rebinned_stat'+str(sys.argv[7])
 BRstr=''
@@ -68,16 +70,16 @@ if '53' in sig1: bkgHistColors = {'top':kRed-9,'ewk':kBlue-7,'qcd':kOrange-5} #X
 elif 'HTB' in sig1: bkgHistColors = {'ttbar':kGreen-3,'wjets':kPink-4,'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #HTB
 else: bkgHistColors = {'top':kAzure+8,'ewk':kMagenta-2,'qcd':kOrange+5} #TT
 
-if len(isRebinned)>0: systematicList = ['pileup','prefire','jec2017','muRFcorrdNewTop','muRFcorrdNewEwk','muRFcorrdNewQCD','jsf','Teff','Tmis2017','Heff','Hmis2017','Zeff','Zmis2017','Weff','Wmis2017','Beff','Bmis2017','jer2017','pdfNew20172018']
+if len(isRebinned)>0 and 'TR' not in region: systematicList = ['pileup','prefire','jec2017','muRFcorrdNewTop','muRFcorrdNewEwk','muRFcorrdNewQCD','jsf','Teff','Tmis2017','Heff','Hmis2017','Zeff','Zmis2017','Weff','Wmis2017','Beff','Bmis2017','jer2017','pdfNew20172018','toppt','dnnJ']
 #if len(isRebinned)>0: systematicList = ['jer2017']
 #else: systematicList = ['jec']
-else: systematicList = ['muRFcorrd','pileup','prefire','jsf','jec','jer','toppt']#'Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis',
+else: systematicList = ['muRFcorrd','pileup','prefire','jsf','jec','jer','toppt','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','btag','ltag','dnnJ']
 
 doAllSys = True
 print 'doAllSys: ',doAllSys,'systematicList: ',systematicList
 addCRsys = False
 doNormByBinWidth=False
-if len(isRebinned)>0 and 'stat1p1' not in isRebinned: doNormByBinWidth = True
+if len(isRebinned)>0 and 'stat1p1' not in isRebinned and 'mvagof' not in isRebinned: doNormByBinWidth = True
 doOneBand = True
 # MAY NEED TO RE-INDENT PART/ALL OF CODE FROM HERE TO CORRESPONDING COMMENT!!!!!
 if not doAllSys: doOneBand = True # Don't change this!
@@ -100,7 +102,9 @@ if 'algos' in region or 'SR' in region or isCategorized:
 	algolist = ['DeepAK8']#,'BEST','DeepAK8DC']
 taglist = ['all']
 if isCategorized == True: 
-	if 'CR' in region: taglist=['dnnLargeT','dnnLargeH','dnnLargeZ','dnnLargeW','dnnLargeB','dnnLargeJttbar','dnnLargeJwjet']
+	if 'CR' in region: 
+                #taglist=['dnnLargeT','dnnLargeH','dnnLargeZ','dnnLargeW','dnnLargeB','dnnLargeJttbar','dnnLargeJwjet'] # HTNtag
+                taglist=['dnnLargeTHZWB','dnnLargeJttbar','dnnLargeJwjet'] # HTdnnL
 	elif 'BB' in pfix: taglist=['taggedtWtW','taggedbZtW','taggedbHtW','notVbH','notVbZ','notVtW',
 					'notV2pT','notV01T2pH','notV01T1H','notV1T0H','notV0T0H1pZ','notV0T0H0Z2pW','notV0T0H0Z01W']
 	elif 'TT' in pfix: taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtH','notVtZ','notVbW',
@@ -122,9 +126,9 @@ if isCategorized and iPlot != 'YLD':
 else: tagList = list(itertools.product(taglist,algolist))
 
 lumiSys = 0.023 # lumi uncertainty
-trigSys = 0.05 # trigger uncertainty, now really reco uncertainty
+trigSys = 0.0 # trigger uncertainty, now really reco uncertainty
 lepIdSys = 0.02 # lepton id uncertainty
-lepIsoSys = 0.02 # lepton isolation uncertainty
+lepIsoSys = 0.015 # lepton isolation uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2) #cheating while total e/m values are close
 
 def getNormUnc(hist,ibin,modelingUnc):
@@ -136,9 +140,9 @@ def getNormUnc(hist,ibin,modelingUnc):
 def formatUpperHist(histogram,th1hist):
 	histogram.GetXaxis().SetLabelSize(0)
 	lowside = th1hist.GetBinLowEdge(1)
-	if iPlot=='ST': lowside = th1hist.GetBinLowEdge(8)-50.0
+	#if iPlot=='ST': lowside = th1hist.GetBinLowEdge(8)-50.0
 	highside = th1hist.GetBinLowEdge(th1hist.GetNbinsX()+1)
-	if iPlot=='dnnLargest': highside = th1hist.GetBinLowEdge(7)-0.1
+	#if iPlot=='dnnLargest': highside = th1hist.GetBinLowEdge(7)-0.1
 	histogram.GetXaxis().SetRangeUser(lowside,highside)
 	if blind == True:
 		histogram.GetXaxis().SetLabelSize(0.045)
@@ -199,7 +203,7 @@ def formatLowerHist(histogram):
 	histogram.GetYaxis().SetNdivisions(7)
 	if doRealPull: histogram.GetYaxis().SetRangeUser(-2.99,2.99)
 	elif yLog and doNormByBinWidth: histogram.GetYaxis().SetRangeUser(0.5,1.5)
-	else: histogram.GetYaxis().SetRangeUser(0.5,1.5)
+	else: histogram.GetYaxis().SetRangeUser(0.1,1.9)
 	#elif yLog and doNormByBinWidth: histogram.GetYaxis().SetRangeUser(0.1,1.9)
 	#else: histogram.GetYaxis().SetRangeUser(0.1,1.9)
 	histogram.GetYaxis().CenterTitle()
@@ -572,6 +576,31 @@ for tag in tagList:
 			pull.SetMarkerStyle(20)
 			formatLowerHist(pull)
 			pull.Draw("E0")
+
+			# # DO A FIT to the histogram named "pull" = hData/bkgHT
+			# fit = False
+			# flat = TF1("flat","pol0",2500,5000);
+			# line = TF1("line","pol1",300,2700);
+
+			# line.SetLineWidth(2);
+
+			# if fit:
+			# 	fitresult = pull.Fit("line","RS")
+			# 	cov = fitresult.GetCovarianceMatrix()
+			# 	p0p0cov = cov(0,0)
+			# 	p0p1cov = cov(0,1)
+			# 	p1p1cov = cov(1,1)
+			# 	print 'covariance p0-p0 =',p0p0cov
+			# 	print 'covariance p0-p1 =',p0p1cov
+			# 	print 'covariance p1-p1 =',p1p1cov
+			# 	fitresult = pull.Fit("flat","R+S")
+			# 	cov = fitresult.GetCovarianceMatrix()
+			# 	p0p0cov = cov(0,0)
+			# 	p0p1cov = cov(0,1)
+			# 	p1p1cov = cov(1,1)
+			# 	print 'covariance p0-p0 =',p0p0cov
+			# 	print 'covariance p0-p1 =',p0p1cov
+			# 	print 'covariance p1-p1 =',p1p1cov
 			
 			BkgOverBkg = pull.Clone("bkgOverbkg")
 			BkgOverBkg.Divide(bkgHT, bkgHT)
@@ -991,11 +1020,18 @@ for tag in tagList:
 	
 	if blind == False and not doRealPull:
 		lPad.cd()
-		pullmerged=hDatamerged.Clone(hDatamerged.GetName()+"pullmerged")
-		pullmerged.Divide(hDatamerged, bkgHTmerged)
-		for binNo in range(0,hDatamerged.GetNbinsX()+2):
-			if bkgHTmerged.GetBinContent(binNo)!=0:
-				pull.SetBinError(binNo,hDatamerged.GetBinError(binNo)/bkgHTmerged.GetBinContent(binNo))
+		pullmerged=bkgHTmerged.Clone(hDatamerged.GetName()+"pullmerged")
+                #scale = str(hDatamerged.Integral()/bkgHTmerged.Integral())
+                #print 'SCALING TOTAL BACKGOUND FOR RATIO: data =',hDatamerged.Integral(),', mc =',bkgHTmerged.Integral()
+                #pullmerged.Scale(hDatamerged.Integral()/bkgHTmerged.Integral())
+		pullmerged.Divide(hDatamerged, pullmerged)                
+                # if 'probj' in iPlot:
+                #         print 'probjratio = {'
+                #         for binNo in range(0,hDatamerged.GetNbinsX()+2):
+                #                 print str(pullmerged.GetBinContent(binNo))+','
+                #                 if bkgHTmerged.GetBinContent(binNo)!=0:
+                #                         pullmerged.SetBinError(binNo,hDatamerged.GetBinError(binNo)/bkgHTmerged.GetBinContent(binNo))
+                #         print '};'
 		pullmerged.SetMaximum(3)
 		pullmerged.SetMinimum(0)
 		pullmerged.SetFillColor(1)
@@ -1053,6 +1089,8 @@ for tag in tagList:
 		pullLegendmerged.SetLineStyle(0)
 		pullLegendmerged.SetBorderSize(0)
 		pullLegendmerged.SetTextFont(42)
+                #pullLegendmerged.AddEntry(pullmerged,"Data/(MC*"+scale+")","pl")
+                pullLegendmerged.AddEntry(pullmerged,"Data/MC","pl")
 		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandStat , "Bkg. uncert. (shape syst.)" , "f")
 		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandNorm , "Bkg. uncert. (shape #oplus norm. syst.)" , "f")
 		if not doOneBand: pullLegendmerged.AddEntry(pullUncBandTot , "Bkg. uncert. (stat. #oplus all syst.)" , "f")

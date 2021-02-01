@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os,sys,time,math,datetime,pickle,itertools,fnmatch
-from ROOT import gROOT,TFile,TH1F
+from ROOT import gROOT,TFile,TH1F, TH2D
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 from weights import *
@@ -14,12 +14,12 @@ start_time = time.time()
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
 
 ## IMPORTANT TO CHNAGE!!!!
-region='CR' #PS,SR,TTCR,WJCR
-isCategorized=True
+region='TR' #PS,SR,TTCR,WJCR
+isCategorized=False
 pfix='templates'+region
 if not isCategorized: pfix='kinematics'+region
 ##THIS MATCHES YOUR OTHER PFIX
-pfix+='_Nov2020TT_tptCorr380'
+pfix+='_Nov2020TT_HTdnnJ3corrsSF2D'
 outDir = os.getcwd()+'/'+pfix+'/'
 
 doCombineTemplates = False 
@@ -32,14 +32,15 @@ scaleLumi = False
 lumiScaleCoeff = 41530./41298.
 doAllSys = True
 addCRsys = False
-
-#systematicList = ['muRFcorrd','pileup','prefire','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag']#,'toppt']
-#if isCategorized: systematicList = ['muRFcorrd','pileup','prefire','jec','btag','jsf','muR','muF','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag']#,'pdf','toppt',]
-
 doPDF = False
 if isCategorized: doPDF = True
-systematicList = ['prefire','muRFcorrd','trigeffEl','trigeffMu','pileup','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag','toppt']
-if isCategorized: systematicList = ['prefire','muRFcorrd','muR','muF','trigeffEl','trigeffMu','pileup','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag','toppt']
+systematicList = ['prefire','muRFcorrd','trigeffEl','trigeffMu','pileup','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag','toppt','dnnJ']
+if '2D' in outDir: 
+        systematicList.remove('btag')
+        systematicList.remove('ltag')
+if isCategorized: 
+        systematicList.append('muR')
+        systematicList.append('muF')
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 		       
 
@@ -59,14 +60,12 @@ bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV']
 dataList = [
 	'DataEABCDEF',
 	'DataMABCDEF'
-	#'Data18EG',
-	#'Data18MU',
 	]
 
 topptProcs = ['top','TTJets']
 
 whichSignal = 'TT' #HTB, TT, BB, or X53X53
-massList = range(1000,1800+1,100)
+massList = range(900,1800+1,100)
 ## ADD AN IF STATEMENT FOR BB
 if whichSignal == 'BB': massList.append(900)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
@@ -96,7 +95,7 @@ if not doBRScan: nBRconf=1
 
 isEMlist = ['E','M']
 #isEMlist =['E','M','L']
-#isEMlist =['L']
+if '2D' in outDir: isEMlist =['L']
 algolist = ['all']
 if isCategorized or 'algos' in region or 'SR' in region: algolist = ['DeepAK8']#,'BEST'],'DeepAK8DC']
 taglist = ['all']
@@ -116,7 +115,9 @@ if isCategorized:
 	#	 'notV1W0Z0H0T','notV1W0Z1H0T','notV1W0Z0H1pT','notV1W0Z1H1pT','notV1W0Z2pH0pT','notV1W1Z0H0pT','notV1W1Z1pH0pT','notV1W2pZ0pH0pT',
 	#	 'notV0W0Z0H0T','notV0W0Z1H0T','notV0W0Z0H1pT','notV0W0Z1H1pT','notV0W0Z2pH0pT','notV0W1Z0H0pT','notV0W1Z1pH0pT','notV0W2pZ0pH0pT']
 
-      	elif 'CR' in region: taglist=['dnnLargeT','dnnLargeH','dnnLargeW','dnnLargeZ','dnnLargeB','dnnLargeJwjet','dnnLargeJttbar']
+      	elif 'CR' in region: 
+                #taglist=['dnnLargeT','dnnLargeH','dnnLargeW','dnnLargeZ','dnnLargeB','dnnLargeJwjet','dnnLargeJttbar'] # HTNtag
+                taglist=['dnnLargeTHZWB','dnnLargeJwjet','dnnLargeJttbar'] # HTdnnL
         else: taglist = ['all']
 
 catList = ['is'+item[0]+'_'+item[1]+'_'+item[2] for item in list(itertools.product(isEMlist,taglist,algolist))]
