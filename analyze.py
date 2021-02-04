@@ -58,13 +58,23 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
         elif region=='TR': # training
                 cut += ' && (NJetsAK8_JetSubCalc > 2 && isValid'+whichSig+'DecayMode_DeepAK8 == 0)' #for signal and TTbar(+X) and ST
 	elif 'CR' in region: # 'CR' or 'CRinc'  certain AK8 jets and low signal node                
+
+
+
 		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnNew_Tprime < '+str(cutList['dnnCut'])+')'
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnNew_Tprime < dnnNew_WJets'+BBstr+' && dnnNew_Tprime < dnnNew_ttbar'+BBstr+')'
 		if 'TT' in region: cut += ' && (dnnNew_ttbar'+BBstr+' > dnnNew_WJets'+BBstr+')'
 		if 'WJ' in region: cut += ' && (dnnNew_ttbar'+BBstr+' <= dnnNew_WJets'+BBstr+')'                
+
+
+
 	elif 'SR' in region: # 'SR'  certain AK8 jets, mass reco, high signal node
 		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnnNew_Tprime >= '+str(cutList['dnnCut'])+')'
                 cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnnNew_Tprime >= dnnNew_WJets'+BBstr+' && dnnNew_Tprime >= dnnNew_ttbar'+BBstr+')'
+
+
+
+
 	elif 'PS' in region: # 'PS'  
 		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+')'
 		if '0b' in region: cut += ' && (NJetsDeepFlavwithSF_JetSubCalc == 0)'
@@ -94,10 +104,14 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
                 topCorr = 'HT_Corr'#'min(1.0,tpt_Corr)'#'topPtWeight13TeV'#'1'#
                 topCorrUp = 'HT_CorrUp'#'min(1.0,tpt_CorrUp)'#'1''1'#
                 topCorrDn = 'HT_CorrDn'#'min(1.0,tpt_CorrDn)'#'topPtWeight13TeV'#'1'#
-        # we are not using dnnJ_3 in the MVA, so just a 2 jet correction
-        dnnJCorr = 'dnnJweight2*'+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
-        dnnJCorrDn = '1' # '1' # '1' #
-        dnnJCorrUp = 'dnnJweight2*'+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
+        dnnJCorr = '1'
+        dnnJCorrDn = '1'
+        dnnJCorrUp = '1'
+        if 'PS' not in region:
+                # we are not using dnnJ_3 in the MVA, so just a 2 jet correction
+                dnnJCorr = 'dnnJweight*'+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
+                dnnJCorrDn = '1' # '1' # '1' #
+                dnnJCorrUp = 'dnnJweight*'+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
         
 
 	weightStr = '1'
