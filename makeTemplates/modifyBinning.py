@@ -38,7 +38,7 @@ elif year=='R18':
 	from weights18 import *
 
 iPlot=sys.argv[2]
-saveKey = ''#'_smooth'
+saveKey = '_ifsr'
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
@@ -73,13 +73,17 @@ removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 'JEC_HF','JEC_HF_'+year.replace('R','20'),
 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+removeSystFromYields+= ['PSwgt'] #remove if envelope method is not used, otherwise replace with ['isr','fsr']
 
 minNbins=1 #min number of bins to be merged
-if iPlot=='HT' or iPlot=='lepPt': minNbins=2
+if iPlot=='HT': minNbins=2
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if 'kinematics' in templateDir: 
 	stat = 1.1
 	doSmoothing = False
+	minNbins=2
+	if iPlot=='HT' or iPlot=='lepPt': minNbins=4
+	if 'NJets' in iPlot or 'NDCSVBJets' in iPlot or 'NBJets' in iPlot or 'NresolvedTops' in iPlot: minNbins=1
 statThres = 0.05 #statistical uncertainty threshold on total background to assign BB nuisances -- enter 0.0 to assign BB for all bins
 #if len(sys.argv)>1: stat=float(sys.argv[1])
 singleBinCR = False
@@ -297,6 +301,10 @@ for rfile in rfiles:
 				for ibin in range(1, rebinnedHists[hist].GetNbinsX()+1):
 					rebinnedHists[hist].SetBinContent(ibin, 2.*rebinnedHists[hist.replace('__toppt'+downTag,'')].GetBinContent(ibin)-rebinnedHists[hist.replace('__toppt'+downTag,'__toppt'+upTag)].GetBinContent(ibin))
 			if symmetrizeHOTClosureShift and '__hotclosure' in hist: continue
+			# remove HOT tagger systematics if event is not categorized into resolved top tag categories:
+			if '_nHOT0p_' in hist and ('__hotclosure' in hist or '__hotcspur' in hist or '__hotstat' in hist): continue
+			# remove btag systematics if event is not categorized into btag categories:
+			if '_nB0p_' in hist and ('__btag' in hist or '__mistag' in hist): continue
 			rebinnedHists[hist].Write()
 			if '__trigeff' in hist:
 				if 'isE' in hist: 
@@ -393,6 +401,7 @@ for rfile in rfiles:
 		if symmetrizeHOTClosureShift:
 			hotClosureUphists = [k.GetName() for k in tfiles[iRfile].GetListOfKeys() if 'hotclosure'+upTag in k.GetName() and '_'+chn+'_' in k.GetName()]
 			for hist in hotClosureUphists:
+				if '_nHOT0p_' in hist: continue
 				for ibin in range(1, rebinnedHists[hist].GetNbinsX()+1):
 					hotcmaxshift = max(abs(rebinnedHists[hist[:hist.find('__hotclosure')]].GetBinContent(ibin)-rebinnedHists[hist].GetBinContent(ibin)),abs(rebinnedHists[hist[:hist.find('__hotclosure')]].GetBinContent(ibin)-rebinnedHists[hist.replace('hotclosure'+upTag,'hotclosure'+downTag)].GetBinContent(ibin)))
 					rebinnedHists[hist].SetBinContent(ibin, rebinnedHists[hist[:hist.find('__hotclosure')]].GetBinContent(ibin)+hotcmaxshift)
@@ -403,6 +412,8 @@ for rfile in rfiles:
 				hotclosuredn = rebinnedHists[hist.replace('hotclosure'+upTag,'hotclosure'+downTag)].Clone(hist.replace('hotclosure'+upTag,'hotclosure'+'_'+year+downTag))
 				hotclosureup.Write()
 				hotclosuredn.Write()
+				yieldsAll[rebinnedHists[hist].GetName().replace('_sig','_'+rfile.split('_')[-2])] = rebinnedHists[hist].Integral()
+				yieldsAll[rebinnedHists[hist.replace('hotclosure'+upTag,'hotclosure'+downTag)].GetName().replace('_sig','_'+rfile.split('_')[-2])] = rebinnedHists[hist.replace('hotclosure'+upTag,'hotclosure'+downTag)].Integral()
 
 		#Constructing muRF shapes
 		if doMURF:
@@ -517,6 +528,10 @@ for rfile in rfiles:
 				isrDnHist2.Write()
 				fsrUpHist2.Write()
 				fsrDnHist2.Write()
+				yieldsAll[isrUpHist2.GetName().replace('_sig','_'+rfile.split('_')[-2]).replace('isr_'+proc_+upTag,'isr'+upTag)] = isrUpHist2.Integral()
+				yieldsAll[isrDnHist2.GetName().replace('_sig','_'+rfile.split('_')[-2]).replace('isr_'+proc_+downTag,'isr'+downTag)] = isrDnHist2.Integral()
+				yieldsAll[fsrUpHist2.GetName().replace('_sig','_'+rfile.split('_')[-2]).replace('fsr_'+proc_+upTag,'fsr'+upTag)] = fsrUpHist2.Integral()
+				yieldsAll[fsrDnHist2.GetName().replace('_sig','_'+rfile.split('_')[-2]).replace('fsr_'+proc_+downTag,'fsr'+downTag)] = fsrDnHist2.Integral()
 
 				#Add additional shift histograms to be able to uncorrelate them across years
 				PSwgtUpHist3 = PSwgtUpHist.Clone(hist.replace('isr'+upTag,newPSwgtName+'_'+proc_+'_'+year+upTag))
@@ -595,12 +610,13 @@ print "                                    bkg:",nBBnuis['bkg']
 for sig in sigProcList: print "                                    "+sig+":",nBBnuis[sig]
 
 for chn in channels:
-	modTag = chn[chn.find('nW'):]
+	modTag = chn#[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
 	modelingSys['qcd_'+modTag]=0.
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module
 		for proc in bkgProcList:
 			modelingSys[proc+'_'+modTag] = 0.
+	modelingSys['ttbb_'+modTag]=0.13 # 13% ttbb measurement uncertainty
 	
 isEMlist =[]
 nhottlist=[]
@@ -678,7 +694,7 @@ for isEM in isEMlist:
 						row = [procNames[proc]]
 						for chn in channels:
 							if not (isEM in chn and nhott+'_' in chn and nttag+'_' in chn and nWtag+'_' in chn and nbtag+'_' in chn): continue
-							modTag = chn[chn.find('nW'):]
+							modTag = chn#[chn.find('nW'):]
 							histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
 							yieldtemp = 0.
 							yielderrtemp = 0.
@@ -706,7 +722,7 @@ for isEM in isEMlist:
 								except:
 									print "Missing",proc,"for channel:",chn
 									pass
-								if signal in sigProcList:
+								if proc in sigProcList:
 									if scaleSignalsToXsec:
 										yieldtemp*=xsec[signal]
 										yielderrtemp*=xsec[signal]**2
@@ -749,7 +765,7 @@ for nhott in nhottlist:
 					row = [procNames[proc]]
 					for chn in channels:
 						if not ('isE' in chn and nhott+'_' in chn and nttag+'_' in chn and nWtag+'_' in chn and nbtag+'_' in chn): continue
-						modTag = chn[chn.find('nW'):]
+						modTag = chn#[chn.find('nW'):]
 						histoPrefixE = allhists[chn][0][:allhists[chn][0].find('__')+2]
 						histoPrefixM = histoPrefixE.replace('isE','isM')
 						yieldtemp = 0.
@@ -801,7 +817,7 @@ for nhott in nhottlist:
 							except:
 								print "Missing",proc,"for channel:",chn.replace('isE','isM')
 								pass
-							if signal in sigProcList:
+							if proc in sigProcList:
 								if scaleSignalsToXsec:
 									yieldtempE*=xsec[signal]
 									yieldtempM*=xsec[signal]

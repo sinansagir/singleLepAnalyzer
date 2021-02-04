@@ -100,6 +100,8 @@ def add_standard_systematics(cb):
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'pileup', 'shape', ch.SystMap()(1.0)) # Correlated: https://hypernews.cern.ch/HyperNews/CMS/get/b2g/1381.html
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'btag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'mistag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+# 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'btag', 'shape', ch.SystMap()(1.0)) # Correlated
+# 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'mistag', 'shape', ch.SystMap()(1.0)) # Correlated
 	if iPlot != 'HT':
 		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapelf_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) #assuming uncorrelated, same as nbtag SF
 		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapehf_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
@@ -109,12 +111,18 @@ def add_standard_systematics(cb):
 	for proc in allbkgs:
 		if proc in ttbkgs: 
 			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'muRF_tt', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'PSwgt_tt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'isr_tt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'fsr_tt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+			#cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'PSwgt_tt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 		else: 
 			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'muRF_'+proc, 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'PSwgt_'+proc, 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'isr_'+proc, 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'fsr_'+proc, 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+			#cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'PSwgt_'+proc, 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'muRF_tttt', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'PSwgt_tttt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'isr_tttt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'fsr_tttt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+	#cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'PSwgt_tttt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'pdf', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7
 # 	cb.cp().process(signal).channel(chns).AddSyst(cb, 'xsec_tttt', 'lnN', ch.SystMap()(1.21)) # https://arxiv.org/pdf/1711.02116.pdf (Table 5)
 # 	cb.cp().process(ttbkgs).channel(chns).AddSyst(cb, 'ue', 'shape', ch.SystMap()(1.0))
@@ -217,8 +225,8 @@ if __name__ == '__main__':
 	elif era=='R17': lumiStr = '41p53fb'
 	elif era=='R18': lumiStr = '59p97fb'
 	smoothAlgo = 'lowess' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
-	tag = ''#_smooth
-	saveKey = '_smoothed_'+iPlot
+	tag = '_ifsr'
+	saveKey = '_ifsr_smoothed_'+iPlot
 	fileDir = '../makeTemplates/'
 	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)

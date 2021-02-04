@@ -163,11 +163,11 @@ for syst in systematics:
 			chLatex.SetTextSize(0.04)
 			chLatex.SetTextAlign(21)
 			flv = cat.split('_')[0]
-			hottag = cat.split('_')[1]
-			ttag = cat.split('_')[2]
-			wtag = cat.split('_')[3]
-			btag = cat.split('_')[4]
-			njet = cat.split('_')[5]
+			hottag = cat.split('_')[1].replace('nHOT','')
+			ttag = cat.split('_')[2].replace('nT','')
+			wtag = cat.split('_')[3].replace('nW','')
+			btag = cat.split('_')[4].replace('nB','')
+			njet = cat.split('_')[5].replace('nJ','')
 			flvString = ''
 			tagString = ''
 			tagString2 = ''
