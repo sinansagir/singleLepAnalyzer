@@ -6,7 +6,7 @@ else: runDir = thisDir
 if os.getcwd()[-17:] == 'singleLepAnalyzer': os.chdir(os.getcwd()+'/makeTemplates/')
 outputDir = thisDir+'/'
 ## UNDERLINED
-region='TTCR' #PS,SR,TTCR,WJCR
+region='TR' #PS,SR,TTCR,WJCR
 ## 0 OR 1 ONE BOARD
 categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
 
@@ -16,9 +16,9 @@ time='%i_%i_%i'%(cTime.hour,cTime.minute,cTime.second)
 pfix = 'templates'+region
 if not categorize: pfix='kinematics'+region
 ## REMEMBER TO CHANGE
-pfix+='_Nov2020TT_tptCorr380'
+pfix+='_Nov2020TT_HTdnnJ3corrsSF2D'
 
-iPlotList = [#distribution name as defined in "doHists.py"
+plotList = [#distribution name as defined in "doHists.py"
 	#'NBDeepJets',
 	#'lepPhi',
 	#For Signal Region Templates -> FSRT
@@ -27,15 +27,44 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'DnnTTbar',
 	#'DnnWJets',
 
+        # 'DnnTTbar',
+        # 'DnnWJets',
+        # 'dnnLargest',
+	
+	'HTNtag', #-> Not part of this block it's own entity
+        'HTdnnL'
+
+        ## Training
+        #'probj',
+        #'probjlow',
+        #'probjhigh',
+        #'probj1low',
+        #'probj2low',
+        #'probj1fake',
+        #'probj2fake',
+        'probj1',
+        'probj2',
+        'probj3',
+        'JetPtAK81',
+        'JetPtAK82',
+        'JetPtAK83',
+        'SoftDrop1',
+        'SoftDrop2',
+        'SoftDrop3',
+        'Tau211',
+        'Tau212',
+        'Tau213',
 	'HT',
         'tpt',
-        'DnnTTbar',
-        'DnnWJets',
-        'dnnLargest',
-	
-	#'HTNtag', #-> Not part of this block it's own entity
-        #'HTdnnL'
-
+	'tmass',
+	'tdrWb',
+	'ST',
+	'MET',   
+	'NJets', 
+	'NBDeepJets',
+	'NJetsAK8',
+	'deltaRAK8',
+        
 	#Require 3 AK8s -> R3
 	#'Tp2Mass',
         #'Tp1Mass',
@@ -47,7 +76,6 @@ iPlotList = [#distribution name as defined in "doHists.py"
         #'Tp2Phi',
         #'Tp1deltaR',
         #'Tp2deltaR',
-
 	
         #Don't require 3 AK8s -> DR3
 	#'probSumDecay',  	
@@ -69,32 +97,24 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'DnnTprime',
 	#'DnnWJets',
 	#'DnnTTbar',
-	#'tmass',
         #'Wmass',
 	#'tpt',
 	#'Wpt',
-	#'tdrWb',
 	#'Wdrlep',	
 	#'isLepW',
 	#'HT',
-	#'ST',
 	#'JetPt', 
-	#'MET',   
-	#'NJets', 
-	'NBJets',
-	#'NBDeepJets',
+	#'NBJets',
 	#'NBDeepJetsNoSF',
-	#'NJetsAK8',
 	#'JetPtAK8',
 	#'lepPt', 
 	#'SoftDrop',
-	#'deltaRAK8',
 	#'minMlj',
 	#'mindeltaR',
 	#'PtRel',
 	#'mindeltaRAK8',
 	#'PtRelAK8',
-	'lepEta',
+	#'lepEta',
 	#'lepIso',
 	#'JetEta',
 	#'JetEtaAK8',
@@ -130,7 +150,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	#'Jet6PtBins',
 	#'NBJetsNotH',
 	#'NBJetsNotPH',
-	'NBJetsNoSF',
+	#'NBJetsNoSF',
 	#'NWJets',
 	#'PuppiNWJets',
 	#'NTJets',
@@ -165,7 +185,7 @@ iPlotList = [#distribution name as defined in "doHists.py"
 	]
 
 isEMlist = ['E','M']
-#isEMlist = ['L']
+if '2D' in pfix: isEMlist = ['L']
 
 #algolist = ['BEST','DeepAK8','DeepAK8DC']
 algolist = ['DeepAK8']
@@ -191,11 +211,29 @@ if categorize:
 	else: taglist = ['all']
 
 outDir = outputDir+pfix+'/'
+print outDir
 if not os.path.exists(outDir): os.system('mkdir '+outDir)
-os.system('cp ../analyze.py doHists.py ../utils.py ../weights.py ../samples.py doCondorTemplates.py doCondorTemplates.sh '+outDir+'/')
+if '2D' in outDir:
+        os.system('cp ../analyze2D.py doHists2D.py ../dnnJcorrSF.py ../utils.py ../weights.py ../samples.py doCondorTemplates.py doCondorTemplates2D.sh '+outDir+'/')
+else:
+        os.system('cp ../analyze.py doHists.py ../dnnJcorrSF.py ../utils.py ../weights.py ../samples.py doCondorTemplates.py doCondorTemplates.sh '+outDir+'/')
 os.chdir(outDir)
 
 catlist = list(itertools.product(isEMlist,taglist,algolist))
+
+iPlotList = []
+dimstr = ''
+if '2D' in outDir:
+        dimstr = '2D'
+        templist = list(itertools.combinations(plotList,2))
+        for item in templist:
+                if 'NJetsAK8' not in item[0] and 'NJetsAK8' not in item[1]: continue
+                iPlotList.append('X'+item[0]+'Y'+item[1])
+else:
+        iPlotList = plotList
+        
+print 'Dimensions:',dimstr
+print 'iPlotList:',iPlotList
 
 count=0
 for iplot in iPlotList:
@@ -206,16 +244,16 @@ for iplot in iPlotList:
 		os.chdir(outDir)			
 
 		dict={'rundir':runDir, 'dir':'.','iPlot':iplot,'region':region,'isCategorized':categorize,
-			  'isEM':cat[0],'tag':cat[1],'algo':cat[2]}
+			  'isEM':cat[0],'tag':cat[1],'algo':cat[2],'2D':dimstr}
 		print dict
 		jdf=open('condor.job','w')
 		jdf.write(
 			"""use_x509userproxy = true
 universe = vanilla
-Executable = %(rundir)s/makeTemplates/doCondorTemplates.sh
+Executable = %(rundir)s/makeTemplates/doCondorTemplates%(2D)s.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
-Transfer_Input_Files = ../analyze.py, ../samples.py, ../utils.py, ../weights.py, ../doHists.py
+Transfer_Input_Files = ../analyze%(2D)s.py, ../dnnJcorrSF.py, ../samples.py, ../utils.py, ../weights.py, ../doHists%(2D)s.py
 Output = condor_%(iPlot)s.out
 Error = condor_%(iPlot)s.err
 Log = condor_%(iPlot)s.log
