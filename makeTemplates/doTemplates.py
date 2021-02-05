@@ -150,12 +150,13 @@ nbtaglist = list(set([x.split('_')[3] for x in tagList]))
 njetslist = list(set([x.split('_')[4] for x in tagList]))
 
 for tag in tagList:
-	modTag = tag[tag.find('nT'):tag.find('nJ')-3]
+	modTag = tag#[tag.find('nT'):tag.find('nJ')-3]
 	modelingSys['data_'+modTag] = 0.
 	modelingSys['qcd_'+modTag] = 0.
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module 
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
+	modelingSys['ttbb_'+modTag]=0.13 # 13% ttbb measurement uncertainty
 
 def gettime():
 	return str(round((time.time() - start_time)/60,2))+'mins'
@@ -597,7 +598,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					row = [proc]
 					for cat in catList:
 						if not ('is'+isEM in cat and thetag in cat): continue
-						modTag = cat[cat.find('nT'):cat.find('nJ')-3]
+						modTag = cat#[cat.find('nT'):cat.find('nJ')-3]
 						histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 						yieldtemp = 0.
 						yielderrtemp = 0.
@@ -642,7 +643,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				row = [proc]
 				for cat in catList:
 					if not ('isE' in cat and thetag in cat): continue
-					modTag = cat[cat.find('nT'):cat.find('nJ')-3]
+					modTag = cat#[cat.find('nT'):cat.find('nJ')-3]
 					histoPrefixE = discriminant+'_'+lumiStr+'_'+cat
 					histoPrefixM = histoPrefixE.replace('isE','isM')
 					yieldtemp = 0.

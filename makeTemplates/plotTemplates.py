@@ -35,7 +35,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_ifsr_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
@@ -48,14 +48,17 @@ useCombineTemplates = True
 sigfile='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
-if iPlot=='HTYLD': ttProcList = ['ttbb','ttnobb']
+if iPlot=='HTYLD': 
+	ttProcList = ['ttbb','ttnobb']
+	useCombineTemplates = False
+	scaleSignals = True
 bkgProcList = ttProcList+['top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','JEC','JER','PSwgt','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 #systematicList+= ['CSVshapelf','CSVshapehf']
 if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
@@ -107,11 +110,12 @@ lepIsoSys = 0.0 # lepton isolation uncertainty
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)#+njetSys**2) #cheating while total e/m values are close
 
 for catEStr in catsElist:
-	modTag = catEStr[catEStr.find('nT'):catEStr.find('nJ')-3]
+	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]
 	modelingSys['data_'+modTag] = 0.
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module
 		for proc in bkgProcList:
 			modelingSys[proc+'_'+modTag] = 0.
+	modelingSys['ttbb_'+modTag]=0.13 # 13% ttbb measurement uncertainty
 
 def getNormUnc(hist,ibin,modelingUnc):
 	contentsquared = hist.GetBinContent(ibin)**2
@@ -230,7 +234,7 @@ for catEStr in catsElist:
 	systematicList_ = systematicList[:]
 	if 'nB0p' not in catEStr: systematicList_ += ['btag','mistag']
 	if 'nHOT0p' not in catEStr: systematicList_ += ['hotstat','hotcspur','hotclosure']
-	modTag = catEStr[catEStr.find('nT'):catEStr.find('nJ')-3]
+	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]
 	for isEM in isEMlist:
 		histPrefix=iPlot+'_'+lumiInTemplates+'fb_'
 		catStr=catEStr.replace('isE','is'+isEM)
@@ -570,7 +574,7 @@ for catEStr in catsElist:
 				if bkgHT.GetBinContent(binNo)!=0:
 					pullUncBandTot.SetPointEYhigh(binNo-1,totBkgTemp3[catStr].GetErrorYhigh(binNo-1)/bkgHT.GetBinContent(binNo))
 					pullUncBandTot.SetPointEYlow(binNo-1,totBkgTemp3[catStr].GetErrorYlow(binNo-1)/bkgHT.GetBinContent(binNo))			
-			pullUncBandTot.SetFillStyle(3001)
+			pullUncBandTot.SetFillStyle(3013)
 			pullUncBandTot.SetFillColor(1)
 			pullUncBandTot.SetLineColor(1)
 			pullUncBandTot.SetMarkerSize(0)
@@ -977,7 +981,7 @@ for catEStr in catsElist:
 			if bkgHTmerged.GetBinContent(binNo)!=0:
 				pullUncBandTotmerged.SetPointEYhigh(binNo-1,totBkgTemp3[catLStr].GetErrorYhigh(binNo-1)/bkgHTmerged.GetBinContent(binNo))
 				pullUncBandTotmerged.SetPointEYlow(binNo-1, totBkgTemp3[catLStr].GetErrorYlow(binNo-1)/bkgHTmerged.GetBinContent(binNo))			
-		pullUncBandTotmerged.SetFillStyle(3001)
+		pullUncBandTotmerged.SetFillStyle(3013)
 		pullUncBandTotmerged.SetFillColor(1)
 		pullUncBandTotmerged.SetLineColor(1)
 		pullUncBandTotmerged.SetMarkerSize(0)
