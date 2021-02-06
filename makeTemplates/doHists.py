@@ -62,9 +62,8 @@ dataList = [
 	'DataMABCDEF',
 	]
 
-whichSignal = 'TT' #HTB, TT, BB, or X53X53
+whichSignal = 'BB' #HTB, TT, BB, or X53X53
 massList = range(900,1800+1,100)
-if whichSignal=='BB': massList.append(900)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
