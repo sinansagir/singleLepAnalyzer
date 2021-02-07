@@ -531,6 +531,12 @@ for iPlot in iPlotList:
 	bkghists  = {}
 	sighists  = {}
 	#if iPlot!='HT': continue
+        if 'HTdnnL' in iPlot and 'dnnLargeTHZWB_' not in catList[0]: 
+                print 'SKIPPING HTdnnL -- wrong categories!'
+                continue
+        elif 'HTNtag' in iPlot and 'dnnLargeT_' not in catList[0]:
+                print 'SKIPPING HTNtag -- wrong categories!'
+                continue
 	print "LOADING DISTRIBUTION: "+iPlot
 	for cat in catList:
 		print "         ",cat[2:]

@@ -191,9 +191,12 @@ for chn in totBkgHists.keys():
 		if 'notV' in chn: ## will be SR, need to skip past the taggedXXXX in case they differ
 			xbinsListTemp[chn]=[tfile.Get(datahists[4]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[4]).GetXaxis().GetNbins())]
 			Nbins = tfile.Get(datahists[4]).GetNbinsX()
-		elif 'LargeJ' in chn: ## will be CR, need to skip first 5 that are jet counts
+		elif iPlot == 'HTNtag' and 'LargeJ' in chn: ## will be CR, need to skip first 5 that are jet counts
 			xbinsListTemp[chn]=[tfile.Get(datahists[5]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[5]).GetXaxis().GetNbins())]
 			Nbins = tfile.Get(datahists[5]).GetNbinsX()
+		elif iPlot == 'HTdnnL' and 'LargeJ' in chn: ## will be CR, need to skip first 1 that has jet tag
+			xbinsListTemp[chn]=[tfile.Get(datahists[1]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[1]).GetXaxis().GetNbins())]
+			Nbins = tfile.Get(datahists[1]).GetNbinsX()
 		else: ## use the first datahist
 			xbinsListTemp[chn]=[tfile.Get(datahists[0]).GetXaxis().GetBinUpEdge(tfile.Get(datahists[0]).GetXaxis().GetNbins())]
 			Nbins = tfile.Get(datahists[0]).GetNbinsX()
