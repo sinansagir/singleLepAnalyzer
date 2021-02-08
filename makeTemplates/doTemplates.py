@@ -66,8 +66,6 @@ topptProcs = ['top','TTJets']
 
 whichSignal = 'TT' #HTB, TT, BB, or X53X53
 massList = range(900,1800+1,100)
-## ADD AN IF STATEMENT FOR BB
-if whichSignal == 'BB': massList.append(900)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
 print 'I made it here!'
@@ -101,20 +99,12 @@ if isCategorized or 'algos' in region or 'SR' in region: algolist = ['DeepAK8']#
 taglist = ['all']
 if isCategorized: 
 	if region == 'SR' or region=='SCR':
-	# taglist=['notV','notVtH','notVtZ','notVbW','taggedtHbW','taggedtZbW','taggedtZHtZH','taggedbWbW']
 		if whichSignal=='TT':
 			taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtH','notVtZ','notVbW',
-					'notV2pT','notV01T2pH','notV01T1H','notV1T0H','notV0T0H1pZ','notV0T0H0Z2pW','notV0T0H0Z01W']
+                                 'notV2pT','notV01T2pH','notV01T1H','notV1T0H','notV0T0H1pZ','notV0T0H0Z2pW','notV0T0H0Z01W']
 		elif whichSignal=='BB':
 			taglist=['taggedtWtW','taggedbZtW','taggedbHtW','notVbH','notVbZ','notVtW',
-					'notV2pT','notV01T2pH','notV01T1H','notV1T0H','notV0T0H1pZ','notV0T0H0Z2pW','notV0T0H0Z01W']
-	#isEMlist =['L']
-	#taglist=['taggedbWbW','taggedtHbW','taggedtZbW','taggedtZHtZH','notVtZ','notVbW','notVtH',
-	#	 'notV3W0Z0H0T',
-	#	 'notV2W0Z0H0T','notV2pW0Z0H1pT','notV2pW0Z1pH0pT','notV2pW1pZ0pH0pT',
-	#	 'notV1W0Z0H0T','notV1W0Z1H0T','notV1W0Z0H1pT','notV1W0Z1H1pT','notV1W0Z2pH0pT','notV1W1Z0H0pT','notV1W1Z1pH0pT','notV1W2pZ0pH0pT',
-	#	 'notV0W0Z0H0T','notV0W0Z1H0T','notV0W0Z0H1pT','notV0W0Z1H1pT','notV0W0Z2pH0pT','notV0W1Z0H0pT','notV0W1Z1pH0pT','notV0W2pZ0pH0pT']
-
+                                 'notV2pT','notV01T2pH','notV01T1H','notV1T0H','notV0T0H1pZ','notV0T0H0Z2pW','notV0T0H0Z01W']
       	elif 'CR' in region: 
                 #taglist=['dnnLargeT','dnnLargeH','dnnLargeW','dnnLargeZ','dnnLargeB','dnnLargeJwjet','dnnLargeJttbar'] # HTNtag
                 taglist=['dnnLargeTHZWB','dnnLargeJwjet','dnnLargeJttbar'] # HTdnnL
@@ -232,10 +222,6 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 			#prepare yield table
 			for proc in bkgGrupList+bkgProcList+sigList+['data']: yieldTable[histoPrefix][proc] = hists[proc+i].Integral()
 			yieldTable[histoPrefix]['totBkg'] = sum([hists[proc+i].Integral() for proc in bkgGrupList])
-			### REMEBER THIS SPOT
-			#if yieldTable[histoPrefix]['totBkg'] == 0:  # This was commented out, trying it to see if it helps
-			#	print "totBkg == 0, skipping to next"
-			#	continue
 			yieldTable[histoPrefix]['dataOverBkg']= yieldTable[histoPrefix]['data']/yieldTable[histoPrefix]['totBkg']
 
 			#prepare MC yield error table
