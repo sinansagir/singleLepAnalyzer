@@ -62,7 +62,7 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 
 
 		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnNew_Tprime < '+str(cutList['dnnCut'])+')'
-		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnNew_Tprime < dnnNew_WJets'+BBstr+' && dnnNew_Tprime < dnnNew_ttbar'+BBstr+')'
+		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnNew_Tprime < dnnNew_WJets'+BBstr+' || dnnNew_Tprime < dnnNew_ttbar'+BBstr+')'
 		if 'TT' in region: cut += ' && (dnnNew_ttbar'+BBstr+' > dnnNew_WJets'+BBstr+')'
 		if 'WJ' in region: cut += ' && (dnnNew_ttbar'+BBstr+' <= dnnNew_WJets'+BBstr+')'                
 
@@ -109,9 +109,9 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
         dnnJCorrUp = '1'
         if 'PS' not in region:
                 # we are not using dnnJ_3 in the MVA, so just a 2 jet correction
-                dnnJCorr = 'dnnJweight*'+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
+                dnnJCorr = 'dnnJweight'#+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
                 dnnJCorrDn = '1' # '1' # '1' #
-                dnnJCorrUp = 'dnnJweight*'+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
+                dnnJCorrUp = 'dnnJweight'#*'+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
         
 
 	weightStr = '1'
@@ -198,12 +198,7 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	if isCategorized and ((iPlot == 'Tp2MDnn' and 'notV' in tag) or iPlot == 'DnnTprime'):
 		plotTreeName = 'dnnNew_Tprime'
 		xAxisLabel = ';DNN T score'
-		if region == 'SCR':
-			xbins = array('d', linspace(0,1,101).tolist())
-		if region == 'CR':
-			xbins = array('d', linspace(0,float(cutList['dnnCut']),101).tolist())
-		else:
-			xbins = array('d', linspace(float(cutList['dnnCut']),1,101).tolist())
+                xbins = array('d', linspace(0,1,101).tolist())
 		
 	if iPlot == 'Tp2MST':
 		if 'notV' in tag: 
