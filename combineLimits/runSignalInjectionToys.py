@@ -78,7 +78,7 @@ else:
 
 ## Toy fits again should be ok, since it's just fitting the previously-made toys
 print "Fitting toys...."
-print 'Command = combine -M FitDiagnostics -d '+filename+' --snapshotName initialFit --robustFit=1 --skipBOnlyFit -t '+str(nToys)+' --toysFile higgsCombine'+name+'.GenerateOnly.mH120.123456.root --rMin '+str(rInj-10)+' --rMax '+str(rInj+10)+' -n '+name
-os.system('combine -M FitDiagnostics -d '+filename+' --snapshotName initialFit --robustFit=1 --skipBOnlyFit -t '+str(nToys)+' --toysFile higgsCombine'+name+'.GenerateOnly.mH120.123456.root --rMin '+str(rInj-10)+' --rMax '+str(rInj+10)+' -n '+name)
+print 'Command = combine -M FitDiagnostics -d '+filename+' --snapshotName initialFit --robustFit=1 --skipBOnlyFit --toysFrequentist --bypassFrequentistFit -t '+str(nToys)+' --toysFile higgsCombine'+name+'.GenerateOnly.mH120.123456.root --rMin '+str(rInj-10)+' --rMax '+str(rInj+10)+' -n '+name
+os.system('combine -M FitDiagnostics -d '+filename+' --snapshotName initialFit --robustFit=1 --skipBOnlyFit --toysFrequentist --bypassFrequentistFit -t '+str(nToys)+' --toysFile higgsCombine'+name+'.GenerateOnly.mH120.123456.root --rMin '+str(rInj-10)+' --rMax '+str(rInj+10)+' -n '+name)
 
 print "Done!"
