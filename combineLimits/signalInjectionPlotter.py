@@ -8,7 +8,7 @@ BR = 'bW0p5_tZ0p25_tH0p25'
 if 'BB' in mass: BR = 'tW0p5_bZ0p25_bH0p25'
 mass = mass.replace('BB','')
 
-name = limitdir.replace('limits_templatesCR_June2020','').replace('limits_templatesSRCR_June2020','')+'InjR'+str(rInj)
+name = limitdir.replace('limits_templatesCR_Feb2021','').replace('limits_templatesSRCR_Feb2021','')+'InjR'+str(rInj)
 path = limitdir+'/'+BR+'/cmb/'+mass
 
 
