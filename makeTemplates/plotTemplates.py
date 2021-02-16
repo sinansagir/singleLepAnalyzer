@@ -14,15 +14,15 @@ start_time = time.time()
 lumi=41.5 #for plots #56.1 #
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 
-iPlot='HTNtag'
+iPlot='DnnTprime'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
-region='CR' #SR,TTCR,WJCR
+region='SR' #SR,TTCR,WJCR
 if len(sys.argv)>2: region=str(sys.argv[2])
 isCategorized=True
 if len(sys.argv)>3: isCategorized=bool(eval(sys.argv[3]))
 pfix='templates'+region
 if not isCategorized: pfix='kinematics'+region
-pfix+='_June2020TT'
+pfix+='_Feb2021_TT'
 if len(sys.argv)>4: pfix=str(sys.argv[4])
 templateDir=os.getcwd()+'/'+pfix+'/'
 if not os.path.exists(templateDir): os.system('mkdir -p '+templateDir)
@@ -31,7 +31,7 @@ inputDir=templateDir
 
 print 'Plotting',region,'is categorized?',isCategorized
 
-isRebinned='' #_chi2_rebinned_stat0p15' #post for ROOT file names
+isRebinned='' #post for ROOT file names
 if len(sys.argv)>7: 
         if 'CR' in region: 
                 isRebinned='_chi2_rebinned_stat'+str(sys.argv[7])
@@ -259,8 +259,8 @@ for tag in tagList:
 		hsig1.Scale(xsec[sig1])
 		hsig2.Scale(xsec[sig2])
                 if len(isRebinned) > 0: 
-                        hsig1.Scale(xsec[sig1]*10) # 100fb input -> 1pb
-                        hsig2.Scale(xsec[sig2]*10)
+                        hsig1.Scale(10) # 100fb input -> 1pb
+                        hsig2.Scale(10)
 		if doNormByBinWidth:
 			poissonNormByBinWidth(gaeData,hData,perNGeV)
 			for proc in bkgProcList:
@@ -755,8 +755,8 @@ for tag in tagList:
 	hsig1merged.Scale(xsec[sig1])
 	hsig2merged.Scale(xsec[sig2])
         if len(isRebinned) > 0: 
-                hsig1merged.Scale(xsec[sig1]*10) # 100fb input -> typical 1pb
-                hsig2merged.Scale(xsec[sig2]*10)                
+                hsig1merged.Scale(10) # 100fb input -> typical 1pb
+                hsig2merged.Scale(10)                
         histrange = [hDatamerged.GetBinLowEdge(1),hDatamerged.GetBinLowEdge(hDatamerged.GetNbinsX()+1)]
 	gaeDatamerged = TGraphAsymmErrors(hDatamerged.Clone(hDatamerged.GetName().replace(datalabel,"gaeDATA")))
 	if doNormByBinWidth:
