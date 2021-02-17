@@ -11,7 +11,7 @@ from ROOT import *
 start_time = time.time()
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Run as:
+# Run me as:
 # > python modifyBinning.py
 # 
 # Optional arguments:
@@ -29,14 +29,14 @@ start_time = time.time()
 # -- Use "removalKeys" to remove specific systematics from the output file.
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-iPlot='HTNtag'
+iPlot='HTdnnL'
 if len(sys.argv)>1: iPlot=str(sys.argv[1])
 
-folder = 'templatesCR_Nov2020TT_HTcorr'
+folder = 'templatesCR_Feb2021TT'
 if len(sys.argv)>2: folder=str(sys.argv[2])
-inputfolder = '/uscms_data/d3/jmanagan/CMSSW_10_2_10/src/tptp_2017/makeTemplates/'+folder
+inputfolder = '/uscms_data/d3/escharni/CMSSW_10_2_10/src/singleLepAnalyzer/makeTemplates/'+folder
 
-stat_saved = 0.15 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+stat_saved = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if len(sys.argv)>3: stat_saved=float(sys.argv[3])
 singleBinCR = False
 
@@ -55,6 +55,7 @@ elif year == '2017': lumi = '41p53'
 elif year == '2018': lumi = '59p69'
 
 templateDir = os.getcwd()+'/'+folder+'/'
+if not os.path.exists(templateDir): os.system('mkdir '+templateDir)
 print "templateDir: ",templateDir
 combinefile = 'Combine.root'
 thetafile = 'templates_'+iPlot+'_'+lumi+'.root'
@@ -252,13 +253,13 @@ for chn in totBkgHists.keys():
 
 	## Going right to left -- if the last entry isn't 0 add it
 	if iPlot != 'DnnTprime' and iPlot != 'DnnBprime' and 'SR' in folder and xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn].append(0)
-	if 'Large' in chn and 'LargeJ' not in chn and 'templatesCR' in folder and xbinsListTemp[chn][-1]!=1: xbinsListTemp[chn].append(1)
+	if 'Large' in chn and 'LargeJ' not in chn and 'templatesCR' in folder and iPlot == 'HTNtag' and xbinsListTemp[chn][-1]!=1: xbinsListTemp[chn].append(1)
 
 
 	if (iPlot == 'DnnTprime' or iPlot == 'DnnBprime') and 'templatesSR' in folder:
-		if xbinsListTemp[chn][-1]>0.5: xbinsListTemp[chn].append(0.5)
-		elif xbinsListTemp[chn][-1]!=0.5: xbinsListTemp[chn][-1] = 0.5
-	elif (iPlot == 'DnnTprime' or iPlot == 'DnnBprime') and 'CR' in folder and 'SCR' not in folder and xbinsListTemp[chn][0]!=0.5: xbinsListTemp[chn][0] = 0.5 
+		if xbinsListTemp[chn][-1]>0: xbinsListTemp[chn].append(0)
+		elif xbinsListTemp[chn][-1]!=0: xbinsListTemp[chn][-1] = 0
+	elif (iPlot == 'DnnTprime' or iPlot == 'DnnBprime') and 'CR' in folder and 'SCR' not in folder and xbinsListTemp[chn][0]!=1: xbinsListTemp[chn][0] = 1 
 	
 	## If the 1st bin is empty or too small, make the left side wider
 	if totBkgHists[chn].GetBinContent(1)==0. or totBkgHists[chn.replace('isE','isM')].GetBinContent(1)==0.: 
@@ -294,27 +295,18 @@ for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 
 #os._exit(1)
 
-### Updated for 2017 PDF4LHC by Evan Nov 2020
-if year == '2017':
-        muSFsUp = {'TTM900':0.745,'TTM1000':0.744,'TTM1100':0.747,'TTM1200':0.742,'TTM1300':0.741,'TTM1400':0.738,'TTM1500':0.740,'TTM1600':0.735,'TTM1700':0.721,'TTM1800':0.746}
-        muSFsDn = {'TTM900':1.311,'TTM1000':1.312,'TTM1100':1.306,'TTM1200':1.315,'TTM1300':1.316,'TTM1400':1.322,'TTM1500':1.319,'TTM1600':1.329,'TTM1700':1.354,'TTM1800':1.311}
-        pdfSFsUp = {'TTM900':0.957,'TTM1000':0.954,'TTM1100':0.951,'TTM1200':0.947,'TTM1300':0.942,'TTM1400':0.936,'TTM1500':0.929,'TTM1600':0.921,'TTM1700':0.911,'TTM1800':0.898}
-        pdfSFsDn = {'TTM900':1.047,'TTM1000':1.050,'TTM1100':1.054,'TTM1200':1.060,'TTM1300':1.066,'TTM1400':1.073,'TTM1500':1.082,'TTM1600':1.094,'TTM1700':1.109,'TTM1800':1.128}
-        pdfSFsSym = {'TTM900':0.045,'TTM1000':0.048,'TTM1100':0.051,'TTM1200':0.056,'TTM1300':0.062,'TTM1400':0.068,'TTM1500':0.076,'TTM1600':0.086,'TTM1700':0.098,'TTM1800':0.113}
-        if sigName == 'BB':
-                muSFsUp = {'BBM900':0.744,'BBM1000':0.742,'BBM1100':0.743,'BBM1200':0.742,'BBM1300':0.741,'BBM1400':0.739,'BBM1500':0.735,'BBM1600':0.735,'BBM1700':0.733,'BBM1800':0.731}
-                muSFsDn = {'BBM900':1.312,'BBM1000':1.315,'BBM1100':1.314,'BBM1200':1.316,'BBM1300':1.318,'BBM1400':1.321,'BBM1500':1.329,'BBM1600':1.329,'BBM1700':1.331,'BBM1800':1.337}
-                pdfSFsUp = {'BBM900':0.957,'BBM1000':0.954,'BBM1100':0.951,'BBM1200':0.947,'BBM1300':0.942,'BBM1400':0.936,'BBM1500':0.929,'BBM1600':0.921,'BBM1700':0.911,'BBM1800':0.897}
-                pdfSFsDn = {'BBM900':1.047,'BBM1000':1.050,'BBM1100':1.055,'BBM1200':1.059,'BBM1300':1.066,'BBM1400':1.073,'BBM1500':1.082,'BBM1600':1.094,'BBM1700':1.108,'BBM1800':1.130}
-                pdfSFsSym = {'BBM900':0.045,'BBM1000':0.048,'BBM1100':0.052,'BBM1200':0.056,'BBM1300':0.061,'BBM1400':0.068,'BBM1500':0.076,'BBM1600':0.086,'BBM1700':0.098,'BBM1800':0.115}
+# from SLA tptp_80X
+muSFsUp = {'TTM800':0.750,'TTM900':0.750,'TTM1000':0.749,'TTM1100':0.749,'TTM1200':0.748,'TTM1300':0.747,'TTM1400':0.746,'TTM1500':0.745,'TTM1600':0.744,'TTM1700':0.743,'TTM1800':0.741}
+muSFsDn = {'TTM800':1.303,'TTM900':1.303,'TTM1000':1.304,'TTM1100':1.305,'TTM1200':1.307,'TTM1300':1.309,'TTM1400':1.311,'TTM1500':1.313,'TTM1600':1.315,'TTM1700':1.317,'TTM1800':1.319}
+pdfSFsUp = {'TTM800':0.908,'TTM900':0.902,'TTM1000':0.890,'TTM1100':0.889,'TTM1200':0.895,'TTM1300':0.895,'TTM1400':0.888,'TTM1500':0.897,'TTM1600':0.905,'TTM1700':0.885,'TTM1800':0.872}
+pdfSFsDn = {'TTM800':1.106,'TTM900':1.104,'TTM1000':1.099,'TTM1100':1.099,'TTM1200':1.093,'TTM1300':1.098,'TTM1400':1.102,'TTM1500':1.099,'TTM1600':1.122,'TTM1700':1.121,'TTM1800':1.133}
 
----------------------BprimeBprime_M-900_TuneCP5_13TeV-madgraph-pythia8--------------------------
-959939.583. # from integral 817000.0
-error/pdfvars[0] = 0.045
-Up SF = pdfvars[0]/(pdfvars[0] + error) = 0.957
-Dn SF = pdfvars[0]/(pdfvars[0] - error) = 1.047
-MUup SF = 0.744
-MUdn SF = 1.312
+if sigName == 'BB':
+	muSFsUp = {'BBM800':0.750,'BBM900':0.750,'BBM1000':0.749,'BBM1100':0.749,'BBM1200':0.748,'BBM1300':0.747,'BBM1400':0.746,'BBM1500':0.745,'BBM1600':0.744,'BBM1700':0.743,'BBM1800':0.741}
+	muSFsDn = {'BBM800':1.303,'BBM900':1.303,'BBM1000':1.304,'BBM1100':1.305,'BBM1200':1.307,'BBM1300':1.309,'BBM1400':1.310,'BBM1500':1.313,'BBM1600':1.315,'BBM1700':1.317,'BBM1800':1.319}
+	pdfSFsUp = {'BBM800':0.909,'BBM900':0.903,'BBM1000':0.889,'BBM1100':0.889,'BBM1200':0.895,'BBM1300':0.895,'BBM1400':0.889,'BBM1500':0.897,'BBM1600':0.904,'BBM1700':0.884,'BBM1800':0.872}
+	pdfSFsDn = {'BBM800':1.106,'BBM900':1.104,'BBM1000':1.100,'BBM1100':1.099,'BBM1200':1.093,'BBM1300':1.097,'BBM1400':1.102,'BBM1500':1.099,'BBM1600':1.121,'BBM1700':1.122,'BBM1800':1.132}
+
 
 iRfile=0
 yieldsAll = {}
@@ -341,7 +333,7 @@ for rfile in rfiles:
 	if not rebinCombine:
 		print 'FOUND SIGNAME = ',signame
 		if 'TTM' not in signame and 'BBM' not in signame: print 'DIDNT STORE SIGNAME: ',signame	
-
+		#####CHECK OVER THIS WITH DR. H. NOT SUPER CONFIDANT ITS RIGHT
 	print "PROGRESS:"
 	for chn in channels:
 		print "         ",chn
@@ -361,9 +353,6 @@ for rfile in rfiles:
 			if '__pdf' in hist and upTag not in hist and downTag not in hist: continue
 			if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
 
-			rebinnedHists[hist].Write()
-#			print 'Rebinning hist: ',hist
-
 			if 'W0p5' in rfile or 'kinematics' in folder:
 				yieldHistName = hist
 				if not rebinCombine: 
@@ -375,6 +364,9 @@ for rfile in rfiles:
 				for ibin in range(1,rebinnedHists[hist].GetXaxis().GetNbins()+1):
 					yieldsErrsAll[yieldHistName] += rebinnedHists[hist].GetBinError(ibin)**2
 				yieldsErrsAll[yieldHistName] = math.sqrt(yieldsErrsAll[yieldHistName])
+
+			rebinnedHists[hist].Write()
+#			print 'Rebinning hist: ',hist
 
 			
 		##Check for empty signal bins
@@ -418,14 +410,13 @@ for rfile in rfiles:
 					signame = hist.split('__')[1]
 					if sigName not in signame: print "DIDNT GET SIGNAME",signame
 
-                                scalefactorUp = muSFsUp[signame]
+                                oldUp = muRFcorrdNewUpHist.Integral()
+                                oldDn = muRFcorrdNewDnHist.Integral()
+				scalefactorUp = muSFsUp[signame]
 				scalefactorDn = muSFsDn[signame]
-                                #print 'Original pct up =',muRFcorrdNewUpHist.Integral()/rebinnedHists[hist[:hist.find('__mu')]].Integral(),', SF = ',scalefactorUp
-                                #print 'Original pct down =',muRFcorrdNewDnHist.Integral()/rebinnedHists[hist[:hist.find('__mu')]].Integral(),', SF = ',scalefactorDn
 				muRFcorrdNewUpHist.Scale(scalefactorUp) #drop down .7
 				muRFcorrdNewDnHist.Scale(scalefactorDn) #raise up 1.3
-                                
-                                
+
                                 if rebinCombine:
                                         for iBin in range(1,muRFcorrdNewUpHist.GetNbinsX()+1):
                                                 binValueUp = muRFcorrdNewUpHist.GetBinContent(iBin)
@@ -455,66 +446,35 @@ for rfile in rfiles:
 		else: newPDFName = 'pdfNew20172018'
 
 		for hist in pdfUphists:
-                        #print '------------------------ new pdf hist',hist,' ------------------------'
 			pdfNewUpHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+upTag))
 			pdfNewDnHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+downTag))
-			centralHist = rebinnedHists[hist.replace('__pdf0','')]
-
-                        scalefactorSym = 0
-                        scalefactorUp = 1
-                        scalefactorDn = 1
-                        if ('sig__pdf' in hist or (rebinCombine and '__'+sigName in hist)) and '__pdf' in hist and normalizePDF: #normalize the renorm/fact shapes to nominal
-                                if rebinCombine and '__'+sigName in hist: 
-                                        signame = hist.split('__')[1]
-                                        if sigName not in signame: print "DIDNT GET SIGNAME",signame
-                                scalefactorSym = pdfSFsSym[signame]
-                                scalefactorUp = pdfSFsUp[signame]
-                                scalefactorDn = pdfSFsDn[signame]
-
 			for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
-                                errsq = 0
+				weightList = [rebinnedHists[hist.replace('pdf0','pdf'+str(pdfInd))].GetBinContent(ibin) for pdfInd in range(100)]
+				indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
+				indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
+				pdfNewUpHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinContent(ibin))
+				pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
+				pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
+				pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
+			if ('sig__pdf' in hist and normalizePDF) or (rebinCombine and '__'+sigName in hist and '__pdf' in hist and normalizePDF): #normalize the renorm/fact shapes to nominal
+				if rebinCombine and '__'+sigName in hist: 
+					signame = hist.split('__')[1]
+					if sigName not in signame: print "DIDNT GET SIGNAME",signame
+				scalefactorUp = pdfSFsUp[signame]
+				scalefactorDn = pdfSFsDn[signame]                                
+				pdfNewUpHist.Scale(scalefactorUp)
+				pdfNewDnHist.Scale(scalefactorDn)
 
-                                ## Hessian version: make a list of bin contents
-				weightList = [rebinnedHists[hist.replace('pdf0','pdf'+str(pdfInd))].GetBinContent(ibin) for pdfInd in range(30)]
-                                for weight in weightList:
-                                        ## sum up squares of differences to the central value
-                                        errsq += (weight - centralHist.GetBinContent(ibin))**2
-                                        
-                                ## find the percentage of the shift w.r.t the central value
-                                if centralHist.GetBinContent(ibin) != 0: shiftpct = math.sqrt(errsq)/centralHist.GetBinContent(ibin)
-                                elif math.sqrt(errsq) != 0: print 'Weird: central is 0 but not PDF unc'
-                                else: shiftpct = 0
-
-                                if abs(shiftpct) > 1: print 'WARNING: pdf shift is',shiftpct,', flooring down at 0 in bin',ibin,'of hist',hist
-
-                                ## multiply the central value by 1 +/- the shift
-                                pdfNewUpHist.SetBinContent(ibin, max(0,centralHist.GetBinContent(ibin)*(1 + shiftpct)))
-                                pdfNewDnHist.SetBinContent(ibin, max(0,centralHist.GetBinContent(ibin)*(1 - shiftpct)))                                
-                                
-                                ## This was correct in 2016 for replica errors, not for 2017-2018
-				#indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
-				#indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
-				#pdfNewUpHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinContent(ibin))
-				#pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
-				#pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
-				#pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
-
-                        # Do the acceptance-only correction for signal (factors are 1 otherwise)
-                        print 'Orig Up = ',pdfNewUpHist.Integral(),'scale factor = ',scalefactorUp                        
-                        pdfNewUpHist.Scale(scalefactorUp)
-                        pdfNewDnHist.Scale(scalefactorDn)
-                        print 'New Up = ',pdfNewUpHist.Integral()
-
-                        if rebinCombine and '__'+sigName in hist: #normalize the renorm/fact shapes to nominal                                
-                                for iBin in range(1,pdfNewUpHist.GetNbinsX()+1):
-                                        binValueUp = pdfNewUpHist.GetBinContent(iBin)
-                                        if binValueUp == 0:            ##Check if bin content is zero
-                                                pdfNewUpHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
-                                                pdfNewUpHist.SetBinError(iBin,math.sqrt(1e-6))
-                                        binValueDn = pdfNewDnHist.GetBinContent(iBin)
-                                        if binValueDn == 0:            ##Check if bin content is zero
-                                                pdfNewDnHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
-                                                pdfNewDnHist.SetBinError(iBin,math.sqrt(1e-6))
+                                if rebinCombine:
+                                        for iBin in range(1,pdfNewUpHist.GetNbinsX()+1):
+                                                binValueUp = pdfNewUpHist.GetBinContent(iBin)
+                                                if binValueUp == 0:            ##Check if bin content is zero
+                                                        pdfNewUpHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                        pdfNewUpHist.SetBinError(iBin,math.sqrt(1e-6))
+                                                binValueDn = pdfNewDnHist.GetBinContent(iBin)
+                                                if binValueDn == 0:            ##Check if bin content is zero
+                                                        pdfNewDnHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                        pdfNewDnHist.SetBinError(iBin,math.sqrt(1e-6))
 
 			pdfNewUpHist.Write()
 			pdfNewDnHist.Write()
@@ -535,6 +495,8 @@ for rfile in rfiles:
                                                         newHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
                                                         newHist.SetBinError(iBin,math.sqrt(1e-6))
                                 newHist.Write()
+                                yieldsAll[hist] = newHist.Integral()
+
                         elif 'TTM' in hist or 'BBM' in hist:
                                 if any([item in hist and not removalKeys[item] for item in removalKeys.keys()]): continue
                                 for iBin in range(1,rebinnedHists[hist].GetNbinsX()+1):      ##Loop over bins
@@ -543,6 +505,7 @@ for rfile in rfiles:
                                                 rebinnedHists[hist].SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
                                                 rebinnedHists[hist].SetBinError(iBin,math.sqrt(1e-6))
                                 rebinnedHists[hist].Write()
+                                # these guys should already be added to "yieldsAll"
 
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()
@@ -563,6 +526,7 @@ for chn in channels:
 isEMlist =[]
 algolist = []
 taglist = []
+
 for chn in channels:
 	if chn.split('_')[0+rebinCombine] not in isEMlist: isEMlist.append(chn.split('_')[0+rebinCombine])
 	if chn.split('_')[1+rebinCombine] not in taglist: taglist.append(chn.split('_')[1+rebinCombine])
@@ -589,8 +553,7 @@ def getShapeSystUnc(proc,chn):
 
 table = []
 taglist = ['tagged','notV']
-if 'templatesCR' in folder: taglist = ['1pT','0T']
-if 'HTNtag' in iPlot: taglist = ['dnnLarge']
+if 'templatesCR' in folder: taglist = ['dnnLarge']
 if 'kinematics' in folder: taglist = ['all']
 for isEM in isEMlist:
 	if isEM=='isE': corrdSys = elcorrdSys
@@ -638,6 +601,9 @@ for isEM in isEMlist:
 						if 'right' in signal: signal=proc.replace('right','')+'right'
 						yieldtemp*=xsec[signal]
 						yielderrtemp*=xsec[signal]**2
+                                                if rebinCombine:
+                                                        yieldtemp*=10
+                                                        yielderrtemp*=10**2                                                        
 					else: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2
 					yielderrtemp += (corrdSys*yieldtemp)**2
 				yielderrtemp = math.sqrt(yielderrtemp)
@@ -716,6 +682,11 @@ for tag in taglist:
 					yieldtempM*=xsec[signal]
 					yieldtemp*=xsec[signal]
 					yielderrtemp*=xsec[signal]**2
+                                        if rebinCombine:
+                                                yieldtempE*=10
+                                                yieldtempM*=10
+                                                yieldtemp*=10
+                                                yielderrtemp*=10**2                                                
 				else: yielderrtemp += (modelingSys[proc+'_'+modTag]*yieldtemp)**2 #(addSys*(Nelectron+Nmuon))**2 --> correlated across e/m
 				yielderrtemp += (elcorrdSys*yieldtempE)**2+(mucorrdSys*yieldtempM)**2
 			yielderrtemp = math.sqrt(yielderrtemp)
@@ -813,7 +784,6 @@ printTable(table,out)
 # 	yldRfile.Close()
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
-
 
 
 
