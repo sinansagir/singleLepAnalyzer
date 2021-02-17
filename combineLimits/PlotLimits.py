@@ -34,12 +34,12 @@ if signal == 'B': discriminant = 'DnnBprime'
 histPrefix=discriminant+'_'+str(lumiStr)+'fb'+chiral
 isRebinned='_rebinned_stat'+str(stat).replace('.','p')
 
-mass = array('d', [1100,1200,1300,1400,1500,1600,1700,1800])#
-masserr = array('d',[0 for i in range(len(mass))])
-mass_str = ['1100','1200','1300','1400','1500','1600','1700','1800']#
-#mass = array('d', [900,1100,1200,1300,1400,1500,1600,1700,1800])#800,
-#masserr = array('d', [0,0,0,0,0,0,0,0,0])#0,,0,0,0
-#mass_str = ['900','1100','1200','1300','1400','1500','1600','1700','1800']#'800'
+# mass = array('d', [1100,1200,1300,1400,1500,1600,1700,1800])#
+# masserr = array('d',[0 for i in range(len(mass))])
+# mass_str = ['1100','1200','1300','1400','1500','1600','1700','1800']#
+mass = array('d', [900,1100,1200,1300,1400,1500,1600,1700,1800])#800,
+masserr = array('d', [0,0,0,0,0,0,0,0,0])#0,,0,0,0
+mass_str = ['900','1100','1200','1300','1400','1500','1600','1700','1800']#'800'
 #mass = array('d', [900,1000,1100,1200,1300,1400,1500])#800,,1600,1700,1800
 #masserr = array('d', [0,0,0,0,0,0,0])#0,,0,0,0
 #mass_str = ['900','1000','1100','1200','1300','1400','1500']#'800','1600','1700','1800'
@@ -57,12 +57,12 @@ xsec = array('d',[multiplier for i in range(len(mass))])
 if chiral=='right':theory_xsec  = [0.190,0.0877,0.0427,0.0217,0.0114,0.00618,0.00342,0.00193,0.00111]
 elif chiral=='left':theory_xsec = [0.190,0.0877,0.0427,0.0217,0.0114,0.00618,0.00342,0.00193,0.00111]
 else: print "Using TT xsec, for XX enter left or right"
-theory_xsec = [0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb#
-xsecErrUp = [1.1,0.64,0.37,0.22,0.14,0.087,0.056,0.037]#fb 
-xsecErrDn = [1.0,0.56,0.32,0.19,0.12,0.072,0.045,0.029]#fb 
-#theory_xsec = [0.0903,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb#
-#xsecErrUp = [4.0,1.1,0.64,0.37,0.22,0.14,0.087,0.056,0.037]#fb 
-#xsecErrDn = [3.8,1.0,0.56,0.32,0.19,0.12,0.072,0.045,0.029]#fb 
+#theory_xsec = [0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb#
+#xsecErrUp = [1.1,0.64,0.37,0.22,0.14,0.087,0.056,0.037]#fb 
+#xsecErrDn = [1.0,0.56,0.32,0.19,0.12,0.072,0.045,0.029]#fb 
+theory_xsec = [0.0903,0.0224,0.0118,0.00639,0.00354,0.00200,0.001148,0.000666,0.000391]#pb#
+xsecErrUp = [4.0,1.1,0.64,0.37,0.22,0.14,0.087,0.056,0.037]#fb 
+xsecErrDn = [3.8,1.0,0.56,0.32,0.19,0.12,0.072,0.045,0.029]#fb 
 #theory_xsec = [0.0903,0.0440,0.0224,0.0118,0.00639,0.00354,0.00200]#pb#0.196, ,0.001148,0.000666,0.000391
 #xsecErrUp = [4.0,2.1,1.1,0.64,0.37,0.22,0.14]#fb 8.5,,0.087,0.056,0.037
 #xsecErrDn = [3.8,1.9,1.0,0.56,0.32,0.19,0.12]#fb 8.1,,0.072,0.045,0.029
@@ -104,11 +104,11 @@ def PlotLimits(limitDir,limitFile,tempKey):
     f = open(limitDir+'/'+limitFile)       
     data = json.load(f)
 
-    limExpected = 1100
-    limObserved = 1100
+    limExpected = 900
+    limObserved = 900
     for i in range(len(mass)):
         key = str(mass[i])
-        if '1100' in key and '1100.0' not in data.keys(): continue
+        if '900' in key and '900.0' not in data.keys(): continue
         lims = {}
 
         if blind:
@@ -147,8 +147,8 @@ def PlotLimits(limitDir,limitFile,tempKey):
     print
     signExp = "="
     signObs = "="
-    if limExpected==1100: signExp = "<"
-    if limObserved==1100: signObs = "<"
+    if limExpected==900: signExp = "<"
+    if limObserved==900: signObs = "<"
     print "Expected lower limit "+signExp,int(round(limExpected)),"GeV"
     print "Observed lower limit "+signObs,int(round(limObserved)),"GeV"
     print
@@ -189,7 +189,7 @@ def PlotLimits(limitDir,limitFile,tempKey):
     expected95.Draw("a3")
     if signal == 'T': expected95.GetYaxis().SetRangeUser(.0005+.00001,2.01)
     else: expected95.GetYaxis().SetRangeUser(.0005+.00001,2.01)
-    expected95.GetXaxis().SetRangeUser(1100,1800)
+    expected95.GetXaxis().SetRangeUser(900,1800)
     if tempKey=='nB0': expected95.GetYaxis().SetRangeUser(.008+.00001,25.45)   
     expected95.GetXaxis().SetTitle(signal+" mass [GeV]")
     expected95.GetYaxis().SetTitle("#sigma ("+signal+"#bar{"+signal+"})[pb]")
@@ -283,7 +283,7 @@ def PlotLimits(limitDir,limitFile,tempKey):
     
     c4.RedrawAxis()
     
-    folder = '/uscms_data/d3/jmanagan/CMSSW_10_2_10/src/tptp_2017/combineLimits/'
+    folder = os.getcwd() #'/uscms_data/d3/jmanagan/CMSSW_10_2_10/src/tptp_2017/combineLimits/'
     outDir=folder+limitDir+'/'
     #outDir = folder
     if not os.path.exists(outDir): os.system('mkdir -p '+outDir)
