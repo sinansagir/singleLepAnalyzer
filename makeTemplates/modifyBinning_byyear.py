@@ -127,7 +127,7 @@ if 'BB' in folder:
 	else: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('tW' in file or 'kinematics' in folder) and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
 
 if 'TT' in folder:
-	if rebinCombine: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('bW0p5' in file or 'kinematics' in folder) and combinefile in file and '_'+iPlot+'_' in file.split('/')[-1]]
+	if rebinCombine: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('bW' in file or 'kinematics' in folder) and combinefile in file and '_'+iPlot+'_' in file.split('/')[-1]]
 	else: rfiles = [file for file in findfiles(inputfolder, '*.root') if 'rebinned' not in file and ('bW' in file or 'kinematics' in folder) and combinefile not in file and '_'+iPlot+'_' in file.split('/')[-1]]
 
 print "inputfolder: ",inputfolder
@@ -295,18 +295,19 @@ for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 
 #os._exit(1)
 
-# from SLA tptp_80X
-muSFsUp = {'TTM800':0.750,'TTM900':0.750,'TTM1000':0.749,'TTM1100':0.749,'TTM1200':0.748,'TTM1300':0.747,'TTM1400':0.746,'TTM1500':0.745,'TTM1600':0.744,'TTM1700':0.743,'TTM1800':0.741}
-muSFsDn = {'TTM800':1.303,'TTM900':1.303,'TTM1000':1.304,'TTM1100':1.305,'TTM1200':1.307,'TTM1300':1.309,'TTM1400':1.311,'TTM1500':1.313,'TTM1600':1.315,'TTM1700':1.317,'TTM1800':1.319}
-pdfSFsUp = {'TTM800':0.908,'TTM900':0.902,'TTM1000':0.890,'TTM1100':0.889,'TTM1200':0.895,'TTM1300':0.895,'TTM1400':0.888,'TTM1500':0.897,'TTM1600':0.905,'TTM1700':0.885,'TTM1800':0.872}
-pdfSFsDn = {'TTM800':1.106,'TTM900':1.104,'TTM1000':1.099,'TTM1100':1.099,'TTM1200':1.093,'TTM1300':1.098,'TTM1400':1.102,'TTM1500':1.099,'TTM1600':1.122,'TTM1700':1.121,'TTM1800':1.133}
-
-if sigName == 'BB':
-	muSFsUp = {'BBM800':0.750,'BBM900':0.750,'BBM1000':0.749,'BBM1100':0.749,'BBM1200':0.748,'BBM1300':0.747,'BBM1400':0.746,'BBM1500':0.745,'BBM1600':0.744,'BBM1700':0.743,'BBM1800':0.741}
-	muSFsDn = {'BBM800':1.303,'BBM900':1.303,'BBM1000':1.304,'BBM1100':1.305,'BBM1200':1.307,'BBM1300':1.309,'BBM1400':1.310,'BBM1500':1.313,'BBM1600':1.315,'BBM1700':1.317,'BBM1800':1.319}
-	pdfSFsUp = {'BBM800':0.909,'BBM900':0.903,'BBM1000':0.889,'BBM1100':0.889,'BBM1200':0.895,'BBM1300':0.895,'BBM1400':0.889,'BBM1500':0.897,'BBM1600':0.904,'BBM1700':0.884,'BBM1800':0.872}
-	pdfSFsDn = {'BBM800':1.106,'BBM900':1.104,'BBM1000':1.100,'BBM1100':1.099,'BBM1200':1.093,'BBM1300':1.097,'BBM1400':1.102,'BBM1500':1.099,'BBM1600':1.121,'BBM1700':1.122,'BBM1800':1.132}
-
+### Updated for 2017 PDF4LHC by Evan Nov 2020
+if year == '2017':
+        muSFsUp = {'TTM900':0.745,'TTM1000':0.744,'TTM1100':0.747,'TTM1200':0.742,'TTM1300':0.741,'TTM1400':0.738,'TTM1500':0.740,'TTM1600':0.735,'TTM1700':0.721,'TTM1800':0.746}
+        muSFsDn = {'TTM900':1.311,'TTM1000':1.312,'TTM1100':1.306,'TTM1200':1.315,'TTM1300':1.316,'TTM1400':1.322,'TTM1500':1.319,'TTM1600':1.329,'TTM1700':1.354,'TTM1800':1.311}
+        pdfSFsUp = {'TTM900':0.957,'TTM1000':0.954,'TTM1100':0.951,'TTM1200':0.947,'TTM1300':0.942,'TTM1400':0.936,'TTM1500':0.929,'TTM1600':0.921,'TTM1700':0.911,'TTM1800':0.898}
+        pdfSFsDn = {'TTM900':1.047,'TTM1000':1.050,'TTM1100':1.054,'TTM1200':1.060,'TTM1300':1.066,'TTM1400':1.073,'TTM1500':1.082,'TTM1600':1.094,'TTM1700':1.109,'TTM1800':1.128}
+        pdfSFsSym = {'TTM900':0.045,'TTM1000':0.048,'TTM1100':0.051,'TTM1200':0.056,'TTM1300':0.062,'TTM1400':0.068,'TTM1500':0.076,'TTM1600':0.086,'TTM1700':0.098,'TTM1800':0.113}
+        if sigName == 'BB':
+                muSFsUp = {'BBM900':0.744,'BBM1000':0.742,'BBM1100':0.743,'BBM1200':0.742,'BBM1300':0.741,'BBM1400':0.739,'BBM1500':0.735,'BBM1600':0.735,'BBM1700':0.733,'BBM1800':0.731}
+                muSFsDn = {'BBM900':1.312,'BBM1000':1.315,'BBM1100':1.314,'BBM1200':1.316,'BBM1300':1.318,'BBM1400':1.321,'BBM1500':1.329,'BBM1600':1.329,'BBM1700':1.331,'BBM1800':1.337}
+                pdfSFsUp = {'BBM900':0.957,'BBM1000':0.954,'BBM1100':0.951,'BBM1200':0.947,'BBM1300':0.942,'BBM1400':0.936,'BBM1500':0.929,'BBM1600':0.921,'BBM1700':0.911,'BBM1800':0.897}
+                pdfSFsDn = {'BBM900':1.047,'BBM1000':1.050,'BBM1100':1.055,'BBM1200':1.059,'BBM1300':1.066,'BBM1400':1.073,'BBM1500':1.082,'BBM1600':1.094,'BBM1700':1.108,'BBM1800':1.130}
+                pdfSFsSym = {'BBM900':0.045,'BBM1000':0.048,'BBM1100':0.052,'BBM1200':0.056,'BBM1300':0.061,'BBM1400':0.068,'BBM1500':0.076,'BBM1600':0.086,'BBM1700':0.098,'BBM1800':0.115}
 
 iRfile=0
 yieldsAll = {}
@@ -410,8 +411,6 @@ for rfile in rfiles:
 					signame = hist.split('__')[1]
 					if sigName not in signame: print "DIDNT GET SIGNAME",signame
 
-                                oldUp = muRFcorrdNewUpHist.Integral()
-                                oldDn = muRFcorrdNewDnHist.Integral()
 				scalefactorUp = muSFsUp[signame]
 				scalefactorDn = muSFsDn[signame]
 				muRFcorrdNewUpHist.Scale(scalefactorUp) #drop down .7
@@ -446,35 +445,67 @@ for rfile in rfiles:
 		else: newPDFName = 'pdfNew20172018'
 
 		for hist in pdfUphists:
-			pdfNewUpHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+upTag))
-			pdfNewDnHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+downTag))
-			for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
-				weightList = [rebinnedHists[hist.replace('pdf0','pdf'+str(pdfInd))].GetBinContent(ibin) for pdfInd in range(100)]
-				indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
-				indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
-				pdfNewUpHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinContent(ibin))
-				pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
-				pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
-				pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
-			if ('sig__pdf' in hist and normalizePDF) or (rebinCombine and '__'+sigName in hist and '__pdf' in hist and normalizePDF): #normalize the renorm/fact shapes to nominal
-				if rebinCombine and '__'+sigName in hist: 
-					signame = hist.split('__')[1]
-					if sigName not in signame: print "DIDNT GET SIGNAME",signame
-				scalefactorUp = pdfSFsUp[signame]
-				scalefactorDn = pdfSFsDn[signame]                                
-				pdfNewUpHist.Scale(scalefactorUp)
-				pdfNewDnHist.Scale(scalefactorDn)
+                        #print '------------------------ new pdf hist',hist,' ------------------------'
+                        pdfNewUpHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+upTag))
+                        pdfNewDnHist = rebinnedHists[hist].Clone(hist.replace('pdf0',newPDFName+downTag))
+                        centralHist = rebinnedHists[hist.replace('__pdf0','')]
 
-                                if rebinCombine:
-                                        for iBin in range(1,pdfNewUpHist.GetNbinsX()+1):
-                                                binValueUp = pdfNewUpHist.GetBinContent(iBin)
-                                                if binValueUp == 0:            ##Check if bin content is zero
-                                                        pdfNewUpHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
-                                                        pdfNewUpHist.SetBinError(iBin,math.sqrt(1e-6))
-                                                binValueDn = pdfNewDnHist.GetBinContent(iBin)
-                                                if binValueDn == 0:            ##Check if bin content is zero
-                                                        pdfNewDnHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
-                                                        pdfNewDnHist.SetBinError(iBin,math.sqrt(1e-6))
+                        scalefactorSym = 0
+                        scalefactorUp = 1
+                        scalefactorDn = 1
+                        if ('sig__pdf' in hist or (rebinCombine and '__'+sigName in hist)) and '__pdf' in hist and normalizePDF: #normalize the renorm/fact shapes to nominal
+                                if rebinCombine and '__'+sigName in hist: 
+                                        signame = hist.split('__')[1]
+                                        if sigName not in signame: print "DIDNT GET SIGNAME",signame
+                                scalefactorSym = pdfSFsSym[signame]
+                                scalefactorUp = pdfSFsUp[signame]
+                                scalefactorDn = pdfSFsDn[signame]
+
+                        for ibin in range(1,pdfNewUpHist.GetNbinsX()+1):
+                                errsq = 0
+
+                                ## Hessian version: make a list of bin contents
+                                weightList = [rebinnedHists[hist.replace('pdf0','pdf'+str(pdfInd))].GetBinContent(ibin) for pdfInd in range(30)]
+                                for weight in weightList:
+                                        ## sum up squares of differences to the central value
+                                        errsq += (weight - centralHist.GetBinContent(ibin))**2
+                                        
+                                ## find the percentage of the shift w.r.t the central value
+                                if centralHist.GetBinContent(ibin) != 0: shiftpct = math.sqrt(errsq)/centralHist.GetBinContent(ibin)
+                                elif math.sqrt(errsq) != 0: print 'Weird: central is 0 but not PDF unc'
+                                else: shiftpct = 0
+
+                                if abs(shiftpct) > 1: print 'WARNING: pdf shift is',shiftpct,', flooring down at 0 in bin',ibin,'of hist',hist
+
+                                ## multiply the central value by 1 +/- the shift
+                                pdfNewUpHist.SetBinContent(ibin, max(0,centralHist.GetBinContent(ibin)*(1 + shiftpct)))
+                                pdfNewDnHist.SetBinContent(ibin, max(0,centralHist.GetBinContent(ibin)*(1 - shiftpct)))                                
+                                
+                                ## This was correct in 2016 for replica errors, not for 2017-2018
+                                #indPDFUp = sorted(range(len(weightList)), key=lambda k: weightList[k])[83]
+                                #indPDFDn = sorted(range(len(weightList)), key=lambda k: weightList[k])[15]
+                                #pdfNewUpHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinContent(ibin))
+                                #pdfNewDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
+                                #pdfNewUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
+                                #pdfNewDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
+
+                        # Do the acceptance-only correction for signal (factors are 1 otherwise)
+                        #print 'Orig Up = ',pdfNewUpHist.Integral(),'scale factor = ',scalefactorUp                        
+                        pdfNewUpHist.Scale(scalefactorUp)
+                        pdfNewDnHist.Scale(scalefactorDn)
+                        #print 'New Up = ',pdfNewUpHist.Integral()
+
+
+                        if rebinCombine and '__'+sigName in hist:
+                                for iBin in range(1,pdfNewUpHist.GetNbinsX()+1):
+                                        binValueUp = pdfNewUpHist.GetBinContent(iBin)
+                                        if binValueUp == 0:            ##Check if bin content is zero
+                                                pdfNewUpHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                pdfNewUpHist.SetBinError(iBin,math.sqrt(1e-6))
+                                        binValueDn = pdfNewDnHist.GetBinContent(iBin)
+                                        if binValueDn == 0:            ##Check if bin content is zero
+                                                pdfNewDnHist.SetBinContent(iBin,1e-6) ##Setting bin content to nonzero value
+                                                pdfNewDnHist.SetBinError(iBin,math.sqrt(1e-6))
 
 			pdfNewUpHist.Write()
 			pdfNewDnHist.Write()
