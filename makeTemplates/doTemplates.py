@@ -19,7 +19,7 @@ isCategorized=False
 pfix='templates'+region
 if not isCategorized: pfix='kinematics'+region
 ##THIS MATCHES YOUR OTHER PFIX
-pfix+='_Nov2020TT_HTdnnJ3corrsSF2D'
+pfix+='_Feb2021TT_HTdnnJ3corrsSF2D'
 outDir = os.getcwd()+'/'+pfix+'/'
 
 doCombineTemplates = False 
@@ -34,7 +34,7 @@ doAllSys = True
 addCRsys = False
 doPDF = False
 if isCategorized: doPDF = True
-systematicList = ['prefire','muRFcorrd','trigeffEl','trigeffMu','pileup','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag','toppt','dnnJ']
+systematicList = ['prefire','muRFcorrd','trigeffEl','trigeffMu','pileup','jec','btag','jsf','Teff','Tmis','Heff','Hmis','Zeff','Zmis','Weff','Wmis','Beff','Bmis','Jeff','Jmis','jer','ltag','toppt','dnnJ','elIdSF']
 if '2D' in outDir: 
         systematicList.remove('btag')
         systematicList.remove('ltag')
@@ -79,15 +79,14 @@ elif isCategorized and 'CR' in region: doBRScan = True
 
 BRs={}
 if whichSignal=='TT':
-	#	   singlet doublet 100%s
-	BRs['BW']=[0.50,0.0,1.0,0.0,0.0]#,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]
-	BRs['TH']=[0.25,0.5,0.0,1.0,0.0]#,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]
-	BRs['TZ']=[0.25,0.5,0.0,0.0,1.0]#,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]
+	BRs['BW']=[0.50,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]#,1.0,0.0]#
+	BRs['TH']=[0.25,0.5,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]#,0.0,1.0]#
+	BRs['TZ']=[0.25,0.5,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]#,0.0,0.0]#
 	nBRconf=len(BRs['BW'])
 elif whichSignal=='BB':
-        BRs['TW']=[0.0,0.50,1.0,0.0,0.0]#,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]
-        BRs['BH']=[0.5,0.25,0.0,1.0,0.0]#,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]  # May or may not want to keep these lines, have to ask
-        BRs['BZ']=[0.5,0.25,0.0,0.0,1.0]#,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]
+	BRs['TW']=[0.50,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.2,0.2,0.2,0.2,0.2,0.4,0.4,0.4,0.4,0.6,0.6,0.6,0.8,0.8,1.0]#,1.0,0.0]#
+        BRs['BH']=[0.25,0.5,0.0,0.2,0.4,0.6,0.8,1.0,0.0,0.2,0.4,0.6,0.8,0.0,0.2,0.4,0.6,0.0,0.2,0.4,0.0,0.2,0.0]#,0.0,1.0]#
+        BRs['BZ']=[0.25,0.5,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,0.4,0.2,0.0,0.2,0.0,0.0]#,0.0,0.0]#
 	nBRconf=len(BRs['TW'])
 if not doBRScan: nBRconf=1
 
@@ -116,7 +115,7 @@ catList = ['is'+item[0]+'_'+item[1]+'_'+item[2] for item in list(itertools.produ
 lumiSys = 0.023 #lumi uncertainty
 eltrigSys = 0.0 #electron trigger uncertainty
 mutrigSys = 0.0 #muon trigger uncertainty
-elIdSys = 0.02 #electron id uncertainty
+elIdSys = 0.0 #electron id uncertainty
 muIdSys = 0.02 #muon id uncertainty
 elIsoSys = 0.015 #electron isolation uncertainty
 muIsoSys = 0.015 #muon isolation uncertainty
@@ -258,15 +257,25 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 								hists[signal+i+'pdf'+str(pdfInd)].Scale(1./xsec[signal])
 
 		#Theta templates:
-		print "       WRITING THETA TEMPLATES: "
-		for signal in sigList:
-			print "              ... "+signal
-			thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
-			thetaRfile = TFile(thetaRfileName,'RECREATE')
-			for cat in catList:
-				i=BRconfStr+cat
-				for proc in bkgGrupList:
-					if hists[proc+i].Integral() > 0:
+                if not doCombineTemplates or (doCombineTemplates and (whichSignal == 'TT' and 'bW0p5' in BRconfStr) or (whichSignal == 'BB' and 'tW0p5' in BRconfStr)):
+			print "       WRITING THETA TEMPLATES: "
+			for signal in sigList:
+				print "              ... "+signal
+				thetaRfileName = outDir+'/templates_'+discriminant+'_'+signal+BRconfStr+'_'+lumiStr+'fb'+'.root'
+				thetaRfile = TFile(thetaRfileName,'RECREATE')
+				for cat in catList:
+					i=BRconfStr+cat
+					for proc in bkgGrupList:
+						if hists[proc+i].Integral() > 0:
+							hists[proc+i].Write()
+							if doAllSys:
+								for syst in systematicList:
+									if syst=='toppt' and proc not in topptProcs: continue
+									hists[proc+i+syst+'Up'].Write()
+									hists[proc+i+syst+'Down'].Write()
+								if doPDF:
+									for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
+					for proc in [signal]:
 						hists[proc+i].Write()
 						if doAllSys:
 							for syst in systematicList:
@@ -275,18 +284,8 @@ def makeThetaCats(datahists,sighists,bkghists,discriminant):
 								hists[proc+i+syst+'Down'].Write()
 							if doPDF:
 								for pdfInd in range(100): hists[proc+i+'pdf'+str(pdfInd)].Write()
-				for proc in [signal]:
-					hists[proc+i].Write()
-					if doAllSys:
-						for syst in systematicList:
-							if syst=='toppt' and proc not in topptProcs: continue
-							hists[proc+i+syst+'Up'].Write()
-							hists[proc+i+syst+'Down'].Write()
-						if doPDF:
-							for pdfInd in range(30): hists[proc+i+'pdf'+str(pdfInd)].Write()
-				hists['data'+i].Write()
-			thetaRfile.Close()
-
+					hists['data'+i].Write()
+				thetaRfile.Close()
 
 			
                 #Combine templates:

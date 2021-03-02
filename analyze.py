@@ -61,16 +61,16 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 
 
 
-		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnNew_Tprime < '+str(cutList['dnnCut'])+')'
-		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnNew_Tprime < dnnNew_WJets'+BBstr+' || dnnNew_Tprime < dnnNew_ttbar'+BBstr+')'
-		if 'TT' in region: cut += ' && (dnnNew_ttbar'+BBstr+' > dnnNew_WJets'+BBstr+')'
-		if 'WJ' in region: cut += ' && (dnnNew_ttbar'+BBstr+' <= dnnNew_WJets'+BBstr+')'                
+		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnAll_Tprime < '+str(cutList['dnnCut'])+')'
+		cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (dnnAll_Tprime < dnnAll_WJets'+BBstr+' || dnnAll_Tprime < dnnAll_ttbar'+BBstr+')'
+		if 'TT' in region: cut += ' && (dnnAll_ttbar'+BBstr+' > dnnAll_WJets'+BBstr+')'
+		if 'WJ' in region: cut += ' && (dnnAll_ttbar'+BBstr+' <= dnnAll_WJets'+BBstr+')'                
 
 
 
 	elif 'SR' in region: # 'SR'  certain AK8 jets, mass reco, high signal node
-		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnnNew_Tprime >= '+str(cutList['dnnCut'])+')'
-                cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnnNew_Tprime >= dnnNew_WJets'+BBstr+' && dnnNew_Tprime >= dnnNew_ttbar'+BBstr+')'
+		#cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnnAll_Tprime >= '+str(cutList['dnnCut'])+')'
+                cut += ' && (NJetsAK8_JetSubCalc >= '+str(cutList['nAK8Cut'])+') && (Tprime2_'+algo+'_Mass > -1) && (dnnAll_Tprime >= dnnAll_WJets'+BBstr+' && dnnAll_Tprime >= dnnAll_ttbar'+BBstr+')'
 
 
 
@@ -88,6 +88,9 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	TrigEffMuUp = '(triggerSF + isMuon*triggerSFUncert)'
 	TrigEffMuDn = '(triggerSF - isMuon*triggerSFUncert)'
 	TrigEff = 'triggerSF'
+        lepIdSF = 'lepIdSF'
+        lepIdSFUp = '(lepIdSF + elIdSFUnc)' # add-on is 0 for muons
+        lepIdSFDn = '(lepIdSF - elIdSFUnc)'
 	cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1'
 
 	jetSFstr='1'
@@ -108,20 +111,21 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
         dnnJCorrDn = '1'
         dnnJCorrUp = '1'
         if 'PS' not in region:
-                # we are not using dnnJ_3 in the MVA, so just a 2 jet correction
-                dnnJCorr = 'dnnJweight'#+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
+                dnnJCorr = 'dnnJweight3*'+str(dnnJ3SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
                 dnnJCorrDn = '1' # '1' # '1' #
-                dnnJCorrUp = 'dnnJweight'#*'+str(dnnJ2SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
+                dnnJCorrUp = 'dnnJweight3*'+str(dnnJ3SF[process]) # '1' #'dnnJweight*'+str(dnnJ2SF[process]) # 
         
 
 	weightStr = '1'
 	if 'Data' not in process: 
 
 		if 'TTM' in process or 'BBM' in process:
-			weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * '+dnnJCorr+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * pdfWeights4LHC[0] * MCWeight_MultiLepCalc'
+			weightStr          += ' * '+jetSFstr+' * '+TrigEff+' * '+dnnJCorr+' * pileupWeight * '+lepIdSF+' * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * pdfWeights4LHC[0] * MCWeight_MultiLepCalc'
 		else:
-			weightStr          += ' * '+jetSFstr+' * '+topCorr+' * '+TrigEff+' * '+dnnJCorr+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc))'
+			weightStr          += ' * '+jetSFstr+' * '+topCorr+' * '+TrigEff+' * '+dnnJCorr+' * pileupWeight * '+lepIdSF+' * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * '+str(weight[process])+' * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc))'
 
+		weightelIdSFUpStr  = weightStr.replace(lepIdSF,lepIdSFUp)
+                weightelIdSFDownStr= weightStr.replace(lepIdSF,lepIdSFDn)
 		weightTrigEffElUpStr  = weightStr.replace(TrigEff,TrigEffElUp)
                 weightTrigEffElDownStr= weightStr.replace(TrigEff,TrigEffElDn)
 		weightTrigEffMuUpStr  = weightStr.replace(TrigEff,TrigEffMuUp)
@@ -196,9 +200,9 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
                         cut += ' && ('+soft_massvar+'[1] > 65 && '+soft_massvar+'[1] < 210 && ('+tau21var+'[1] < 0.6 || '+tau32var+'[1] < 0.65))'
 
 	if isCategorized and ((iPlot == 'Tp2MDnn' and 'notV' in tag) or iPlot == 'DnnTprime'):
-		plotTreeName = 'dnnNew_Tprime'
+		plotTreeName = 'dnnAll_Tprime'
 		xAxisLabel = ';DNN T score'
-                xbins = array('d', linspace(0,1,101).tolist())
+                xbins = array('d', linspace(0,1,501).tolist())
 		
 	if iPlot == 'Tp2MST':
 		if 'notV' in tag: 
@@ -252,8 +256,8 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 
 	if whichSig == 'BB':
 		plotTreeName = plotTreeName.replace('Tprime','Bprime')
-		plotTreeName = plotTreeName.replace('dnnNew_WJets','dnnNew_WJetsBB')
-		plotTreeName = plotTreeName.replace('dnnNew_ttbar','dnnNew_ttbarBB')
+		plotTreeName = plotTreeName.replace('dnnAll_WJets','dnnAll_WJetsBB')
+		plotTreeName = plotTreeName.replace('dnnAll_ttbar','dnnAll_ttbarBB')
 		iPlot = iPlot.replace('Tp','Bp')
 		iPlot = iPlot.replace('DnnWJets','DnnWJetsBB')
 		iPlot = iPlot.replace('DnnTTbar','DnnTTbarBB')
@@ -319,8 +323,8 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 				tagCut += ' && !(hadronicBprimeJetIDs_'+algo+'[0] == 3 && hadronicBprimeJetIDs_'+algo+'[1] == 5)'
 
                 # signal categories for basic tag counts
-		if 'ttbar' in tag: cut += ' && (dnnNew_ttbar'+BBstr+' > dnnNew_WJets'+BBstr+')'
-		if 'wjet' in tag: cut += ' && (dnnNew_ttbar'+BBstr+' <= dnnNew_WJets'+BBstr+')'
+		if 'ttbar' in tag: cut += ' && (dnnAll_ttbar'+BBstr+' > dnnAll_WJets'+BBstr+')'
+		if 'wjet' in tag: cut += ' && (dnnAll_ttbar'+BBstr+' <= dnnAll_WJets'+BBstr+')'
 
                 if 'dnnLargeTHZWB' in tag: cut += ' && (leptonPhi_MultiLepCalc < '+str(math.pi/2)+' && dnn_largest_DeepAK8Calc_PtOrdered[0] != 0)'
 		elif 'dnnLargeT' in tag: cut += ' && (leptonPhi_MultiLepCalc < '+str(math.pi/2)+' && dnn_largest_DeepAK8Calc_PtOrdered[0] == 1)'
@@ -374,6 +378,8 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	hists = {}
 	hists[iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process]  = TH1D(iPlot+'_'+lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
+		hists[iPlot+'elIdSFUp_'    +lumiStr+'fb_'+catStr+'_'+process] = TH1D(iPlot+'elIdSFUp_'    +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
+		hists[iPlot+'elIdSFDown_'  +lumiStr+'fb_'+catStr+'_'+process] = TH1D(iPlot+'elIdSFDown_'  +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 		hists[iPlot+'trigeffElUp_'    +lumiStr+'fb_'+catStr+'_'+process] = TH1D(iPlot+'trigeffElUp_'    +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 		hists[iPlot+'trigeffElDown_'  +lumiStr+'fb_'+catStr+'_'+process] = TH1D(iPlot+'trigeffElDown_'  +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
 		hists[iPlot+'trigeffMuUp_'    +lumiStr+'fb_'+catStr+'_'+process] = TH1D(iPlot+'trigeffMuUp_'    +lumiStr+'fb_'+catStr+'_'+process,xAxisLabel,len(xbins)-1,xbins)
@@ -443,6 +449,8 @@ def analyze(tTree,process,cutList,doAllSys,doJetRwt,iPlot,plotDetails,category,r
 	tTree[process].Draw(plotTreeName+' >> '+iPlot+''+'_'+lumiStr+'fb_'+catStr+'_' +process, weightStr+'*('+fullcut+')', 'GOFF')
 	print 'Nominal hist integral: ',hists[iPlot+''+'_'+lumiStr+'fb_'+catStr+'_' +process].Integral()
 	if doAllSys:
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'elIdSFUp_'    +lumiStr+'fb_'+catStr+'_'+process, weightelIdSFUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+iPlot+'elIdSFDown_'  +lumiStr+'fb_'+catStr+'_'+process, weightelIdSFDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffElUp_'    +lumiStr+'fb_'+catStr+'_'+process, weightTrigEffElUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffElDown_'  +lumiStr+'fb_'+catStr+'_'+process, weightTrigEffElDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+iPlot+'trigeffMuUp_'    +lumiStr+'fb_'+catStr+'_'+process, weightTrigEffMuUpStr+'*('+fullcut+')', 'GOFF')

@@ -18,12 +18,12 @@ step1Dir = 'root://cmseos.fnal.gov//store/user/jmanagan/FWLJMET102X_1lep2017Dnn_
 
 iPlot = 'DnnTTbar' #minMlb' #choose a discriminant from plotList below!
 if len(sys.argv)>2: iPlot=sys.argv[2]
-region = 'PS'
+region = 'CR'
 if len(sys.argv)>3: region=sys.argv[3]
 isCategorized = False
 if len(sys.argv)>4: isCategorized=int(sys.argv[4])
 
-if 'PS' not in region and 'CR2j' not in region: step1Dir = 'root://cmseos.fnal.gov//store/user/jmanagan/FWLJMET102X_1lep2017Dnn_Feb2021_step2hadds' ##Step2hadds for everything not-PS
+if 'PS' not in region and 'CR2j' not in region: step1Dir = 'root://cmseos.fnal.gov//store/user/jmanagan/FWLJMET102X_1lep2017Dnn_Feb2021_step2haddsAll' ##Step2hadds for everything not-PS
 
 doJetRwt= 1
 doTopRwt= 0
@@ -91,7 +91,7 @@ bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,
 nbins = 51
 xmax = 800
 if isCategorized or 'TR' in region: 
-	nbins = 101
+	nbins = 501
 	xmax = 1000
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
@@ -126,9 +126,9 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
         'Bp2Phi':('Bprime2_DeepAK8_Phi',linspace(-3.14,3.14,51).tolist(),';B quark #phi'),
         'Bp1deltaR':('Bprime1_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(B quark product jets)'),
         'Bp2deltaR':('Bprime2_DeepAK8_deltaR',linspace(0,5,51).tolist(),';#DeltaR(B quark product jets)'),
-	'DnnTprime':('dnnNew_Tprime',linspace(0,1,nbins).tolist(),';DNN T score'),
-	'DnnTTbar':('dnnNew_ttbar',linspace(0,1,51).tolist(),';DNN-T t#bar{t} score'),
-	'DnnWJets':('dnnNew_WJets',linspace(0,1,51).tolist(),';DNN-T W+jets score'),
+	'DnnTprime':('dnnAll_Tprime',linspace(0,1,nbins).tolist(),';DNN T score'),
+	'DnnTTbar':('dnnAll_ttbar',linspace(0,1,51).tolist(),';DNN-T t#bar{t} score'),
+	'DnnWJets':('dnnAll_WJets',linspace(0,1,51).tolist(),';DNN-T W+jets score'),
         'probSumDecay':('probSum_DeepAK8_decay',linspace(0,20,21).tolist(),';weighted sum of decay product probabilities'), ## replace with ALGO if needed
         'probSumFour':('probSum_DeepAK8_four',linspace(0,5,6).tolist(),';sum of W/Z/H/t probabilities'),
         'probb':('dnn_B_DeepAK8Calc_PtOrdered',linspace(0,1,51).tolist(),';B score'),  ## replace with AlgoCalc if needed
