@@ -62,7 +62,7 @@ dataList = [
 	'DataMABCDEF',
 	]
 
-whichSignal = 'BB' #HTB, TT, BB, or X53X53
+whichSignal = 'TT' #HTB, TT, BB, or X53X53
 massList = range(900,1800+1,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='X53X53': sigList = [whichSignal+'M'+str(mass)+chiral for mass in massList for chiral in ['left','right']]
