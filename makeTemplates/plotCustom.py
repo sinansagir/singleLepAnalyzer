@@ -12,11 +12,14 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-year='R18'
-if year=='R17':
+year='R16'
+if year=='R16':
+	from weights16 import *
+	lumi=35.9 #for plots
+elif year=='R17':
 	from weights17 import *
 	lumi=41.5 #for plots
-else:
+elif year=='R18':
 	from weights18 import *
 	lumi=59.97 #for plots
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
@@ -24,7 +27,7 @@ lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 iPlot='HTYLD'
 cutString=''#'lep50_MET30_DR0_1jet50_2jet40'
 pfix='templates'
-templateDir=os.getcwd()+'/'+pfix+'_'+year+'_nonjetsf_lepPt20_2020_9_3/'+cutString+'/'
+templateDir=os.getcwd()+'/'+pfix+'_'+year+'_2021_3_8/'+cutString+'/'
 plotLimits = False
 limitFile = '/user_data/ssagir/HTB_limits_2016/templates_2016_11_26/nB1_nJ3/limits_templates_HT_HTBM200_36p0fb_rebinned_stat0p3_expected.txt'
 

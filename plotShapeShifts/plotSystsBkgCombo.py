@@ -15,23 +15,25 @@ rt.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 iPlot = sys.argv[1]#'HT'
 year = 'R18'
-if year=='R17':
+if year=='R16':
+	lumiStr = '35p867fb'
+	lumi=35.9 #for plots
+elif year=='R17':
 	lumiStr = '41p53fb'
 	lumi=41.5 #for plots
-else:
+elif year=='R18':
 	lumiStr = '59p97fb'
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
 useCombine = True
-tempVersion = 'templates_'+year+'_redJECs_2020_12_5'
+tempVersion = 'templates_'+year+'_2021_3_8'
 isRebinned = '_rebinned_stat0p3'
 if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
-saveDir = ''
+saveKey = ''#'_tshape'
 if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+lumiStr+isRebinned+'.root'
 else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir+tempVersion+'/'+saveDir)
 
 bkgTTBarList = ['ttnobb','ttbb'] #['ttjj','ttcc','ttbb','ttbj']
 bkgList = bkgTTBarList+['top','ewk','qcd'] #some uncertainties will be skipped depending on the bkgList[0] process!!!!
@@ -45,7 +47,7 @@ if 'kinematics' in tempVersion:
 	nhottlist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
-systematics = ['pileup','btag','mistag','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf']#,'hdamp','ue','njet','njetsf','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+systematics = ['pileup','btag','mistag','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf','hdamp','ue']#,'njet','njetsf','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 if year=='R17': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
 systematics+= ['JEC','JER']#,
@@ -55,6 +57,7 @@ systematics+= ['JEC','JER']#,
 # 'JEC_HF','JEC_HF_'+year.replace('R','20'),
 # 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
 # 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+systematics = ['lowess'+syst for syst in systematics]
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 RFile = rt.TFile(templateFile)
@@ -261,8 +264,8 @@ for em in isEMlist:
 		legend.SetLineColor(0);
 		legend.SetTextSize(0.05);
 		legend.AddEntry(comboHists['bkg'+em],'bkg','l')
-		legend.AddEntry(comboHists['bkg'+em+syst+'Up'],syst.replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Up','l')
-		legend.AddEntry(comboHists['bkg'+em+syst+'Dn'],syst.replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Down','l')
+		legend.AddEntry(comboHists['bkg'+em+syst+'Up'],syst.replace('lowess','').replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('isr','ISR').replace('fsr','FSR').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Up','l')
+		legend.AddEntry(comboHists['bkg'+em+syst+'Dn'],syst.replace('lowess','').replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('isr','ISR').replace('fsr','FSR').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Down','l')
 
 		legend.Draw('same')
 
@@ -298,7 +301,7 @@ for em in isEMlist:
 		if em=='M': flvString='#mu+jets'
 		chLatex.DrawLatex(0.45, 0.84, flvString)
 
-		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_bkg.pdf')
-		canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_bkg.png')
+		canv.SaveAs(tempVersion+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+saveKey+'_bkg.pdf')
+		canv.SaveAs(tempVersion+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+saveKey+'_bkg.png')
 		#canv.SaveAs(tempVersion+'/'+saveDir+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_bkg.eps')
 RFile.Close()

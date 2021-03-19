@@ -15,16 +15,19 @@ rt.gROOT.SetBatch(1)
 outDir = os.getcwd()+'/'
 iPlot = 'HT'
 year = 'R17'
-if year=='R17':
+if year=='R16':
+	lumiStr = '35p867fb'
+	lumi=35.9 #for plots
+elif year=='R17':
 	lumiStr = '41p53fb'
 	lumi=41.5 #for plots
-else:
+elif year=='R18':
 	lumiStr = '59p97fb'
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
 useCombine = True
-tempVersion = 'templates_'+year+'_redJECs_2020_12_5'
-isRebinned = '_smooth_rebinned_stat0p3'
+tempVersion = 'templates_'+year+'_2021_3_8'
+isRebinned = '_rebinned_stat0p3'
 if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
 saveDir = ''
@@ -46,7 +49,7 @@ if 'kinematics' in tempVersion:
 	nhottlist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
-systematics = ['pileup','btag','mistag','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf']#,'hdamp','ue','njet','njetsf','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+systematics = ['pileup','btag','mistag','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf','hdamp','ue']#,'njet','njetsf','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 if year=='R17': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
 systematics+= ['JEC','JER']#,
@@ -56,6 +59,7 @@ systematics+= ['JEC','JER']#,
 # 'JEC_HF','JEC_HF_'+year.replace('R','20'),
 # 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
 # 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+systematics = ['hdamp','ue']
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 RFile = rt.TFile(templateFile)
@@ -69,6 +73,7 @@ else: #theta
 for syst in systematics:
 	if not os.path.exists(outDir+tempVersion+'/'+saveDir+'/'+syst): os.system('mkdir '+outDir+tempVersion+'/'+saveDir+'/'+syst)
 	for bkg in procList:
+		if (syst=='hdamp' or syst=='ue') and bkg not in bkgTTBarList: continue
 		for cat in catList:
 			Prefix = iPlot+'_'+lumiStr+'_'+cat+'__'+bkg
 			print Prefix+'__'+syst

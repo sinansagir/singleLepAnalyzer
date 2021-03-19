@@ -30,8 +30,8 @@ region = 'PS'
 isCategorized = 0
 doJetRwt= 0
 doAllSys= True
-doHDsys = False
-doUEsys = False
+doHDsys = True
+doUEsys = True
 doPDF = True
 if not doAllSys:
 	doHDsys = False
@@ -101,7 +101,7 @@ bkgList = [
 		  
 		  'Ts','Tt','Tbt','TtW','TbtW', 
 		  'TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ',
-		  'TTWl','TTZlM10','TTHB','TTHnoB',#'TTWq',
+		  'TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB',#'TTWq',
           'WW','WZ','ZZ',
 		  'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
@@ -109,9 +109,9 @@ if year=='R16':
 	bkgList+= ['TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','WJetsMG1200','WJetsMG2500']
 elif year=='R17':
 	bkgList+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004',
-			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs','TTZlM1to10']
+			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs']
 elif year=='R18':
-	bkgList+= ['WJetsMG1200','WJetsMG2500','TTZlM1to10']
+	bkgList+= ['WJetsMG1200','WJetsMG2500']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 
 dataList = ['DataE','DataM']#,'DataJ']
@@ -132,16 +132,24 @@ hdampList = [#hDamp samples
 'TTJets2L2nuHDAMPupTT1b','TTJets2L2nuHDAMPupTT2b','TTJets2L2nuHDAMPupTTbb','TTJets2L2nuHDAMPupTTcc','TTJets2L2nuHDAMPupTTjj',
 'TTJetsHadHDAMPdnTT1b','TTJetsHadHDAMPdnTT2b','TTJetsHadHDAMPdnTTbb','TTJetsHadHDAMPdnTTcc','TTJetsHadHDAMPdnTTjj',
 'TTJetsHadHDAMPupTT1b','TTJetsHadHDAMPupTT2b','TTJetsHadHDAMPupTTbb','TTJetsHadHDAMPupTTcc','TTJetsHadHDAMPupTTjj',
-'TTJetsSemiLepHDAMPdnTT1b','TTJetsSemiLepHDAMPdnTT2b','TTJetsSemiLepHDAMPdnTTbb','TTJetsSemiLepHDAMPdnTTcc','TTJetsSemiLepHDAMPdnTTjj',
-'TTJetsSemiLepHDAMPupTT1b','TTJetsSemiLepHDAMPupTT2b','TTJetsSemiLepHDAMPupTTbb','TTJetsSemiLepHDAMPupTTcc','TTJetsSemiLepHDAMPupTTjj',
+'TTJetsSemiLepHDAMPdnNjet0TT1b','TTJetsSemiLepHDAMPdnNjet0TT2b','TTJetsSemiLepHDAMPdnNjet0TTbb','TTJetsSemiLepHDAMPdnNjet0TTcc','TTJetsSemiLepHDAMPdnNjet0TTjj',
+'TTJetsSemiLepHDAMPupNjet0TT1b','TTJetsSemiLepHDAMPupNjet0TT2b','TTJetsSemiLepHDAMPupNjet0TTbb','TTJetsSemiLepHDAMPupNjet0TTcc','TTJetsSemiLepHDAMPupNjet0TTjj',
+'TTJetsSemiLepHDAMPdnNjet9TT1b','TTJetsSemiLepHDAMPdnNjet9TT2b','TTJetsSemiLepHDAMPdnNjet9TTbb','TTJetsSemiLepHDAMPdnNjet9TTcc','TTJetsSemiLepHDAMPdnNjet9TTjj',
+'TTJetsSemiLepHDAMPupNjet9TT1b','TTJetsSemiLepHDAMPupNjet9TT2b','TTJetsSemiLepHDAMPupNjet9TTbb','TTJetsSemiLepHDAMPupNjet9TTcc','TTJetsSemiLepHDAMPupNjet9TTjj',
+'TTJetsSemiLepHDAMPdnNjet9binTT1b','TTJetsSemiLepHDAMPdnNjet9binTT2b','TTJetsSemiLepHDAMPdnNjet9binTTbb','TTJetsSemiLepHDAMPdnNjet9binTTcc','TTJetsSemiLepHDAMPdnNjet9binTTjj',
+'TTJetsSemiLepHDAMPupNjet9binTT1b','TTJetsSemiLepHDAMPupNjet9binTT2b','TTJetsSemiLepHDAMPupNjet9binTTbb','TTJetsSemiLepHDAMPupNjet9binTTcc','TTJetsSemiLepHDAMPupNjet9binTTjj',
 ]
 ueList = [#UE samples
 'TTJets2L2nuUEdnTT1b','TTJets2L2nuUEdnTT2b','TTJets2L2nuUEdnTTbb','TTJets2L2nuUEdnTTcc','TTJets2L2nuUEdnTTjj',
 'TTJets2L2nuUEupTT1b','TTJets2L2nuUEupTT2b','TTJets2L2nuUEupTTbb','TTJets2L2nuUEupTTcc','TTJets2L2nuUEupTTjj',
 'TTJetsHadUEdnTT1b','TTJetsHadUEdnTT2b','TTJetsHadUEdnTTbb','TTJetsHadUEdnTTcc','TTJetsHadUEdnTTjj',
 'TTJetsHadUEupTT1b','TTJetsHadUEupTT2b','TTJetsHadUEupTTbb','TTJetsHadUEupTTcc','TTJetsHadUEupTTjj',
-'TTJetsSemiLepUEdnTT1b','TTJetsSemiLepUEdnTT2b','TTJetsSemiLepUEdnTTbb','TTJetsSemiLepUEdnTTcc','TTJetsSemiLepUEdnTTjj',
-'TTJetsSemiLepUEupTT1b','TTJetsSemiLepUEupTT2b','TTJetsSemiLepUEupTTbb','TTJetsSemiLepUEupTTcc','TTJetsSemiLepUEupTTjj',
+'TTJetsSemiLepUEdnNjet0TT1b','TTJetsSemiLepUEdnNjet0TT2b','TTJetsSemiLepUEdnNjet0TTbb','TTJetsSemiLepUEdnNjet0TTcc','TTJetsSemiLepUEdnNjet0TTjj',
+'TTJetsSemiLepUEupNjet0TT1b','TTJetsSemiLepUEupNjet0TT2b','TTJetsSemiLepUEupNjet0TTbb','TTJetsSemiLepUEupNjet0TTcc','TTJetsSemiLepUEupNjet0TTjj',
+'TTJetsSemiLepUEdnNjet9TT1b','TTJetsSemiLepUEdnNjet9TT2b','TTJetsSemiLepUEdnNjet9TTbb','TTJetsSemiLepUEdnNjet9TTcc','TTJetsSemiLepUEdnNjet9TTjj',
+'TTJetsSemiLepUEupNjet9TT1b','TTJetsSemiLepUEupNjet9TT2b','TTJetsSemiLepUEupNjet9TTbb','TTJetsSemiLepUEupNjet9TTcc','TTJetsSemiLepUEupNjet9TTjj',
+'TTJetsSemiLepUEdnNjet9binTT1b','TTJetsSemiLepUEdnNjet9binTT2b','TTJetsSemiLepUEdnNjet9binTTbb','TTJetsSemiLepUEdnNjet9binTTcc','TTJetsSemiLepUEdnNjet9binTTjj',
+'TTJetsSemiLepUEupNjet9binTT1b','TTJetsSemiLepUEupNjet9binTT2b','TTJetsSemiLepUEupNjet9binTTbb','TTJetsSemiLepUEupNjet9binTTcc','TTJetsSemiLepUEupNjet9binTTjj',
 ]
 runData = True
 runBkgs = True
