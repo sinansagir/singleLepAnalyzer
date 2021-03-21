@@ -679,6 +679,10 @@ def getShapeSystUnc(proc,chn):
 	nomHist = histoPrefix+proc
 	for syst in systematicList:
 		if syst in removeSystFromYields: continue
+		if normalizeTheorySystSig and proc in sigProcList and ('pdf' in syst or 'muRF' in syst or 'isr' in syst or 'fsr' in syst or 'PSwgt' in syst): 
+			continue
+		if normalizeTheorySystBkg and proc not in sigProcList and ('pdf' in syst or 'muRF' in syst or 'isr' in syst or 'fsr' in syst or 'PSwgt' in syst): 
+			continue
 		for ud in [upTag,downTag]:
 			shpHist = histoPrefix+proc+'__'+syst+ud
 			shift = yieldsAll[shpHist]/(yieldsAll[nomHist]+zero)-1

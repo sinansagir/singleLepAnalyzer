@@ -46,7 +46,7 @@ if 'kinematics' in tempVersion:
 	nbtaglist = ['2p']
 	njetslist = ['4p']
 systematics = ['pileup','btag','mistag','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
-if year=='R17': systematics += ['prefire']
+if year!='R18': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
 systematics+= ['JEC','JER']#,
 # 'JEC_Total','JEC_FlavorQCD',
