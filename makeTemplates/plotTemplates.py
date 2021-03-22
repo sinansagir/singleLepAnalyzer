@@ -35,7 +35,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-isRebinned='_ifsr_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
@@ -62,6 +62,8 @@ systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp'
 #systematicList+= ['CSVshapelf','CSVshapehf']
 if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
+useSmoothShapes = True
+if not isCategorized: useSmoothShapes = False
 doAllSys = True
 addCRsys = False
 doNormByBinWidth=True
@@ -109,13 +111,26 @@ lepIsoSys = 0.0 # lepton isolation uncertainty
 # if year=='R17': njetSys = 0.075
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)#+njetSys**2) #cheating while total e/m values are close
 
+QCDscale_ttbar = 0.0295 #ttbar +2.4%/-3.5% (symmetrize)
+QCDscale_top = 0.026 #top +3.1%/-2.1% (symmetrize)
+QCDscale_ewk = 0.006 #ewk +0.8%/-0.4% (symmetrize)
+pdf_gg = 0.042 #ttbar +/-4.2%
+pdf_qg = 0.028 #top +/-2.8%
+pdf_qqbar = 0.038 #ewk +/-3.8%
+xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
+xsec_top = 0.50 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
+xsec_ewk = 0.038 #ewk (scale+pdf)
+ttHF = 0.13 # 13% ttbb cross section uncertainty
 for catEStr in catsElist:
 	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]
 	modelingSys['data_'+modTag] = 0.
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module
 		for proc in bkgProcList:
 			modelingSys[proc+'_'+modTag] = 0.
-	modelingSys['ttbb_'+modTag]=0.13 # 13% ttbb measurement uncertainty
+	modelingSys['ttbb_'+modTag]=math.sqrt(xsec_ttbar**2+ttHF**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2+ttHF**2)
+	modelingSys['ttnobb_'+modTag]=xsec_ttbar#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
+	modelingSys['top_'+modTag]=xsec_top#math.sqrt(QCDscale_top**2+pdf_qg**2)
+	modelingSys['ewk_'+modTag]=xsec_ewk#math.sqrt(QCDscale_ewk**2+pdf_qqbar**2)
 
 def getNormUnc(hist,ibin,modelingUnc):
 	contentsquared = hist.GetBinContent(ibin)**2
@@ -234,6 +249,7 @@ for catEStr in catsElist:
 	systematicList_ = systematicList[:]
 	if 'nB0p' not in catEStr: systematicList_ += ['btag','mistag']
 	if 'nHOT0p' not in catEStr: systematicList_ += ['hotstat','hotcspur','hotclosure']
+	if useSmoothShapes: systematicList_ = ['lowess'+syst for syst in systematicList_]
 	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]
 	for isEM in isEMlist:
 		histPrefix=iPlot+'_'+lumiInTemplates+'fb_'

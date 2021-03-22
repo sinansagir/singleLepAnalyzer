@@ -58,7 +58,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	TrigSF   = 'triggerXSF'
 	TrigSFUp = '1'
 	TrigSFDn = '1'
-	if isEM=='M' or '16' not in year: cut += ' && DataPastTriggerX == 1 && MCPastTriggerX == 1' # CROSS triggers (i.e., VLQ triggers)
+	#if isEM=='M' or '16' not in year: cut += ' && DataPastTriggerX == 1 && MCPastTriggerX == 1' # CROSS triggers (i.e., VLQ triggers)
+	cut += ' && DataPastTriggerX == 1 && MCPastTriggerX == 1' # CROSS triggers (i.e., VLQ triggers)
 	#cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1' # Lep+Had triggers
 	#cut += ' && DataPastTrigger == 1 && MCLepPastTrigger == 1' # Lep triggers only
 	#cut += ' && DataHadPastTrigger == 1 && MCHadPastTrigger == 1' # Had triggers only

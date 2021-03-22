@@ -38,7 +38,7 @@ elif year=='R18':
 	from weights18 import *
 
 iPlot=sys.argv[2]
-saveKey = '_ifsr'
+saveKey = ''
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
@@ -56,6 +56,7 @@ doMURF = True
 doPSWeights = True
 normalizeTheorySystSig = True #normalize renorm/fact, PDF and ISR/FSR systematics to nominal templates for signals
 normalizeTheorySystBkg = False #normalize renorm/fact, PDF and ISR/FSR systematics to nominal templates for backgrounds
+if normalizeTheorySystBkg: saveKey+='_tshape'
 #tttt, X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
 sigName = 'tttt' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
 massList = [690]
@@ -76,7 +77,6 @@ removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 removeSystFromYields+= ['PSwgt'] #remove if envelope method is not used, otherwise replace with ['isr','fsr']
 
 minNbins=1 #min number of bins to be merged
-if iPlot=='HT': minNbins=2
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if 'kinematics' in templateDir: 
 	stat = 1.1
@@ -443,13 +443,13 @@ for rfile in rfiles:
 
 					muRFUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
 					muRFDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
+				yieldsAll[muRFUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFUpHist.Integral()
+				yieldsAll[muRFDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFDnHist.Integral()
 				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
 					muRFUpHist.Scale(histList[0].Integral()/(muRFUpHist.Integral()+zero))
 					muRFDnHist.Scale(histList[0].Integral()/(muRFDnHist.Integral()+zero))
 				muRFUpHist.Write()
 				muRFDnHist.Write()
-				yieldsAll[muRFUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFUpHist.Integral()
-				yieldsAll[muRFDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFDnHist.Integral()
 				
 				#Decorrelate muRF systematic ("muRF" still need to be removed in doThetaLimits.py!):
 				muRFUpHist2 = muRFUpHist.Clone(hist.replace('muR'+upTag,newMuRFName+'_'+proc_+upTag))
@@ -495,6 +495,12 @@ for rfile in rfiles:
 					#PSwgtUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
 					PSwgtUpHist.SetBinError(ibin,histList[indCorrdUp].GetBinError(ibin))
 					PSwgtDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
+				yieldsAll[PSwgtUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = PSwgtUpHist.Integral()
+				yieldsAll[PSwgtDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = PSwgtDnHist.Integral()
+				yieldsAll[hist.replace('_sig','_'+rfile.split('_')[-2])] = rebinnedHists[hist].Integral()
+				yieldsAll[hist.replace('isr'+upTag,'isr'+downTag).replace('_sig','_'+rfile.split('_')[-2])] = rebinnedHists[hist.replace('isr'+upTag,'isr'+downTag)].Integral()
+				yieldsAll[hist.replace('isr'+upTag,'fsr'+upTag).replace('_sig','_'+rfile.split('_')[-2])] = rebinnedHists[hist.replace('isr'+upTag,'fsr'+upTag)].Integral()
+				yieldsAll[hist.replace('isr'+upTag,'fsr'+downTag).replace('_sig','_'+rfile.split('_')[-2])] = rebinnedHists[hist.replace('isr'+upTag,'fsr'+downTag)].Integral()
 				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
 					PSwgtUpHist.Scale(histList[0].Integral()/(PSwgtUpHist.Integral()+zero))
 					PSwgtDnHist.Scale(histList[0].Integral()/(PSwgtDnHist.Integral()+zero))
@@ -504,8 +510,6 @@ for rfile in rfiles:
 					rebinnedHists[hist.replace('isr'+upTag,'fsr'+downTag)].Scale(rebinnedHists[hist[:hist.find('__isr')]].Integral()/(rebinnedHists[hist.replace('isr'+upTag,'fsr'+downTag)].Integral()+zero))
 				PSwgtUpHist.Write()
 				PSwgtDnHist.Write()
-				yieldsAll[PSwgtUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = PSwgtUpHist.Integral()
-				yieldsAll[PSwgtDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = PSwgtDnHist.Integral()
 
 				#Write also ISR/FSR uncertainties separately, in addition to their envelope above.
 				rebinnedHists[hist].Write()
@@ -528,10 +532,6 @@ for rfile in rfiles:
 				isrDnHist2.Write()
 				fsrUpHist2.Write()
 				fsrDnHist2.Write()
-				yieldsAll[isrUpHist2.GetName().replace('_sig','_'+rfile.split('_')[-2]).replace('isr_'+proc_+upTag,'isr'+upTag)] = isrUpHist2.Integral()
-				yieldsAll[isrDnHist2.GetName().replace('_sig','_'+rfile.split('_')[-2]).replace('isr_'+proc_+downTag,'isr'+downTag)] = isrDnHist2.Integral()
-				yieldsAll[fsrUpHist2.GetName().replace('_sig','_'+rfile.split('_')[-2]).replace('fsr_'+proc_+upTag,'fsr'+upTag)] = fsrUpHist2.Integral()
-				yieldsAll[fsrDnHist2.GetName().replace('_sig','_'+rfile.split('_')[-2]).replace('fsr_'+proc_+downTag,'fsr'+downTag)] = fsrDnHist2.Integral()
 
 				#Add additional shift histograms to be able to uncorrelate them across years
 				PSwgtUpHist3 = PSwgtUpHist.Clone(hist.replace('isr'+upTag,newPSwgtName+'_'+proc_+'_'+year+upTag))
@@ -563,14 +563,14 @@ for rfile in rfiles:
 					pdfDnHist.SetBinContent(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinContent(ibin))
 					pdfUpHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFUp))].GetBinError(ibin))
 					pdfDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
+				yieldsAll[pdfUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfUpHist.Integral()
+				yieldsAll[pdfDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfDnHist.Integral()
 				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
 					nominalInt = rebinnedHists[hist[:hist.find('__pdf')]].Integral()
 					pdfUpHist.Scale(nominalInt/(pdfUpHist.Integral()+zero))
 					pdfDnHist.Scale(nominalInt/(pdfDnHist.Integral()+zero))
 				pdfUpHist.Write()
 				pdfDnHist.Write()
-				yieldsAll[pdfUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfUpHist.Integral()
-				yieldsAll[pdfDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfDnHist.Integral()
 
 				#Add additional shift histograms to be able to uncorrelate them across years
 				pdfUpHist2 = pdfUpHist.Clone(hist.replace('pdf0',PDFName+'_'+year+upTag))
@@ -584,7 +584,7 @@ for rfile in rfiles:
 			procsOutput = list(set([k.GetName().split('__')[1] for k in outputRfiles[iRfile].GetListOfKeys() if '_'+chn+'_' in k.GetName()]))
 			for proc in procsOutput:
 				if proc==dataName: continue
-				systsOutput = [k.GetName().split('__')[2][:-2] for k in outputRfiles[iRfile].GetListOfKeys() if '_'+chn+'_' in k.GetName() and upTag in k.GetName() and proc in k.GetName() and '_'+year not in k.GetName()]
+				systsOutput = [k.GetName().split('__')[2][:-2] for k in outputRfiles[iRfile].GetListOfKeys() if '_'+chn+'_' in k.GetName() and upTag in k.GetName() and '__'+proc in k.GetName() and '_'+year not in k.GetName()]
 				for syst in systsOutput:
 					hNm = outputRfiles[iRfile].Get(binName+'__'+proc)
 					hUp = outputRfiles[iRfile].Get(binName+'__'+proc+'__'+syst+upTag)
@@ -609,6 +609,16 @@ print "===>>> Number of BB nuisances added:"
 print "                                    bkg:",nBBnuis['bkg']
 for sig in sigProcList: print "                                    "+sig+":",nBBnuis[sig]
 
+QCDscale_ttbar = 0.0295 #ttbar +2.4%/-3.5% (symmetrize)
+QCDscale_top = 0.026 #top +3.1%/-2.1% (symmetrize)
+QCDscale_ewk = 0.006 #ewk +0.8%/-0.4% (symmetrize)
+pdf_gg = 0.042 #ttbar +/-4.2%
+pdf_qg = 0.028 #top +/-2.8%
+pdf_qqbar = 0.038 #ewk +/-3.8%
+xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
+xsec_top = 0.50 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
+xsec_ewk = 0.038 #ewk (scale+pdf)
+ttHF = 0.13 # 13% ttbb cross section uncertainty
 for chn in channels:
 	modTag = chn#[chn.find('nW'):]
 	modelingSys[dataName+'_'+modTag]=0.
@@ -616,7 +626,10 @@ for chn in channels:
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module
 		for proc in bkgProcList:
 			modelingSys[proc+'_'+modTag] = 0.
-	modelingSys['ttbb_'+modTag]=0.13 # 13% ttbb measurement uncertainty
+	modelingSys['ttbb_'+modTag]=math.sqrt(xsec_ttbar**2+ttHF**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2+ttHF**2)
+	modelingSys['ttnobb_'+modTag]=xsec_ttbar#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
+	modelingSys['top_'+modTag]=xsec_top#math.sqrt(QCDscale_top**2+pdf_qg**2)
+	modelingSys['ewk_'+modTag]=xsec_ewk#math.sqrt(QCDscale_ewk**2+pdf_qqbar**2)
 	
 isEMlist =[]
 nhottlist=[]
@@ -666,6 +679,10 @@ def getShapeSystUnc(proc,chn):
 	nomHist = histoPrefix+proc
 	for syst in systematicList:
 		if syst in removeSystFromYields: continue
+		if normalizeTheorySystSig and proc in sigProcList and ('pdf' in syst or 'muRF' in syst or 'isr' in syst or 'fsr' in syst or 'PSwgt' in syst): 
+			continue
+		if normalizeTheorySystBkg and proc not in sigProcList and ('pdf' in syst or 'muRF' in syst or 'isr' in syst or 'fsr' in syst or 'PSwgt' in syst): 
+			continue
 		for ud in [upTag,downTag]:
 			shpHist = histoPrefix+proc+'__'+syst+ud
 			shift = yieldsAll[shpHist]/(yieldsAll[nomHist]+zero)-1
@@ -852,29 +869,45 @@ table.append(['break'])
 table.append(['','Systematics'])
 table.append(['break'])
 for proc in bkgProcList+sigProcList:
-	table.append([proc]+[chn for chn in channels]+['\\\\'])
+	table.append([proc]+[chn for chn in channels]+['range']+['\\\\'])
 	systematicList = sorted([hist[hist.find(proc+'__')+len(proc)+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+proc+'__' in hist and upTag in hist])
 	for syst in systematicList:
 		for ud in [upTag,downTag]:
 			row = [syst+ud]
+			minVar = 1.e21
+			maxVar = 0.
 			for chn in channels:
 				histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
 				nomHist = histoPrefix+proc
 				shpHist = histoPrefix+proc+'__'+syst+ud
-				try: row.append(' & '+str(round(yieldsAll[shpHist]/(yieldsAll[nomHist]+zero),2)))
+				try: 
+					var_ = round(yieldsAll[shpHist]/(yieldsAll[nomHist]+zero),2)
+					if abs(1.-var_)>maxVar: maxVar = abs(1.-var_)
+					if abs(1.-var_)<minVar: minVar = abs(1.-var_)
+					row.append(' & '+str(var_))
 				except:
 					print "Missing",proc,"for channel:",chn,"and systematic:",syst
+					row.append(' & -')
 					pass
+			row.append(' & ['+str(minVar)+','+str(maxVar)+']')
 			row.append('\\\\')
 			table.append(row)
 	row = ['stat']
+	minVar = 1.e21
+	maxVar = 0.
 	for chn in channels:
 		histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
 		nomHist = histoPrefix+proc
-		try: row.append(' & '+str(round(yieldsErrsAll[nomHist]/(yieldsAll[nomHist]+zero),2)))
+		try: 
+			var_ = round(yieldsErrsAll[nomHist]/(yieldsAll[nomHist]+zero),2)
+			if abs(1.-var_)>maxVar: maxVar = abs(1.-var_)
+			if abs(1.-var_)<minVar: minVar = abs(1.-var_)
+			row.append(' & '+str(var_))
 		except:
 			print "Missing",proc,"for channel:",chn,"and systematic: stat"
+			row.append(' & -')
 			pass
+	row.append(' & ['+str(minVar)+','+str(maxVar)+']')
 	row.append('\\\\')
 	table.append(row)	
 	table.append(['break'])

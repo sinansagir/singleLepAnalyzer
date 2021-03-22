@@ -24,8 +24,8 @@ lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
 ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
 ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
 doAllSys = True
-doHDsys = False
-doUEsys = False
+doHDsys = True
+doUEsys = True
 doPDF = True
 addCRsys = False
 systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
@@ -70,8 +70,7 @@ elif year=='R18':
 bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 if year=='R17': bkgProcs['T']+= ['Tbs']
-bkgProcs['TTV'] = ['TTWl','TTZlM10','TTHB','TTHnoB']
-if year!='R16': bkgProcs['TTV']+= ['TTZlM1to10']
+bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
 bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']#+bkgProcs['TTJets']
@@ -81,10 +80,10 @@ dataList = ['DataE','DataM']#,'DataJ']
 htProcs = ['ewk','WJets','qcd']
 topptProcs = ['ttjj','ttcc','ttbb','tt1b','tt2b','ttbj','ttnobb']
 for hf in ['jj','cc','bb','1b','2b']:
-	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupTT'+hf]
-	bkgProcs['tt'+hf+'_hddn'] = ['TTJetsHadHDAMPdnTT'+hf,'TTJets2L2nuHDAMPdnTT'+hf,'TTJetsSemiLepHDAMPdnTT'+hf]
-	bkgProcs['tt'+hf+'_ueup'] = ['TTJetsHadUEupTT'+hf,'TTJets2L2nuUEupTT'+hf,'TTJetsSemiLepUEupTT'+hf]
-	bkgProcs['tt'+hf+'_uedn'] = ['TTJetsHadUEdnTT'+hf,'TTJets2L2nuUEdnTT'+hf,'TTJetsSemiLepUEdnTT'+hf]
+	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupNjet9binTT'+hf,'TTJetsSemiLepHDAMPupNjet0TT'+hf,'TTJetsSemiLepHDAMPupNjet9TT'+hf]
+	bkgProcs['tt'+hf+'_hddn'] = ['TTJetsHadHDAMPdnTT'+hf,'TTJets2L2nuHDAMPdnTT'+hf,'TTJetsSemiLepHDAMPdnNjet9binTT'+hf,'TTJetsSemiLepHDAMPdnNjet0TT'+hf,'TTJetsSemiLepHDAMPdnNjet9TT'+hf]
+	bkgProcs['tt'+hf+'_ueup'] = ['TTJetsHadUEupTT'+hf,'TTJets2L2nuUEupTT'+hf,'TTJetsSemiLepUEupNjet9binTT'+hf,'TTJetsSemiLepUEupNjet0TT'+hf,'TTJetsSemiLepUEupNjet9TT'+hf]
+	bkgProcs['tt'+hf+'_uedn'] = ['TTJetsHadUEdnTT'+hf,'TTJets2L2nuUEdnTT'+hf,'TTJetsSemiLepUEdnNjet9binTT'+hf,'TTJetsSemiLepUEdnNjet0TT'+hf,'TTJetsSemiLepUEdnNjet9TT'+hf]
 for syst in ['hdup','hddn','ueup','uedn']:
 	bkgProcs['ttbj_'+syst] = bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 	bkgProcs['ttnobb_'+syst] = bkgProcs['ttjj_'+syst] + bkgProcs['ttcc_'+syst]+bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
@@ -149,6 +148,16 @@ nWtaglist = list(set([x.split('_')[2] for x in tagList]))
 nbtaglist = list(set([x.split('_')[3] for x in tagList]))
 njetslist = list(set([x.split('_')[4] for x in tagList]))
 
+QCDscale_ttbar = 0.0295 #ttbar +2.4%/-3.5% (symmetrize)
+QCDscale_top = 0.026 #top +3.1%/-2.1% (symmetrize)
+QCDscale_ewk = 0.006 #ewk +0.8%/-0.4% (symmetrize)
+pdf_gg = 0.042 #ttbar +/-4.2%
+pdf_qg = 0.028 #top +/-2.8%
+pdf_qqbar = 0.038 #ewk +/-3.8%
+xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
+xsec_top = 0.50 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
+xsec_ewk = 0.038 #ewk (scale+pdf)
+ttHF = 0.13 # 13% ttbb cross section uncertainty
 for tag in tagList:
 	modTag = tag#[tag.find('nT'):tag.find('nJ')-3]
 	modelingSys['data_'+modTag] = 0.
@@ -156,7 +165,10 @@ for tag in tagList:
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module 
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
-	modelingSys['ttbb_'+modTag]=0.13 # 13% ttbb measurement uncertainty
+	modelingSys['ttbb_'+modTag]=math.sqrt(xsec_ttbar**2+ttHF**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2+ttHF**2)
+	modelingSys['ttnobb_'+modTag]=xsec_ttbar#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
+	modelingSys['top_'+modTag]=xsec_top#math.sqrt(QCDscale_top**2+pdf_qg**2)
+	modelingSys['ewk_'+modTag]=xsec_ewk#math.sqrt(QCDscale_ewk**2+pdf_qqbar**2)
 
 def gettime():
 	return str(round((time.time() - start_time)/60,2))+'mins'
@@ -598,7 +610,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					row = [proc]
 					for cat in catList:
 						if not ('is'+isEM in cat and thetag in cat): continue
-						modTag = cat#[cat.find('nT'):cat.find('nJ')-3]
+						modTag = cat[4:]#[cat.find('nT'):cat.find('nJ')-3]
 						histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 						yieldtemp = 0.
 						yielderrtemp = 0.
@@ -643,7 +655,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				row = [proc]
 				for cat in catList:
 					if not ('isE' in cat and thetag in cat): continue
-					modTag = cat#[cat.find('nT'):cat.find('nJ')-3]
+					modTag = cat[4:]#[cat.find('nT'):cat.find('nJ')-3]
 					histoPrefixE = discriminant+'_'+lumiStr+'_'+cat
 					histoPrefixM = histoPrefixE.replace('isE','isM')
 					yieldtemp = 0.
@@ -742,6 +754,19 @@ for iPlot in iPlotList:
 		print "       SCALING LUMINOSITY BY A FACTOR OF",lumiScaleCoeff,gettime()
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
+
+	#Re-scale tt+V cross section to experimental
+	#Table 3 in https://arxiv.org/pdf/1812.08622.pdf
+	#tt+W: 0.77 (CMS) 0.55 (NLO+NNLL+EW)
+	#tt+Z: 0.99 (CMS) 0.86 (NLO+NNLL+EW)
+# 	print "       SCALING tt+V CROSS SECTION:"
+# 	for key in bkghists.keys(): 
+# 		if 'TTWl' in key or 'TTWq' in key:
+# 			print "              ",key
+# 			bkghists[key].Scale(0.77/0.55)
+# 		elif 'TTZlM10' in key:
+# 			print "              ",key
+# 			bkghists[key].Scale(0.99/0.86)
 	
 	#Rebin
 	if rebinBy>0:
