@@ -179,20 +179,20 @@ for syst in systematics:
 			if flv=='isE': flvString+='e+jets'
 			if flv=='isM': flvString+='#mu+jets'
 			if hottag!='0p': 
-				if 'p' in hottag: tagString2+='#geq'+hottag[4:-1]+' resolved t'
-				else: tagString2+=hottag[4:]+' resolved t'
+				if 'p' in hottag: tagString2+='#geq'+hottag[:-1]+' resolved t'
+				else: tagString2+=hottag+' resolved t'
 			if ttag!='0p': 
-				if 'p' in ttag: tagString+='#geq'+ttag[2:-1]+' t, '
-				else: tagString+=ttag[2:]+' t, '
+				if 'p' in ttag: tagString+='#geq'+ttag[:-1]+' t, '
+				else: tagString+=ttag+' t, '
 			if wtag!='0p': 
-				if 'p' in wtag: tagString+='#geq'+wtag[2:-1]+' W, '
-				else: tagString+=wtag[2:]+' W, '
+				if 'p' in wtag: tagString+='#geq'+wtag[:-1]+' W, '
+				else: tagString+=wtag+' W, '
 			if btag!='0p': 
-				if 'p' in btag: tagString+='#geq'+btag[2:-1]+' b, '
-				else: tagString+=btag[2:]+' b, '
+				if 'p' in btag: tagString+='#geq'+btag[:-1]+' b, '
+				else: tagString+=btag+' b, '
 			if njet!='0p': 
-				if 'p' in njet: tagString+='#geq'+njet[2:-1]+' j'
-				else: tagString+=njet[2:]+' j'
+				if 'p' in njet: tagString+='#geq'+njet[:-1]+' j'
+				else: tagString+=njet+' j'
 			if tagString.endswith(', '): tagString = tagString[:-2]
 			chLatex.DrawLatex(0.3, 0.34, flvString)
 			chLatex.DrawLatex(0.3, 0.28, tagString)
