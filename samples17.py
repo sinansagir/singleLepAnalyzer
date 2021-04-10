@@ -239,3 +239,7 @@ samples = {
 'QCDht2000':'QCD_HT2000toInf_TuneCP5_13TeV-madgraph-pythia8',
 }
 
+for sample in samples.keys():
+	if 'TTJetsSemiLep' in sample and ('Njet0TT' in sample or 'Njet9TT' in sample):
+		samples[sample.replace('TTJetsSemiLep','TTJetsSemiLepInc')] = samples[sample]
+

@@ -75,6 +75,7 @@ removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
 removeSystFromYields+= ['PSwgt'] #remove if envelope method is not used, otherwise replace with ['isr','fsr']
+removeSystFromYields+= ['btag'] #remove if year-to-year correlation is used, otherwise replace with ['btagcorr','btaguncorr']
 
 minNbins=1 #min number of bins to be merged
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")

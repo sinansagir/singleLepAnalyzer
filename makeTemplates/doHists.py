@@ -113,7 +113,8 @@ elif year=='R17':
 elif year=='R18':
 	bkgList+= ['WJetsMG1200','WJetsMG2500']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
-
+#for ind in range(len(bkgList)):
+#	if 'TTJetsSemiLep' in bkgList[ind]: bkgList[ind]=bkgList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
 dataList = ['DataE','DataM']#,'DataJ']
 
 whichSignal = 'tttt' #HTB, TT, BB, X53 or tttt
@@ -154,7 +155,10 @@ ueList = [#UE samples
 runData = True
 runBkgs = True
 runSigs = True
-
+#for ind in range(len(hdampList)):
+#        if 'TTJetsSemiLep' in hdampList[ind]: hdampList[ind]=hdampList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
+#for ind in range(len(ueList)):
+#        if 'TTJetsSemiLep' in ueList[ind]: ueList[ind]=ueList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
 # cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
 cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
 if year=='R16': 
@@ -298,6 +302,8 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'HT_vs_HTb':('AK4HT:HT_bjets',linspace(0, 3000, 121).tolist(),';H_{T} [GeV]',linspace(0, 3000, 121).tolist(),';H_{T}^{b} [GeV]'),
 	'HT_vs_maxJJJpt':('AK4HT:maxJJJpt',linspace(0, 3000, 121).tolist(),';H_{T} [GeV]',linspace(0, 1500, 101).tolist(),';max[p_{T}^{jjj}] [GeV]'),
 	'HTb_vs_maxJJJpt':('HT_bjets:maxJJJpt',linspace(0, 3000, 121).tolist(),';H_{T}^{b} [GeV]',linspace(0, 1500, 101).tolist(),';max[p_{T}^{jjj}] [GeV]'),
+	'genHT':('AK4GenHT',linspace(0, 4000, 161).tolist(),';H_{T}^{gen} [GeV]'),
+	'genNJets':('NAK4GenJets',linspace(0, 15, 16).tolist(),';gen AK4 jet multiplicity'),
 
 	'maxJJJpt':('maxJJJpt',linspace(0, 1500, 101).tolist(),';max[p_{T}^{jjj}] [GeV]'),
 	'HTb':('HT_bjets',linspace(0, 3000, 121).tolist(),';H_{T}^{b} [GeV]'),

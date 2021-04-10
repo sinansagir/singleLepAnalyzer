@@ -6,7 +6,8 @@ samples = {
 'DataJ':'JetHT',
 
 #'tttt':'TTTT_TuneCP5_13TeV-amcatnlo-pythia8',
-'tttt':'TTTT_TuneCP5_13TeV-amcatnlo-pythia8_ext',
+#'tttt':'TTTT_TuneCP5_13TeV-amcatnlo-pythia8_ext',
+'tttt':'TTTT_TuneCP5_13TeV-amcatnlo-pythia8_combined',
 
 'X53LHM900':'X53X53_M-900_LH_TuneCP5_13TeV-madgraph-pythia8',
 'X53LHM1000':'X53X53_M-1000_LH_TuneCP5_13TeV-madgraph-pythia8',
@@ -229,4 +230,8 @@ samples = {
 'QCDht1500':'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8',
 'QCDht2000':'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8',
 }
+
+for sample in samples.keys():
+        if 'TTJetsSemiLep' in sample and ('Njet0TT' in sample or 'Njet9TT' in sample):
+                samples[sample.replace('TTJetsSemiLep','TTJetsSemiLepInc')] = samples[sample]
 

@@ -247,7 +247,7 @@ totBkgTemp2 = {}
 totBkgTemp3 = {}
 for catEStr in catsElist:
 	systematicList_ = systematicList[:]
-	if 'nB0p' not in catEStr: systematicList_ += ['btag','mistag']
+	if 'nB0p' not in catEStr: systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
 	if 'nHOT0p' not in catEStr: systematicList_ += ['hotstat','hotcspur','hotclosure']
 	if useSmoothShapes: systematicList_ = ['lowess'+syst for syst in systematicList_]
 	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]

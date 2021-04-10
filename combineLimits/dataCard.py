@@ -90,7 +90,9 @@ def add_standard_systematics(cb):
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotstat_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotcspur_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotclosure_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
-	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	#cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btagcorr', 'shape', ch.SystMap()(1.0)) # New year-to-year correlation
+	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btaguncorr_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # New year-to-year correlation
 	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'mistag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	for proc in allbkgs:
 		if proc in ttbkgs: 
@@ -105,7 +107,8 @@ def add_standard_systematics(cb):
 	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'isr_tttt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'fsr_tttt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'pdf', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7
-	cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.945,1.048])) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
+	#cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.945,1.048])) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
+	cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.91,1.11])) # hDamp uncertainty of +10/-7% added in quadrature with the x-sec uncertainty (+4.8/-5.5%)
 	cb.cp().process(['ewk']).channel(chns).AddSyst(cb, 'xsec_ewk', 'lnN', ch.SystMap()(1.038)) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
 	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'xsec_top', 'lnN', ch.SystMap()(1.5)) # ttV,ttH, and tt+XY uncertainties are 50% in OSDL and SSDL analyses, so aligning it with this inflated uncertainty.
 	# Additional TOP bkg group x-sec uncertainties tested:
@@ -244,7 +247,7 @@ if __name__ == '__main__':
 	elif era=='R18': lumiStr = '59p97fb'
 	smoothAlgo = 'lowess' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
 	tag = ''#'_tshape'
-	saveKey = '_topunc50p_'+iPlot
+	saveKey = '_btagY2Ycorr_hDamp_'+iPlot
 	fileDir = '../makeTemplates/'
 	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)
