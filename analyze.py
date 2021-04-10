@@ -250,6 +250,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	# replace cuts for shifts
 	cut_btagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFup')
 	cut_btagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFdn')
+	cut_btagcorrUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFCorrup')
+	cut_btagcorrDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFCorrdn')
+	cut_btaguncorrUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFUncorrup')
+	cut_btaguncorrDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFUncorrdn')
 	cut_mistagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_lSFup')
 	cut_mistagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_lSFdn')
 	
@@ -287,7 +291,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	if isPlot2D: hists[histName]  = TH2D(histName,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[histName]  = TH1D(histName,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','mistag','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf']#,'toppt'
+		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf']#,'toppt'
 		if '18' not in year: systList += ['prefire']
 		for proc in tTree.keys():
 			if proc.endswith('Up'):
@@ -408,6 +412,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		if nbtag!='0p':
 			tTree[process].Draw(BTAGupName  +' >> '+histName.replace(iPlot,iPlot+'btagUp')    , weightStr+'*('+cut_btagUp+')', 'GOFF')
 			tTree[process].Draw(BTAGdnName  +' >> '+histName.replace(iPlot,iPlot+'btagDown')  , weightStr+'*('+cut_btagDn+')', 'GOFF')
+			tTree[process].Draw(BTAGupName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrUp')    , weightStr+'*('+cut_btagcorrUp+')', 'GOFF')
+			tTree[process].Draw(BTAGdnName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrDown')  , weightStr+'*('+cut_btagcorrDn+')', 'GOFF')
+			tTree[process].Draw(BTAGupName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrUp')    , weightStr+'*('+cut_btaguncorrUp+')', 'GOFF')
+			tTree[process].Draw(BTAGdnName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrDown')  , weightStr+'*('+cut_btaguncorrDn+')', 'GOFF')
 			tTree[process].Draw(MISTAGupName+' >> '+histName.replace(iPlot,iPlot+'mistagUp')  , weightStr+'*('+cut_mistagUp+')', 'GOFF')
 			tTree[process].Draw(MISTAGdnName+' >> '+histName.replace(iPlot,iPlot+'mistagDown'), weightStr+'*('+cut_mistagDn+')', 'GOFF')
 

@@ -28,7 +28,7 @@ doHDsys = True
 doUEsys = True
 doPDF = True
 addCRsys = False
-systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
+systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
 #systematicList+= ['CSVshapelf','CSVshapehf']
 systematicList+= ['JEC','JER']#,
 # 'JEC_Total','JEC_FlavorQCD',
@@ -56,7 +56,7 @@ elif year=='R16' or year=='R18':
 	bkgProcs['WJets']+= ['WJetsMG1200','WJetsMG2500']
 bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
-TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet9bin','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9']
+TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9','TTJetsSemiLepNjet9bin']
 bkgProcs['tt1b']  = [tt+'TT1b' for tt in TTlist]
 bkgProcs['tt2b']  = [tt+'TT2b' for tt in TTlist]
 bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
@@ -80,10 +80,10 @@ dataList = ['DataE','DataM']#,'DataJ']
 htProcs = ['ewk','WJets','qcd']
 topptProcs = ['ttjj','ttcc','ttbb','tt1b','tt2b','ttbj','ttnobb']
 for hf in ['jj','cc','bb','1b','2b']:
-	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupNjet9binTT'+hf,'TTJetsSemiLepHDAMPupNjet0TT'+hf,'TTJetsSemiLepHDAMPupNjet9TT'+hf]
-	bkgProcs['tt'+hf+'_hddn'] = ['TTJetsHadHDAMPdnTT'+hf,'TTJets2L2nuHDAMPdnTT'+hf,'TTJetsSemiLepHDAMPdnNjet9binTT'+hf,'TTJetsSemiLepHDAMPdnNjet0TT'+hf,'TTJetsSemiLepHDAMPdnNjet9TT'+hf]
-	bkgProcs['tt'+hf+'_ueup'] = ['TTJetsHadUEupTT'+hf,'TTJets2L2nuUEupTT'+hf,'TTJetsSemiLepUEupNjet9binTT'+hf,'TTJetsSemiLepUEupNjet0TT'+hf,'TTJetsSemiLepUEupNjet9TT'+hf]
-	bkgProcs['tt'+hf+'_uedn'] = ['TTJetsHadUEdnTT'+hf,'TTJets2L2nuUEdnTT'+hf,'TTJetsSemiLepUEdnNjet9binTT'+hf,'TTJetsSemiLepUEdnNjet0TT'+hf,'TTJetsSemiLepUEdnNjet9TT'+hf]
+	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupNjet0TT'+hf,'TTJetsSemiLepHDAMPupNjet9TT'+hf,'TTJetsSemiLepHDAMPupNjet9binTT'+hf]
+	bkgProcs['tt'+hf+'_hddn'] = ['TTJetsHadHDAMPdnTT'+hf,'TTJets2L2nuHDAMPdnTT'+hf,'TTJetsSemiLepHDAMPdnNjet0TT'+hf,'TTJetsSemiLepHDAMPdnNjet9TT'+hf,'TTJetsSemiLepHDAMPdnNjet9binTT'+hf]
+	bkgProcs['tt'+hf+'_ueup'] = ['TTJetsHadUEupTT'+hf,'TTJets2L2nuUEupTT'+hf,'TTJetsSemiLepUEupNjet0TT'+hf,'TTJetsSemiLepUEupNjet9TT'+hf,'TTJetsSemiLepUEupNjet9binTT'+hf]
+	bkgProcs['tt'+hf+'_uedn'] = ['TTJetsHadUEdnTT'+hf,'TTJets2L2nuUEdnTT'+hf,'TTJetsSemiLepUEdnNjet0TT'+hf,'TTJetsSemiLepUEdnNjet9TT'+hf,'TTJetsSemiLepUEdnNjet9binTT'+hf]
 for syst in ['hdup','hddn','ueup','uedn']:
 	bkgProcs['ttbj_'+syst] = bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 	bkgProcs['ttnobb_'+syst] = bkgProcs['ttjj_'+syst] + bkgProcs['ttcc_'+syst]+bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
