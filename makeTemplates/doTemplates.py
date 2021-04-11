@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os,sys,time,math,datetime,pickle,itertools,fnmatch
-from ROOT import gROOT,TFile,TH1F
+from ROOT import gROOT,TFile,TH1F,Double
 from array import array
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
@@ -13,7 +13,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 year=sys.argv[1]
-saveKey = ''#'_ttHFupLFdown'
+saveKey = '_ttH'
 cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 theDir = 'templates_'+year+'_'+sys.argv[2]
 outDir = os.getcwd()+'/'+theDir+'/'+cutString
@@ -42,12 +42,14 @@ if year != 'R18': systematicList += ['prefire']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 zero = 1E-12
-removeThreshold = 0.015 # If a process/totalBkg is less than the threshold, the process will be removed in the output files!
+# removeThreshold and removeStatUnc applied together! If a process/totalBkg is less than the threshold and the overall statistical uncertainty of a process is than the threshold, the process will be removed in the output files!
+removeThreshold = 0.015
+removeStatUnc = 0.5
 
 ttbarGrupList = ['ttnobb','ttbb']
-bkgGrupList = ttbarGrupList+['top','ewk','qcd']
+bkgGrupList = ttbarGrupList+['ttH','top','ewk','qcd']
 ttbarProcList = ['ttjj','ttcc','ttbb','tt1b','tt2b']
-bkgProcList = ttbarProcList+['T','TTV','TTXY','WJets','ZJets','VV','qcd']
+bkgProcList = ttbarProcList+['T','TTH','TTV','TTXY','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets'] = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800']
 if year=='R17':
@@ -70,9 +72,11 @@ elif year=='R18':
 bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 if year=='R17': bkgProcs['T']+= ['Tbs']
-bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB']
+bkgProcs['TTH'] = ['TTHB','TTHnoB']
+bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+bkgProcs['ttH'] = bkgProcs['TTH']
 bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']#+bkgProcs['TTJets']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV']
 dataList = ['DataE','DataM']#,'DataJ']
@@ -155,9 +159,11 @@ pdf_gg = 0.042 #ttbar +/-4.2%
 pdf_qg = 0.028 #top +/-2.8%
 pdf_qqbar = 0.038 #ewk +/-3.8%
 xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
-xsec_top = 0.50 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
+xsec_ttH = 0.50
+xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
 xsec_ewk = 0.038 #ewk (scale+pdf)
 ttHF = 0.13 # 13% ttbb cross section uncertainty
+hDamp = 0.085 # +10%/-7% (symmetrize)
 for tag in tagList:
 	modTag = tag#[tag.find('nT'):tag.find('nJ')-3]
 	modelingSys['data_'+modTag] = 0.
@@ -165,8 +171,9 @@ for tag in tagList:
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module 
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
-	modelingSys['ttbb_'+modTag]=math.sqrt(xsec_ttbar**2+ttHF**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2+ttHF**2)
-	modelingSys['ttnobb_'+modTag]=xsec_ttbar#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
+	modelingSys['ttbb_'+modTag]=math.sqrt(xsec_ttbar**2+ttHF**2+hDamp**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2+ttHF**2)
+	modelingSys['ttnobb_'+modTag]=math.sqrt(xsec_ttbar**2+hDamp**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
+	modelingSys['ttH_'+modTag]=xsec_ttH
 	modelingSys['top_'+modTag]=xsec_top#math.sqrt(QCDscale_top**2+pdf_qg**2)
 	modelingSys['ewk_'+modTag]=xsec_ewk#math.sqrt(QCDscale_ewk**2+pdf_qqbar**2)
 
@@ -386,10 +393,16 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				i=BRconfStr+cat
 				totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 				for proc in bkgGrupList+[signal]:
-					if proc in bkgGrupList and hists[proc+i].Integral()/totBkg_ <= removeThreshold:
+					err_ = Double(0)
+					integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
+					if integral_==0: statUnc_ = 1e20
+					else: statUnc_ = err_/integral_
+					if proc in bkgGrupList and integral_/totBkg_ <= removeThreshold and statUnc_ >= removeStatUnc:
 						print proc+i,'IS',
-						if hists[proc+i].Integral()==0: print 'EMPTY! SKIPPING ...'
-						else: print '< '+str(removeThreshold*100)+'% OF TOTAL BKG! SKIPPING ...'
+						if integral_==0: print 'EMPTY! ',
+						if statUnc_ >= removeStatUnc and statUnc_!=1e20: print 'HAS STATISTICAL UNCERTAINTY > '+str(removeStatUnc*100)+'%! ',
+						if integral_/totBkg_ <= removeThreshold: print 'IS < '+str(removeThreshold*100)+'% OF TOTAL BKG! ', 
+						print 'SKIPPING ...'
 						continue
 					hists[proc+i].Write()
 					if doAllSys:
@@ -436,10 +449,16 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						hists[signal+i+'pdf'+str(pdfInd)].Write()
 			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
-				if hists[proc+i].Integral()/totBkg_ <= removeThreshold:
+				err_ = Double(0)
+				integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
+				if integral_==0: statUnc_ = 1e20
+				else: statUnc_ = err_/integral_
+				if integral_/totBkg_ <= removeThreshold and statUnc_ >= removeStatUnc:
 					print proc+i,'IS',
-					if hists[proc+i].Integral()==0: print 'EMPTY! SKIPPING ...'
-					else: print '< '+str(removeThreshold*100)+'% OF TOTAL BKG! SKIPPING ...'
+					if integral_==0: print 'EMPTY! ',
+					if statUnc_ >= removeStatUnc and statUnc_!=1e20: print 'HAS STATISTICAL UNCERTAINTY > '+str(removeStatUnc*100)+'%! ',
+					if integral_/totBkg_ <= removeThreshold: print 'IS < '+str(removeThreshold*100)+'% OF TOTAL BKG! ',
+					print 'SKIPPING ...'
 					continue
 				hists[proc+i].SetName(hists[proc+i].GetName())
 				if hists[proc+i].Integral() == 0: hists[proc+i].SetBinContent(1,zero)

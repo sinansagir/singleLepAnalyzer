@@ -110,7 +110,8 @@ def add_standard_systematics(cb):
 	#cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.945,1.048])) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
 	cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.91,1.11])) # hDamp uncertainty of +10/-7% added in quadrature with the x-sec uncertainty (+4.8/-5.5%)
 	cb.cp().process(['ewk']).channel(chns).AddSyst(cb, 'xsec_ewk', 'lnN', ch.SystMap()(1.038)) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
-	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'xsec_top', 'lnN', ch.SystMap()(1.5)) # ttV,ttH, and tt+XY uncertainties are 50% in OSDL and SSDL analyses, so aligning it with this inflated uncertainty.
+	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'xsec_top', 'lnN', ch.SystMap()(1.04)) # ttV,ttH, and tt+XY uncertainties are 50% in OSDL and SSDL analyses, so aligning it with this inflated uncertainty.
+	cb.cp().process(['ttH']).channel(chns).AddSyst(cb, 'xsec_ttH', 'lnN', ch.SystMap()(1.5)) # ttV,ttH, and tt+XY uncertainties are 50% in OSDL and SSDL analyses, so aligning it with this inflated uncertainty.
 	# Additional TOP bkg group x-sec uncertainties tested:
 # 	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'xsec_top', 'lnN', ch.SystMap()([0.965,1.042])) # (scale and pdf added in quadrature with single top uncertainties) from Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
 # 	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'xsec_top', 'lnN', ch.SystMap()([0.832,1.258])) # (scale and pdf added in quadrature with tt+W uncertainties) from Table 3 of https://arxiv.org/pdf/1812.08622.pdf; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
@@ -246,8 +247,8 @@ if __name__ == '__main__':
 	elif era=='R17': lumiStr = '41p53fb'
 	elif era=='R18': lumiStr = '59p97fb'
 	smoothAlgo = 'lowess' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
-	tag = ''#'_tshape'
-	saveKey = '_btagY2Ycorr_hDamp_'+iPlot
+	tag = '_ttH'
+	saveKey = '_btagY2Ycorr_hDamp_ttH_'+iPlot
 	fileDir = '../makeTemplates/'
 	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)
@@ -255,7 +256,7 @@ if __name__ == '__main__':
 	rfile = './limits_'+template+saveKey+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3.root'
 	
 	ttbkgs = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
-	allbkgs = ttbkgs + ['top','ewk','qcd']
+	allbkgs = ttbkgs + ['ttH','top','ewk','qcd']
 	dataName = 'data_obs'
 	mRFnorm = {'ttnobb':1.36,'ttbb':1.36,'top':1.47,'ewk':1.31,'qcd':1.38}
 	ISRnorm = {'ttnobb':1.17,'ttbb':1.15,'top':1.16,'ewk':1.00,'qcd':1.11}
@@ -275,9 +276,9 @@ if __name__ == '__main__':
 	bkg_procs = {chn:[hist.split('__')[-1] for hist in allHistNames if '_'+chn+'_' in hist and not (hist.endswith('Up') or hist.endswith('Down') or hist.endswith(dataName) or hist.endswith('tttt'))] for chn in chns}
 	for cat in sorted(bkg_procs.keys()):
 		print cat,bkg_procs[cat]
-		if 'qcd' in bkg_procs[cat]:
-			print '		Removing qcd ...'
-			bkg_procs[cat]=bkg_procs[cat][:-1]
+		#if 'qcd' in bkg_procs[cat]:
+		#	print '		Removing qcd ...'
+		#	bkg_procs[cat]=bkg_procs[cat][:-1]
 # 	if era=='R18':
 # 		bkg_procs['isSR_isE_nHOT1p_nT0p_nW0p_nB4p_nJ9']=['ttbb', 'ttcc', 'ttjj', 'top']
 	
