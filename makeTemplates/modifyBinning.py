@@ -43,7 +43,7 @@ saveKey = ''
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]+'/'+cutString
-combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
+combinefile = 'templates_'+iPlot+'_'+lumiStr+'_ttH.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = True #else rebins theta templates
@@ -66,7 +66,7 @@ if sigName=='X53':
 	sigProcList = [sigName+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
 	sigProcList+= [sigName+'RHM'+str(mass) for mass in range(900,1700+1,100)]
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
-bkgProcList = ttProcList + ['top','ewk','qcd'] #put the most dominant process first
+bkgProcList = ttProcList + ['ttH','top','ewk','qcd'] #put the most dominant process first
 removeSystFromYields = ['CSVshapehf','CSVshapelf','hdamp','ue','njet','njetsf'] #list of systematics to be removed from yield errors
 removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
@@ -617,7 +617,8 @@ pdf_gg = 0.042 #ttbar +/-4.2%
 pdf_qg = 0.028 #top +/-2.8%
 pdf_qqbar = 0.038 #ewk +/-3.8%
 xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
-xsec_top = 0.50 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
+xsec_ttH = 0.50
+xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
 xsec_ewk = 0.038 #ewk (scale+pdf)
 ttHF = 0.13 # 13% ttbb cross section uncertainty
 for chn in channels:
@@ -629,6 +630,7 @@ for chn in channels:
 			modelingSys[proc+'_'+modTag] = 0.
 	modelingSys['ttbb_'+modTag]=math.sqrt(xsec_ttbar**2+ttHF**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2+ttHF**2)
 	modelingSys['ttnobb_'+modTag]=xsec_ttbar#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
+	modelingSys['ttH_'+modTag]=xsec_ttH
 	modelingSys['top_'+modTag]=xsec_top#math.sqrt(QCDscale_top**2+pdf_qg**2)
 	modelingSys['ewk_'+modTag]=xsec_ewk#math.sqrt(QCDscale_ewk**2+pdf_qqbar**2)
 	
@@ -652,6 +654,7 @@ procNames['dataOverBkg'] = 'Data/Bkg'
 procNames['totBkg'] = 'Total bkg'
 procNames['data_obs'] = 'Data'
 procNames['DATA'] = 'Data'
+procNames['ttH']  = '\\ttbar+ H'
 procNames['top']  = 'TOP'
 procNames['ewk']  = 'EWK'
 procNames['qcd']  = 'QCD'

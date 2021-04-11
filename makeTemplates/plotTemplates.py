@@ -35,7 +35,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_ttH_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
@@ -52,9 +52,9 @@ if iPlot=='HTYLD':
 	ttProcList = ['ttbb','ttnobb']
 	useCombineTemplates = False
 	scaleSignals = True
-bkgProcList = ttProcList+['top','ewk','qcd']
+bkgProcList = ttProcList+['ttH','top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
@@ -118,7 +118,8 @@ pdf_gg = 0.042 #ttbar +/-4.2%
 pdf_qg = 0.028 #top +/-2.8%
 pdf_qqbar = 0.038 #ewk +/-3.8%
 xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
-xsec_top = 0.50 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
+xsec_ttH = 0.50
+xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
 xsec_ewk = 0.038 #ewk (scale+pdf)
 ttHF = 0.13 # 13% ttbb cross section uncertainty
 for catEStr in catsElist:
@@ -129,6 +130,7 @@ for catEStr in catsElist:
 			modelingSys[proc+'_'+modTag] = 0.
 	modelingSys['ttbb_'+modTag]=math.sqrt(xsec_ttbar**2+ttHF**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2+ttHF**2)
 	modelingSys['ttnobb_'+modTag]=xsec_ttbar#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
+	modelingSys['ttH_'+modTag]=xsec_ttH#math.sqrt(QCDscale_top**2+pdf_qg**2)
 	modelingSys['top_'+modTag]=xsec_top#math.sqrt(QCDscale_top**2+pdf_qg**2)
 	modelingSys['ewk_'+modTag]=xsec_ewk#math.sqrt(QCDscale_ewk**2+pdf_qqbar**2)
 
@@ -531,6 +533,8 @@ for catEStr in catsElist:
 		try: leg.AddEntry(bkghists['ewk'+catStr],"EWK","f")
 		except: pass
 		try: leg.AddEntry(bkghists['top'+catStr],"TOP","f")
+		except: pass
+		try: leg.AddEntry(bkghists['ttH'+catStr],"t#bar{t}+H","f")
 		except: pass
 		try: leg.AddEntry(bkghists['ttnobb'+catStr],"t#bar{t}+!b#bar{b}","f")
 		except: pass
@@ -940,6 +944,8 @@ for catEStr in catsElist:
 	try: legmerged.AddEntry(bkghistsmerged['ewk'+catLStr],"EWK","f")
 	except: pass
 	try: legmerged.AddEntry(bkghistsmerged['top'+catLStr],"TOP","f")
+	except: pass
+	try: legmerged.AddEntry(bkghistsmerged['ttH'+catLStr],"t#bar{t}+H","f")
 	except: pass
 	try: legmerged.AddEntry(bkghistsmerged['ttnobb'+catLStr],"t#bar{t}+!b#bar{b}","f")
 	except: pass
