@@ -10,8 +10,8 @@ for iPlot in lepPt lepEta lepPhi lepIso deltaRjet1 deltaRjet2 deltaRjet3 \
              NresolvedTops1p NresolvedTops2p NresolvedTops5p NresolvedTops10p;
 	do
     echo $iPlot
-    python modifyBinning.py $iPlot
-    python plotTemplates.py $iPlot
+    python modifyBinning.py R18 $iPlot redJECs_2020_12_5
+    python plotTemplates.py R18 $iPlot redJECs_2020_12_5
 done
              #NWJets NTJets NJetsAK8 JetPtAK8 JetEtaAK8 JetPhiAK8 deltaRAK8 \
              #Tau1 Tau2 Tau3 Tau21 Tau21Nm1 Tau32 Tau32Nm1 SoftDropMass SoftDropMassNm1W SoftDropMassNm1t \

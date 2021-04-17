@@ -13,7 +13,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 year=sys.argv[1]
-saveKey = '_ttH'
+saveKey = ''#'_ttH'
 cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 theDir = 'templates_'+year+'_'+sys.argv[2]
 outDir = os.getcwd()+'/'+theDir+'/'+cutString
@@ -159,7 +159,7 @@ pdf_gg = 0.042 #ttbar +/-4.2%
 pdf_qg = 0.028 #top +/-2.8%
 pdf_qqbar = 0.038 #ewk +/-3.8%
 xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
-xsec_ttH = 0.50
+xsec_ttH = 0.20
 xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
 xsec_ewk = 0.038 #ewk (scale+pdf)
 ttHF = 0.13 # 13% ttbb cross section uncertainty

@@ -2,7 +2,7 @@ import os,sys
 import ROOT as rt
 
 shift = sys.argv[1]
-inputDir  = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_redJECs_120420_step1hadds/'+shift+'/'
+inputDir  = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2016_Jan2021_4t_032721_step1hadds/'+shift+'/'
 rootfiles = os.popen('ls '+inputDir)
 
 for file in rootfiles:

@@ -59,10 +59,10 @@ nRun['TTJetsHadUEup'] = 27713380.0 # from integral, file TTToHadronic_TuneCP5up_
 nRun['TTJetsHadHDAMPdn'] = 28424480.0 # from integral, file TTToHadronic_hdampDOWN_TuneCP5_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root
 nRun['TTJetsHadHDAMPup'] = 28565510.0 # from integral, file TTToHadronic_hdampUP_TuneCP5_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root
 
-nRun_TTJetsSemiLepUEdn = 28718770.0 # from integral, file TTToSemiLeptonic_TuneCP5down_PSweights_13TeV-powheg-pythia8_HT0Njet0_ttbb_hadd.root
-nRun_TTJetsSemiLepUEup = 29002092.0 # from integral, file TTToSemiLeptonic_TuneCP5up_PSweights_13TeV-powheg-pythia8_HT0Njet0_ttbb_hadd.root
-nRun_TTJetsSemiLepHDAMPdn = 29310104.0 # from integral, file TTToSemiLeptonic_hdampDOWN_TuneCP5_PSweights_13TeV-powheg-pythia8_HT0Njet0_ttbb_hadd.root
-nRun_TTJetsSemiLepHDAMPup = 29537208.0 # from integral, file TTToSemiLeptonic_hdampUP_TuneCP5_PSweights_13TeV-powheg-pythia8_HT0Njet0_ttbb_hadd.root
+nRun_TTJetsSemiLepUEdn = nRun['TTJetsSemiLepUEdn']
+nRun_TTJetsSemiLepUEup = nRun['TTJetsSemiLepUEup']
+nRun_TTJetsSemiLepHDAMPdn = nRun['TTJetsSemiLepHDAMPdn']
+nRun_TTJetsSemiLepHDAMPup = nRun['TTJetsSemiLepHDAMPup']
 nRun_TTJetsSemiLepUEdnNjet9 = 2129919.0 # from integral, file TTToSemiLepton_HT500Njet9_TuneCP5down_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root
 nRun_TTJetsSemiLepUEupNjet9 = 1103908.0 # from integral, file TTToSemiLepton_HT500Njet9_TuneCP5up_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root
 nRun_TTJetsSemiLepHDAMPdnNjet9 = 1653162.0 # from integral, file TTToSemiLepton_HT500Njet9_hdampDOWN_TuneCP5_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root

@@ -188,6 +188,9 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn')
 		weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup')
 		weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn')
+	else:
+		if '17' in year: cut += ' && !((run_CommonCalc == 299480 && lumi_CommonCalc == 7) || (run_CommonCalc == 301397 && lumi_CommonCalc == 518) || (run_CommonCalc == 305366 && lumi_CommonCalc == 395))' # for 1lep2017_Oct2019
+		elif '18' in year: cut += ' && !((run_CommonCalc == 322430 && lumi_CommonCalc >= 502 && lumi_CommonCalc <= 794) || (run_CommonCalc == 322431 && lumi_CommonCalc <= 53))' # for 1lep2018_Oct2019
 
 	# For N-1 tagging cuts
 	sdmassvar='theJetAK8SoftDropCorr_JetSubCalc_PtOrdered'
@@ -401,21 +404,29 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		# b-tagging:
 		BTAGupName = plotTreeName#.replace('_lepBJets','_bSFup_lepBJets')
 		BTAGdnName = plotTreeName#.replace('_lepBJets','_bSFdn_lepBJets')
+                BTAGCORRupName = plotTreeName#.replace('_lepBJets','_bSFup_lepBJets')
+                BTAGCORRdnName = plotTreeName#.replace('_lepBJets','_bSFdn_lepBJets')
+                BTAGUNCORRupName = plotTreeName#.replace('_lepBJets','_bSFup_lepBJets')
+                BTAGUNCORRdnName = plotTreeName#.replace('_lepBJets','_bSFdn_lepBJets')
 		MISTAGupName = plotTreeName#.replace('_lepBJets','_lSFup_lepBJets')
 		MISTAGdnName = plotTreeName#.replace('_lepBJets','_lSFdn_lepBJets')
-		if 'CSVwithSF' in BTAGupName or 'Htag' in BTAGupName or 'MleppB' in BTAGupName or 'BJetLead' in BTAGupName or 'minMlb' in BTAGupName: 
+		if 'CSVwithSF' in BTAGupName:# or 'Htag' in BTAGupName or 'MleppB' in BTAGupName or 'BJetLead' in BTAGupName or 'minMlb' in BTAGupName: 
 			BTAGupName = BTAGupName+'_bSFup'
 			BTAGdnName = BTAGdnName+'_bSFdn'
+                        BTAGCORRupName = BTAGCORRupName+'_bSFCorrup'
+                        BTAGCORRdnName = BTAGCORRdnName+'_bSFCorrdn'
+                        BTAGUNCORRupName = BTAGUNCORRupName+'_bSFUncorrup'
+                        BTAGUNCORRdnName = BTAGUNCORRdnName+'_bSFUncorrdn'
 			MISTAGupName = MISTAGupName+'_lSFup'
 			MISTAGdnName = MISTAGdnName+'_lSFdn'
 		print 'BTAG SHIFT LJMET NAMES:',BTAGupName,BTAGdnName,MISTAGupName,MISTAGdnName
 		if nbtag!='0p':
 			tTree[process].Draw(BTAGupName  +' >> '+histName.replace(iPlot,iPlot+'btagUp')    , weightStr+'*('+cut_btagUp+')', 'GOFF')
 			tTree[process].Draw(BTAGdnName  +' >> '+histName.replace(iPlot,iPlot+'btagDown')  , weightStr+'*('+cut_btagDn+')', 'GOFF')
-			tTree[process].Draw(BTAGupName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrUp')    , weightStr+'*('+cut_btagcorrUp+')', 'GOFF')
-			tTree[process].Draw(BTAGdnName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrDown')  , weightStr+'*('+cut_btagcorrDn+')', 'GOFF')
-			tTree[process].Draw(BTAGupName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrUp')    , weightStr+'*('+cut_btaguncorrUp+')', 'GOFF')
-			tTree[process].Draw(BTAGdnName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrDown')  , weightStr+'*('+cut_btaguncorrDn+')', 'GOFF')
+			tTree[process].Draw(BTAGCORRupName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrUp')    , weightStr+'*('+cut_btagcorrUp+')', 'GOFF')
+			tTree[process].Draw(BTAGCORRdnName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrDown')  , weightStr+'*('+cut_btagcorrDn+')', 'GOFF')
+			tTree[process].Draw(BTAGUNCORRupName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrUp')    , weightStr+'*('+cut_btaguncorrUp+')', 'GOFF')
+			tTree[process].Draw(BTAGUNCORRdnName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrDown')  , weightStr+'*('+cut_btaguncorrDn+')', 'GOFF')
 			tTree[process].Draw(MISTAGupName+' >> '+histName.replace(iPlot,iPlot+'mistagUp')  , weightStr+'*('+cut_mistagUp+')', 'GOFF')
 			tTree[process].Draw(MISTAGdnName+' >> '+histName.replace(iPlot,iPlot+'mistagDown'), weightStr+'*('+cut_mistagDn+')', 'GOFF')
 
