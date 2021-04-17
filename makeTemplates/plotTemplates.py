@@ -35,7 +35,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-isRebinned='_ttH_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
@@ -118,7 +118,7 @@ pdf_gg = 0.042 #ttbar +/-4.2%
 pdf_qg = 0.028 #top +/-2.8%
 pdf_qqbar = 0.038 #ewk +/-3.8%
 xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
-xsec_ttH = 0.50
+xsec_ttH = 0.20
 xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
 xsec_ewk = 0.038 #ewk (scale+pdf)
 ttHF = 0.13 # 13% ttbb cross section uncertainty
@@ -250,8 +250,8 @@ totBkgTemp2 = {}
 totBkgTemp3 = {}
 for catEStr in catsElist:
 	systematicList_ = systematicList[:]
-	if 'nB0p' not in catEStr: systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
-	if 'nHOT0p' not in catEStr: systematicList_ += ['hotstat','hotcspur','hotclosure']
+	if 'nB0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
+	if 'nHOT0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['hotstat','hotcspur','hotclosure']
 	if useSmoothShapes: systematicList_ = ['lowess'+syst for syst in systematicList_]
 	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]
 	for isEM in isEMlist:

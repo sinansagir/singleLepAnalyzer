@@ -43,7 +43,7 @@ saveKey = ''
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]+'/'+cutString
-combinefile = 'templates_'+iPlot+'_'+lumiStr+'_ttH.root'
+combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = True #else rebins theta templates
@@ -593,6 +593,8 @@ for rfile in rfiles:
 					hsUp,hsDn = smoothShape(hNm,hUp,hDn,smoothingAlgo,symmetrizeSmoothing)
 					hsUp.Write()
 					hsDn.Write()
+                                        yieldsAll[hsUp.GetName().replace('_sig','_'+rfile.split('_')[-2])] = hsUp.Integral()
+                                        yieldsAll[hsDn.GetName().replace('_sig','_'+rfile.split('_')[-2])] = hsDn.Integral()
 					#Add additional shift histograms to be able to uncorrelate them across years
 					newEnameUp = hsUp.GetName().replace(upTag,'_'+year+upTag).replace(downTag,'_'+year+downTag)
 					newEnameDn = hsDn.GetName().replace(upTag,'_'+year+upTag).replace(downTag,'_'+year+downTag)
@@ -617,7 +619,7 @@ pdf_gg = 0.042 #ttbar +/-4.2%
 pdf_qg = 0.028 #top +/-2.8%
 pdf_qqbar = 0.038 #ewk +/-3.8%
 xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
-xsec_ttH = 0.50
+xsec_ttH = 0.20
 xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
 xsec_ewk = 0.038 #ewk (scale+pdf)
 ttHF = 0.13 # 13% ttbb cross section uncertainty
@@ -673,7 +675,9 @@ for sig in sigProcList:
 
 print "List of systematics for "+bkgProcList[0]+" process and "+channels[0]+" channel:"
 print "        ",sorted([hist[hist.find(bkgProcList[0]+'__')+len(bkgProcList[0])+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+bkgProcList[0]+'__' in hist and upTag in hist])# and 'muRF' not in hist
-print "        following will be removed from yield errors:",sorted(removeSystFromYields)
+print "        following will be removed from yield errors:",sorted(removeSystFromYields),
+if doSmoothing: sorted([hist[hist.find(bkgProcList[0]+'__')+len(bkgProcList[0])+2:hist.find(upTag)] for hist in yieldsAll.keys() if channels[0] in hist and '__'+bkgProcList[0]+'__' in hist and upTag in hist and smoothingAlgo not in hist])
+else: print
 
 def getShapeSystUnc(proc,chn):
 	if not addShapes: return 0
@@ -683,7 +687,7 @@ def getShapeSystUnc(proc,chn):
 	histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
 	nomHist = histoPrefix+proc
 	for syst in systematicList:
-		if syst in removeSystFromYields: continue
+		if syst in removeSystFromYields or (doSmoothing and smoothingAlgo not in syst): continue
 		if normalizeTheorySystSig and proc in sigProcList and ('pdf' in syst or 'muRF' in syst or 'isr' in syst or 'fsr' in syst or 'PSwgt' in syst): 
 			continue
 		if normalizeTheorySystBkg and proc not in sigProcList and ('pdf' in syst or 'muRF' in syst or 'isr' in syst or 'fsr' in syst or 'PSwgt' in syst): 
@@ -934,7 +938,8 @@ print "       WRITING SUMMARY TEMPLATES: "
 for signal in sigProcList:
 	print "              ... "+signal
 	yldRfileName = templateDir+'/'+combinefile.replace(iPlot,iPlot+'YLD_'+signal).replace('.root',saveKey+'_rebinned_stat'+str(stat).replace('.','p')+'.root')
-	yldRfile = TFile(yldRfileName,'RECREATE')
+	yldRfile = {}
+	yldRfile[signal] = TFile(yldRfileName,'RECREATE')
 	for isEM in isEMlist:		
 		for proc in bkgProcList+[dataName,signal]:
 			yldHists = {}
@@ -980,15 +985,15 @@ for signal in sigProcList:
 				yldHists[isEM+proc].GetXaxis().SetBinLabel(ibin,binStr)
 				for syst in systematicList:
 					for ud in ['__plus','__minus']:
-						try: yldTemp = yieldsAll[histoPrefix+proc+'__'+syst+ud.replace('__plus','Up').replace('__minus','Down')]
-						except: yldTemp = 0
-						yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yldTemp)
+						try: yldSystTemp = yieldsAll[histoPrefix+proc+'__'+syst+ud.replace('__plus','Up').replace('__minus','Down')]
+						except: yldSystTemp = yldTemp
+						yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yldSystTemp)
 						yldHists[isEM+proc+syst+ud].GetXaxis().SetBinLabel(ibin,binStr)
 				ibin+=1
 			yldHists[isEM+proc].Write()
 			for syst in systematicList:
 				for ud in ['__plus','__minus']: yldHists[isEM+proc+syst+ud].Write()
-	yldRfile.Close()
+	yldRfile[signal].Close()
 
 print("--- %s minutes ---" % (round((time.time() - start_time)/60,2)))
 
