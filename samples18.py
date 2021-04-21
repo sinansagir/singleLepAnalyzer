@@ -201,7 +201,9 @@ samples = {
 'TTJetsSemiLepHDAMPupNjet9TTcc':'TTToSemiLeptonic_hdampUP_TuneCP5_13TeV-powheg-pythia8_HT500Njet9_ttcc',
 'TTJetsSemiLepHDAMPupNjet9TTjj':'TTToSemiLeptonic_hdampUP_TuneCP5_13TeV-powheg-pythia8_HT500Njet9_ttjj',
 
-'Ts':'ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8',
+#'Ts':'ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8',
+'Ts':'ST_s-channel_top_leptonDecays_13TeV-PSweights_powheg-pythia',
+'Tbs':'ST_s-channel_antitop_leptonDecays_13TeV-PSweights_powheg-pythia',
 'Tt':'ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8',
 'Tbt':'ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8',
 'TtW':'ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8',

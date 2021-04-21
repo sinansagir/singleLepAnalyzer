@@ -80,7 +80,9 @@ nRun['TTJetsSemiLepHDAMPupNjet0'] = nRun_TTJetsSemiLepHDAMPup * ( 1. - filtEff_T
 nRun['TTJetsSemiLepHDAMPupNjet9'] = nRun_TTJetsSemiLepHDAMPup * filtEff_TTJetsSemiLepNjet9HDAMPup + nRun_TTJetsSemiLepHDAMPupNjet9
 nRun['TTJetsSemiLepHDAMPupNjet9bin'] = nRun['TTJetsSemiLepHDAMPupNjet9']
 
-nRun['Ts'] = 12458638.0 # from integral , file ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8_hadd.root
+#nRun['Ts'] = 12458638.0 # from integral , file ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8_hadd.root
+nRun['Ts']  = 6932180.0 # from integral , file ST_s-channel_top_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
+nRun['Tbs'] = 2998280.0 # from integral , file ST_s-channel_antitop_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
 nRun['Tt'] = 144094782.0 # from integral , file ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8_hadd.root
 nRun['Tbt']= 73663900.0 # from integral , file ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8_hadd.root
 nRun['TtW'] = 9553912.0 # from integral , file ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8_hadd.root
@@ -208,7 +210,9 @@ xsec['TTJetsSemiLepHDAMPupNjet0'] = xsec['TTJets'] * BR_TTJetsSemiLep * ( 1. - f
 xsec['TTJetsSemiLepHDAMPupNjet9'] = xsec['TTJets'] * BR_TTJetsSemiLep * filtEff_TTJetsSemiLepNjet9HDAMPup
 xsec['TTJetsSemiLepHDAMPupNjet9bin'] = xsec['TTJetsSemiLepHDAMPupNjet9']
 
-xsec['Ts'] = 10.32*0.3259 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
+#xsec['Ts'] = 10.32*0.3259 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
+xsec['Ts'] = 6.35*0.3259 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
+xsec['Tbs'] = 3.97*0.3259 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
 xsec['Tt'] = 136.02 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
 xsec['Tbt'] = 80.95 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
 xsec['TtW'] = 35.85 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma
@@ -238,13 +242,13 @@ xsec['DYMG'] = 6025.2 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G2
 # xsec['DYMG1200'] = 0.1514*1.23 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 # xsec['DYMG2500'] = 0.003565*1.23 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 
-xsec['DYMG100'] = 185.649 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG200'] = 54.951 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG400'] = 7.862 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG600'] = 1.977 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG800'] = 0.858 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG1200'] = 0.191 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG2500'] = 0.0045 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG100'] = 181.9209 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG200'] = 54.9330 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG400'] = 7.8581 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG600'] = 1.9477 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG800'] = 0.858682 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG1200'] = 0.202798 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG2500'] = 0.00321931 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
 
 xsec['WW'] = 118.7 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeVInclusive
 xsec['WZ'] = 47.13 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson

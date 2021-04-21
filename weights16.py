@@ -237,13 +237,13 @@ xsec['DYMG'] = 6025.2 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G2
 # xsec['DYMG1200'] = 0.1514*1.23 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 # xsec['DYMG2500'] = 0.003565*1.23 # https://twiki.cern.ch/twiki/bin/view/CMS/SummaryTable1G25ns
 
-xsec['DYMG100'] = 185.649 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG200'] = 54.951 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG400'] = 7.862 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG600'] = 1.977 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG800'] = 0.858 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG1200'] = 0.191 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
-xsec['DYMG2500'] = 0.0045 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG100'] = 181.9209 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG200'] = 54.9330 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG400'] = 7.8581 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG600'] = 1.9477 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG800'] = 0.858682 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG1200'] = 0.202798 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
+xsec['DYMG2500'] = 0.00321931 # from OSDL in https://twiki.cern.ch/twiki/bin/view/CMS/FourTopCombination
 
 xsec['WW'] = 118.7 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeVInclusive
 xsec['WZ'] = 47.13 # https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#Diboson
