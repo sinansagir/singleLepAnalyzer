@@ -24,12 +24,12 @@ lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
 ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
 ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
 doAllSys = True
-doHDsys = True
-doUEsys = True
+doHDsys = False
+doUEsys = False
 doPDF = True
 addCRsys = False
-systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
-#systematicList+= ['CSVshapelf','CSVshapehf']
+systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt' #,'btag','btagcorr','btaguncorr','mistag'
+systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']
 systematicList+= ['JEC','JER']#,
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),

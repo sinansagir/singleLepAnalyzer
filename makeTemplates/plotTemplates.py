@@ -35,7 +35,9 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+blindBDT = False
+
+isRebinned='_rebinned_stat1p1' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
@@ -59,7 +61,7 @@ elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top'
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
 systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
-#systematicList+= ['CSVshapelf','CSVshapehf']
+systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#['CSVshapelf','CSVshapehf']
 if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
 useSmoothShapes = True
@@ -68,7 +70,7 @@ doAllSys = True
 addCRsys = False
 doNormByBinWidth=True
 doOneBand = True
-blind = True
+blind = False
 yLog  = True
 doRealPull = False
 compareShapes = False
@@ -343,7 +345,7 @@ for catEStr in catsElist:
 		prob_KS_X = bkgHT_test.KolmogorovTest(hData_test,"X")
 		prob_chi2 = hData_test.Chi2Test(bkgHT_test,"UW")
 		chi2 = hData_test.Chi2Test(bkgHT_test,"UW CHI2")
-		if hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")!=0: ndof = int(hData_test.Chi2Test(bkgHT_test,"UW CHI2")/hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF"))
+		if hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")!=0: ndof = hData_test.Chi2Test(bkgHT_test,"UW CHI2")/hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")
 		else: ndof = 0
 		print '/'*80,'\n','*'*80
 		print histPrefix+'_KS =',prob_KS
@@ -782,7 +784,7 @@ for catEStr in catsElist:
 	prob_KS_X = bkgHTmerged_test.KolmogorovTest(hDatamerged_test,"X")
 	prob_chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW")
 	chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")
-	if hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")!=0: ndof = int(hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")/hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF"))
+	if hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")!=0: ndof = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")/hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")
 	else: ndof = 0
 	print '/'*80,'\n','*'*80
 	print histPrefixE.replace('isE','isL')+'_KS =',prob_KS

@@ -85,15 +85,34 @@ def add_standard_systematics(cb):
 		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'prefire_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'pileup', 'shape', ch.SystMap()(1.0)) # Correlated: https://hypernews.cern.ch/HyperNews/CMS/get/b2g/1381.html
 	if iPlot != 'HT':
-		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapelf_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) #assuming uncorrelated, same as nbtag SF
-		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapehf_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
+		#correlation of btag reshape sys sources:
+		#(1) The JES related uncertainties should be correlated with the JES shifts used in the analysis and thus should follow the correlation scheme recommended by the JERC group. --> the correlation of this source is done in analyzer.py
+		
+		#(2)For the purity uncertainties ("lf" and "hf"), we recommend to correlate them between the years.
+		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapelf', 'shape', ch.SystMap()(1.0)) 
+		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapehf', 'shape', ch.SystMap()(1.0))
+		
+		#(3)For the uncertainties on charm jets ("cferr1" and "cferr2"), we also recommend to correlate them between the years.
+		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapecferr1', 'shape', ch.SystMap()(1.0)) 
+		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapecferr2', 'shape', ch.SystMap()(1.0))
+		
+		#(4)The hfstats1/2 and lfstats1/2 uncertainties are statistical in nature and should thus be uncorrelated between the years.
+		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapehfstats1_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) #assuming uncorrelated, same as nbtag SF
+		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapehfstats2_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
+		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapelfstats1_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) #assuming uncorrelated, same as nbtag SF
+		cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'CSVshapelfstats2_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
+		
+		
+		
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotstat_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotcspur_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotclosure_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
 	#cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
-	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btagcorr', 'shape', ch.SystMap()(1.0)) # New year-to-year correlation
-	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btaguncorr_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # New year-to-year correlation
-	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'mistag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	
+# 	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btagcorr', 'shape', ch.SystMap()(1.0)) # New year-to-year correlation
+# 	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btaguncorr_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # New year-to-year correlation
+# 	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'mistag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	
 	for proc in allbkgs:
 		if proc in ttbkgs: 
 			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'muRF_tt', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
@@ -250,7 +269,7 @@ if __name__ == '__main__':
 	elif era=='R18': lumiStr = '59p97fb'
 	smoothAlgo = 'lowess' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
 	tag = ''#'_ttH'
-	saveKey = '_ttH20_'+iPlot
+	saveKey = '_'+iPlot
 	fileDir = '../makeTemplates/'
 	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)

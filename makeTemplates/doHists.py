@@ -30,8 +30,8 @@ region = 'PS'
 isCategorized = 0
 doJetRwt= 0
 doAllSys= True
-doHDsys = True
-doUEsys = True
+doHDsys = False
+doUEsys = False
 doPDF = True
 if not doAllSys:
 	doHDsys = False
@@ -189,6 +189,8 @@ def readTree(file):
 
 bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,5000]
 
+nbin_multiplier=1
+
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'deltaRAK8':('minDR_leadAK8otherAK8',linspace(0,5,51).tolist(),';min #DeltaR(1^{st} AK8 jet, other AK8 jet)'),
 	'MTlmet':('MT_lepMet',linspace(0,250,51).tolist(),';M_{T}(l,#slash{E}_{T}) [GeV]'),
@@ -312,6 +314,110 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'minMlb':('minMleppBjet',linspace(0, 1000, 101).tolist(),';min[M(l,b)] [GeV]'),
 	'minMlbSBins':('minMleppBjet',linspace(0, 1000, 1001).tolist(),';min[M(l,b)] [GeV]'),
 	'BDT':('BDT',linspace(-1, 1, 201).tolist(),';BDT'),
+	
+	
+	
+	'NJetsCSV_MultiLepCalc':('NJetsCSV_MultiLepCalc',linspace(0, 10, (11-1)*nbin_multiplier+1).tolist(),';b-tagged jet mult. no SF'),
+
+	'thirddeepjetb':('thirddeepjetb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepJet(3rdDeepJetJet)'),
+	'fourthdeepjetb':('fourthdeepjetb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepJet(4thDeepJetJet)'),
+	'HOTGoodTrijet2_deepjet_Jetnotdijet':('HOTGoodTrijet2_deepjet_Jetnotdijet', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_deepjet_Jetnotdijet'),
+	'NJetsCSV_JetSubCalc':('NJetsCSV_JetSubCalc',linspace(0, 10, (11-1)*nbin_multiplier+1).tolist(),';b-tagged DeepJet jet mult. no SF'),
+
+	# BDT input
+	'AK4HT':('AK4HT',linspace(0, 4000, (101-1)*nbin_multiplier+1).tolist(),';H_{T} [GeV]'),
+	'AK4HTpMETpLepPt':('AK4HTpMETpLepPt',linspace(0, 4000, (101-1)*nbin_multiplier+1).tolist(),';S_{T} [GeV]'),
+	'minMleppBjet':('minMleppBjet',linspace(0, 1000, (101-1)*nbin_multiplier+1).tolist(),';min[M(l,b)] [GeV]'),
+	'leptonPt_MultiLepCalc' :('leptonPt_MultiLepCalc',linspace(0, 600, (121-1)*nbin_multiplier+1).tolist(),';Lepton p_{T} [GeV]'),
+	'corr_met_MultiLepCalc'   :('corr_met_MultiLepCalc',linspace(0, 1500, (51-1)*nbin_multiplier+1).tolist(),';#slash{E}_{T} [GeV]'),
+	'NJets_JetSubCalc' :('NJets_JetSubCalc',linspace(0, 15, (16-1)*nbin_multiplier+1).tolist(),';AK4 jet multiplicity'),
+	'NJetsCSVwithSF_MultiLepCalc':('NJetsCSVwithSF_MultiLepCalc',linspace(0, 10, (11-1)*nbin_multiplier+1).tolist(),';b-tagged jet multiplicity'),
+	'NJetsTtagged':('NJetsTtagged',linspace(0, 4, (5-1)*nbin_multiplier+1).tolist(),';t-tagged jet multiplicity'),
+	'MT_lepMet':('MT_lepMet',linspace(0,250,(51-1)*nbin_multiplier+1).tolist(),';M_{T}(l,#slash{E}_{T}) [GeV]'),
+
+	'BDTtrijet2':('BDTtrijet2',linspace(-1, 1, (101-1)*nbin_multiplier+1).tolist(), ';BDTtrijet2'),
+	'thirdcsvb_bb':('thirdcsvb_bb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet)'),
+	'fourthcsvb_bb':('fourthcsvb_bb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(4thDeepCSVJet)'),
+	'fifthJetPt':('fifthJetPt',linspace(0, 400, (101-1)*nbin_multiplier+1).tolist(), ';p_{T}(j_{5}) [GeV]'),
+	'BDTtrijet3':('BDTtrijet3',linspace(-1, 1, (101-1)*nbin_multiplier+1).tolist(), ';BDTtrijet3'),
+	'sixthJetPt':('sixthJetPt',linspace(0, 400, (51-1)*nbin_multiplier+1).tolist(), ';p_{T}(j_{6}) [GeV]'),
+	'BDTtrijet1':('BDTtrijet1',linspace(-1, 1, (101-1)*nbin_multiplier+1).tolist(), ';BDTtrijet1'),
+	'MT2bb':('MT2bb',linspace(0, 400, (51-1)*nbin_multiplier+1).tolist(), ';MT2bb [GeV]'),
+	'mass_maxJJJpt':('mass_maxJJJpt',linspace(0, 3000, (101-1)*nbin_multiplier+1).tolist(), ';M(jjj) with max[p_{T}(jjj)] [GeV]'),
+	'hemiout':('hemiout', linspace(0, 3000, (101-1)*nbin_multiplier+1).tolist(), ';Hemiout [GeV]'),
+	'Aplanarity':('Aplanarity',linspace(0, 0.5, (51-1)*nbin_multiplier+1).tolist(), ';Aplanarity'),
+	'centrality':('centrality',linspace(0, 1.0, (51-1)*nbin_multiplier+1).tolist(), ';Centrality'),
+	'HT_bjets':('HT_bjets',linspace(0, 1800, (101-1)*nbin_multiplier+1).tolist(),';HT(bjets) [GeV]'),
+	'FW_momentum_1':('FW_momentum_1',linspace(0, 1.0, (51-1)*nbin_multiplier+1).tolist(), ';1^{st} FW moment [GeV]'),
+	'mass_lepBJet0':('mass_lepBJet0',linspace(0, 1800, (101-1)*nbin_multiplier+1).tolist(), ';M(l,b_{1}) [GeV]'),
+	'mass_lepBJet_mindr':('mass_lepBJet_mindr',linspace(0, 800, (51-1)*nbin_multiplier+1).tolist(), ';M(l,b) with min[#DeltaR(l,b)] [GeV]'),
+	'deltaR_lepBJet_maxpt':('deltaR_lepBJet_maxpt',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(), ';#DeltaR(l,b)] with max[p_{T}(l,b)]'),
+	'Sphericity':('Sphericity',linspace(0, 1.0, (51-1)*nbin_multiplier+1).tolist(), ';Sphericity'),
+	'deltaR_lepbJetInMinMlb':('deltaR_lepbJetInMinMlb',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(),';#DeltaR(l,b) with min M(l, b)'),
+	'minDR_lepBJet':('minDR_lepBJet',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(), ';min[#DeltaR(l,b)]'),
+	'mass_maxBBmass':('mass_maxBBmass',linspace(0, 2000, (101-1)*nbin_multiplier+1).tolist(), ';max[M(b,b)] [GeV]'),
+	'deltaR_minBB':('deltaR_minBB',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(), ';min[#DeltaR(b,b)]'),
+	'aveBBdr':('aveBBdr',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(),';ave[#DeltaR(b,b)]'),
+	'ratio_HTdHT4leadjets':('ratio_HTdHT4leadjets',linspace(0, 2.6, (51-1)*nbin_multiplier+1).tolist(),';HT/HT(4 leading jets)'),
+	'aveCSVpt':('aveCSVpt',linspace(-0.3, 1.1, (101-1)*nbin_multiplier+1).tolist(),';p_{T} weighted CSV'),
+	'mass_lepJets0':('mass_lepJets0', linspace(0, 2200, (101-1)*nbin_multiplier+1).tolist(),';M(l,j_{1}) [GeV]'),
+	'mass_minBBdr':('mass_minBBdr', linspace(0, 1400, (51-1)*nbin_multiplier+1).tolist(),';M(b,b) with min[#DeltaR(b,b)] [GeV]'),
+	'mass_minLLdr':('mass_minLLdr', linspace(0, 600, (51-1)*nbin_multiplier+1).tolist(),';M(j,j) with min[#DeltaR(j,j)], j #neq b [GeV]'),
+	'theJetLeadPt':('theJetLeadPt', linspace(0, 1500, (101-1)*nbin_multiplier+1).tolist(),';p_{T}(j_{1}) [GeV]'),
+	'FW_momentum_5':('FW_momentum_5', linspace(0, 0.7, (101-1)*nbin_multiplier+1).tolist(),';5^{th} FW moment [GeV]'),
+	'deltaR_lepJetInMinMljet':('deltaR_lepJetInMinMljet', linspace(0, 4.5, (101-1)*nbin_multiplier+1).tolist(),';#DeltaR(l,j) with min M(l, j)'),
+	'secondJetPt':('secondJetPt',linspace(0, 2500, (101-1)*nbin_multiplier+1).tolist(), ';p_{T}(j_{2}) [GeV]'),
+	'BJetLeadPt':('BJetLeadPt', linspace(0, 2000, (101-1)*nbin_multiplier+1).tolist(),';p_{T}(b_{1}) [GeV]'),
+	'csvJet4':('csvJet4', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';DeepCSV(4thPtJet)'),
+	'lepDR_minBBdr':('lepDR_minBBdr', linspace(-1, 10, (51-1)*nbin_multiplier+1).tolist(),';#DeltaR(l,bb) with min[#DeltaR(b,b)]'),
+	'deltaEta_maxBB':('deltaEta_maxBB', linspace(-6, 11, (51-1)*nbin_multiplier+1).tolist(),';max[#Delta#eta(b,b)]'),
+	'FW_momentum_0':('FW_momentum_0', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';0^{th} FW moment [GeV]'),
+	'FW_momentum_2':('FW_momentum_2', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';2^{nd} FW moment [GeV]'),
+	'FW_momentum_3':('FW_momentum_3', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';3^{rd} FW moment [GeV]'),
+	'FW_momentum_4':('FW_momentum_4', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';4^{th} FW moment [GeV]'),
+	'FW_momentum_6':('FW_momentum_6', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';6^{th} FW moment [GeV]'),
+	'mass_lepJets1':('mass_lepJets1', linspace(0, 3000, (101-1)*nbin_multiplier+1).tolist(),';M(l,j_{2}) [GeV]'),
+	'mass_lepJets2':('mass_lepJets2', linspace(0, 3000, (101-1)*nbin_multiplier+1).tolist(),';M(l,j_{3}) [GeV]'),
+	'PtFifthJet':('PtFifthJet', linspace(-1, 2000, (101-1)*nbin_multiplier+1).tolist(),';5^{th} jet p_{T}, b-jet first [GeV]'),
+	'deltaPhi_lepJetInMinMljet':('deltaPhi_lepJetInMinMljet', linspace(-4, 4, (51-1)*nbin_multiplier+1).tolist(),';#DeltaPhi(l,j) with min M(l, j)'),
+	'deltaPhi_lepbJetInMinMlb':('deltaPhi_lepbJetInMinMlb', linspace(-11, 5, (101-1)*nbin_multiplier+1).tolist(),';#DeltaPhi(l,b) with min M(l, b)'),
+	'M_allJet_W':('M_allJet_W', linspace(0, 10000, (201-1)*nbin_multiplier+1).tolist(),';M(allJets, leptoninc W) [GeV]'),
+	'csvJet3':('csvJet3', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdPtJet)'),
+	'HT_2m':('HT_2m', linspace(-20, 5000, (201-1)*nbin_multiplier+1).tolist(),';HTwoTwoPtBjets [GeV]'),
+	'BDTtrijet4':('BDTtrijet4', linspace(-1, 1, (51-1)*nbin_multiplier+1).tolist(),';trijet4 discriminator'),
+	'NresolvedTops1pFake':('NresolvedTops1pFake', linspace(0, 5, (6-1)*nbin_multiplier+1).tolist(),';resolvedTop multiplicity'),
+	'NJetsWtagged':('NJetsWtagged', linspace(0, 5, (6-1)*nbin_multiplier+1).tolist(),';W multiplicity'),
+	'HOTGoodTrijet1_mass':('HOTGoodTrijet1_mass', linspace(0, 300, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_mass [GeV]'),
+	'HOTGoodTrijet1_dijetmass':('HOTGoodTrijet1_dijetmass', linspace(0, 250, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_dijetmass [GeV]'),
+	'HOTGoodTrijet1_pTratio':('HOTGoodTrijet1_pTratio', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_pTratio'),
+	'HOTGoodTrijet1_dRtridijet':('HOTGoodTrijet1_dRtridijet', linspace(0, 4, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_dRtridijet'),
+	'HOTGoodTrijet1_dRtrijetJetnotdijet':('HOTGoodTrijet1_dRtrijetJetnotdijet', linspace(0, 4, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_dRtrijetJetnotdijet'),
+	'HOTGoodTrijet1_csvJetnotdijet':('HOTGoodTrijet1_csvJetnotdijet', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_csvJetnotdijet'),
+	'HOTGoodTrijet2_mass':('HOTGoodTrijet2_mass', linspace(0, 300, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_mass [GeV]'),
+	'HOTGoodTrijet2_dijetmass':('HOTGoodTrijet2_dijetmass', linspace(0, 250, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_dijetmass [GeV]'),
+	'HOTGoodTrijet2_pTratio':('HOTGoodTrijet2_pTratio', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_pTratio'),
+	'HOTGoodTrijet2_dRtridijet':('HOTGoodTrijet2_dRtridijet', linspace(0, 4, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_dRtridijet'),
+	'HOTGoodTrijet2_dRtrijetJetnotdijet':('HOTGoodTrijet2_dRtrijetJetnotdijet', linspace(0, 4, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_dRtrijetJetnotdijet'),
+	'HOTGoodTrijet2_csvJetnotdijet':('HOTGoodTrijet2_csvJetnotdijet', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_csvJetnotdijet'),
+
+	'thirdcsvb_bb_BTagBHad':('thirdcsvb_bb_BTagBHad',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet) BTagBHad'),
+	'thirdcsvb_bb_BTagNBHad':('thirdcsvb_bb_BTagNBHad',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet) BTagNBHad'),
+	'thirdcsvb_bb_NBTagBHad':('thirdcsvb_bb_NBTagBHad',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet) NBTagBHad'),
+	'thirdcsvb_bb_NBTagNBHad':('thirdcsvb_bb_NBTagNBHad',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet) NBTagNBHad'),
+
+
+	'DNN_disc_6j_40vars':('DNN_disc_6j_40vars',linspace(0, 1, 201).tolist(),';DNN_{6j,40v}'),
+	'DNN_disc_6j_50vars':('DNN_disc_6j_50vars',linspace(0, 1, 201).tolist(),';DNN_{6j,50v}'),
+	'DNN_disc_6j_76vars':('DNN_disc_6j_76vars',linspace(0, 1, 201).tolist(),';DNN_{6j,76v}'),
+	'DNN_disc_4j_40vars':('DNN_disc_4j_40vars',linspace(0, 1, 201).tolist(),';DNN_{4j,40v}'),
+	'DNN_disc_4j_50vars':('DNN_disc_4j_50vars',linspace(0, 1, 201).tolist(),';DNN_{4j,50v}'),
+	'DNN_disc_4j_76vars':('DNN_disc_4j_76vars',linspace(0, 1, 201).tolist(),';DNN_{4j,76v}'),
+
+	'XGB':('XGB',linspace(0, 1, 201).tolist(),';XGB'),
+	'XGB_RS':('XGB_RS',linspace(0, 1, 201).tolist(),';XGB_RS'),
+	
+	
+	
 	}
 
 print "PLOTTING:",iPlot

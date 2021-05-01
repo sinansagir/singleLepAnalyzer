@@ -45,6 +45,8 @@ lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]+'/'+cutString
 combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
+blindBDT = False
+
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = True #else rebins theta templates
 doStatShapes = False
@@ -67,7 +69,7 @@ if sigName=='X53':
 	sigProcList+= [sigName+'RHM'+str(mass) for mass in range(900,1700+1,100)]
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 bkgProcList = ttProcList + ['ttH','top','ewk','qcd'] #put the most dominant process first
-removeSystFromYields = ['CSVshapehf','CSVshapelf','hdamp','ue','njet','njetsf'] #list of systematics to be removed from yield errors
+removeSystFromYields = ['hdamp','ue','njet','njetsf'] #list of systematics to be removed from yield errors #'CSVshapehf','CSVshapelf',
 removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
@@ -78,7 +80,7 @@ removeSystFromYields+= ['PSwgt'] #remove if envelope method is not used, otherwi
 removeSystFromYields+= ['btag'] #remove if year-to-year correlation is used, otherwise replace with ['btagcorr','btaguncorr']
 
 minNbins=1 #min number of bins to be merged
-stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+stat = 1.1 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if 'kinematics' in templateDir: 
 	stat = 1.1
 	doSmoothing = False
@@ -294,6 +296,12 @@ for rfile in rfiles:
 			rebinnedHists[hist].SetDirectory(0)
 			overflow(rebinnedHists[hist])
 			underflow(rebinnedHists[hist])
+			if 'BDT_' in hist and blindBDT and '__'+dataName in hist:
+				zero_bin=rebinnedHists[hist].FindBin(0)
+				max_bin=rebinnedHists[hist].GetNbinsX()+1
+				for imtt in range(zero_bin,max_bin):
+					rebinnedHists[hist].SetBinContent(imtt,-100.0)
+			
 			if '__pdf' in hist:
 				if upTag not in hist and downTag not in hist: continue
 			if '__mu' in hist or '__isr' in hist or '__fsr' in hist: continue
@@ -603,6 +611,13 @@ for rfile in rfiles:
 					hsEUp.Write()
 					hsEDn.Write()
 				
+	for hist in rebinnedHists:
+			if 'BDT_' in hist and blindBDT and '__'+dataName in hist:
+				zero_bin=rebinnedHists[hist].FindBin(0)
+				max_bin=rebinnedHists[hist].GetNbinsX()+1
+				for imtt in range(zero_bin,max_bin):
+					rebinnedHists[hist].SetBinContent(imtt,-100.0)
+					
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()
 	iRfile+=1
