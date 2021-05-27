@@ -14,19 +14,22 @@ rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
 iPlot = 'HT'
-year = 'R17'
-if year=='R17':
+year = 'R16'
+if year=='R16':
+	lumiStr = '35p867fb'
+	lumi=35.9 #for plots
+elif year=='R17':
 	lumiStr = '41p53fb'
 	lumi=41.5 #for plots
-else:
+elif year=='R18':
 	lumiStr = '59p97fb'
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
 smoothingAlgo = 'lowess' #lowess, super, or kern
 symmetrizeSmoothing = True #Symmetrize up/down shifts around nominal before smoothing
 useCombine = True
-tempVersion = 'templates_'+year+'_redJECs_2020_12_5'
-isRebinned = '_rebinned_stat0p3'
+tempVersion = 'templates_'+year+'_2021_4_6'
+isRebinned = '_2b250GeV3b150GeV4b50GeVbins_rebinned_stat0p3'
 if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
 saveDir = ''
@@ -38,6 +41,7 @@ if not os.path.exists(outDir+tempVersion+'/'+saveDir): os.system('mkdir '+outDir
 bkgTTBarList = ['ttnobb','ttbb'] #['ttjj','ttcc','ttbb','ttbj']
 procList = bkgTTBarList+['top','ewk','qcd']
 procList+= [sig1]
+procList = ['ttbb']
 isEMlist  = ['E','M']
 nhottlist = ['0','1p']
 nttaglist = ['0p']
@@ -52,6 +56,7 @@ systematics = ['pileup','btag','mistag','hotstat','hotcspur','hotclosure','isr',
 if year=='R17': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
 systematics+= ['JEC','JER']#,
+systematics = ['JEC']
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
 # 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
@@ -106,8 +111,8 @@ for syst in systematics:
 				groutUp = gsUp.SmoothKern(grinUp,"normal",5.0)
 				groutDn = gsDn.SmoothKern(grinDn,"normal",5.0)
 			else:
-				groutUp = gsUp.SmoothLowess(grinUp,"",0.9)
-				groutDn = gsDn.SmoothLowess(grinDn,"",0.9)
+				groutUp = gsUp.SmoothLowess(grinUp,"",1.0)
+				groutDn = gsDn.SmoothLowess(grinDn,"",1.0)
 
 			grinUp.SetLineColor(2)                            
 			grinDn.SetLineColor(4)                            
@@ -181,20 +186,20 @@ for syst in systematics:
 			if flv=='isE': flvString+='e+jets'
 			if flv=='isM': flvString+='#mu+jets'
 			if hottag!='0p': 
-				if 'p' in hottag: tagString2+='#geq'+hottag[4:-1]+' resolved t'
-				else: tagString2+=hottag[4:]+' resolved t'
+				if 'p' in hottag: tagString2+='#geq'+hottag[:-1]+' resolved t'
+				else: tagString2+=hottag+' resolved t'
 			if ttag!='0p': 
-				if 'p' in ttag: tagString+='#geq'+ttag[2:-1]+' t, '
-				else: tagString+=ttag[2:]+' t, '
+				if 'p' in ttag: tagString+='#geq'+ttag[:-1]+' t, '
+				else: tagString+=ttag+' t, '
 			if wtag!='0p': 
-				if 'p' in wtag: tagString+='#geq'+wtag[2:-1]+' W, '
-				else: tagString+=wtag[2:]+' W, '
+				if 'p' in wtag: tagString+='#geq'+wtag[:-1]+' W, '
+				else: tagString+=wtag+' W, '
 			if btag!='0p': 
-				if 'p' in btag: tagString+='#geq'+btag[2:-1]+' b, '
-				else: tagString+=btag[2:]+' b, '
+				if 'p' in btag: tagString+='#geq'+btag[:-1]+' b, '
+				else: tagString+=btag+' b, '
 			if njet!='0p': 
-				if 'p' in njet: tagString+='#geq'+njet[2:-1]+' j'
-				else: tagString+=njet[2:]+' j'
+				if 'p' in njet: tagString+='#geq'+njet[:-1]+' j'
+				else: tagString+=njet+' j'
 			if tagString.endswith(', '): tagString = tagString[:-2]
 			chLatex.DrawLatex(0.3, 0.34, flvString)
 			chLatex.DrawLatex(0.3, 0.28, tagString)
