@@ -9,6 +9,7 @@ combineLimits/limits_*
 combineLimits/log/*
 combineLimits/cfg/*
 combineLimits/HTcomb/*
+combineLimits/impacts_*
 plotShapeShifts/templates_*
 plotShapeShifts/kinematics_*
 optimization/templates_*

@@ -86,8 +86,8 @@ def smoothShape(hNm,hUp,hDn,algo='lowess',symmetrize=True):
 		groutUp = gsUp.SmoothKern(grinUp,"normal",5.0)
 		groutDn = gsDn.SmoothKern(grinDn,"normal",5.0)
 	else:
-		groutUp = gsUp.SmoothLowess(grinUp,"",0.9)
-		groutDn = gsDn.SmoothLowess(grinDn,"",0.9)
+		groutUp = gsUp.SmoothLowess(grinUp,"",1.0)
+		groutDn = gsDn.SmoothLowess(grinDn,"",1.0)
 
 	for ibin in range(1,hNm.GetNbinsX()+1):
 		hsUp.SetBinContent(ibin, hNm.GetBinContent(ibin)*groutUp.GetY()[ibin-1])

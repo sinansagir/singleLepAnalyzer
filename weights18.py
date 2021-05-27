@@ -137,7 +137,8 @@ nRun['TTZZ'] = 199358.0 # from integral, file TTZZ_TuneCP5_13TeV-madgraph-pythia
 
 #4 tops
 #nRun['tttt'] = 882074.0 # from file TTTT_TuneCP5_13TeV-amcatnlo-pythia8_hadd.root
-nRun['tttt'] = 4470942.0 # from file TTTT_TuneCP5_13TeV-amcatnlo-pythia8_ext_hadd.root
+#nRun['tttt'] = 3588868.0 # from file TTTT_TuneCP5_13TeV-amcatnlo-pythia8_ext_hadd.root
+nRun['tttt'] = 4470942.0 # from file TTTT_TuneCP5_13TeV-amcatnlo-pythia8_combined_hadd.root
 
 nRun['X53LHM700'] = 300000.
 nRun['X53RHM700'] = 297400.
