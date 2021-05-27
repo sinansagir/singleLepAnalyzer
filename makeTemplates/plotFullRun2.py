@@ -16,10 +16,9 @@ start_time = time.time()
 year='R18'
 lumiStr= '59p97'
 lumi=137.4 #for plots
-years = {
+yearstoadd = {
 'R16':'35p867',
 'R17':'41p53',
-#'R18':'59p97'
 }
 	
 region='SR' #PS,SR,TTCR,WJCR
@@ -95,8 +94,8 @@ if not os.path.exists(templateDir+sigfile):
 print "READING: "+templateDir+sigfile
 RFile = rt.TFile(templateDir+sigfile)
 RFiles = {}
-RFiles['R16'] = rt.TFile(templateDir.replace(year,'R16')+sigfile.replace(lumiStr,years['R16']))
-RFiles['R17'] = rt.TFile(templateDir.replace(year,'R17')+sigfile.replace(lumiStr,years['R17']))
+RFiles['R16'] = rt.TFile(templateDir.replace(year,'R16')+sigfile.replace(lumiStr,yearstoadd['R16']))
+RFiles['R17'] = rt.TFile(templateDir.replace(year,'R17')+sigfile.replace(lumiStr,yearstoadd['R17']))
 
 datahists = [k.GetName() for k in RFile.GetListOfKeys() if '__'+dataName in k.GetName()]
 catsElist = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isE_' in hist]
@@ -260,15 +259,15 @@ for catEStr in catsElist:
 		for proc in bkgProcList: 
 			try:
 				bkghists[proc+catStr] = RFile.Get(histPrefix+'__'+proc).Clone()
-				for year_ in RFiles.keys(): bkghists[proc+catStr].Add(RFiles[year_].Get(histPrefix.replace(lumiStr,years[year_])+'__'+proc))
+				for year_ in RFiles.keys(): bkghists[proc+catStr].Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+proc))
 				totBkg += bkghists[proc+catStr].Integral()
 			except:
 				print "There is no "+proc+"!!! Skipping it....."
 				pass
 		hData = RFile.Get(histPrefix+'__'+dataName).Clone()
-		for year_ in RFiles.keys(): hData.Add(RFiles[year_].Get(histPrefix.replace(lumiStr,years[year_])+'__'+dataName))
+		for year_ in RFiles.keys(): hData.Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
 		hData_test = RFile.Get(histPrefix+'__'+dataName).Clone()
-		for year_ in RFiles.keys(): hData_test.Add(RFiles[year_].Get(histPrefix.replace(lumiStr,years[year_])+'__'+dataName))
+		for year_ in RFiles.keys(): hData_test.Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
 		bkgHT_test = bkghists[bkgProcList[0]+catStr].Clone()
 		for proc in bkgProcList:
 			if proc==bkgProcList[0]: continue
@@ -276,7 +275,7 @@ for catEStr in catsElist:
 			except: pass
 		print hData_test.Integral(),bkgHT_test.Integral()
 		hsig = RFile.Get(histPrefix+'__'+sigName).Clone(histPrefix+'__'+sigName)
-		for year_ in RFiles.keys(): hsig.Add(RFiles[year_].Get(histPrefix.replace(lumiStr,years[year_])+'__'+sigName))
+		for year_ in RFiles.keys(): hsig.Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+sigName))
 		if scaleSignalsToXsec: hsig.Scale(xsec[sig])
 		if doNormByBinWidth:
 			for proc in bkgProcList:
@@ -293,7 +292,7 @@ for catEStr in catsElist:
 					for proc in bkgProcList:
 						try: 
 							systHists[proc+catStr+syst+ud] = RFile.Get(histPrefix+'__'+proc+'__'+syst+ud).Clone()
-							for year_ in RFiles.keys(): systHists[proc+catStr+syst+ud].Add(RFiles[year_].Get(histPrefix.replace(lumiStr,years[year_])+'__'+proc+'__'+syst+ud))
+							for year_ in RFiles.keys(): systHists[proc+catStr+syst+ud].Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+proc+'__'+syst+ud))
 							if doNormByBinWidth: normByBinWidth(systHists[proc+catStr+syst+ud])
 						except: 
 							print "There is no "+syst+ud+" for "+proc+"!!! Skipping it....."
@@ -710,20 +709,20 @@ for catEStr in catsElist:
 			bkghistsmerged[proc+catLStr] = RFile.Get(histPrefixE+'__'+proc).Clone()
 			bkghistsmerged[proc+catLStr].Add(RFile.Get(histPrefixM+'__'+proc))
 			for year_ in RFiles.keys(): 
-				bkghistsmerged[proc+catLStr].Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,years[year_])+'__'+proc))
-				bkghistsmerged[proc+catLStr].Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,years[year_])+'__'+proc))
+				bkghistsmerged[proc+catLStr].Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,yearstoadd[year_])+'__'+proc))
+				bkghistsmerged[proc+catLStr].Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,yearstoadd[year_])+'__'+proc))
 			totBkgMerged += bkghistsmerged[proc+catLStr].Integral()
 		except:pass
 	hDatamerged = RFile.Get(histPrefixE+'__'+dataName).Clone()
 	hDatamerged.Add(RFile.Get(histPrefixM+'__'+dataName).Clone())
 	for year_ in RFiles.keys(): 
-		hDatamerged.Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,years[year_])+'__'+dataName))
-		hDatamerged.Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,years[year_])+'__'+dataName))
+		hDatamerged.Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
+		hDatamerged.Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
 	hDatamerged_test = RFile.Get(histPrefixE+'__'+dataName).Clone()
 	hDatamerged_test.Add(RFile.Get(histPrefixM+'__'+dataName).Clone())
 	for year_ in RFiles.keys(): 
-		hDatamerged_test.Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,years[year_])+'__'+dataName))
-		hDatamerged_test.Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,years[year_])+'__'+dataName))
+		hDatamerged_test.Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
+		hDatamerged_test.Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
 	bkgHTmerged_test = bkghistsmerged[bkgProcList[0]+catLStr].Clone()
 	for proc in bkgProcList[1:]:
 		try: bkgHTmerged_test.Add(bkghistsmerged[proc+catLStr])
@@ -731,8 +730,8 @@ for catEStr in catsElist:
 	hsigmerged = RFile.Get(histPrefixE+'__'+sigName).Clone(histPrefixE+'__'+sigName+'merged')
 	hsigmerged.Add(RFile.Get(histPrefixM+'__'+sigName).Clone())
 	for year_ in RFiles.keys(): 
-		hsigmerged.Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,years[year_])+'__'+sigName))
-		hsigmerged.Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,years[year_])+'__'+sigName))
+		hsigmerged.Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,yearstoadd[year_])+'__'+sigName))
+		hsigmerged.Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,yearstoadd[year_])+'__'+sigName))
 	if scaleSignalsToXsec: hsigmerged.Scale(xsec[sig])
 	if doNormByBinWidth:
 		for proc in bkgProcList:
