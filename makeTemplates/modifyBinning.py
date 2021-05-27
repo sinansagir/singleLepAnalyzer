@@ -38,13 +38,16 @@ elif year=='R18':
 	from weights18 import *
 
 iPlot=sys.argv[2]
-saveKey = ''
+saveKey = '_2b300GeV3b150GeV4b50GeVbins'
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]+'/'+cutString
 combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
+rebinYear = ''#'R18' #rebin w.r.t. another years templates, leave empty to disable this option. Assumes all year paths differ by only year tag from the selected 'year' path above
+if rebinYear!='': saveKey+='_'+rebinYear+'bins'
+yeartolumi = {'R16':'35p867fb','R17':'41p53fb','R18':'59p97fb'}
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = True #else rebins theta templates
 doStatShapes = False
@@ -169,7 +172,10 @@ for file in findfiles(templateDir, '*.root'):
 	rfiles.append(file)
 if rebinCombine: rfiles = [templateDir+'/'+combinefile]
 
-tfile = TFile(rfiles[0])
+if rebinYear!='': #if binning requested w.r.t. another year, first get histograms from that file for finding the bins
+	tfile = TFile(rfiles[0].replace(year,rebinYear).replace(lumiStr,yeartolumi[rebinYear]))
+else: 
+	tfile = TFile(rfiles[0])
 datahists = [k.GetName() for k in tfile.GetListOfKeys() if '__'+dataName in k.GetName()]
 channels = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isL_' not in hist]
 allhists = {chn:[hist.GetName() for hist in tfile.GetListOfKeys() if '_'+chn+'_' in hist.GetName()] for chn in channels}
@@ -226,8 +232,12 @@ for chn in totBkgHists.keys():
 			totDataTempBinErrSquared_E += dataHists_[chn].GetBinError(Nbins+1-iBin)**2
 			totDataTempBinErrSquared_M += dataHists_[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
 			nBinsMerged+=1
-			#if nBinsMerged<minNbins: continue
-			if nBinsMerged<minNbins or ('_nB2_' in chn and nBinsMerged<4 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')): continue
+			if nBinsMerged<minNbins: continue
+			if iPlot=='BDT': #!!! BDT binning !!!
+				if '_nB2_' in chn and nBinsMerged<minNbins*2: continue
+			if iPlot=='HT': #!!! HT binning !!!
+				if ('_nB2_' in chn and nBinsMerged<minNbins*6) or ('_nB3_' in chn and nBinsMerged<minNbins*3): 
+					if not (year=='R16' and rebinYear=='R16' and 'nHOT1p_nT0p_nW0p_nB2_nJ7' in chn and nBinsMerged>=minNbins*4): continue
 			if totTempBinContent_E>0. and totTempBinContent_M>0.:
 				if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
 					totTempBinContent_E = 0.
@@ -270,6 +280,12 @@ print "//"*40
 
 xbins = {}
 for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
+
+if rebinYear!=year: #if binning requested w.r.t. another year, now we get back to actual histograms after finding the binning
+	tfile = TFile(rfiles[0])
+	datahists = [k.GetName() for k in tfile.GetListOfKeys() if '__'+dataName in k.GetName()]
+	channels = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isL_' not in hist]
+	allhists = {chn:[hist.GetName() for hist in tfile.GetListOfKeys() if '_'+chn+'_' in hist.GetName()] for chn in channels}
 
 iRfile=0
 yieldsAll = {}

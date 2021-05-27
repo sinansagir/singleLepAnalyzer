@@ -22,7 +22,7 @@ yearstoadd = {
 }
 	
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=0
+isCategorized=1
 iPlot=sys.argv[1]
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
@@ -32,9 +32,9 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[2]+'/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_2b300GeV3b150GeV4b50GeVbins_R18bins_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
-saveKey = '_FullRun2' # tag for plot names
+saveKey = '' # tag for plot names
 
 sig='tttt' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
