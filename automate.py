@@ -21,10 +21,13 @@ postfixes=[
 # 'GOF_deepjet_2DHTSF',
 # 'GOF_deepjet_no2DHTSF',
 
-'40vars_6j_NJetsCSV_v1',
-'50vars_6j_NJetsCSV_v1',
-'40vars_4j_NJetsCSV_v1',
-'50vars_4j_NJetsCSV_v1',
+# '40vars_6j_NJetsCSV_v1',
+# '50vars_6j_NJetsCSV_v1',
+# '40vars_4j_NJetsCSV_v1',
+# '50vars_4j_NJetsCSV_v1',
+
+'40vars_6j_NJetsCSV',
+# '50vars_6j_NJetsCSV',
     
     
 # 'GOF_2DHTSF_v3',
@@ -64,7 +67,7 @@ postfixes=[
 # 'AK4HT']
 
 #deepcsv
-vrs=['BDT']
+# vrs=['BDT']
 # vrs=['thirdcsvb_bb','fourthcsvb_bb','NJetsCSV_MultiLepCalc','NJets_JetSubCalc','BDTtrijet2','AK4HTpMETpLepPt',
 # 'sixthJetPt','PtFifthJet','hemiout','AK4HT','BDTtrijet3','HT_bjets','fifthJetPt','ratio_HTdHT4leadjets','MT_lepMet',
 # 'HT_2m','mass_maxBBmass','aveBBdr','mass_lepBJet0','deltaR_minBB','NresolvedTops1pFake','HOTGoodTrijet2_pTratio',
@@ -84,32 +87,32 @@ vrs=['BDT']
 # 'BDTtrijet1',]
 
 
-#['AK4HT','AK4HTpMETpLepPt','Aplanarity','BDTtrijet1','BDTtrijet2','BDTtrijet3','BDTtrijet4','BJetLeadPt',
-# 'FW_momentum_0','FW_momentum_1','FW_momentum_2','FW_momentum_3','FW_momentum_4','FW_momentum_5','FW_momentum_6',
-# 'HOTGoodTrijet1_csvJetnotdijet','HOTGoodTrijet1_dRtridijet','HOTGoodTrijet1_dRtrijetJetnotdijet',
-# 'HOTGoodTrijet1_dijetmass','HOTGoodTrijet1_mass','HOTGoodTrijet1_pTratio','HOTGoodTrijet2_csvJetnotdijet',
-# 'HOTGoodTrijet2_dRtridijet','HOTGoodTrijet2_dRtrijetJetnotdijet','HOTGoodTrijet2_dijetmass','HOTGoodTrijet2_mass',
-# 'HOTGoodTrijet2_pTratio','HT_2m','HT_bjets','MT2bb','MT_lepMet','M_allJet_W','NJetsCSVwithSF_MultiLepCalc','NJetsCSV_MultiLepCalc',
-# 'NJetsTtagged','NJetsWtagged','NJets_JetSubCalc','NresolvedTops1pFake','PtFifthJet','Sphericity','aveBBdr','aveCSVpt',
-# 'centrality','corr_met_MultiLepCalc','csvJet3','csvJet4','deltaEta_maxBB','deltaPhi_lepJetInMinMljet',
-# 'deltaPhi_lepbJetInMinMlb','deltaR_lepBJet_maxpt','deltaR_lepJetInMinMljet','deltaR_lepbJetInMinMlb','deltaR_minBB',
-# 'fifthJetPt','fourthcsvb_bb','hemiout','lepDR_minBBdr','leptonPt_MultiLepCalc','mass_lepBJet0','mass_lepBJet_mindr',
-# 'mass_lepJets0','mass_lepJets1','mass_lepJets2','mass_maxBBmass','mass_maxJJJpt','mass_minBBdr','mass_minLLdr',
-# 'minDR_lepBJet','minMleppBjet','ratio_HTdHT4leadjets','secondJetPt','sixthJetPt','theJetLeadPt','thirdcsvb_bb']
-
+vrs=['AK4HT','AK4HTpMETpLepPt','Aplanarity','BDTtrijet1','BDTtrijet2','BDTtrijet3','BDTtrijet4','BJetLeadPt',
+'FW_momentum_0','FW_momentum_1','FW_momentum_2','FW_momentum_3','FW_momentum_4','FW_momentum_5','FW_momentum_6',
+'HOTGoodTrijet1_csvJetnotdijet','HOTGoodTrijet1_dRtridijet','HOTGoodTrijet1_dRtrijetJetnotdijet',
+'HOTGoodTrijet1_dijetmass','HOTGoodTrijet1_mass','HOTGoodTrijet1_pTratio','HOTGoodTrijet2_csvJetnotdijet',
+'HOTGoodTrijet2_dRtridijet','HOTGoodTrijet2_dRtrijetJetnotdijet','HOTGoodTrijet2_dijetmass','HOTGoodTrijet2_mass',
+'HOTGoodTrijet2_pTratio','HT_2m','HT_bjets','MT2bb','MT_lepMet','M_allJet_W','NJetsCSV_MultiLepCalc',
+'NJetsTtagged','NJetsWtagged','NJets_JetSubCalc','NresolvedTops1pFake','PtFifthJet','Sphericity','aveBBdr','aveCSVpt',
+'centrality','corr_met_MultiLepCalc','csvJet3','csvJet4','deltaEta_maxBB','deltaPhi_lepJetInMinMljet',
+'deltaPhi_lepbJetInMinMlb','deltaR_lepBJet_maxpt','deltaR_lepJetInMinMljet','deltaR_lepbJetInMinMlb','deltaR_minBB',
+'fifthJetPt','fourthcsvb_bb','hemiout','lepDR_minBBdr','leptonPt_MultiLepCalc','mass_lepBJet0','mass_lepBJet_mindr',
+'mass_lepJets0','mass_lepJets1','mass_lepJets2','mass_maxBBmass','mass_maxJJJpt','mass_minBBdr','mass_minLLdr',
+'minDR_lepBJet','minMleppBjet','ratio_HTdHT4leadjets','secondJetPt','sixthJetPt','theJetLeadPt','thirdcsvb_bb']
+#,'NJetsCSVwithSF_MultiLepCalc'
 
 for p in postfixes:
 	for y in years:
 		tmp={
 		'year':'R'+y,
 		'variable':vrs,
-		'postfix':p+'_21apr21lim',#+'_lim',#'NoNBtagSF_'+p,
+		'postfix':p+'_053121kin',#+'_lim',#'NoNBtagSF_'+p,
 		#'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_01272021_step3_wenyu/BDT_SepRank6j73vars2017year40top_40vars_mDepth2_6j_year20'+y+'_NJetsCSV/'
 		# 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03062021_step2/'#DeepCSV 
 		#'path':  '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03092021_step2/'#DeepJet
 		# 'path':  '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03162021_step2/'#DeepJet
 
-		'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_04202021_step3_'+p+'/' 
+		'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_053121_step3_'+p+'/' 
 		# 'path':  '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03092021_step2p5/'#DeepJet
 		}
 		trainings.append(tmp)
@@ -117,60 +120,82 @@ for p in postfixes:
 #for step2
 trainings=[]
 for y in years:
-	for p in ['40vars_6j_NJetsCSV_v1',
-			  '50vars_6j_NJetsCSV_v1','40vars_4j_NJetsCSV_v1','50vars_4j_NJetsCSV_v1']:
-		
+	for p in ['40vars_6j_NJetsCSV',
+			  '50vars_6j_NJetsCSV']:
 		#limits
 		tmp={
 		'year':'R'+y,
-		'variable':vrs,
-		'postfix':p+'_21apr21lim',#+'_lim',#'NoNBtagSF_'+p,
-		'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_04202021_step3_'+p+'/' 
+		'variable':['BDT'],
+		'postfix':p+'_053121lim',#+'_lim',#'NoNBtagSF_'+p,
+		'path':''
 		}
 		trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_newbin1',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_newbin2',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
 		
-		#bdt distribution
-# 		tmp={
-# 		'year':'R'+y,
-# 		'variable':vrs,
-# 		'postfix':p+'_21apr21bdtkin',#+'_lim',#'NoNBtagSF_'+p,
-# 		'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_04202021_step3_'+p+'/' 
-# 		}
-# 		trainings.append(tmp)
+	# 	#bdt distribution
+	# 	tmp={
+	# 	'year':'R'+y,
+	# 	'variable':['BDT'],
+	# 	'postfix':p+'_053121bdtkin',#+'_lim',#'NoNBtagSF_'+p,
+	# 	'path':'' 
+	# 	}
+	# 	trainings.append(tmp)
 		
-# 	for p in ['40vars_6j_NJetsCSV_v1',]:
+	# for p in ['40vars_6j_NJetsCSV',]:
 		
-# 		#data/mc input variables
-# 		tmp={
-# 		'year':'R'+y,
-# 		'variable':vrs,
-# 		'postfix':p+'_21apr21kin',#+'_lim',#'NoNBtagSF_'+p,
-# 		'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_04202021_step3_'+p+'/' 
-# 		}
-# 		trainings.append(tmp)
+	# 	#data/mc input variables
+	# 	tmp={
+	# 	'year':'R'+y,
+	# 	'variable':vrs,
+	# 	'postfix':p+'_053121kin',#+'_lim',#'NoNBtagSF_'+p,
+	# 	'path':'' 
+	# 	}
+	# 	trainings.append(tmp)
 
 
 combinations = [
+	
 {
 	'variable':'BDT',
-	'postfix':'40vars_6j_NJetsCSV_v1_21apr21lim'
+	'postfix':'40vars_6j_NJetsCSV_053121lim'
 },
 {
 	'variable':'BDT',
-	'postfix':'50vars_6j_NJetsCSV_v1_21apr21lim'
-},
-{
-	'variable':'BDT',
-	'postfix':'40vars_4j_NJetsCSV_v1_21apr21lim'
-},
-{
-	'variable':'BDT',
-	'postfix':'50vars_4j_NJetsCSV_v1_21apr21lim'
+	'postfix':'50vars_6j_NJetsCSV_053121lim'
 },
 # {
 # 	'variable':'BDT',
-# 	'postfix':'50vars_6j_NJetsCSV_v1_14apr21lim'
-# }
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'50vars_6j_NJetsCSV_053121lim_newbin1'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin2'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'50vars_6j_NJetsCSV_053121lim_newbin2'
+# },
+	
+
 ]
 
 #which step would you like to run?
@@ -180,7 +205,7 @@ combinations = [
 #4 dataCard + limit + significance
 #5 combination limit + significance
 #6 print results
-step=6
+step=3
 
 if step==1:
 	os.chdir('makeTemplates')
@@ -221,7 +246,7 @@ Queue 1\n')
 		os.system('condor_submit '+jdf_name)
 		print(shell_name)
 		# os.system('source '+shell_name+' & ')
-		time.sleep(2)
+		time.sleep(1)
 	os.chdir('..')
 
 

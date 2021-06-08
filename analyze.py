@@ -186,25 +186,27 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		weightNjetSFUpStr   = njetStr + ' * ' + weightStrNoNjet
 		weightNjetSFDownStr = weightStrNoNjet
 		
-		weightCSVshapelfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFup')
-		weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn')
-		weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup')
-		weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn')
+		weightCSVshapelfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFup').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_LFup')
+		weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_LFdn')
+		weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_HFup')
+		weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_HFdn')
 		
-		weightCSVshapejesUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesUp')
-		weightCSVshapejesDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesDn')
-		weightCSVshapehfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Up')
-		weightCSVshapehfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Dn')
-		weightCSVshapehfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Up')
-		weightCSVshapehfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Dn')
-		weightCSVshapecferr1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Up')
-		weightCSVshapecferr1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Dn')
-		weightCSVshapecferr2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Up')
-		weightCSVshapecferr2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Dn')
-		weightCSVshapelfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Up')
-		weightCSVshapelfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Dn')
-		weightCSVshapelfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Up')
-		weightCSVshapelfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Dn')
+		weightCSVshapejesUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesUp').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_jesup')
+		weightCSVshapejesDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesDn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_jesdn')
+		weightCSVshapehfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats1up')
+		weightCSVshapehfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats1dn')
+		weightCSVshapehfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats2up')
+		weightCSVshapehfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats2dn')
+		weightCSVshapecferr1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr1up')
+		weightCSVshapecferr1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr1dn')
+		weightCSVshapecferr2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr2up')
+		weightCSVshapecferr2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr2dn')
+		weightCSVshapelfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats1up')
+		weightCSVshapelfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats1dn')
+		weightCSVshapelfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats2up')
+		weightCSVshapelfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats2dn')
+ 
+
 		
 	else:
 		if '17' in year: cut += ' && !((run_CommonCalc == 299480 && lumi_CommonCalc == 7) || (run_CommonCalc == 301397 && lumi_CommonCalc == 518) || (run_CommonCalc == 305366 && lumi_CommonCalc == 395))' # for 1lep2017_Oct2019

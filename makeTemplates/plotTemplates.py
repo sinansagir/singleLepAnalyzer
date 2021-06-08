@@ -35,7 +35,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-blindBDT = False
+blindBDT = True
 
 isRebinned='_rebinned_stat1p1' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
@@ -455,7 +455,7 @@ for catEStr in catsElist:
 		if not doNormByBinWidth: hData.SetMaximum(1.2*max(hData.GetMaximum(),bkgHT.GetMaximum()))
 		#hData.SetMinimum(0.015)
 		hData.SetTitle("")
-		if doNormByBinWidth: hData.GetYaxis().SetTitle("< Events / GeV >")
+		if doNormByBinWidth: hData.GetYaxis().SetTitle("< Events / BDT A.U. >")
 		elif isRebinned!='': hData.GetYaxis().SetTitle("Events / bin")
 		else: hData.GetYaxis().SetTitle("Events / bin")
 		formatUpperHist(hData,hData)
@@ -467,7 +467,7 @@ for catEStr in catsElist:
 			else: hData.Draw("esamex0")
 		if blind: 
 			#hsig.SetMinimum(0.015)
-			if doNormByBinWidth: hsig.GetYaxis().SetTitle("< Events / GeV >")
+			if doNormByBinWidth: hsig.GetYaxis().SetTitle("< Events / BDT A.U. >")
 			elif isRebinned!='': hsig.GetYaxis().SetTitle("Events / bin")
 			else: hsig.GetYaxis().SetTitle("Events / bin")
 			if doNormByBinWidth: normByBinWidth(bkgHT_test)
@@ -887,7 +887,7 @@ for catEStr in catsElist:
 		lPad.Draw()
 	if not doNormByBinWidth: hDatamerged.SetMaximum(1.2*max(hDatamerged.GetMaximum(),bkgHTmerged.GetMaximum()))
 	#hDatamerged.SetMinimum(0.015)
-	if doNormByBinWidth: hDatamerged.GetYaxis().SetTitle("< Events / GeV >")
+	if doNormByBinWidth: hDatamerged.GetYaxis().SetTitle("< Events / BDT A.U. >")
 	elif isRebinned!='': hDatamerged.GetYaxis().SetTitle("Events / bin")
 	else: hDatamerged.GetYaxis().SetTitle("Events / bin")
 	formatUpperHist(hDatamerged,hDatamerged)
@@ -900,7 +900,7 @@ for catEStr in catsElist:
 		else: hDatamerged.Draw("esamex0")
 	if blind: 
 		#hsigmerged.SetMinimum(0.015)
-		if doNormByBinWidth: hsigmerged.GetYaxis().SetTitle("< Events / GeV >")
+		if doNormByBinWidth: hsigmerged.GetYaxis().SetTitle("< Events / BDT A.U. >")
 		elif isRebinned!='': hsigmerged.GetYaxis().SetTitle("Events / bin")
 		else: hsigmerged.GetYaxis().SetTitle("Events / bin")
 		if doNormByBinWidth: normByBinWidth(bkgHTmerged_test)

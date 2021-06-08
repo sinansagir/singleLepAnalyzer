@@ -287,6 +287,8 @@ if __name__ == '__main__':
 	allHistNames = [k.GetName() for k in tfile.GetListOfKeys() if not (k.GetName().endswith('Up') or k.GetName().endswith('Down'))]
 	tfile.Close()
 	chns = [hist[hist.find('fb_')+3:hist.find('__')] for hist in allHistNames if '__'+dataName in hist]
+	#chns2= [chn for chn in chns if 'nJ6' in chn]
+	#chns=chns2
 	chnsE = [chn for chn in chns if 'isE_' in chn]
 	chnsM = [chn for chn in chns if 'isM_' in chn]
 	chnsB = [chn for chn in chns if 'nB0p' not in chn]
