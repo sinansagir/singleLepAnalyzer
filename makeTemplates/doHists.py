@@ -416,7 +416,9 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'XGB':('XGB',linspace(0, 1, 201).tolist(),';XGB'),
 	'XGB_RS':('XGB_RS',linspace(0, 1, 201).tolist(),';XGB_RS'),
 	
-	
+	'btagCSVWeight':('btagCSVWeight',linspace(0, 5, 1001).tolist(),';btagCSVWeight'),
+	'btagCSV2DWeight_HTnj':('btagCSV2DWeight_HTnj',linspace(0, 5, 1001).tolist(),';btagCSV2DWeight_HTnj'),
+	'btagTotWeight':('btagCSVWeight*btagCSV2DWeight_HTnj',linspace(0, 5, 1001).tolist(),';btagTotWeight'),
 	
 	}
 

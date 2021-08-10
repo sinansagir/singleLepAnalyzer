@@ -336,6 +336,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 # 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'triggerDown')   , weightTriggerDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupUp')      , weightPileupUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupDown')    , weightPileupDownStr+'*('+fullcut+')', 'GOFF')
+
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupUp')      , weightPileupUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupDown')    , weightPileupDownStr+'*('+fullcut+')', 'GOFF')
+
 		if '18' not in year:
 			tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'prefireUp')  , weightPrefireUpStr+'*('+fullcut+')', 'GOFF')
 			tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'prefireDown'), weightPrefireDownStr+'*('+fullcut+')', 'GOFF')

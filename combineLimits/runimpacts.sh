@@ -1,0 +1,134 @@
+
+
+# source impacts.sh 40vars_6j_NJetsCSV_053121lim &
+# source impacts.sh 50vars_6j_NJetsCSV_053121lim &
+
+# source impacts.sh R16_40vars_6j_NJetsCSV_053121lim_newbin1_BDT
+# source impacts.sh R17_40vars_6j_NJetsCSV_053121lim_newbin1_BDT
+# source impacts.sh R18_40vars_6j_NJetsCSV_053121lim_newbin1_BDT
+source impacts.sh 40vars_6j_NJetsCSV_053121lim_newbin1_BDT
+
+# source impacts.sh R16_2021_4_6_2b300GeV3b100GeV4b50GeVbins_HT
+# source impacts.sh R17_2021_4_6_2b300GeV3b100GeV4b50GeVbins_HT
+# source impacts.sh R18_2021_4_6_2b300GeV3b100GeV4b50GeVbins_HT
+
+# source impacts.sh 2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT_R16p17p18
+
+# source impacts.sh 50vars_6j_NJetsCSV_053121lim_newbin1 &
+# source impacts.sh 40vars_6j_NJetsCSV_053121lim_newbin2 &
+# source impacts.sh 50vars_6j_NJetsCSV_053121lim_newbin2 &
+
+# source impacts.sh 40vars_6j_NJetsCSV_053121lim_noHOT &
+# source impacts.sh 50vars_6j_NJetsCSV_053121lim_noHOT &
+# source impacts.sh 40vars_6j_NJetsCSV_053121lim_noHOT_newbin1 &
+# source impacts.sh 50vars_6j_NJetsCSV_053121lim_noHOT_newbin1 &
+# source impacts.sh 40vars_6j_NJetsCSV_053121lim_noHOT_newbin2 &
+# source impacts.sh 50vars_6j_NJetsCSV_053121lim_noHOT_newbin2 &
+
+
+# source impacts.sh limits_R16_40vars_6j_NJetsCSV_053121lim_noHOT_BDT &
+# source impacts.sh limits_R16_40vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT &
+# source impacts.sh limits_R16_40vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT &
+# source impacts.sh limits_R17_40vars_6j_NJetsCSV_053121lim_noHOT_BDT &
+# source impacts.sh limits_R17_40vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT &
+# source impacts.sh limits_R17_40vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT &
+# source impacts.sh limits_R18_40vars_6j_NJetsCSV_053121lim_noHOT_BDT &
+# source impacts.sh limits_R18_40vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT &
+# source impacts.sh limits_R18_40vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT &
+# source impacts.sh limits_R16_50vars_6j_NJetsCSV_053121lim_noHOT_BDT &
+# source impacts.sh limits_R16_50vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT &
+# source impacts.sh limits_R16_50vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT &
+# source impacts.sh limits_R17_50vars_6j_NJetsCSV_053121lim_noHOT_BDT &
+# source impacts.sh limits_R17_50vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT &
+# source impacts.sh limits_R17_50vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT &
+# source impacts.sh limits_R18_50vars_6j_NJetsCSV_053121lim_noHOT_BDT &
+# source impacts.sh limits_R18_50vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT &
+# source impacts.sh limits_R18_50vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT &
+
+# source impacts.sh limits_R16_40vars_6j_NJetsCSV_053121lim_BDT &
+# source impacts.sh limits_R16_40vars_6j_NJetsCSV_053121lim_newbin1_BDT &
+# source impacts.sh limits_R16_40vars_6j_NJetsCSV_053121lim_newbin2_BDT &
+# source impacts.sh limits_R16_50vars_6j_NJetsCSV_053121lim_BDT &
+# source impacts.sh limits_R16_50vars_6j_NJetsCSV_053121lim_newbin1_BDT &
+# source impacts.sh limits_R16_50vars_6j_NJetsCSV_053121lim_newbin2_BDT &
+# source impacts.sh limits_R17_40vars_6j_NJetsCSV_053121lim_BDT &
+# source impacts.sh limits_R17_40vars_6j_NJetsCSV_053121lim_newbin1_BDT &
+# source impacts.sh limits_R17_40vars_6j_NJetsCSV_053121lim_newbin2_BDT &
+# source impacts.sh limits_R17_50vars_6j_NJetsCSV_053121lim_BDT &
+# source impacts.sh limits_R17_50vars_6j_NJetsCSV_053121lim_newbin1_BDT &
+# source impacts.sh limits_R17_50vars_6j_NJetsCSV_053121lim_newbin2_BDT &
+# source impacts.sh limits_R18_40vars_6j_NJetsCSV_053121lim_BDT &
+# source impacts.sh limits_R18_40vars_6j_NJetsCSV_053121lim_newbin1_BDT &
+# source impacts.sh limits_R18_40vars_6j_NJetsCSV_053121lim_newbin2_BDT &
+# source impacts.sh limits_R18_50vars_6j_NJetsCSV_053121lim_BDT &
+# source impacts.sh limits_R18_50vars_6j_NJetsCSV_053121lim_newbin1_BDT &
+# source impacts.sh limits_R18_50vars_6j_NJetsCSV_053121lim_newbin2_BDT &
+
+# source impacts.sh limits_R16_2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT/ &
+# source impacts.sh limits_R17_2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT/ &
+# source impacts.sh limits_R18_2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT/ &
+# source impacts.sh limits_R16_2021_4_6_ttH20_HT/ &
+# source impacts.sh limits_R17_2021_4_6_ttH20_HT/ &
+# source impacts.sh limits_R18_2021_4_6_ttH20_HT/ &
+
+
+# cp 40vars_6j_NJetsCSV_053121lim &
+# cp 50vars_6j_NJetsCSV_053121lim &
+# cp 40vars_6j_NJetsCSV_053121lim_newbin1
+# cp 50vars_6j_NJetsCSV_053121lim_newbin1 &
+# cp 40vars_6j_NJetsCSV_053121lim_newbin2 &
+# cp 50vars_6j_NJetsCSV_053121lim_newbin2 &
+
+# cp 40vars_6j_NJetsCSV_053121lim_noHOT &
+# cp 50vars_6j_NJetsCSV_053121lim_noHOT &
+# cp 40vars_6j_NJetsCSV_053121lim_noHOT_newbin1 &
+# cp 50vars_6j_NJetsCSV_053121lim_noHOT_newbin1 &
+# cp 40vars_6j_NJetsCSV_053121lim_noHOT_newbin2 &
+# cp 50vars_6j_NJetsCSV_053121lim_noHOT_newbin2 &
+
+
+# cp limits_R16_40vars_6j_NJetsCSV_053121lim_noHOT_BDT/impacts/impact_out.pdf impacts/R16_40vars_6j_NJetsCSV_053121lim_noHOT_BDT.pdf
+# cp limits_R16_40vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT/impacts/impact_out.pdf impacts/R16_40vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT.pdf
+# cp limits_R16_40vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT/impacts/impact_out.pdf impacts/R16_40vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT.pdf
+# cp limits_R16_50vars_6j_NJetsCSV_053121lim_noHOT_BDT/impacts/impact_out.pdf impacts/R16_50vars_6j_NJetsCSV_053121lim_noHOT_BDT.pdf
+# cp limits_R16_50vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT/impacts/impact_out.pdf impacts/R16_50vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT.pdf
+# cp limits_R16_50vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT/impacts/impact_out.pdf impacts/R16_50vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT.pdf
+# cp limits_R17_40vars_6j_NJetsCSV_053121lim_noHOT_BDT/impacts/impact_out.pdf impacts/R17_40vars_6j_NJetsCSV_053121lim_noHOT_BDT.pdf
+# cp limits_R17_40vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT/impacts/impact_out.pdf impacts/R17_40vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT.pdf
+# cp limits_R17_40vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT/impacts/impact_out.pdf impacts/R17_40vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT.pdf
+# cp limits_R17_50vars_6j_NJetsCSV_053121lim_noHOT_BDT/impacts/impact_out.pdf impacts/R17_50vars_6j_NJetsCSV_053121lim_noHOT_BDT.pdf
+# cp limits_R17_50vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT/impacts/impact_out.pdf impacts/R17_50vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT.pdf
+# cp limits_R17_50vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT/impacts/impact_out.pdf impacts/R17_50vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT.pdf
+# cp limits_R18_40vars_6j_NJetsCSV_053121lim_noHOT_BDT/impacts/impact_out.pdf impacts/R18_40vars_6j_NJetsCSV_053121lim_noHOT_BDT.pdf
+# cp limits_R18_40vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT/impacts/impact_out.pdf impacts/R18_40vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT.pdf
+# cp limits_R18_40vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT/impacts/impact_out.pdf impacts/R18_40vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT.pdf
+# cp limits_R18_50vars_6j_NJetsCSV_053121lim_noHOT_BDT/impacts/impact_out.pdf impacts/R18_50vars_6j_NJetsCSV_053121lim_noHOT_BDT.pdf
+# cp limits_R18_50vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT/impacts/impact_out.pdf impacts/R18_50vars_6j_NJetsCSV_053121lim_noHOT_newbin1_BDT.pdf
+# cp limits_R18_50vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT/impacts/impact_out.pdf impacts/R18_50vars_6j_NJetsCSV_053121lim_noHOT_newbin2_BDT.pdf
+
+
+# cp limits_R16_40vars_6j_NJetsCSV_053121lim_BDT/impacts/impact_out.pdf impacts/R16_40vars_6j_NJetsCSV_053121lim_BDT.pdf
+# cp limits_R16_40vars_6j_NJetsCSV_053121lim_newbin1_BDT/impacts/impact_out.pdf impacts/R16_40vars_6j_NJetsCSV_053121lim_newbin1_BDT.pdf
+# cp limits_R16_40vars_6j_NJetsCSV_053121lim_newbin2_BDT/impacts/impact_out.pdf impacts/R16_40vars_6j_NJetsCSV_053121lim_newbin2_BDT.pdf
+# cp limits_R16_50vars_6j_NJetsCSV_053121lim_BDT/impacts/impact_out.pdf impacts/R16_50vars_6j_NJetsCSV_053121lim_BDT.pdf
+# cp limits_R16_50vars_6j_NJetsCSV_053121lim_newbin1_BDT/impacts/impact_out.pdf impacts/R16_50vars_6j_NJetsCSV_053121lim_newbin1_BDT.pdf
+# cp limits_R16_50vars_6j_NJetsCSV_053121lim_newbin2_BDT/impacts/impact_out.pdf impacts/R16_50vars_6j_NJetsCSV_053121lim_newbin2_BDT.pdf
+# cp limits_R17_40vars_6j_NJetsCSV_053121lim_BDT/impacts/impact_out.pdf impacts/R17_40vars_6j_NJetsCSV_053121lim_BDT.pdf
+# cp limits_R17_40vars_6j_NJetsCSV_053121lim_newbin1_BDT/impacts/impact_out.pdf impacts/R17_40vars_6j_NJetsCSV_053121lim_newbin1_BDT.pdf
+# cp limits_R17_40vars_6j_NJetsCSV_053121lim_newbin2_BDT/impacts/impact_out.pdf impacts/R17_40vars_6j_NJetsCSV_053121lim_newbin2_BDT.pdf
+# cp limits_R17_50vars_6j_NJetsCSV_053121lim_BDT/impacts/impact_out.pdf impacts/R17_50vars_6j_NJetsCSV_053121lim_BDT.pdf
+# cp limits_R17_50vars_6j_NJetsCSV_053121lim_newbin1_BDT/impacts/impact_out.pdf impacts/R17_50vars_6j_NJetsCSV_053121lim_newbin1_BDT.pdf
+# cp limits_R17_50vars_6j_NJetsCSV_053121lim_newbin2_BDT/impacts/impact_out.pdf impacts/R17_50vars_6j_NJetsCSV_053121lim_newbin2_BDT.pdf
+# cp limits_R18_40vars_6j_NJetsCSV_053121lim_BDT/impacts/impact_out.pdf impacts/R18_40vars_6j_NJetsCSV_053121lim_BDT.pdf
+# cp limits_R18_40vars_6j_NJetsCSV_053121lim_newbin1_BDT/impacts/impact_out.pdf impacts/R18_40vars_6j_NJetsCSV_053121lim_newbin1_BDT.pdf
+# cp limits_R18_40vars_6j_NJetsCSV_053121lim_newbin2_BDT/impacts/impact_out.pdf impacts/R18_40vars_6j_NJetsCSV_053121lim_newbin2_BDT.pdf
+# cp limits_R18_50vars_6j_NJetsCSV_053121lim_BDT/impacts/impact_out.pdf impacts/R18_50vars_6j_NJetsCSV_053121lim_BDT.pdf
+# cp limits_R18_50vars_6j_NJetsCSV_053121lim_newbin1_BDT/impacts/impact_out.pdf impacts/R18_50vars_6j_NJetsCSV_053121lim_newbin1_BDT.pdf
+# cp limits_R18_50vars_6j_NJetsCSV_053121lim_newbin2_BDT/impacts/impact_out.pdf impacts/R18_50vars_6j_NJetsCSV_053121lim_newbin2_BDT.pdf
+
+# cp limits_R16_2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT/impacts/impact_out.pdf impacts/R16_2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT.pdf
+# cp limits_R17_2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT/impacts/impact_out.pdf impacts/R17_2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT.pdf
+# cp limits_R18_2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT/impacts/impact_out.pdf impacts/R18_2021_4_6_2b300GeV3b150GeV4b50GeVbins_HT.pdf
+# cp limits_R16_2021_4_6_ttH20_HT/impacts/impact_out.pdf impacts/R16_2021_4_6_ttH20_HT.pdf
+# cp limits_R17_2021_4_6_ttH20_HT/impacts/impact_out.pdf impacts/R17_2021_4_6_ttH20_HT.pdf
+# cp limits_R18_2021_4_6_ttH20_HT/impacts/impact_out.pdf impacts/R18_2021_4_6_ttH20_HT.pdf

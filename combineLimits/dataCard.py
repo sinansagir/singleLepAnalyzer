@@ -70,6 +70,7 @@ def print_cb(cb):
 		getattr(cb, 'Print%s' % s)()
 		print
 
+hotclosurecorr={'R16': {6: 1.0,7: 1.0,8: 0.01,9: 0.01,10: 0.06,},'R17': {6: 0.68,7: 0.86,8: 0.89,9: 0.91,10: 0.89,},'R18': {6: 0.75,7: 0.52,8: 0.14,9: 0.13,10: 0.23,}}
 
 def add_standard_systematics(cb):
 	print '>> Adding standard systematic uncertainties...'
@@ -106,7 +107,14 @@ def add_standard_systematics(cb):
 		
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotstat_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotcspur_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
-	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotclosure_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
+	# cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotclosure_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
+	# cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotclosure_$ERA', 'shape', ch.SystMap('era')(['R16'], 0.25)(['R17'], 0.25)(['R18'], 0.25))
+	for i in range(6,11): 
+		# cb.cp().process(signal + allbkgs).channel(chns_njet[i]).AddSyst(cb, smoothAlgo+'hotclosure_$ERA', 'shape', ch.SystMap('era')(['R16'], hotclosurecorr['R16'][i])(['R17'], hotclosurecorr['R17'][i])(['R18'], hotclosurecorr['R18'][i])) 
+		cb.cp().process(signal + allbkgs).channel(chns_njet[i]).AddSyst(cb, smoothAlgo+'hotclosure_$ERA', 'shape', ch.SystMap('era')(['R16'], hotclosurecorr['R16'][i])(['R18'], hotclosurecorr['R18'][i])) 
+	
+
+
 	#cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	
 # 	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btagcorr', 'shape', ch.SystMap()(1.0)) # New year-to-year correlation
@@ -269,6 +277,9 @@ if __name__ == '__main__':
 	elif era=='R18': lumiStr = '59p97fb'
 	smoothAlgo = 'lowess' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
 	tag = ''#'_ttH'
+	# saveKey = '_nohotclosure_'+iPlot
+	# saveKey = '_0p25hotclosure_'+iPlot
+	# saveKey = '_scalehotclosure_'+iPlot
 	saveKey = '_'+iPlot
 	fileDir = '../makeTemplates/'
 	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'

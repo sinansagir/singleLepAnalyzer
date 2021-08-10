@@ -86,19 +86,20 @@ postfixes=[
 # 'NJetsTtagged','BJetLeadPt','secondJetPt','deltaEta_maxBB','Aplanarity','centrality','FW_momentum_6','Sphericity',
 # 'BDTtrijet1',]
 
+vrs=['BDT','NJetsCSV_MultiLepCalc','NJets_JetSubCalc','btagCSVWeight','btagCSV2DWeight_HTnj','btagTotWeight']
 
-vrs=['AK4HT','AK4HTpMETpLepPt','Aplanarity','BDTtrijet1','BDTtrijet2','BDTtrijet3','BDTtrijet4','BJetLeadPt',
-'FW_momentum_0','FW_momentum_1','FW_momentum_2','FW_momentum_3','FW_momentum_4','FW_momentum_5','FW_momentum_6',
-'HOTGoodTrijet1_csvJetnotdijet','HOTGoodTrijet1_dRtridijet','HOTGoodTrijet1_dRtrijetJetnotdijet',
-'HOTGoodTrijet1_dijetmass','HOTGoodTrijet1_mass','HOTGoodTrijet1_pTratio','HOTGoodTrijet2_csvJetnotdijet',
-'HOTGoodTrijet2_dRtridijet','HOTGoodTrijet2_dRtrijetJetnotdijet','HOTGoodTrijet2_dijetmass','HOTGoodTrijet2_mass',
-'HOTGoodTrijet2_pTratio','HT_2m','HT_bjets','MT2bb','MT_lepMet','M_allJet_W','NJetsCSV_MultiLepCalc',
-'NJetsTtagged','NJetsWtagged','NJets_JetSubCalc','NresolvedTops1pFake','PtFifthJet','Sphericity','aveBBdr','aveCSVpt',
-'centrality','corr_met_MultiLepCalc','csvJet3','csvJet4','deltaEta_maxBB','deltaPhi_lepJetInMinMljet',
-'deltaPhi_lepbJetInMinMlb','deltaR_lepBJet_maxpt','deltaR_lepJetInMinMljet','deltaR_lepbJetInMinMlb','deltaR_minBB',
-'fifthJetPt','fourthcsvb_bb','hemiout','lepDR_minBBdr','leptonPt_MultiLepCalc','mass_lepBJet0','mass_lepBJet_mindr',
-'mass_lepJets0','mass_lepJets1','mass_lepJets2','mass_maxBBmass','mass_maxJJJpt','mass_minBBdr','mass_minLLdr',
-'minDR_lepBJet','minMleppBjet','ratio_HTdHT4leadjets','secondJetPt','sixthJetPt','theJetLeadPt','thirdcsvb_bb']
+# vrs=['AK4HT','AK4HTpMETpLepPt','Aplanarity','BDTtrijet1','BDTtrijet2','BDTtrijet3','BDTtrijet4','BJetLeadPt',
+# 'FW_momentum_0','FW_momentum_1','FW_momentum_2','FW_momentum_3','FW_momentum_4','FW_momentum_5','FW_momentum_6',
+# 'HOTGoodTrijet1_csvJetnotdijet','HOTGoodTrijet1_dRtridijet','HOTGoodTrijet1_dRtrijetJetnotdijet',
+# 'HOTGoodTrijet1_dijetmass','HOTGoodTrijet1_mass','HOTGoodTrijet1_pTratio','HOTGoodTrijet2_csvJetnotdijet',
+# 'HOTGoodTrijet2_dRtridijet','HOTGoodTrijet2_dRtrijetJetnotdijet','HOTGoodTrijet2_dijetmass','HOTGoodTrijet2_mass',
+# 'HOTGoodTrijet2_pTratio','HT_2m','HT_bjets','MT2bb','MT_lepMet','M_allJet_W','NJetsCSV_MultiLepCalc',
+# 'NJetsTtagged','NJetsWtagged','NJets_JetSubCalc','NresolvedTops1pFake','PtFifthJet','Sphericity','aveBBdr','aveCSVpt',
+# 'centrality','corr_met_MultiLepCalc','csvJet3','csvJet4','deltaEta_maxBB','deltaPhi_lepJetInMinMljet',
+# 'deltaPhi_lepbJetInMinMlb','deltaR_lepBJet_maxpt','deltaR_lepJetInMinMljet','deltaR_lepbJetInMinMlb','deltaR_minBB',
+# 'fifthJetPt','fourthcsvb_bb','hemiout','lepDR_minBBdr','leptonPt_MultiLepCalc','mass_lepBJet0','mass_lepBJet_mindr',
+# 'mass_lepJets0','mass_lepJets1','mass_lepJets2','mass_maxBBmass','mass_maxJJJpt','mass_minBBdr','mass_minLLdr',
+# 'minDR_lepBJet','minMleppBjet','ratio_HTdHT4leadjets','secondJetPt','sixthJetPt','theJetLeadPt','thirdcsvb_bb']
 #,'NJetsCSVwithSF_MultiLepCalc'
 
 for p in postfixes:
@@ -106,7 +107,7 @@ for p in postfixes:
 		tmp={
 		'year':'R'+y,
 		'variable':vrs,
-		'postfix':p+'_053121kin',#+'_lim',#'NoNBtagSF_'+p,
+		'postfix':p+'_053121kin2',#+'_lim',#'NoNBtagSF_'+p,
 		#'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_01272021_step3_wenyu/BDT_SepRank6j73vars2017year40top_40vars_mDepth2_6j_year20'+y+'_NJetsCSV/'
 		# 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03062021_step2/'#DeepCSV 
 		#'path':  '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03092021_step2/'#DeepJet
@@ -118,18 +119,17 @@ for p in postfixes:
 		trainings.append(tmp)
 
 #for step2
-trainings=[]
-for y in years:
-	for p in ['40vars_6j_NJetsCSV',
-			  '50vars_6j_NJetsCSV']:
-		#limits
-		tmp={
-		'year':'R'+y,
-		'variable':['BDT'],
-		'postfix':p+'_053121lim',#+'_lim',#'NoNBtagSF_'+p,
-		'path':''
-		}
-		trainings.append(tmp)
+# trainings=[]
+# for y in years:
+# 	for p in ['40vars_6j_NJetsCSV']:
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_negbdt',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
 
 		# tmp={
 		# 'year':'R'+y,
@@ -142,7 +142,112 @@ for y in years:
 		# tmp={
 		# 'year':'R'+y,
 		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_onebin',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121bdtkin',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':'' 
+		# }
+		# trainings.append(tmp)
+
+# for y in years:
+# 	for p in ['40vars_6j_NJetsCSV']:#,
+			  #'50vars_6j_NJetsCSV']:
+		# limits
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_noHOT',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_noHOT_newbin1',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_noHOT_newbin2',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+
+
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_newbin1',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_newbin1',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_newbin1_nohotclosure',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_newbin1_0p25hotclosure',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_newbin1_scalehotclosure',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
 		# 'postfix':p+'_053121lim_newbin2',#+'_lim',#'NoNBtagSF_'+p,
+		# 'path':''
+		# }
+		# trainings.append(tmp)
+
+		# tmp={
+		# 'year':'R'+y,
+		# 'variable':['BDT'],
+		# 'postfix':p+'_053121lim_newbin3',#+'_lim',#'NoNBtagSF_'+p,
 		# 'path':''
 		# }
 		# trainings.append(tmp)
@@ -155,29 +260,56 @@ for y in years:
 	# 	'path':'' 
 	# 	}
 	# 	trainings.append(tmp)
+# for y in years:		
+# 	for p in ['40vars_6j_NJetsCSV',]:
 		
-	# for p in ['40vars_6j_NJetsCSV',]:
-		
-	# 	#data/mc input variables
-	# 	tmp={
-	# 	'year':'R'+y,
-	# 	'variable':vrs,
-	# 	'postfix':p+'_053121kin',#+'_lim',#'NoNBtagSF_'+p,
-	# 	'path':'' 
-	# 	}
-	# 	trainings.append(tmp)
+# 		#data/mc input variables
+# 		tmp={
+# 		'year':'R'+y,
+# 		'variable':vrs,
+# 		'postfix':p+'_053121kin',#+'_lim',#'NoNBtagSF_'+p,
+# 		'path':'' 
+# 		}
+# 		trainings.append(tmp)
 
 
 combinations = [
-	
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_negbdt'
+# },
+
 {
 	'variable':'BDT',
-	'postfix':'40vars_6j_NJetsCSV_053121lim'
+	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1'
 },
-{
-	'variable':'BDT',
-	'postfix':'50vars_6j_NJetsCSV_053121lim'
-},
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_onebin'
+# },		
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_nohotclosure'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_0p25hotclosure'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_scalehotclosure'
+# },
+
+
+
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'50vars_6j_NJetsCSV_053121lim'
+# },
 # {
 # 	'variable':'BDT',
 # 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1'
@@ -193,6 +325,40 @@ combinations = [
 # {
 # 	'variable':'BDT',
 # 	'postfix':'50vars_6j_NJetsCSV_053121lim_newbin2'
+# },
+
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin3'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'50vars_6j_NJetsCSV_053121lim_newbin3'
+# },
+
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_noHOT'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'50vars_6j_NJetsCSV_053121lim_noHOT'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_noHOT_newbin1'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'50vars_6j_NJetsCSV_053121lim_noHOT_newbin1'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_noHOT_newbin2'
+# },
+# {
+# 	'variable':'BDT',
+# 	'postfix':'50vars_6j_NJetsCSV_053121lim_noHOT_newbin2'
 # },
 	
 
@@ -264,6 +430,7 @@ cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 python modifyBinning.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+# python plotFullRun2.py '+v+' '+train['postfix']+'\n\
 python plotTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n')
 			shell.close()
 			jdf_name = 'cfg/condor_step3_'+train['year']+'_'+train['postfix']+'_'+v+'.job'
@@ -301,10 +468,15 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
 cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
-python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+# python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
 cd limits_'+train['year']+'_'+train['postfix']+'_'+v+'\n\
-combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig.txt\n\
-combine -M AsymptoticLimits cmb/workspace.root --run=blind --cminDefaultMinimizerStrategy 0 &> asy.txt\n\
+#combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_exp.txt\n\
+#combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_obs.txt\n\
+#combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> asy.txt\n\
+combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> sig_exp.txt\n\
+combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> sig_obs.txt\n\
+combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> asy.txt\n\
+# combine -M MultiDimFit cmb/workspace.root --cminDefaultMinimizerStrategy 0 &> mlfit.txt\n\
 cd ..\n')
 			shell.close()
 			jdf_name = 'cfg/condor_step4_'+train['year']+'_'+train['postfix']+'_'+v+'.job'
@@ -340,8 +512,12 @@ eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 combineCards.py R16=limits_R16_'+combo+'/cmb/combined.txt.cmb R17=limits_R17_'+combo+'/cmb/combined.txt.cmb R18=limits_R18_'+combo+'/cmb/combined.txt.cmb &> BDTcomb/'+combo+'.txt\n\
 text2workspace.py  BDTcomb/'+combo+'.txt  -o BDTcomb/'+combo+'.root\n\
-combine -M Significance BDTcomb/'+combo+'.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_'+combo+'.txt\n\
-combine -M AsymptoticLimits BDTcomb/'+combo+'.root --run=blind --cminDefaultMinimizerStrategy 0 &> BDTcomb/asy_'+combo+'.txt\n')
+#combine -M Significance BDTcomb/'+combo+'.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_exp_'+combo+'.txt\n\
+#combine -M Significance BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_obs_'+combo+'.txt\n\
+#combine -M AsymptoticLimits BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/asy_'+combo+'.txt\n\
+combine -M Significance BDTcomb/'+combo+'.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> BDTcomb/sig_exp_'+combo+'.txt\n\
+combine -M Significance BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> BDTcomb/sig_obs_'+combo+'.txt\n\
+combine -M AsymptoticLimits BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> BDTcomb/asy_'+combo+'.txt\n')
 		shell.close()
 		jdf_name = 'cfg/condor_step5_'+combo+'.job'
 		jdf=open(jdf_name,'w')
@@ -364,32 +540,41 @@ Queue 1\n')
 def printlim(spec,year,variable,isComb):
 
 	inputDir='limits_'+year+'_'+spec+'_'+variable
-	sigFile = inputDir+'/sig.txt'
+	sigExpFile = inputDir+'/sig_exp.txt'
+	sigObsFile = inputDir+'/sig_obs.txt'
 	limFile = inputDir+'/asy.txt'
 	if isComb:
 		inputDir='BDTcomb/'
-		sigFile = inputDir+'/sig_'+spec+'_'+variable+'.txt'
+		sigExpFile = inputDir+'/sig_exp_'+spec+'_'+variable+'.txt'
+		sigObsFile = inputDir+'/sig_obs_'+spec+'_'+variable+'.txt'
 		limFile = inputDir+'/asy_'+spec+'_'+variable+'.txt'
 
-	sigData = open(sigFile,'r').read()
-	siglines = sigData.split('\n')
+	sigExpData = open(sigExpFile,'r').read()
+	sigExplines = sigExpData.split('\n')
+	sigObsData = open(sigObsFile,'r').read()
+	sigObslines = sigObsData.split('\n')
 	limData = open(limFile,'r').read()
 	limlines = limData.split('\n')
-	theSig = ''
-	theLim = ['']*5
-	for line in siglines:
-		if line.startswith('Significance:'): theSig = line.split()[-1]
+	theSigExp = ''
+	theSigObs = ''
+	theLim = ['']*6
+	for line in sigExplines:
+		if line.startswith('Significance:'): theSigExp = line.split()[-1]
+	for line in sigObslines:
+		if line.startswith('Significance:'): theSigObs = line.split()[-1]
 	for line in limlines:
+		if line.startswith('Observed Limit:'): theLim[5] =  "{:.2f}".format(float(line.split()[-1])*12)
 		if line.startswith('Expected  2.5%:'): theLim[0] =  "{:.2f}".format(float(line.split()[-1])*12)
 		if line.startswith('Expected 16.0%:'): theLim[1] = "{:.2f}".format(float(line.split()[-1])*12)
 		if line.startswith('Expected 50.0%:'): theLim[2] = "{:.2f}".format(float(line.split()[-1])*12)
 		if line.startswith('Expected 84.0%:'): theLim[3] = "{:.2f}".format(float(line.split()[-1])*12)
 		if line.startswith('Expected 97.5%:'): theLim[4] = "{:.2f}".format(float(line.split()[-1])*12)
-	print year+' , '+variable+' , '+spec+' , '+theSig+' , '+theLim[0]+' , '+theLim[1]+' , '+theLim[2]+' , '+theLim[3]+' , '+theLim[4]
+	print year+' , '+variable+' , '+spec+' , '+theSigObs+' , '+theSigExp+' , '+theLim[5]+' , '+theLim[2]+' , '+theLim[1]+' , '+theLim[3]+' , '+theLim[0]+' , '+theLim[4]
 
 
 if step==6:
-	print 'Year , Var , Specifications , Significance , -2sigma, -1sigma, central, +1sigma, +2sigma'
+	# print 'Year , Var , Specifications , Exp. Sig. , Obs. Sig. , -2sigma, -1sigma, central, +1sigma, +2sigma, Obs. Limit'
+	print 'Year , Var , Specifications , Obs. Sig. , Exp. Sig. , Obs. Limit , central , -1sigma, +1sigma, -2sigma , +2sigma'
 	os.chdir('combineLimits')
 	for train in trainings:
 		for v in train['variable']:

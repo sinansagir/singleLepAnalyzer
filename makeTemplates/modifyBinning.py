@@ -47,7 +47,7 @@ combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 blindBDT = False
 
-rebinYear = 'R18'#'R18' #rebin w.r.t. another years templates, leave empty to disable this option. Assumes all year paths differ by only year tag from the selected 'year' path above
+rebinYear = ''#'R18' #rebin w.r.t. another years templates, leave empty to disable this option. Assumes all year paths differ by only year tag from the selected 'year' path above
 if rebinYear!='': saveKey+='_'+rebinYear+'bins'
 yeartolumi = {'R16':'35p867fb','R17':'41p53fb','R18':'59p97fb'}
 
@@ -83,7 +83,7 @@ removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 removeSystFromYields+= ['PSwgt'] #remove if envelope method is not used, otherwise replace with ['isr','fsr']
 removeSystFromYields+= ['btag'] #remove if year-to-year correlation is used, otherwise replace with ['btagcorr','btaguncorr']
 
-minNbins=2 #min number of bins to be merged
+minNbins=1 #min number of bins to be merged
 stat = 1.1#0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if 'kinematics' in templateDir: 
 	stat = 1.1
@@ -119,7 +119,7 @@ if iPlot=='BDT' and stat<1.:
 	xMin = -1
 	xMax = 1
 
-# minNbins=4
+# minNbins=2
 		
 if rebinCombine:
 	dataName = 'data_obs'
@@ -287,6 +287,14 @@ for chn in xbinsListTemp.keys():
 	if (iPlot.startswith('HT') or iPlot=='maxJJJpt' or iPlot=='ST') and stat<1.: xMax = xbinsList[chn][-2]+(500-xbinsList[chn][-2]%500)
 	if xMin>xbinsList[chn][0]: xbinsList[chn][0] = xMin
 	if xMax<xbinsList[chn][-1] and xMin!=xMax: xbinsList[chn][-1] = xMax
+	# xbinsList[chn] = [xbinsList[chn][0],xbinsList[chn][-1]]
+	# for bin_index,bin_value in enumerate(xbinsList[chn]):
+	# 	# print bin_index,bin_value
+	# 	if bin_value>0:
+	# 		# print 'found'
+	# 		xbinsList[chn]=xbinsList[chn][:bin_index+1]
+	# 		break
+
 	for ibin in range(1,len(xbinsList[chn])-1):
 		if xbinsList[chn][ibin]<=xbinsList[chn][0] or xbinsList[chn][ibin]>=xbinsList[chn][-1]: del xbinsList[chn][ibin]
 	print chn,"=",xbinsList[chn]

@@ -107,12 +107,26 @@ sys.argv[2],
 # nbtaglist = ['2','3','4p']
 # njetslist = ['6','7','8','9','10p']
 
+# isEMlist  = ['E','M']
+# nhottlist = ['0p']
+# nttaglist = ['0p']
+# nWtaglist = ['0p']
+# nbtaglist = ['2','3','4p']
+# njetslist = ['6','7','8','9','10p']
+
 isEMlist  = ['E','M']
 nhottlist = ['0p']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['2p']
-njetslist = ['4p','6p']
+nbtaglist = ['2','3','4p']
+njetslist = ['4p','6p','8p']
+
+# isEMlist  = ['E','M']
+# nhottlist = ['0p']
+# nttaglist = ['0p']
+# nWtaglist = ['0p']
+# nbtaglist = ['2p']
+# njetslist = ['4p','6p']
 
 if not categorize: 	
 	nhottlist = ['0p']
