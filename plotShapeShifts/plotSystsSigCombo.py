@@ -29,8 +29,8 @@ elif year=='R18':
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
 useCombine = True
-tempVersion = 'templates_'+year+'_40vars_6j_NJetsCSV_053121lim_newbin3'
-isRebinned = '_rebinned_stat0p15'
+tempVersion = 'templates_'+year+'_40vars_6j_NJetsCSV_053121lim2'
+isRebinned = '_rebinned_stat0p3'
 if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
 saveKey = ''#'_tshape'
@@ -53,7 +53,7 @@ systematics = ['hotclosure']#['pileup','hotstat','hotcspur','hotclosure','isr','
 if year!='R18': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
 systematics+= ['JEC','JER']#,
-systematics = ['hotclosure']
+systematics = ['bdt']
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
 # 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),

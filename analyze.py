@@ -315,7 +315,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	if isPlot2D: hists[histName]  = TH2D(histName,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[histName]  = TH1D(histName,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf','CSVshapejes','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#,'toppt'
+		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf','CSVshapejes','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2','bdt']#,'toppt'
 		if '18' not in year: systList += ['prefire']
 		for proc in tTree.keys():
 			if proc.endswith('Up'):
@@ -337,8 +337,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupUp')      , weightPileupUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupDown')    , weightPileupDownStr+'*('+fullcut+')', 'GOFF')
 
-		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupUp')      , weightPileupUpStr+'*('+fullcut+')', 'GOFF')
-		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupDown')    , weightPileupDownStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+'*1.10 >> '+histName.replace(iPlot,iPlot+'bdtUp')      , weightStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+'*0.90 >> '+histName.replace(iPlot,iPlot+'bdtDown')    , weightStr+'*('+fullcut+')', 'GOFF')
 
 		if '18' not in year:
 			tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'prefireUp')  , weightPrefireUpStr+'*('+fullcut+')', 'GOFF')

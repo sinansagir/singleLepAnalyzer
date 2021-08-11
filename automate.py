@@ -106,8 +106,8 @@ for p in postfixes:
 	for y in years:
 		tmp={
 		'year':'R'+y,
-		'variable':vrs,
-		'postfix':p+'_053121kin2',#+'_lim',#'NoNBtagSF_'+p,
+		'variable':['BDT'],
+		'postfix':p+'_053121lim2',#+'_lim',#'NoNBtagSF_'+p,
 		#'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_01272021_step3_wenyu/BDT_SepRank6j73vars2017year40top_40vars_mDepth2_6j_year20'+y+'_NJetsCSV/'
 		# 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03062021_step2/'#DeepCSV 
 		#'path':  '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03092021_step2/'#DeepJet
@@ -371,7 +371,7 @@ combinations = [
 #4 dataCard + limit + significance
 #5 combination limit + significance
 #6 print results
-step=3
+step=1
 
 if step==1:
 	os.chdir('makeTemplates')
