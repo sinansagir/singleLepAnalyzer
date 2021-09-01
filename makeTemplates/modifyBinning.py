@@ -43,7 +43,7 @@ saveKey = ''
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]+'/'+cutString
-combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
+combinefile = 'templates_'+iPlot+'_'+lumiStr+'_new.root'
 
 blindBDT = False
 
@@ -84,7 +84,7 @@ removeSystFromYields+= ['PSwgt'] #remove if envelope method is not used, otherwi
 removeSystFromYields+= ['btag'] #remove if year-to-year correlation is used, otherwise replace with ['btagcorr','btaguncorr']
 
 minNbins=1 #min number of bins to be merged
-stat = 0.3#0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+stat = 1.1#0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if 'kinematics' in templateDir: 
 	stat = 1.1
 	doSmoothing = False
@@ -185,6 +185,17 @@ else:
 
 datahists = [k.GetName() for k in tfile.GetListOfKeys() if '__'+dataName in k.GetName()]
 channels = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isL_' not in hist]
+
+shiftlist=[]
+for i in range(len(channels)):
+	if 'nJ10p' in channels[i]:
+		shiftlist.append(i)
+for i in shiftlist:
+	toshift=channels[i]
+	channels.remove(toshift)
+	channels.insert(i+4,toshift)
+
+
 allhists = {chn:[hist.GetName() for hist in tfile.GetListOfKeys() if '_'+chn+'_' in hist.GetName()] for chn in channels}
 
 totBkgHists = {}
@@ -310,6 +321,14 @@ if rebinYear!=year: #if binning requested w.r.t. another year, now we get back t
 	datahists = [k.GetName() for k in tfile.GetListOfKeys() if '__'+dataName in k.GetName()]
 	channels = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isL_' not in hist]
 	allhists = {chn:[hist.GetName() for hist in tfile.GetListOfKeys() if '_'+chn+'_' in hist.GetName()] for chn in channels}
+	shiftlist=[]
+	for i in range(len(channels)):
+		if 'nJ10p' in channels[i]:
+			shiftlist.append(i)
+	for i in shiftlist:
+		toshift=channels[i]
+		channels.remove(toshift)
+		channels.insert(i+4,toshift)
 
 iRfile=0
 yieldsAll = {}

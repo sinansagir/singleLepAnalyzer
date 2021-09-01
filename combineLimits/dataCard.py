@@ -276,7 +276,7 @@ if __name__ == '__main__':
 	elif era=='R17': lumiStr = '41p53fb'
 	elif era=='R18': lumiStr = '59p97fb'
 	smoothAlgo = 'lowess' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
-	tag = ''#'_ttH'
+	tag = '_tthfscale'
 	# saveKey = '_nohotclosure_'+iPlot
 	# saveKey = '_0p25hotclosure_'+iPlot
 	# saveKey = '_scalehotclosure_'+iPlot

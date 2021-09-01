@@ -31,7 +31,7 @@ addCRsys = False
 systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt' #,'btag','btagcorr','btaguncorr','mistag'
 systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']
 systematicList+= ['JEC','JER']#,
-systematicList+= ['bdt']
+# systematicList+= ['bdt']
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
 # 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),

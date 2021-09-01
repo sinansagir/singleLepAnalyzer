@@ -6,7 +6,7 @@
 # source impacts.sh R16_40vars_6j_NJetsCSV_053121lim_newbin1_BDT
 # source impacts.sh R17_40vars_6j_NJetsCSV_053121lim_newbin1_BDT
 # source impacts.sh R18_40vars_6j_NJetsCSV_053121lim_newbin1_BDT
-source impacts.sh 40vars_6j_NJetsCSV_053121lim_newbin1_BDT
+# source impacts.sh 40vars_6j_NJetsCSV_053121lim_newbin1_BDT
 
 # source impacts.sh R16_2021_4_6_2b300GeV3b100GeV4b50GeVbins_HT
 # source impacts.sh R17_2021_4_6_2b300GeV3b100GeV4b50GeVbins_HT

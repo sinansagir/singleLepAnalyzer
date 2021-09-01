@@ -160,10 +160,13 @@ runSigs = True
 #for ind in range(len(ueList)):
 #        if 'TTJetsSemiLep' in ueList[ind]: ueList[ind]=ueList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
 # cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
-cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
-if year=='R16': 
-	cutList['elPtCut'] = 35
-	cutList['muPtCut'] = 26
+
+# cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
+# if year=='R16': 
+# 	cutList['elPtCut'] = 35
+# 	cutList['muPtCut'] = 26
+
+cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
 
 cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
 cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])
@@ -317,7 +320,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	
 	
 	
-	'NJetsCSV_MultiLepCalc':('NJetsCSV_MultiLepCalc',linspace(0, 10, (11-1)*nbin_multiplier+1).tolist(),';b-tagged jet mult. no SF'),
+	'NJetsCSV_MultiLepCalc':('NJetsCSV_MultiLepCalc',linspace(0, 20, (21-1)*nbin_multiplier+1).tolist(),';b-tagged jet mult. no SF'),
 
 	'thirddeepjetb':('thirddeepjetb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepJet(3rdDeepJetJet)'),
 	'fourthdeepjetb':('fourthdeepjetb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepJet(4thDeepJetJet)'),
@@ -330,7 +333,7 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'minMleppBjet':('minMleppBjet',linspace(0, 1000, (101-1)*nbin_multiplier+1).tolist(),';min[M(l,b)] [GeV]'),
 	'leptonPt_MultiLepCalc' :('leptonPt_MultiLepCalc',linspace(0, 600, (121-1)*nbin_multiplier+1).tolist(),';Lepton p_{T} [GeV]'),
 	'corr_met_MultiLepCalc'   :('corr_met_MultiLepCalc',linspace(0, 1500, (51-1)*nbin_multiplier+1).tolist(),';#slash{E}_{T} [GeV]'),
-	'NJets_JetSubCalc' :('NJets_JetSubCalc',linspace(0, 15, (16-1)*nbin_multiplier+1).tolist(),';AK4 jet multiplicity'),
+	'NJets_JetSubCalc' :('NJets_JetSubCalc',linspace(0, 25, (26-1)*nbin_multiplier+1).tolist(),';AK4 jet multiplicity'),
 	'NJetsCSVwithSF_MultiLepCalc':('NJetsCSVwithSF_MultiLepCalc',linspace(0, 10, (11-1)*nbin_multiplier+1).tolist(),';b-tagged jet multiplicity'),
 	'NJetsTtagged':('NJetsTtagged',linspace(0, 4, (5-1)*nbin_multiplier+1).tolist(),';t-tagged jet multiplicity'),
 	'MT_lepMet':('MT_lepMet',linspace(0,250,(51-1)*nbin_multiplier+1).tolist(),';M_{T}(l,#slash{E}_{T}) [GeV]'),

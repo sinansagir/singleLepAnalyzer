@@ -100,12 +100,26 @@ sys.argv[2],
 # 'HTb_vs_maxJJJpt',
 ]
 
+# isEMlist  = ['E','M']
+# nhottlist = ['0','1p']
+# nttaglist = ['0p']
+# nWtaglist = ['0p']
+# nbtaglist = ['2','3','4p']
+# njetslist = ['4','5','6','7','8','9','10p']
+
 isEMlist  = ['E','M']
 nhottlist = ['0','1p']
 nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
 njetslist = ['6','7','8','9','10p']
+
+# isEMlist  = ['E','M']
+# nhottlist = ['0','1p']
+# nttaglist = ['0p']
+# nWtaglist = ['0p']
+# nbtaglist = ['2','3','4p']
+# njetslist = ['6','7','8p']
 
 # isEMlist  = ['E','M']
 # nhottlist = ['0p']
@@ -118,8 +132,8 @@ njetslist = ['6','7','8','9','10p']
 # nhottlist = ['0p']
 # nttaglist = ['0p']
 # nWtaglist = ['0p']
-# nbtaglist = ['2','3','4p']
-# njetslist = ['4p','6p','8p']
+# nbtaglist = ['2p','2','3','4p']
+# njetslist = ['4p','6p','8p','9p','10','10p']
 
 # isEMlist  = ['E','M']
 # nhottlist = ['0p']

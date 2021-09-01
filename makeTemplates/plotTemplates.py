@@ -37,7 +37,7 @@ templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
 blindBDT = False
 
-isRebinned='_rebinned_stat1p1' #post for ROOT file names
+isRebinned='_new_rebinned_stat1p1' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
@@ -50,7 +50,7 @@ useCombineTemplates = True
 sigfile='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
-if iPlot=='HTYLD': 
+if iPlot=='HTYLD' or iPlot=='BDTYLD': 
 	ttProcList = ['ttbb','ttnobb']
 	useCombineTemplates = False
 	scaleSignals = True
@@ -72,7 +72,7 @@ doNormByBinWidth=True
 doOneBand = True
 blind = False
 yLog  = True
-doRealPull = True
+doRealPull = False
 compareShapes = False
 if not isCategorized: blind = False
 if blind or doRealPull: doOneBand = False
@@ -102,7 +102,7 @@ print "READING: "+templateDir+sigfile
 RFile = rt.TFile(templateDir+sigfile)
 
 datahists = [k.GetName() for k in RFile.GetListOfKeys() if '__'+dataName in k.GetName()]
-catsElist = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isE_' in hist]
+catsElist = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if ('isE_' in hist)]#if ('isE_' in hist and ('6p' in hist or '8p' in hist))]
 
 lumiSys = 0.025 # lumi uncertainty
 if year=='R17': lumiSys = 0.023
@@ -229,7 +229,7 @@ iPeriod = 4 #see CMS_lumi.py module for usage!
 T = 0.10*H_ref
 B = 0.35*H_ref 
 if blind == True: B = 0.12*H_ref
-if 'YLD' in iPlot: B = 0.30*H_ref
+if 'YLD' in iPlot: B = 0.60*H_ref
 L = 0.12*W_ref
 R = 0.04*W_ref
 
@@ -690,8 +690,8 @@ for catEStr in catsElist:
 		if compareShapes: savePrefix+='_shp'
 		if doOneBand: savePrefix+='_totBand'
 
-		# c1.SaveAs(savePrefix+'.png')
-		c1.SaveAs(savePrefix+'.pdf')
+		#c1.SaveAs(savePrefix+'.png')
+		# c1.SaveAs(savePrefix+'.pdf')
 # 		c1.SaveAs(savePrefix+'.eps')
 # 		c1.SaveAs(savePrefix+'.root')
 # 		c1.SaveAs(savePrefix+'.C')
@@ -1104,8 +1104,8 @@ for catEStr in catsElist:
 	if compareShapes: savePrefixmerged+='_shp'
 	if doOneBand: savePrefixmerged+='_totBand'
 
-	# c1merged.SaveAs(savePrefixmerged+'.png')
-	c1merged.SaveAs(savePrefixmerged+'.pdf')
+	c1merged.SaveAs(savePrefixmerged+'.png')
+	# c1merged.SaveAs(savePrefixmerged+'.pdf')
 # 	c1merged.SaveAs(savePrefixmerged+'.eps')
 # 	c1merged.SaveAs(savePrefixmerged+'.root')
 # 	c1merged.SaveAs(savePrefixmerged+'.C')
