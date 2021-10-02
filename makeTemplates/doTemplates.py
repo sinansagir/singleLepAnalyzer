@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import os,sys,time,math,datetime,pickle,itertools,fnmatch
-from ROOT import gROOT,TFile,TH1F
+from ROOT import gROOT,TFile,TH1F,Double
 from array import array
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
@@ -13,7 +13,7 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 year=sys.argv[1]
-saveKey = ''#'_ttHFupLFdown'
+saveKey = ''#'_ttH'
 cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 theDir = 'templates_'+year+'_'+sys.argv[2]
 outDir = os.getcwd()+'/'+theDir+'/'+cutString
@@ -28,41 +28,55 @@ doHDsys = True
 doUEsys = True
 doPDF = True
 addCRsys = False
-systematicList = ['pileup','prefire','muRFcorrd','muR','muF','isr','fsr','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
+systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
+#systematicList+= ['CSVshapelf','CSVshapehf']
+systematicList+= ['JEC','JER']#,
+# 'JEC_Total','JEC_FlavorQCD',
+# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
+# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+if year != 'R18': systematicList += ['prefire']
+#if year == 'R18': systematicList += ['hem']
 normalizeRENORM_PDF = False #normalize the renormalization/pdf uncertainties to nominal templates --> normalizes signal processes only !!!!
 rebinBy = -1 #performs a regular rebinning with "Rebin(rebinBy)", put -1 if rebinning is not wanted
 zero = 1E-12
-removeThreshold = 0.015 # If a process/totalBkg is less than the threshold, the process will be removed in the output files!
+# removeThreshold and removeStatUnc applied together! If a process/totalBkg is less than the threshold and the overall statistical uncertainty of a process is than the threshold, the process will be removed in the output files!
+removeThreshold = 0.015
+removeStatUnc = 0.5
 
 ttbarGrupList = ['ttnobb','ttbb']
-bkgGrupList = ttbarGrupList+['top','ewk','qcd']
+bkgGrupList = ttbarGrupList+['ttH','top','ewk','qcd']
 ttbarProcList = ['ttjj','ttcc','ttbb','tt1b','tt2b']
-bkgProcList = ttbarProcList+['T','TTV','TTXY','WJets','ZJets','VV','qcd']
+bkgProcList = ttbarProcList+['T','TTH','TTV','TTXY','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets'] = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800']
 if year=='R17':
 	bkgProcs['WJets']+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25002','WJetsMG25003','WJetsMG25004']
-elif year=='R18':
+elif year=='R16' or year=='R18':
 	bkgProcs['WJets']+= ['WJetsMG1200','WJetsMG2500']
 bkgProcs['ZJets']  = ['DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500']
 bkgProcs['VV']     = ['WW','WZ','ZZ']
-TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet9bin','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9']
+TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9','TTJetsSemiLepNjet9bin']
 bkgProcs['tt1b']  = [tt+'TT1b' for tt in TTlist]
 bkgProcs['tt2b']  = [tt+'TT2b' for tt in TTlist]
 bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
 bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
-if year=='R17':
+if year=='R16' or year=='R17':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
 elif year=='R18':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
 bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 if year=='R17': bkgProcs['T']+= ['Tbs']
-bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB']
+bkgProcs['TTH'] = ['TTHB','TTHnoB']
+bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
+bkgProcs['ttH'] = bkgProcs['TTH']
 bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']#+bkgProcs['TTJets']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV']
 dataList = ['DataE','DataM']#,'DataJ']
@@ -70,10 +84,10 @@ dataList = ['DataE','DataM']#,'DataJ']
 htProcs = ['ewk','WJets','qcd']
 topptProcs = ['ttjj','ttcc','ttbb','tt1b','tt2b','ttbj','ttnobb']
 for hf in ['jj','cc','bb','1b','2b']:
-	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupTT'+hf]
-	bkgProcs['tt'+hf+'_hddn'] = ['TTJetsHadHDAMPdnTT'+hf,'TTJets2L2nuHDAMPdnTT'+hf,'TTJetsSemiLepHDAMPdnTT'+hf]
-	bkgProcs['tt'+hf+'_ueup'] = ['TTJetsHadUEupTT'+hf,'TTJets2L2nuUEupTT'+hf,'TTJetsSemiLepUEupTT'+hf]
-	bkgProcs['tt'+hf+'_uedn'] = ['TTJetsHadUEdnTT'+hf,'TTJets2L2nuUEdnTT'+hf,'TTJetsSemiLepUEdnTT'+hf]
+	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupNjet0TT'+hf,'TTJetsSemiLepHDAMPupNjet9TT'+hf,'TTJetsSemiLepHDAMPupNjet9binTT'+hf]
+	bkgProcs['tt'+hf+'_hddn'] = ['TTJetsHadHDAMPdnTT'+hf,'TTJets2L2nuHDAMPdnTT'+hf,'TTJetsSemiLepHDAMPdnNjet0TT'+hf,'TTJetsSemiLepHDAMPdnNjet9TT'+hf,'TTJetsSemiLepHDAMPdnNjet9binTT'+hf]
+	bkgProcs['tt'+hf+'_ueup'] = ['TTJetsHadUEupTT'+hf,'TTJets2L2nuUEupTT'+hf,'TTJetsSemiLepUEupNjet0TT'+hf,'TTJetsSemiLepUEupNjet9TT'+hf,'TTJetsSemiLepUEupNjet9binTT'+hf]
+	bkgProcs['tt'+hf+'_uedn'] = ['TTJetsHadUEdnTT'+hf,'TTJets2L2nuUEdnTT'+hf,'TTJetsSemiLepUEdnNjet0TT'+hf,'TTJetsSemiLepUEdnNjet9TT'+hf,'TTJetsSemiLepUEdnNjet9binTT'+hf]
 for syst in ['hdup','hddn','ueup','uedn']:
 	bkgProcs['ttbj_'+syst] = bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 	bkgProcs['ttnobb_'+syst] = bkgProcs['ttjj_'+syst] + bkgProcs['ttcc_'+syst]+bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
@@ -97,9 +111,11 @@ BRs['TZ']=[0.5,0.25,1.0,0.8,0.6,0.4,0.2,0.0,0.8,0.6,0.4,0.2,0.0,0.6,0.4,0.2,0.0,
 nBRconf=len(BRs['BW'])
 if not doBRScan: nBRconf=1
 
-if year=='R17':
+if year=='R16':
+	from weights16 import *
+elif year=='R17':
 	from weights17 import *
-else:
+elif year=='R18':
 	from weights18 import *
 
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
@@ -136,13 +152,30 @@ nWtaglist = list(set([x.split('_')[2] for x in tagList]))
 nbtaglist = list(set([x.split('_')[3] for x in tagList]))
 njetslist = list(set([x.split('_')[4] for x in tagList]))
 
+QCDscale_ttbar = 0.0295 #ttbar +2.4%/-3.5% (symmetrize)
+QCDscale_top = 0.026 #top +3.1%/-2.1% (symmetrize)
+QCDscale_ewk = 0.006 #ewk +0.8%/-0.4% (symmetrize)
+pdf_gg = 0.042 #ttbar +/-4.2%
+pdf_qg = 0.028 #top +/-2.8%
+pdf_qqbar = 0.038 #ewk +/-3.8%
+xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
+xsec_ttH = 0.20
+xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
+xsec_ewk = 0.038 #ewk (scale+pdf)
+ttHF = 0.13 # 13% ttbb cross section uncertainty
+hDamp = 0.085 # +10%/-7% (symmetrize)
 for tag in tagList:
-	modTag = tag[tag.find('nT'):tag.find('nJ')-3]
+	modTag = tag#[tag.find('nT'):tag.find('nJ')-3]
 	modelingSys['data_'+modTag] = 0.
 	modelingSys['qcd_'+modTag] = 0.
 	if not addCRsys: #else CR uncertainties are defined in modSyst.py module 
 		for proc in bkgProcs.keys():
 			modelingSys[proc+'_'+modTag] = 0.
+	modelingSys['ttbb_'+modTag]=math.sqrt(xsec_ttbar**2+ttHF**2+hDamp**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2+ttHF**2)
+	modelingSys['ttnobb_'+modTag]=math.sqrt(xsec_ttbar**2+hDamp**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
+	modelingSys['ttH_'+modTag]=xsec_ttH
+	modelingSys['top_'+modTag]=xsec_top#math.sqrt(QCDscale_top**2+pdf_qg**2)
+	modelingSys['ewk_'+modTag]=xsec_ewk#math.sqrt(QCDscale_ewk**2+pdf_qqbar**2)
 
 def gettime():
 	return str(round((time.time() - start_time)/60,2))+'mins'
@@ -262,7 +295,9 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				for tt in ttbarGrupList:
 					if tt!='ttbb': Nttnobb += hists[tt+i].Integral()
 				ttLFsf_ = ttLFsf
-				if ttLFsf==-1: ttLFsf_ = 1. + ( 1-ttHFsf ) * ( Nttbb/Nttnobb )
+				if ttLFsf==-1: 
+					ttLFsf_ = 1.
+					if Nttnobb!=0: ttLFsf_ = max( 0., 1. + ( 1-ttHFsf ) * ( Nttbb/Nttnobb ) )
 				hists['ttbb'+i].Scale(ttHFsf)
 				for tt in list(set(ttbarProcList+ttbarGrupList)):
 					if tt!='ttbb': hists[tt+i].Scale(ttLFsf_)
@@ -358,10 +393,16 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				i=BRconfStr+cat
 				totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 				for proc in bkgGrupList+[signal]:
-					if proc in bkgGrupList and hists[proc+i].Integral()/totBkg_ <= removeThreshold:
+					err_ = Double(0)
+					integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
+					if integral_==0: statUnc_ = 1e20
+					else: statUnc_ = err_/integral_
+					if proc in bkgGrupList and integral_/totBkg_ <= removeThreshold and statUnc_ >= removeStatUnc:
 						print proc+i,'IS',
-						if hists[proc+i].Integral()==0: print 'EMPTY! SKIPPING ...'
-						else: print '< '+str(removeThreshold*100)+'% OF TOTAL BKG! SKIPPING ...'
+						if integral_==0: print 'EMPTY! ',
+						if statUnc_ >= removeStatUnc and statUnc_!=1e20: print 'HAS STATISTICAL UNCERTAINTY > '+str(removeStatUnc*100)+'%! ',
+						if integral_/totBkg_ <= removeThreshold: print 'IS < '+str(removeThreshold*100)+'% OF TOTAL BKG! ', 
+						print 'SKIPPING ...'
 						continue
 					hists[proc+i].Write()
 					if doAllSys:
@@ -408,10 +449,16 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						hists[signal+i+'pdf'+str(pdfInd)].Write()
 			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
-				if hists[proc+i].Integral()/totBkg_ <= removeThreshold:
+				err_ = Double(0)
+				integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
+				if integral_==0: statUnc_ = 1e20
+				else: statUnc_ = err_/integral_
+				if integral_/totBkg_ <= removeThreshold and statUnc_ >= removeStatUnc:
 					print proc+i,'IS',
-					if hists[proc+i].Integral()==0: print 'EMPTY! SKIPPING ...'
-					else: print '< '+str(removeThreshold*100)+'% OF TOTAL BKG! SKIPPING ...'
+					if integral_==0: print 'EMPTY! ',
+					if statUnc_ >= removeStatUnc and statUnc_!=1e20: print 'HAS STATISTICAL UNCERTAINTY > '+str(removeStatUnc*100)+'%! ',
+					if integral_/totBkg_ <= removeThreshold: print 'IS < '+str(removeThreshold*100)+'% OF TOTAL BKG! ',
+					print 'SKIPPING ...'
 					continue
 				hists[proc+i].SetName(hists[proc+i].GetName())
 				if hists[proc+i].Integral() == 0: hists[proc+i].SetBinContent(1,zero)
@@ -582,7 +629,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					row = [proc]
 					for cat in catList:
 						if not ('is'+isEM in cat and thetag in cat): continue
-						modTag = cat[cat.find('nT'):cat.find('nJ')-3]
+						modTag = cat[4:]#[cat.find('nT'):cat.find('nJ')-3]
 						histoPrefix=discriminant+'_'+lumiStr+'_'+cat
 						yieldtemp = 0.
 						yielderrtemp = 0.
@@ -627,7 +674,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				row = [proc]
 				for cat in catList:
 					if not ('isE' in cat and thetag in cat): continue
-					modTag = cat[cat.find('nT'):cat.find('nJ')-3]
+					modTag = cat[4:]#[cat.find('nT'):cat.find('nJ')-3]
 					histoPrefixE = discriminant+'_'+lumiStr+'_'+cat
 					histoPrefixM = histoPrefixE.replace('isE','isM')
 					yieldtemp = 0.
@@ -726,6 +773,19 @@ for iPlot in iPlotList:
 		print "       SCALING LUMINOSITY BY A FACTOR OF",lumiScaleCoeff,gettime()
 		for key in bkghists.keys(): bkghists[key].Scale(lumiScaleCoeff)
 		for key in sighists.keys(): sighists[key].Scale(lumiScaleCoeff)
+
+	#Re-scale tt+V cross section to experimental
+	#Table 3 in https://arxiv.org/pdf/1812.08622.pdf
+	#tt+W: 0.77 (CMS) 0.55 (NLO+NNLL+EW)
+	#tt+Z: 0.99 (CMS) 0.86 (NLO+NNLL+EW)
+# 	print "       SCALING tt+V CROSS SECTION:"
+# 	for key in bkghists.keys(): 
+# 		if 'TTWl' in key or 'TTWq' in key:
+# 			print "              ",key
+# 			bkghists[key].Scale(0.77/0.55)
+# 		elif 'TTZlM10' in key:
+# 			print "              ",key
+# 			bkghists[key].Scale(0.99/0.86)
 	
 	#Rebin
 	if rebinBy>0:

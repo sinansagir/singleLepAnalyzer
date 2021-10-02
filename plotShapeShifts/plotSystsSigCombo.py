@@ -13,23 +13,27 @@ tdrstyle.setTDRStyle()
 rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
-iPlot = 'HT'
-year='R18'
-if year=='R17':
+iPlot = sys.argv[1]#'HT'
+year = 'R16'
+if year=='R16':
+	lumiStr = '35p867fb'
+	lumi=35.9 #for plots
+elif year=='R17':
 	lumiStr = '41p53fb'
 	lumi=41.5 #for plots
-else:
+elif year=='R18':
 	lumiStr = '59p97fb'
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
-isRebinned = '_rebinned_stat0p3'
 useCombine = True
-tempVersion = 'templates_'+year+'_njet_2020_8_17/'
+tempVersion = 'templates_'+year+'_2021_4_6'
+isRebinned = '_rebinned_stat0p3'
+if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
+saveKey = ''#'_tshape'
 if useCombine: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+lumiStr+isRebinned+'.root'
 else: templateFile = '../makeTemplates/'+tempVersion+'/'+cutString+'/templates_'+iPlot+'_'+sig1+'_'+lumiStr+isRebinned+'.root'
 if not os.path.exists(outDir+tempVersion): os.system('mkdir '+outDir+tempVersion)
-if not os.path.exists(outDir+tempVersion+'/signalIndChannels'): os.system('mkdir '+outDir+tempVersion+'/signalIndChannels')
 
 isEMlist  = ['E','M']
 nhottlist = ['0','1p']
@@ -37,9 +41,22 @@ nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2','3','4p']
 njetslist = ['6','7','8','9','10p']
-# nbtaglist = ['2p']
-# njetslist = ['6p']
-systematics = ['pileup','prefire','btag','mistag','jec','jer','hotstat','hotcspur','hotclosure','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+if 'kinematics' in tempVersion:
+	nhottlist = ['0p']
+	nbtaglist = ['2p']
+	njetslist = ['4p']
+systematics = ['pileup','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+if year!='R18': systematics += ['prefire']
+# if year=='R18': systematics += ['hem']
+systematics+= ['JEC','JER']#,
+# 'JEC_Total','JEC_FlavorQCD',
+# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
+# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+#systematics = ['btag','btagcorr','btaguncorr','mistag']
+systematics = ['lowess'+syst for syst in systematics]
 
 signameList = ['tttt']
 
@@ -88,6 +105,10 @@ for signal in signameList:
 # 					comboHists[signal+em].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
 # 					comboHists[signal+em+syst+'Up'].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
 # 					comboHists[signal+em+syst+'Dn'].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
+				if len(catList)==2:
+					comboHists[signal+em] = hNm.Clone(signal+em)
+					comboHists[signal+em+syst+'Up'] = hUp.Clone(signal+em+syst+'Up')
+					comboHists[signal+em+syst+'Dn'] = hDn.Clone(signal+em+syst+'Dn')
 				ibin += hNm.GetNbinsX()
 
 			canv = rt.TCanvas(signal+em,signal+em,1000,700)
@@ -135,7 +156,7 @@ for signal in signameList:
 			comboHists[signal+em+syst+'Up'].GetYaxis().SetLabelSize(0.10)
 			comboHists[signal+em+syst+'Up'].GetYaxis().SetTitleSize(0.1)
 			comboHists[signal+em+syst+'Up'].GetYaxis().SetTitleOffset(.65)
-			comboHists[signal+em+syst+'Up'].GetXaxis().SetTitle('Bin #')
+			if len(catList)!=2: comboHists[signal+em+syst+'Up'].GetXaxis().SetTitle('Bin #')
 			comboHists[signal+em+syst+'Up'].GetXaxis().SetLabelSize(0.10)
 			comboHists[signal+em+syst+'Up'].GetXaxis().SetTitleSize(0.1)
 			#comboHists[signal+em+syst+'Up'].GetXaxis().SetTitleOffset(.65)
@@ -209,8 +230,8 @@ for signal in signameList:
 			legend.SetLineColor(0);
 			legend.SetTextSize(0.05);
 			legend.AddEntry(comboHists[signal+em],signal,'l')
-			legend.AddEntry(comboHists[signal+em+syst+'Up'],syst.replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Up','l')
-			legend.AddEntry(comboHists[signal+em+syst+'Dn'],syst.replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Down','l')
+			legend.AddEntry(comboHists[signal+em+syst+'Up'],syst.replace('lowess','').replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('isr','ISR').replace('fsr','FSR').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Up','l')
+			legend.AddEntry(comboHists[signal+em+syst+'Dn'],syst.replace('lowess','').replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('isr','ISR').replace('fsr','FSR').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Down','l')
 
 			legend.Draw('same')
 
@@ -246,8 +267,8 @@ for signal in signameList:
 			if em=='M': flvString='#mu+jets'
 			chLatex.DrawLatex(0.45, 0.84, flvString)
 	
-			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_'+signal+'.pdf')
-			canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_'+signal+'.png')
-			#canv.SaveAs(tempVersion+'/signalIndChannels/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+'_'+signal+'.eps')
+			canv.SaveAs(tempVersion+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+saveKey+'_'+signal+'.pdf')
+			canv.SaveAs(tempVersion+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+saveKey+'_'+signal+'.png')
+			#canv.SaveAs(tempVersion+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+saveKey+'_'+signal+'.eps')
 
 	RFile.Close()

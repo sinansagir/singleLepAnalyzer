@@ -1,5 +1,7 @@
 import os
 
+cmsswbase = '/user_data/ssagir/CMSSW_10_2_13/src'
+
 trainings=[
 
 {
@@ -52,6 +54,19 @@ trainings=[
 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_73vars_mDepth2_6j_year2018/'
 },
 
+{
+'year':'R18',
+'variable':['HT'],
+'postfix':'HEM1516_201108',
+'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_hem_110720_step1hadds/'
+},
+{
+'year':'R18',
+'variable':['HT'],
+'postfix':'HEM1516syst_201108',
+'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_072820_step1hadds/'
+},
+
 ]
 
 combinations = [
@@ -85,25 +100,27 @@ step=1
 if step==1:
 	os.chdir('makeTemplates')
 	for train in trainings:
-		os.system('python doCondorTemplates.py '+train['year']+' '+train['variable']+' '+train['postfix']+' '+train['path'])
+		for v in train['variable']:
+			os.system('python doCondorTemplates.py '+train['year']+' '+v+' '+train['postfix']+' '+train['path'])
 	os.chdir('..')
 
 if step==2:
 	os.chdir('makeTemplates')
 	for train in trainings:
-		shell_name = 'cfg/condor_step2_'+train['year']+'_'+train['postfix']+'.sh'
-		shell=open(shell_name,'w')
-		shell.write(
+		for v in train['variable']:
+			shell_name = 'cfg/condor_step2_'+train['year']+'_'+train['postfix']+'.sh'
+			shell=open(shell_name,'w')
+			shell.write(
 '#!/bin/bash\n\
 source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
-cd /home/eusai/4t/CMSSW_10_2_16_UL/src\n\
+cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 python doTemplates.py '+train['year']+' '+train['postfix']+'\n')
-		shell.close()
-		jdf_name = 'cfg/condor_step2_'+train['year']+'_'+train['postfix']+'.job'
-		jdf=open(jdf_name,'w')
-		jdf.write(
+			shell.close()
+			jdf_name = 'cfg/condor_step2_'+train['year']+'_'+train['postfix']+'.job'
+			jdf=open(jdf_name,'w')
+			jdf.write(
 'universe = vanilla\n\
 Executable = '+os.getcwd()+'/'+shell_name+'\n\
 Should_Transfer_Files = YES\n\
@@ -115,8 +132,8 @@ Log = '+os.getcwd()+'/log/'+shell_name.split('.')[0].split('/')[1]+'.log\n\
 Notification = Error\n\
 Arguments = \n\
 Queue 1\n')
-		jdf.close()
-		os.system('condor_submit '+jdf_name)
+			jdf.close()
+			os.system('condor_submit '+jdf_name)
 	os.chdir('..')
 
 
@@ -130,7 +147,7 @@ if step==3:
 			shell.write(
 '#!/bin/bash\n\
 source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
-cd /home/eusai/4t/CMSSW_10_2_16_UL/src\n\
+cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 python modifyBinning.py '+train['year']+' '+v+' '+train['postfix']+'\n\
@@ -165,7 +182,7 @@ if step==4:
 			shell.write(
 '#!/bin/bash\n\
 source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
-cd /home/eusai/4t/CMSSW_10_2_16_UL/src\n\
+cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
@@ -196,23 +213,24 @@ Queue 1\n')
 if step==5:
 	os.chdir('combineLimits')
 	for c in combinations:
-		combo=c['postfix']+'_'+c['variable']
-		shell_name = 'cfg/condor_step5_'+combo+'.sh'
-		shell=open(shell_name,'w')
-		shell.write(
+		for v in c['variable']:
+			combo=c['postfix']+'_'+v
+			shell_name = 'cfg/condor_step5_'+combo+'.sh'
+			shell=open(shell_name,'w')
+			shell.write(
 '#!/bin/bash\n\
 source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
-cd /home/eusai/4t/CMSSW_10_2_16_UL/src\n\
+cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 combineCards.py R17=limits_R17_'+combo+'/cmb/combined.txt.cmb R18=limits_R18_'+combo+'/cmb/combined.txt.cmb &> BDTcomb/'+combo+'.txt\n\
 text2workspace.py  BDTcomb/'+combo+'.txt  -o BDTcomb/'+combo+'.root\n\
 combine -M Significance BDTcomb/'+combo+'.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_'+combo+'.txt\n\
 combine -M AsymptoticLimits BDTcomb/'+combo+'.root --run=blind --cminDefaultMinimizerStrategy 0 &> BDTcomb/asy_'+combo+'.txt\n')
-		shell.close()
-		jdf_name = 'cfg/condor_step5_'+combo+'.job'
-		jdf=open(jdf_name,'w')
-		jdf.write(
+			shell.close()
+			jdf_name = 'cfg/condor_step5_'+combo+'.job'
+			jdf=open(jdf_name,'w')
+			jdf.write(
 'universe = vanilla\n\
 Executable = '+os.getcwd()+'/'+shell_name+'\n\
 Should_Transfer_Files = YES\n\
@@ -224,8 +242,8 @@ Log = '+os.getcwd()+'/log/'+shell_name.split('.')[0].split('/')[1]+'.log\n\
 Notification = Error\n\
 Arguments = \n\
 Queue 1\n')
-		jdf.close()
-		os.system('condor_submit '+jdf_name)
+			jdf.close()
+			os.system('condor_submit '+jdf_name)
 	os.chdir('..')
 
 def printlim(spec,year,variable,isComb):
@@ -259,9 +277,11 @@ if step==6:
 	print 'Year , Var , Specifications , Significance , -2sigma, -1sigma, central, +1sigma, +2sigma'
 	os.chdir('combineLimits')
 	for train in trainings:
-		printlim(train['postfix'] , train['year'] , train['variable'],False)
+		for v in train['variable']:
+			printlim(train['postfix'] , train['year'] , v,False)
 	for combo in combinations:
-		printlim(combo['postfix'],'R17+18',combo['variable'],True)
+		for v in combo['variable']:
+			printlim(combo['postfix'],'R17+18',v,True)
 	os.chdir('..')
 
 # standalone commands

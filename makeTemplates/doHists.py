@@ -105,13 +105,16 @@ bkgList = [
           'WW','WZ','ZZ',
 		  'QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000',
 		  ]
-if year=='R17':
+if year=='R16':
+	bkgList+= ['TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','WJetsMG1200','WJetsMG2500']
+elif year=='R17':
 	bkgList+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004',
 			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs']
 elif year=='R18':
 	bkgList+= ['WJetsMG1200','WJetsMG2500']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
-
+#for ind in range(len(bkgList)):
+#	if 'TTJetsSemiLep' in bkgList[ind]: bkgList[ind]=bkgList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
 dataList = ['DataE','DataM']#,'DataJ']
 
 whichSignal = 'tttt' #HTB, TT, BB, X53 or tttt
@@ -130,25 +133,37 @@ hdampList = [#hDamp samples
 'TTJets2L2nuHDAMPupTT1b','TTJets2L2nuHDAMPupTT2b','TTJets2L2nuHDAMPupTTbb','TTJets2L2nuHDAMPupTTcc','TTJets2L2nuHDAMPupTTjj',
 'TTJetsHadHDAMPdnTT1b','TTJetsHadHDAMPdnTT2b','TTJetsHadHDAMPdnTTbb','TTJetsHadHDAMPdnTTcc','TTJetsHadHDAMPdnTTjj',
 'TTJetsHadHDAMPupTT1b','TTJetsHadHDAMPupTT2b','TTJetsHadHDAMPupTTbb','TTJetsHadHDAMPupTTcc','TTJetsHadHDAMPupTTjj',
-'TTJetsSemiLepHDAMPdnTT1b','TTJetsSemiLepHDAMPdnTT2b','TTJetsSemiLepHDAMPdnTTbb','TTJetsSemiLepHDAMPdnTTcc','TTJetsSemiLepHDAMPdnTTjj',
-'TTJetsSemiLepHDAMPupTT1b','TTJetsSemiLepHDAMPupTT2b','TTJetsSemiLepHDAMPupTTbb','TTJetsSemiLepHDAMPupTTcc','TTJetsSemiLepHDAMPupTTjj',
+'TTJetsSemiLepHDAMPdnNjet0TT1b','TTJetsSemiLepHDAMPdnNjet0TT2b','TTJetsSemiLepHDAMPdnNjet0TTbb','TTJetsSemiLepHDAMPdnNjet0TTcc','TTJetsSemiLepHDAMPdnNjet0TTjj',
+'TTJetsSemiLepHDAMPupNjet0TT1b','TTJetsSemiLepHDAMPupNjet0TT2b','TTJetsSemiLepHDAMPupNjet0TTbb','TTJetsSemiLepHDAMPupNjet0TTcc','TTJetsSemiLepHDAMPupNjet0TTjj',
+'TTJetsSemiLepHDAMPdnNjet9TT1b','TTJetsSemiLepHDAMPdnNjet9TT2b','TTJetsSemiLepHDAMPdnNjet9TTbb','TTJetsSemiLepHDAMPdnNjet9TTcc','TTJetsSemiLepHDAMPdnNjet9TTjj',
+'TTJetsSemiLepHDAMPupNjet9TT1b','TTJetsSemiLepHDAMPupNjet9TT2b','TTJetsSemiLepHDAMPupNjet9TTbb','TTJetsSemiLepHDAMPupNjet9TTcc','TTJetsSemiLepHDAMPupNjet9TTjj',
+'TTJetsSemiLepHDAMPdnNjet9binTT1b','TTJetsSemiLepHDAMPdnNjet9binTT2b','TTJetsSemiLepHDAMPdnNjet9binTTbb','TTJetsSemiLepHDAMPdnNjet9binTTcc','TTJetsSemiLepHDAMPdnNjet9binTTjj',
+'TTJetsSemiLepHDAMPupNjet9binTT1b','TTJetsSemiLepHDAMPupNjet9binTT2b','TTJetsSemiLepHDAMPupNjet9binTTbb','TTJetsSemiLepHDAMPupNjet9binTTcc','TTJetsSemiLepHDAMPupNjet9binTTjj',
 ]
 ueList = [#UE samples
 'TTJets2L2nuUEdnTT1b','TTJets2L2nuUEdnTT2b','TTJets2L2nuUEdnTTbb','TTJets2L2nuUEdnTTcc','TTJets2L2nuUEdnTTjj',
 'TTJets2L2nuUEupTT1b','TTJets2L2nuUEupTT2b','TTJets2L2nuUEupTTbb','TTJets2L2nuUEupTTcc','TTJets2L2nuUEupTTjj',
 'TTJetsHadUEdnTT1b','TTJetsHadUEdnTT2b','TTJetsHadUEdnTTbb','TTJetsHadUEdnTTcc','TTJetsHadUEdnTTjj',
 'TTJetsHadUEupTT1b','TTJetsHadUEupTT2b','TTJetsHadUEupTTbb','TTJetsHadUEupTTcc','TTJetsHadUEupTTjj',
-'TTJetsSemiLepUEdnTT1b','TTJetsSemiLepUEdnTT2b','TTJetsSemiLepUEdnTTbb','TTJetsSemiLepUEdnTTcc','TTJetsSemiLepUEdnTTjj',
-'TTJetsSemiLepUEupTT1b','TTJetsSemiLepUEupTT2b','TTJetsSemiLepUEupTTbb','TTJetsSemiLepUEupTTcc','TTJetsSemiLepUEupTTjj',
+'TTJetsSemiLepUEdnNjet0TT1b','TTJetsSemiLepUEdnNjet0TT2b','TTJetsSemiLepUEdnNjet0TTbb','TTJetsSemiLepUEdnNjet0TTcc','TTJetsSemiLepUEdnNjet0TTjj',
+'TTJetsSemiLepUEupNjet0TT1b','TTJetsSemiLepUEupNjet0TT2b','TTJetsSemiLepUEupNjet0TTbb','TTJetsSemiLepUEupNjet0TTcc','TTJetsSemiLepUEupNjet0TTjj',
+'TTJetsSemiLepUEdnNjet9TT1b','TTJetsSemiLepUEdnNjet9TT2b','TTJetsSemiLepUEdnNjet9TTbb','TTJetsSemiLepUEdnNjet9TTcc','TTJetsSemiLepUEdnNjet9TTjj',
+'TTJetsSemiLepUEupNjet9TT1b','TTJetsSemiLepUEupNjet9TT2b','TTJetsSemiLepUEupNjet9TTbb','TTJetsSemiLepUEupNjet9TTcc','TTJetsSemiLepUEupNjet9TTjj',
+'TTJetsSemiLepUEdnNjet9binTT1b','TTJetsSemiLepUEdnNjet9binTT2b','TTJetsSemiLepUEdnNjet9binTTbb','TTJetsSemiLepUEdnNjet9binTTcc','TTJetsSemiLepUEdnNjet9binTTjj',
+'TTJetsSemiLepUEupNjet9binTT1b','TTJetsSemiLepUEupNjet9binTT2b','TTJetsSemiLepUEupNjet9binTTbb','TTJetsSemiLepUEupNjet9binTTcc','TTJetsSemiLepUEupNjet9binTTjj',
 ]
 runData = True
 runBkgs = True
 runSigs = True
-
-#cutList = {'elPtCut':35,'muPtCut':30,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':300}
+#for ind in range(len(hdampList)):
+#        if 'TTJetsSemiLep' in hdampList[ind]: hdampList[ind]=hdampList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
+#for ind in range(len(ueList)):
+#        if 'TTJetsSemiLep' in ueList[ind]: ueList[ind]=ueList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
 # cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
-# cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
 cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
+if year=='R16': 
+	cutList['elPtCut'] = 35
+	cutList['muPtCut'] = 26
 
 cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
 cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])
@@ -287,6 +302,8 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'HT_vs_HTb':('AK4HT:HT_bjets',linspace(0, 3000, 121).tolist(),';H_{T} [GeV]',linspace(0, 3000, 121).tolist(),';H_{T}^{b} [GeV]'),
 	'HT_vs_maxJJJpt':('AK4HT:maxJJJpt',linspace(0, 3000, 121).tolist(),';H_{T} [GeV]',linspace(0, 1500, 101).tolist(),';max[p_{T}^{jjj}] [GeV]'),
 	'HTb_vs_maxJJJpt':('HT_bjets:maxJJJpt',linspace(0, 3000, 121).tolist(),';H_{T}^{b} [GeV]',linspace(0, 1500, 101).tolist(),';max[p_{T}^{jjj}] [GeV]'),
+	'genHT':('AK4GenHT',linspace(0, 4000, 161).tolist(),';H_{T}^{gen} [GeV]'),
+	'genNJets':('NAK4GenJets',linspace(0, 15, 16).tolist(),';gen AK4 jet multiplicity'),
 
 	'maxJJJpt':('maxJJJpt',linspace(0, 1500, 101).tolist(),';max[p_{T}^{jjj}] [GeV]'),
 	'HTb':('HT_bjets',linspace(0, 3000, 121).tolist(),';H_{T}^{b} [GeV]'),
@@ -305,7 +322,14 @@ print "         BINNING USED  :",plotList[iPlot][1]
 catList = ['is'+cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5] for cat in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 nCats  = len(catList)
 
-shapesFiles = ['jec','jer']
+shapesFiles = ['JEC','JER']#,
+# 'JEC_Total','JEC_FlavorQCD',
+# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
+# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+#if year == 'R18': shapesFiles += ['hem']
 
 tTreeData = {}
 tFileData = {}
@@ -353,7 +377,7 @@ for cat in catList:
 		if doAllSys:
 			for syst in shapesFiles:
 				for ud in ['Up','Down']:
-					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[bkg]+'_hadd.root')
+					tFileBkg[bkg+syst+ud],tTreeBkg[bkg+syst+ud]=readTree(step1Dir.replace('nominal',syst+ud.lower())+'/'+samples[bkg]+'_hadd.root')
 		bkghists.update(analyze(tTreeBkg,bkg,'',cutList,doAllSys,doPDF,iPlot,plotList[iPlot],cat,region,year))
 		if 'TTJets' in bkg and len(ttFlvs)!=0:
 			for flv in ttFlvs: bkghists.update(analyze(tTreeBkg,bkg,flv,cutList,doAllSys,doPDF,iPlot,plotList[iPlot],cat,region,year))
@@ -411,7 +435,7 @@ for cat in catList:
 				for syst in shapesFiles:
 					for ud in ['Up','Down']:
 						print "        "+syst+ud
-						tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst.upper()+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
+						tFileSig[sig+decay+syst+ud],tTreeSig[sig+decay+syst+ud]=readTree(step1Dir.replace('nominal',syst+ud.lower())+'/'+samples[sig+decay]+'_hadd.root')
 			sighists.update(analyze(tTreeSig,sig+decay,'',cutList,doAllSys,doPDF,iPlot,plotList[iPlot],cat,region,year))
 			if catInd==nCats: 
 				del tFileSig[sig+decay]
