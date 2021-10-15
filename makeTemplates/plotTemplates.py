@@ -35,7 +35,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_R18bins_rebinned_stat0p3'#'_2b300GeV3b150GeV4b50GeVbins_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
@@ -49,17 +49,19 @@ sigfile='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 if iPlot=='HTYLD': 
-	ttProcList = ['ttbb','ttnobb']
+	#ttProcList = ['ttbb','ttnobb']
 	useCombineTemplates = False
-	scaleSignals = True
+	#scaleSignals = True
 bkgProcList = ttProcList+['ttH','top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'tttt' in sig: 
+	#bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+	bkgHistColors = {'ttbb':rt.TColor.GetColor("#d3eeef"),'ttnobb':rt.TColor.GetColor("#cf9ddb"),'ttH':rt.TColor.GetColor("#163d4e"),'top':rt.TColor.GetColor("#54792f"),'ewk':rt.TColor.GetColor("#d07e93"),'qcd':rt.TColor.GetColor("#c1caf3")} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
 systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
-#systematicList+= ['CSVshapelf','CSVshapehf']
+if iPlot=='BDT': systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#['CSVshapelf','CSVshapehf']
 if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
 useSmoothShapes = True
@@ -68,9 +70,9 @@ doAllSys = True
 addCRsys = False
 doNormByBinWidth=True
 doOneBand = True
-blind = True
+blind = False
 yLog  = True
-doRealPull = False
+doRealPull = True
 compareShapes = False
 if not isCategorized: blind = False
 if blind or doRealPull: doOneBand = False
@@ -180,7 +182,8 @@ def formatUpperHist(histogram,histogramBkg):
 		else: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
 		
 def formatLowerHist(histogram,disc):
-	histogram.GetXaxis().SetLabelSize(.12)
+	histogram.GetXaxis().SetLabelSize(0.12)
+	if 'YLD' in iPlot: histogram.GetXaxis().SetLabelSize(0.10)
 	histogram.GetXaxis().SetTitleSize(0.15)
 	histogram.GetXaxis().SetTitleOffset(0.95)
 	histogram.GetXaxis().SetNdivisions(506)
@@ -225,11 +228,13 @@ iPeriod = 4 #see CMS_lumi.py module for usage!
 
 # references for T, B, L, R
 T = 0.10*H_ref
-B = 0.35*H_ref 
-if blind == True: B = 0.12*H_ref
-if 'YLD' in iPlot: B = 0.30*H_ref
+B = 0.35*H_ref
 L = 0.12*W_ref
 R = 0.04*W_ref
+if 'YLD' in iPlot: B = 0.46*H_ref
+if blind == True: 
+	B = 0.12*H_ref
+	if 'YLD' in iPlot: B = 0.30*H_ref
 
 tagPosX = 0.76
 tagPosY = 0.62
@@ -666,7 +671,7 @@ for catEStr in catsElist:
 				else: pull.SetBinContent(binNo,0.)
 			pull.SetMaximum(3)
 			pull.SetMinimum(-3)
-			if '53' in sig or '4T' in sig:
+			if '53' in sig or 'tttt' in sig:
 				pull.SetFillColor(2)
 				pull.SetLineColor(2)
 			else:
@@ -1075,12 +1080,12 @@ for catEStr in catsElist:
 			else: pullmerged.SetBinContent(binNo,0.)
 		pullmerged.SetMaximum(3)
 		pullmerged.SetMinimum(-3)
-		if '53' in sig or '4T' in sig:
+		if '53' in sig or 'tttt' in sig:
 			pullmerged.SetFillColor(2)
 			pullmerged.SetLineColor(2)
 		else:
-			pullmerged.SetFillColor(kGray+2)
-			pullmerged.SetLineColor(kGray+2)
+			pullmerged.SetFillColor(rt.kGray+2)
+			pullmerged.SetLineColor(rt.kGray+2)
 		formatLowerHist(pullmerged,iPlot)
 		pullmerged.GetYaxis().SetTitle('#frac{(obs-bkg)}{uncertainty}')
 		pullmerged.Draw("HIST")

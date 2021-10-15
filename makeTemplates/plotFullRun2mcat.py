@@ -32,9 +32,9 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[2]+'/'+cutString+'/'
 
-isRebinned='_2b300GeV3b150GeV4b50GeVbins_R18bins_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_R18bins_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
-saveKey = '' # tag for plot names
+saveKey = '_v4' # tag for plot names
 
 sig='tttt' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
@@ -63,10 +63,11 @@ addCRsys = False
 doOneBand = False
 blind = False
 yLog  = True
-doRealPull = True
+doRealPull = False
 compareShapes = False
 if not isCategorized: blind = False
-if blind or doRealPull: doOneBand = False
+if blind: doRealPull,doOneBand = False,False
+if doRealPull: doOneBand = False
 if not doAllSys: doOneBand = True # Don't change this!
 if compareShapes: blind,yLog,scaleSignals,sigScaleFact=True,False,False,-1
 zero = 1E-12
@@ -96,11 +97,21 @@ RFiles['R17'] = rt.TFile(templateDir.replace(year,'R17')+sigfile.replace(lumiStr
 datahists = [k.GetName() for k in RFile.GetListOfKeys() if '__'+dataName in k.GetName()]
 catsElist = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isE_' in hist]
 catsElist = [#manually add the list of categories to be displayed together (SHOULD START WITH isE!!)
-'isE_nHOT1p_nT0p_nW0p_nB2_nJ10p',
-'isE_nHOT0_nT0p_nW0p_nB3_nJ10p',
-'isE_nHOT1p_nT0p_nW0p_nB3_nJ10p',
-'isE_nHOT0_nT0p_nW0p_nB4p_nJ10p',
-'isE_nHOT1p_nT0p_nW0p_nB4p_nJ10p',
+# 'isE_nHOT1p_nT0p_nW0p_nB2_nJ10p',
+# 'isE_nHOT0_nT0p_nW0p_nB3_nJ10p',
+# 'isE_nHOT1p_nT0p_nW0p_nB3_nJ10p',
+# 'isE_nHOT0_nT0p_nW0p_nB4p_nJ10p',
+# 'isE_nHOT1p_nT0p_nW0p_nB4p_nJ10p',
+
+# 'isE_nHOT1p_nT0p_nW0p_nB2_nJ8p',
+# 'isE_nHOT0_nT0p_nW0p_nB3_nJ8p',
+# 'isE_nHOT0_nT0p_nW0p_nB4p_nJ7p',
+# 'isE_nHOT1p_nT0p_nW0p_nB3_nJ8p',
+# 'isE_nHOT1p_nT0p_nW0p_nB4p_nJ7p',
+
+'isE_nHOT1p_nT0p_nW0p_nB2_nJ8p',
+'isE_nHOT1p_nT0p_nW0p_nB3_nJ8p',
+'isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p',
 ]
 catBound = {}
 
@@ -233,25 +244,31 @@ for catEStr in catsElist:
 	histPrefix+=catEStr
 	nBinsBkg += RFile.Get(histPrefix+'__'+dataName).GetNbinsX()
 for em in ['E','M','L']:
-	hDataCats[em] = rt.TH1F('data_'+em,';H_{T} bins',nBinsBkg,0,nBinsBkg)
+	xaxislabel = 'H_{T} bins'
+	if iPlot=='BDT': xaxislabel = 'BDT bins'
+	hDataCats[em] = rt.TH1F('data_'+em,';'+xaxislabel,nBinsBkg,0,nBinsBkg)
 	hDataCats[em].Sumw2()
 	for proc in bkgProcList:
-		hbkgCats[proc+'_'+em] = rt.TH1F(proc+'_'+em,';H_{T} bins',nBinsBkg,0,nBinsBkg)
+		hbkgCats[proc+'_'+em] = rt.TH1F(proc+'_'+em,';'+xaxislabel,nBinsBkg,0,nBinsBkg)
 		hbkgCats[proc+'_'+em].Sumw2()
 		systematicList_ = systematicList[:]
-		if 'nB0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
+		if 'nB0p' not in catEStr or iPlot=='HTYLD': #systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
+			if iPlot=='BDT': systematicList_ += ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']
+			else: systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
 		if 'nHOT0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['hotstat','hotcspur','hotclosure']
 		if useSmoothShapes: systematicList_ = ['lowess'+syst for syst in systematicList_]
 		for syst in systematicList_:
 			for ud in [upTag,downTag]:
-				hsystCats[proc+'_'+em+'_'+syst+'_'+ud] = rt.TH1F(proc+'_'+em+'_'+syst+'_'+ud,';H_{T} bins',nBinsBkg,0,nBinsBkg)
+				hsystCats[proc+'_'+em+'_'+syst+'_'+ud] = rt.TH1F(proc+'_'+em+'_'+syst+'_'+ud,';'+xaxislabel,nBinsBkg,0,nBinsBkg)
 				hsystCats[proc+'_'+em+'_'+syst+'_'+ud].Sumw2()
-	hsigCats[em] = rt.TH1F('sig_'+em,';H_{T} bins',nBinsBkg,0,nBinsBkg)
+	hsigCats[em] = rt.TH1F('sig_'+em,';'+xaxislabel,nBinsBkg,0,nBinsBkg)
 	hsigCats[em].Sumw2()
 catbin = 0
 for catEStr in catsElist:
 	systematicList_ = systematicList[:]
-	if 'nB0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
+	if 'nB0p' not in catEStr or iPlot=='HTYLD': #systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
+		if iPlot=='BDT': systematicList_ += ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']
+		else: systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
 	if 'nHOT0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['hotstat','hotcspur','hotclosure']
 	if useSmoothShapes: systematicList_ = ['lowess'+syst for syst in systematicList_]
 	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]

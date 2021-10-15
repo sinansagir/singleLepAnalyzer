@@ -14,7 +14,7 @@ rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
 iPlot = sys.argv[1]#'HT'
-year = 'R16'
+year = 'R18'
 if year=='R16':
 	lumiStr = '35p867fb'
 	lumi=35.9 #for plots
@@ -27,7 +27,7 @@ elif year=='R18':
 sig1 = 'tttt' #  choose the 1st signal to plot
 useCombine = True
 tempVersion = 'templates_'+year+'_2021_4_6'
-isRebinned = '_rebinned_stat0p3'
+isRebinned = '_2b300GeV3b150GeV4b50GeVbins_rebinned_stat0p3'
 if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
 saveKey = ''#'_tshape'
@@ -55,10 +55,9 @@ systematics+= ['JEC','JER']#,
 # 'JEC_HF','JEC_HF_'+year.replace('R','20'),
 # 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
 # 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
-#systematics = ['btag','btagcorr','btaguncorr','mistag']
 systematics = ['lowess'+syst for syst in systematics]
 
-signameList = ['tttt']
+signameList = [sig1]
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 if useCombine:

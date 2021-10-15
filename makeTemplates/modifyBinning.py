@@ -38,7 +38,7 @@ elif year=='R18':
 	from weights18 import *
 
 iPlot=sys.argv[2]
-saveKey = '_2b300GeV3b150GeV4b50GeVbins'
+saveKey = ''#'_2b300GeV3b150GeV4b50GeVbins'
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
@@ -70,7 +70,8 @@ if sigName=='X53':
 	sigProcList+= [sigName+'RHM'+str(mass) for mass in range(900,1700+1,100)]
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 bkgProcList = ttProcList + ['ttH','top','ewk','qcd'] #put the most dominant process first
-removeSystFromYields = ['CSVshapehf','CSVshapelf','hdamp','ue','njet','njetsf'] #list of systematics to be removed from yield errors
+removeSystFromYields = ['hdamp','ue','njet','njetsf'] #list of systematics to be removed from yield errors
+if iPlot!='HT': removeSystFromYields+= ['CSVshapehf','CSVshapelf']
 removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
@@ -234,7 +235,7 @@ for chn in totBkgHists.keys():
 			nBinsMerged+=1
 			if nBinsMerged<minNbins: continue
 			if iPlot=='BDT': #!!! BDT binning !!!
-				if '_nB2_' in chn and nBinsMerged<minNbins*2: continue
+				if ('_nB2_' in chn and nBinsMerged<minNbins*6) or ('_nB3_' in chn and nBinsMerged<minNbins*3): continue
 			if iPlot=='HT': #!!! HT binning !!!
 				if ('_nB2_' in chn and nBinsMerged<minNbins*6) or ('_nB3_' in chn and nBinsMerged<minNbins*3): 
 					if not (year=='R16' and rebinYear=='R16' and 'nHOT1p_nT0p_nW0p_nB2_nJ7' in chn and nBinsMerged>=minNbins*4): continue
@@ -271,8 +272,12 @@ for chn in xbinsListTemp.keys():
 	if (iPlot.startswith('HT') or iPlot=='maxJJJpt' or iPlot=='ST') and stat<1.: xMax = xbinsList[chn][-2]+(500-xbinsList[chn][-2]%500)
 	if xMin>xbinsList[chn][0]: xbinsList[chn][0] = xMin
 	if xMax<xbinsList[chn][-1] and xMin!=xMax: xbinsList[chn][-1] = xMax
+	#xbinsList[chn] = [xbinsList[chn][0],xbinsList[chn][-1]] # uncomment for single bin templates
+	delcount = 0
 	for ibin in range(1,len(xbinsList[chn])-1):
-		if xbinsList[chn][ibin]<=xbinsList[chn][0] or xbinsList[chn][ibin]>=xbinsList[chn][-1]: del xbinsList[chn][ibin]
+		if xbinsList[chn][ibin-delcount]<=xbinsList[chn][0] or xbinsList[chn][ibin-delcount]>=xbinsList[chn][-1]: 
+			del xbinsList[chn][ibin-delcount]
+			delcount+=1
 	print chn,"=",xbinsList[chn]
 print "//"*40
 print "==> Total number of bins =",totNbins
