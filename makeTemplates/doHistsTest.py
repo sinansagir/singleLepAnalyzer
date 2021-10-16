@@ -105,7 +105,7 @@ if year=='2017':
 	bkgList+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004',
 			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs']
 elif year=='2018':
-	bkgList+= ['WJetsMG1200','WJetsMG2500']
+	bkgList+= ['WJetsMG1200','WJetsMG2500','Tbs']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 
 dataList = ['DataE','DataM','DataJ']

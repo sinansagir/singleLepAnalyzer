@@ -51,6 +51,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	cut += ' && (minDR_lepJet > 0.4)'# || ptRel_lepJet > 40)'
 	cut += ' && (AK4HT  > '+str(cutList['AK4HTCut'])+')'
 	
+	# cut += ' && (nPV_MultiLepCalc>=25)'
+
 	if process.startswith('TTJetsSemiLepNjet0'): cut += ' && (isHTgt500Njetge9 == 0)'
 	if process.startswith('TTJetsSemiLepNjet9'): cut += ' && (isHTgt500Njetge9 == 1)'
 
@@ -233,6 +235,9 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	nbtagLJMETname = 'NJetsCSV_MultiLepCalc' # _MultiLepCalc version uses DeepCSV and _JetSubCalc version uses DeepFlv in Oct2019 production!
 	if 'BJets' in iPlot: nbtagLJMETname = plotTreeName
 	njetsLJMETname = 'NJets_JetSubCalc'
+
+	# nbtagLJMETname = 'NJetsCSV50_MultiLepCalc'
+	# njetsLJMETname = 'NJets50_JetSubCalc'
 
 	nhottCut = ''
 	if 'p' in nhott: nhottCut+=' && '+nhottLJMETname+'>='+nhott[:-1]

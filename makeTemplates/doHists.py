@@ -111,7 +111,7 @@ elif year=='R17':
 	bkgList+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004',
 			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs']
 elif year=='R18':
-	bkgList+= ['WJetsMG1200','WJetsMG2500']
+	bkgList+= ['WJetsMG1200','WJetsMG2500','Tbs']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 #for ind in range(len(bkgList)):
 #	if 'TTJetsSemiLep' in bkgList[ind]: bkgList[ind]=bkgList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
@@ -161,12 +161,12 @@ runSigs = True
 #        if 'TTJetsSemiLep' in ueList[ind]: ueList[ind]=ueList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
 # cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
 
-# cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
-# if year=='R16': 
-# 	cutList['elPtCut'] = 35
-# 	cutList['muPtCut'] = 26
+cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
+if year=='R16': 
+	cutList['elPtCut'] = 35
+	cutList['muPtCut'] = 26
 
-cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
+# cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
 
 cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
 cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])
@@ -422,8 +422,54 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'btagCSVWeight':('btagCSVWeight',linspace(0, 5, 1001).tolist(),';btagCSVWeight'),
 	'btagCSV2DWeight_HTnj':('btagCSV2DWeight_HTnj',linspace(0, 5, 1001).tolist(),';btagCSV2DWeight_HTnj'),
 	'btagTotWeight':('btagCSVWeight*btagCSV2DWeight_HTnj',linspace(0, 5, 1001).tolist(),';btagTotWeight'),
-	
+
+	# 'nPV_MultiLepCalc':('BDT_tt',linspace(-1, 1, 201).tolist(),';N_{PV}'),
+
+	'BDT_tt':('BDT_tt',linspace(-1, 1, 201).tolist(),';BDT(tt)'),
+	'BDT_ttH':('BDT_ttH',linspace(-1, 1, 201).tolist(),';BDT(ttH)'),
+	'BDT_ttbb':('BDT_ttbb',linspace(-1, 1, 201).tolist(),';BDT(ttbb)'),
+
+	'BDTsum':('BDT_tt + BDT_ttH + BDT_ttbb',linspace(-3, 3, 201).tolist(),';BDT(tt+ttH+ttbb)'),#BDT_tt + BDT_ttH + BDT_ttbb
+	'BDTprod':('(1+BDT_tt) * (1+BDT_ttH) * (1+BDT_ttbb)',linspace(0, 8, 201).tolist(),';BDT(tt*ttH*ttbb)'),#(1+BDT_tt) * (1+BDT_ttH) * (1+BDT_ttbb)
+
+	'BDTtt+tth':('BDT_tt+BDT_ttH',linspace(-2, 2, 201).tolist(),';BDT(tt+tth)'),#BDT_tt+BDT_ttH
+	'BDTtth+ttbb':('BDT_ttH+BDT_ttbb',linspace(-2, 2, 201).tolist(),';BDT(tth+ttbb)'),#BDT_ttH+BDT_ttbb
+	'BDTtt+ttbb':('BDT_tt+BDT_ttbb',linspace(-2, 2, 201).tolist(),';BDT(tt+ttbb)'),#BDT_tt+BDT_ttbb
+
+	'BDTtt*tth':('(1+BDT_tt)*(1+BDT_ttH)',linspace(0,4, 201).tolist(),';BDT(tt*tth)'),#(1+BDT_tt)*(1+BDT_ttH)
+	'BDTtth*ttbb':('(1+BDT_ttH)*(1+BDT_ttbb)',linspace(0,4, 201).tolist(),';BDT(tth*ttbb)'),#(1+BDT_ttH)*(1+BDT_ttbb)
+	'BDTtt*ttbb':('(1+BDT_tt)*(1+BDT_ttbb)',linspace(0,4, 201).tolist(),';BDT(tt*ttbb)'),#(1+BDT_tt)*(1+BDT_ttbb)
+
+	'BDTtt+tthVSttbb':('BDT_tt+BDT_ttH:BDT_ttbb',linspace(-2, 2, 21).tolist(),';BDT(tt+tth)',linspace(-1, 1, 21).tolist(),';BDT(ttbb)'),#BDT_tt+BDT_ttH vs BDT_ttbb
+	'BDTtth+ttbbVStt':('BDT_ttH+BDT_ttbb:BDT_tt',linspace(-2, 2, 21).tolist(),';BDT(tth+ttbb)',linspace(-1, 1, 21).tolist(),';BDT(tt)'),#BDT_tt vs BDT_ttH+BDT_ttbb
+	'BDTtt+ttbbVStth':('BDT_tt+BDT_ttbb:BDT_ttH',linspace(-2, 2, 21).tolist(),';BDT(tt+ttbb)',linspace(-1, 1, 21).tolist(),';BDT(tth)'),#BDT_tt+BDT_ttbb vs BDT_ttH 
+
+	'BDTtt*tthVSttbb':('(1+BDT_tt)*(1+BDT_ttH):(1+BDT_ttbb)',linspace(0, 4, 21).tolist(),';BDT(tt*tth)',linspace(0, 2, 21).tolist(),';BDT(ttbb)'),#(1+BDT_tt)*(1+BDT_ttH) vs (1+BDT_ttbb)
+	'BDTtth*ttbbVStt':('(1+BDT_ttH)*(1+BDT_ttbb):(1+BDT_tt)',linspace(0, 4, 21).tolist(),';BDT(tth*ttbb)',linspace(0, 2, 21).tolist(),';BDT(tt)'),#(1+BDT_tt) vs (1+BDT_ttH)*(1+BDT_ttbb)
+	'BDTtt*ttbbVStth':('(1+BDT_tt)*(1+BDT_ttbb):(1+BDT_ttH)',linspace(0, 4, 21).tolist(),';BDT(tt*ttbb)',linspace(0, 2, 21).tolist(),';BDT(tth)'),#(1+BDT_tt)*(1+BDT_ttbb) vs (1+BDT_ttH)  
+
 	}
+
+formulas=[]
+if year=='R16':
+	formulas=['0.161392213863*(((BDT_tt+1)/2)**(3.56925019116-1))*((1-((BDT_tt+1)/2))**(2.01882334842-1))+2609.86460705*(((BDT_tt+1)/2)**(17.5543222955-1))*((1-((BDT_tt+1)/2))**(7.09320356567-1))', 
+	'0.210062930065*(((BDT_ttH+1)/2)**(3.42210681906-1))*((1-((BDT_ttH+1)/2))**(2.59375440288-1))+0.231071133492*(((BDT_ttH+1)/2)**(5.32060470182-1))*((1-((BDT_ttH+1)/2))**(2.54357167004-1))', 
+	'60.4443511616*(((BDT_ttbb+1)/2)**(6.40102354493-1))*((1-((BDT_ttbb+1)/2))**(8.00662703815-1))+79.8750757749*(((BDT_ttbb+1)/2)**(11.0539053232-1))*((1-((BDT_ttbb+1)/2))**(4.80503245508-1))']
+	
+elif year=='R17':
+	formulas=['1.80285607805*(((BDT_tt+1)/2)**(4.47878238245-1))*((1-((BDT_tt+1)/2))**(6.20318556649-1))+0.662781522535*(((BDT_tt+1)/2)**(5.90466486371-1))*((1-((BDT_tt+1)/2))**(2.41500321437-1))', 
+	'2.72151626622*(((BDT_ttH+1)/2)**(4.73700764643-1))*((1-((BDT_ttH+1)/2))**(4.6125214758-1))+37.1132208779*(((BDT_ttH+1)/2)**(13.9232333459-1))*((1-((BDT_ttH+1)/2))**(4.04261462352-1))', 
+	'186.309313064*(((BDT_ttbb+1)/2)**(6.78975967148-1))*((1-((BDT_ttbb+1)/2))**(9.90153049205-1))+32.7478765599*(((BDT_ttbb+1)/2)**(9.41806330245-1))*((1-((BDT_ttbb+1)/2))**(4.49649165325-1))']
+
+elif year=='R18':
+	formulas=['0.124534243951*(((BDT_tt+1)/2)**(3.39535418049-1))*((1-((BDT_tt+1)/2))**(1.85602173784-1))+676.875360617*(((BDT_tt+1)/2)**(18.0775148802-1))*((1-((BDT_tt+1)/2))**(6.1689408943-1))', 
+	'1.10918667877*(((BDT_ttH+1)/2)**(4.2182693221-1))*((1-((BDT_ttH+1)/2))**(3.88616870942-1))+9.64766083427*(((BDT_ttH+1)/2)**(12.3568700088-1))*((1-((BDT_ttH+1)/2))**(3.52160124479-1))', 
+	'8.39651180513*(((BDT_ttbb+1)/2)**(5.63835388879-1))*((1-((BDT_ttbb+1)/2))**(5.44458402604-1))+817.942828051*(((BDT_ttbb+1)/2)**(15.8949232503-1))*((1-((BDT_ttbb+1)/2))**(5.5909367171-1))']
+
+plotList['LBDT']=('('+formulas[0]+')*('+formulas[1]+')*('+formulas[2]+')',linspace(0, 1, 201).tolist(),';LBDT(tt*ttH*ttbb)')
+plotList['LBDTtt*tthVSttbb']=('('+formulas[0]+')*('+formulas[1]+'):('+formulas[2]+')',linspace(0, 1, 21).tolist(),';LBDT(tt*tth)',linspace(0, 1, 21).tolist(),';LBDT(ttbb)')
+plotList['LBDTtth*ttbbVStt']=('('+formulas[1]+')*('+formulas[2]+'):('+formulas[0]+')',linspace(0, 1, 21).tolist(),';LBDT(tth*ttbb)',linspace(0, 1, 21).tolist(),';LBDT(tt)')
+plotList['LBDTtt*ttbbVStth' ]=('('+formulas[0]+')*('+formulas[2]+'):('+formulas[1]+')',linspace(0, 1, 21).tolist(),';LBDT(tt*ttbb)',linspace(0, 1, 21).tolist(),';LBDT(tth)')
 
 print "PLOTTING:",iPlot
 print "         LJMET Variable:",plotList[iPlot][0]

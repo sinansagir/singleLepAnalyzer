@@ -66,13 +66,13 @@ bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
 bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
-if year=='R16' or year=='R17':
-	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
-elif year=='R18':
+if year=='R18':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
+else:
+	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
 bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
-if year=='R17': bkgProcs['T']+= ['Tbs']
+if year!='R16': bkgProcs['T']+= ['Tbs']
 bkgProcs['TTH'] = ['TTHB','TTHnoB']
 bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
@@ -395,7 +395,11 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 				for proc in bkgGrupList+[signal]:
 					err_ = Double(0)
-					integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
+					integral_ = Double(0)
+					if '2' in hists[proc+i].__class__.__name__:
+						integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),1,hists[proc+i].GetYaxis().GetNbins(),err_)
+					else:
+						integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
 					if integral_==0: statUnc_ = 1e20
 					else: statUnc_ = err_/integral_
 					if proc in bkgGrupList and integral_/totBkg_ <= removeThreshold and statUnc_ >= removeStatUnc:
@@ -451,7 +455,11 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
 				err_ = Double(0)
-				integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
+				integral_ = Double(0)
+				if '2' in hists[proc+i].__class__.__name__:
+					integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),1,hists[proc+i].GetYaxis().GetNbins(),err_)
+				else:
+					integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
 				if integral_==0: statUnc_ = 1e20
 				else: statUnc_ = err_/integral_
 				if integral_/totBkg_ <= removeThreshold and statUnc_ >= removeStatUnc:

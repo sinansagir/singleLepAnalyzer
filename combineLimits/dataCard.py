@@ -276,7 +276,8 @@ if __name__ == '__main__':
 	elif era=='R17': lumiStr = '41p53fb'
 	elif era=='R18': lumiStr = '59p97fb'
 	smoothAlgo = 'lowess' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
-	tag = '_tthfscale'
+	# tag = '_tthfscale'
+	tag = ''
 	# saveKey = '_nohotclosure_'+iPlot
 	# saveKey = '_0p25hotclosure_'+iPlot
 	# saveKey = '_scalehotclosure_'+iPlot
@@ -298,7 +299,7 @@ if __name__ == '__main__':
 	allHistNames = [k.GetName() for k in tfile.GetListOfKeys() if not (k.GetName().endswith('Up') or k.GetName().endswith('Down'))]
 	tfile.Close()
 	chns = [hist[hist.find('fb_')+3:hist.find('__')] for hist in allHistNames if '__'+dataName in hist]
-	#chns2= [chn for chn in chns if 'nJ6' in chn]
+	#chns2= [chn for chn in chns if (('nJ9' in chn) or ('nJ10p' in chn))]
 	#chns=chns2
 	chnsE = [chn for chn in chns if 'isE_' in chn]
 	chnsM = [chn for chn in chns if 'isM_' in chn]

@@ -37,7 +37,8 @@ templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
 blindBDT = False
 
-isRebinned='_new_rebinned_stat1p1' #post for ROOT file names
+# isRebinned='_new_rebinned_stat1p1' #post for ROOT file names
+isRebinned='_rebinned_stat1p1' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 

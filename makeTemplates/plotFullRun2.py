@@ -33,7 +33,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[2]+'/'+cutString+'/'
 
 # isRebinned='_2b300GeV3b150GeV4b50GeVbins_R18bins_rebinned_stat0p3' #post for ROOT file names
-isRebinned='_rebinned_stat0p3'
+isRebinned='_new_rebinned_stat1p1'
 # isRebinned='_R18bins_rebinned_stat0p3'
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
@@ -191,7 +191,7 @@ def formatUpperHist(histogram,histogramBkg):
 
 	if 'JetPt' in histogram.GetName() or 'JetEta' in histogram.GetName() or 'JetPhi' in histogram.GetName() or 'Pruned' in histogram.GetName() or 'Tau' in histogram.GetName() or 'SoftDropMass' in histogram.GetName(): histogram.GetYaxis().SetTitle(histogram.GetYaxis().GetTitle().replace("Events","Jets"))
 	histogram.GetYaxis().CenterTitle()
-	histogram.SetMinimum(0.0101)
+	histogram.SetMinimum(0.00101)
 	if region=='PS': histogram.SetMinimum(0.0101)
 	if not yLog: 
 		histogram.SetMinimum(0.015)
