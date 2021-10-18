@@ -207,230 +207,57 @@ for y in years:
 		trainings.append(tmp)
 
 # #for step2
-# trainings=[]
-# for y in years:
-# 	for p in ['40vars_6j_NJetsCSV']:
+trainings=[]
+for y in years:
+	tmp={
+	'year':'R'+y,
+	'variable':['BDT'],
+	'postfix':'jet40',#+'_lim',#'NoNBtagSF_'+p,
+	'path':''
+	}
+	trainings.append(tmp)
 
-# 		# tmp={
-# 		# 'year':'R'+y,
-# 		# 'variable':['BDT'],
-# 		# 'postfix':p+'_053121lim_negbdt',#+'_lim',#'NoNBtagSF_'+p,
-# 		# 'path':''
-# 		# }
-# 		# trainings.append(tmp)
+	tmp={
+	'year':'R'+y,
+	'variable':['BDT'],
+	'postfix':'jet50',#+'_lim',#'NoNBtagSF_'+p,
+	'path':''
+	}
+	trainings.append(tmp)
 
-# 		tmp={
-# 		'year':'R'+y,
-# 		'variable':['BDT'],
-# 		'postfix':p+'_053121lim_newbin1',#+'_lim',#'NoNBtagSF_'+p,
-# 		'path':''
-# 		}
-# 		trainings.append(tmp)
+	tmp={
+	'year':'R'+y,
+	'variable':['BDT'],
+	'postfix':'lopu',#+'_lim',#'NoNBtagSF_'+p,
+	'path':''
+	}
+	trainings.append(tmp)
 
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':vrs,
-		# 'postfix':'multibdt_cr_1',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
+	tmp={
+	'year':'R'+y,
+	'variable':['BDT'],
+	'postfix':'hipu',#+'_lim',#'NoNBtagSF_'+p,
+	'path':''
+	}
+	trainings.append(tmp)
 
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':vrs,
-		# 'postfix':'multibdt_cr_2',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
+	tmp={
+	'year':'R'+y,
+	'variable':['NPV'],
+	'postfix':'pu',#+'_lim',#'NoNBtagSF_'+p,
+	'path':''
+	}
+	trainings.append(tmp)
 
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':'40vars_6j_NJetsCSV_053121lim678',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':'40vars_6j_NJetsCSV_053121lim910',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDTYLD'],
-		# 'postfix':'jet1_50',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDTYLD'],
-		# 'postfix':'jet12_50',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDTYLD'],
-		# 'postfix':'jet123_50',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121pt50',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121cr2',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_onebin',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121bdtkin',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':'' 
-		# }
-		# trainings.append(tmp)
-
-# for y in years:
-# 	for p in ['40vars_6j_NJetsCSV']:#,
-			  #'50vars_6j_NJetsCSV']:
-		# limits
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_noHOT',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_noHOT_newbin1',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_noHOT_newbin2',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
+	tmp={
+	'year':'R'+y,
+	'variable':['NPV'],
+	'postfix':'pukin',#+'_lim',#'NoNBtagSF_'+p,
+	'path':''
+	}
+	trainings.append(tmp)
 
 
-
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_newbin1',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_newbin1',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_newbin1_nohotclosure',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_newbin1_0p25hotclosure',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_newbin1_scalehotclosure',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_newbin2',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-
-		# tmp={
-		# 'year':'R'+y,
-		# 'variable':['BDT'],
-		# 'postfix':p+'_053121lim_newbin3',#+'_lim',#'NoNBtagSF_'+p,
-		# 'path':''
-		# }
-		# trainings.append(tmp)
-		
-	# 	#bdt distribution
-	# 	tmp={
-	# 	'year':'R'+y,
-	# 	'variable':['BDT'],
-	# 	'postfix':p+'_053121bdtkin',#+'_lim',#'NoNBtagSF_'+p,
-	# 	'path':'' 
-	# 	}
-	# 	trainings.append(tmp)
-# for y in years:		
-# 	for p in ['40vars_6j_NJetsCSV',]:
-		
-# 		#data/mc input variables
-# 		tmp={
-# 		'year':'R'+y,
-# 		'variable':vrs,
-# 		'postfix':p+'_053121kin',#+'_lim',#'NoNBtagSF_'+p,
-# 		'path':'' 
-# 		}
-# 		trainings.append(tmp)
 
 
 
@@ -579,7 +406,7 @@ combinations = [
 #4 dataCard + limit + significance
 #5 combination limit + significance
 #6 print results
-step=1
+step=2
 
 if step==1:
 	os.chdir('makeTemplates')

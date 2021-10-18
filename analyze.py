@@ -52,6 +52,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	cut += ' && (AK4HT  > '+str(cutList['AK4HTCut'])+')'
 	
 	# cut += ' && (nPV_MultiLepCalc>=25)'
+	# cut += ' && (nPV_MultiLepCalc<25)'
 
 	if process.startswith('TTJetsSemiLepNjet0'): cut += ' && (isHTgt500Njetge9 == 0)'
 	if process.startswith('TTJetsSemiLepNjet9'): cut += ' && (isHTgt500Njetge9 == 1)'
@@ -236,6 +237,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	if 'BJets' in iPlot: nbtagLJMETname = plotTreeName
 	njetsLJMETname = 'NJets_JetSubCalc'
 
+	# nbtagLJMETname = 'NJetsCSV40_MultiLepCalc'
+	# njetsLJMETname = 'NJets40_JetSubCalc'
 	# nbtagLJMETname = 'NJetsCSV50_MultiLepCalc'
 	# njetsLJMETname = 'NJets50_JetSubCalc'
 
