@@ -101,17 +101,22 @@ sys.argv[2],
 ]
 
 isEMlist  = ['E','M']
-nhottlist = ['0','1p']
-nttaglist = ['0p']
-nWtaglist = ['0p']
-nbtaglist = ['2','3','4p']
-njetslist = ['6','7','8','9','10p']
-if not categorize: 	
-	nhottlist = ['0p']
-	nttaglist = ['0p']
-	nWtaglist = ['0p']
-	nbtaglist = ['2p']
-	njetslist = ['4p']
+nhottlist = ['0p'] 
+if region=='SR': nttaglist=['0','1p']
+else: nttaglist = ['0p']
+if region=='TTCR': nWtaglist = ['0p']
+else: nWtaglist = ['0','1p']
+if region=='WJCR': nbtaglist = ['0']
+elif region=='CR': nbtaglist = ['0','0p','1p']
+else: nbtaglist = ['1','2p']
+if region=='PS': njetslist=['3p']
+else: njetslist = ['4p']
+if not categorize:
+    nhottlist = ['0p']
+    nttaglist = ['0p']
+    nWtaglist = ['0p']
+    nbtaglist = ['1p']
+    njetslist = ['3p']
 catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 	
 outDir = outputDir+pfix

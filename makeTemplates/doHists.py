@@ -30,8 +30,8 @@ region = 'PS'
 isCategorized = 0
 doJetRwt= 0
 doAllSys= True
-doHDsys = True
-doUEsys = True
+doHDsys = False
+doUEsys = False
 doPDF = True
 if not doAllSys:
 	doHDsys = False
@@ -39,17 +39,17 @@ if not doAllSys:
 	doPDF = False
 
 isEMlist  = ['E','M']
-nhottlist = ['0','1p']
+nhottlist = ['0p']
 nttaglist = ['0','1p']
 nWtaglist = ['0','1p']
-nbtaglist = ['2','3','4p']
-njetslist = ['4','5','6','7','8','9','10p']
+nbtaglist = ['1','2p']
+njetslist = ['4p']
 if not isCategorized: 
 	nhottlist = ['0p']
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
-	nbtaglist = ['2p']
-	njetslist = ['4p']
+	nbtaglist = ['1p']
+	njetslist = ['3p']
 
 try: 
 	opts, args = getopt.getopt(sys.argv[2:], "", ["iPlot=",
@@ -92,13 +92,11 @@ bkgList = [
 		  'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
 		  'WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800',
 		  
-		  'TTJetsHadTT1b','TTJetsHadTT2b','TTJetsHadTTbb','TTJetsHadTTcc','TTJetsHadTTjj',
-		  'TTJetsSemiLepNjet0TT1b','TTJetsSemiLepNjet0TT2b','TTJetsSemiLepNjet0TTbb','TTJetsSemiLepNjet0TTcc',#'TTJetsSemiLepNjet0TTjj',
-		  'TTJetsSemiLepNjet0TTjj1','TTJetsSemiLepNjet0TTjj2',
-		  'TTJetsSemiLepNjet9TT1b','TTJetsSemiLepNjet9TT2b','TTJetsSemiLepNjet9TTbb','TTJetsSemiLepNjet9TTcc','TTJetsSemiLepNjet9TTjj',
-		  'TTJetsSemiLepNjet9binTT1b','TTJetsSemiLepNjet9binTT2b','TTJetsSemiLepNjet9binTTbb','TTJetsSemiLepNjet9binTTcc','TTJetsSemiLepNjet9binTTjj',
-		  'TTJets2L2nuTT1b','TTJets2L2nuTT2b','TTJets2L2nuTTbb','TTJets2L2nuTTcc','TTJets2L2nuTTjj',
-		  
+          'TTJetsHad0','TTJetsHad700','TTJetsHad1000',
+          'TTJetsSemiLep01','TTJetsSemiLep02','TTJetsSemiLep700','TTJetsSemiLep1000',
+          'TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000',
+          'TTJets700mtt','TTJets1000mtt',
+          		  
 		  'Ts','Tt','Tbt','TtW','TbtW', 
 		  'TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ',
 		  'TTWl','TTZlM10','TTZlM1to10','TTHB','TTHnoB',#'TTWq',
@@ -109,7 +107,7 @@ if year=='R16':
 	bkgList+= ['TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','WJetsMG1200','WJetsMG2500']
 elif year=='R17':
 	bkgList+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004',
-			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs']
+			   'TTJetsSemiLep03','TTJetsSemiLep04','TTJetsSemiLep05','Tbs']
 elif year=='R18':
 	bkgList+= ['WJetsMG1200','WJetsMG2500']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
@@ -117,13 +115,17 @@ ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 #	if 'TTJetsSemiLep' in bkgList[ind]: bkgList[ind]=bkgList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
 dataList = ['DataE','DataM']#,'DataJ']
 
-whichSignal = 'tttt' #HTB, TT, BB, X53 or tttt
-massList = [690]#range(800,1600+1,100)
+whichSignal = 'X53' #HTB, TT, BB, X53 or tttt
+massList = range(900,1800,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='tttt': sigList = [whichSignal]
 if whichSignal=='X53': 
-	sigList = [whichSignal+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
-	sigList+= [whichSignal+'RHM'+str(mass) for mass in range(900,1700+1,100)]
+	if year == 'R17': 
+		sigList = [whichSignal+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
+		sigList+= [whichSignal+'RHM'+str(mass) for mass in range(900,1700+1,100)]
+	elif year == 'R18': 
+		sigList = [whichSignal+'LHM'+str(mass) for mass in [1100,1200,1400,1500,1700]]
+		sigList+= [whichSignal+'RHM'+str(mass) for mass in range(900,1700+1,100)]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 else: decays = [''] #there is only one possible decay mode!
@@ -155,18 +157,14 @@ ueList = [#UE samples
 runData = True
 runBkgs = True
 runSigs = True
-#for ind in range(len(hdampList)):
-#        if 'TTJetsSemiLep' in hdampList[ind]: hdampList[ind]=hdampList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
-#for ind in range(len(ueList)):
-#        if 'TTJetsSemiLep' in ueList[ind]: ueList[ind]=ueList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
-# cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
-cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
-if year=='R16': 
-	cutList['elPtCut'] = 35
-	cutList['muPtCut'] = 26
 
-cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
-cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])
+#X5/3 2016
+cutList = {'lepPtCut':80,'metCut':100,'mtCut':0,'drCut':0,'jet1PtCut':250,'jet2PtCut':150, 'jet3PtCut':0, 'AK4HTCut':510}
+if (region=='SR' or 'CR' in region) and (iPlot=='ST' or iPlot=='HT'):
+    cutList = {'lepPtCut':80,'metCut':100,'mtCut':0,'drCut':1,'jet1PtCut':250,'jet2PtCut':150, 'jet3PtCut':0, 'AK4HTCut':510}
+
+cutString  = 'lep'+str(int(cutList['lepPtCut']))
+cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])+'_DR'+str(cutList['drCut'])
 cutString += '_1jet'+str(int(cutList['jet1PtCut']))+'_2jet'+str(int(cutList['jet2PtCut']))+str(int(cutList['jet3PtCut']))
 
 cTime=datetime.datetime.now()

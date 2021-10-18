@@ -24,8 +24,8 @@ lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
 ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
 ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
 doAllSys = True
-doHDsys = True
-doUEsys = True
+doHDsys = False
+doUEsys = False
 doPDF = True
 addCRsys = False
 systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
@@ -46,9 +46,9 @@ zero = 1E-12
 removeThreshold = 0.015
 removeStatUnc = 0.5
 
-ttbarGrupList = ['ttnobb','ttbb']
-bkgGrupList = ttbarGrupList+['ttH','top','ewk','qcd']
-ttbarProcList = ['ttjj','ttcc','ttbb','tt1b','tt2b']
+ttbarGrupList = []#'ttnobb','ttbb']
+bkgGrupList = ttbarGrupList+['top','ewk','qcd']
+ttbarProcList = ['ttbar']#'ttjj','ttcc','ttbb','tt1b','tt2b']
 bkgProcList = ttbarProcList+['T','TTH','TTV','TTXY','WJets','ZJets','VV','qcd']
 bkgProcs = {}
 bkgProcs['WJets'] = ['WJetsMG200','WJetsMG400','WJetsMG600','WJetsMG800']
@@ -69,20 +69,23 @@ if year=='R16' or year=='R17':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
 elif year=='R18':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
-bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
+bkgProcs['ttnobb'] = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
+bkgProcs['ttbar'] = ['TTJetsHad0','TTJetsHad700','TTJetsHad1000']
+bkgProcs['ttbar']+= ['TTJetsSemiLep01','TTJetsSemiLep02','TTJetsSemiLep700','TTJetsSemiLep1000']
+bkgProcs['ttbar']+= ['TTJets2L2nu0','TTJets2L2nu700','TTJets2L2nu1000']
+bkgProcs['ttbar']+= ['TTJets700mtt','TTJets1000mtt']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 if year=='R17': bkgProcs['T']+= ['Tbs']
 bkgProcs['TTH'] = ['TTHB','TTHnoB']
 bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']
 bkgProcs['qcd'] = ['QCDht200','QCDht300','QCDht500','QCDht700','QCDht1000','QCDht1500','QCDht2000']
-bkgProcs['ttH'] = bkgProcs['TTH']
-bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTV']+bkgProcs['TTXY']#+bkgProcs['TTJets']
+bkgProcs['top'] = bkgProcs['T']+bkgProcs['TTH']+bkgProcs['TTV']+bkgProcs['TTXY']+bkgProcs['ttbar']
 bkgProcs['ewk'] = bkgProcs['WJets']+bkgProcs['ZJets']+bkgProcs['VV']
 dataList = ['DataE','DataM']#,'DataJ']
 
-htProcs = ['ewk','WJets','qcd']
-topptProcs = ['ttjj','ttcc','ttbb','tt1b','tt2b','ttbj','ttnobb']
+htProcs = ['ewk','WJets']#,'qcd']
+topptProcs = ['top','ttbar']#['ttjj','ttcc','ttbb','tt1b','tt2b','ttbj','ttnobb']
 for hf in ['jj','cc','bb','1b','2b']:
 	bkgProcs['tt'+hf+'_hdup'] = ['TTJetsHadHDAMPupTT'+hf,'TTJets2L2nuHDAMPupTT'+hf,'TTJetsSemiLepHDAMPupNjet0TT'+hf,'TTJetsSemiLepHDAMPupNjet9TT'+hf,'TTJetsSemiLepHDAMPupNjet9binTT'+hf]
 	bkgProcs['tt'+hf+'_hddn'] = ['TTJetsHadHDAMPdnTT'+hf,'TTJets2L2nuHDAMPdnTT'+hf,'TTJetsSemiLepHDAMPdnNjet0TT'+hf,'TTJetsSemiLepHDAMPdnNjet9TT'+hf,'TTJetsSemiLepHDAMPdnNjet9binTT'+hf]
@@ -92,13 +95,17 @@ for syst in ['hdup','hddn','ueup','uedn']:
 	bkgProcs['ttbj_'+syst] = bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 	bkgProcs['ttnobb_'+syst] = bkgProcs['ttjj_'+syst] + bkgProcs['ttcc_'+syst]+bkgProcs['tt1b_'+syst] + bkgProcs['tt2b_'+syst]
 
-whichSignal = 'tttt' #HTB, TT, BB, X53 or tttt
-massList = [690]#range(800,1600+1,100)
+whichSignal = 'X53' #HTB, TT, BB, X53 or tttt
+massList = range(900,1800,100)
 sigList = [whichSignal+'M'+str(mass) for mass in massList]
 if whichSignal=='tttt': sigList = [whichSignal]
 if whichSignal=='X53': 
-	sigList = [whichSignal+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
-	sigList+= [whichSignal+'RHM'+str(mass) for mass in range(900,1700+1,100)]
+	if year == 'R17': 
+		sigList = [whichSignal+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
+		sigList+= [whichSignal+'RHM'+str(mass) for mass in range(900,1700+1,100)]
+	elif year == 'R18': 
+		sigList = [whichSignal+'LHM'+str(mass) for mass in [1100,1200,1400,1500,1700]]
+		sigList+= [whichSignal+'RHM'+str(mass) for mass in range(900,1700+1,100)]
 if whichSignal=='TT': decays = ['BWBW','THTH','TZTZ','TZBW','THBW','TZTH'] #T' decays
 elif whichSignal=='BB': decays = ['TWTW','BHBH','BZBZ','BZTW','BHTW','BZBH'] #B' decays
 else: decays = [''] #there is only one possible decay mode!

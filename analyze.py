@@ -42,7 +42,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	njets = catStr.split('_')[5][2:]
 
 	# Define general cuts
-	cut  = '((leptonPt_MultiLepCalc > '+str(cutList['elPtCut'])+' && isElectron==1) || (leptonPt_MultiLepCalc > '+str(cutList['muPtCut'])+' && isMuon==1))'
+	cut  = '(leptonPt_MultiLepCalc > '+str(cutList['lepPtCut'])+')'
 	cut += ' && (corr_met_MultiLepCalc > '+str(cutList['metCut'])+')'
 	cut += ' && (MT_lepMet > '+str(cutList['mtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[0] > '+str(cutList['jet1PtCut'])+')'
@@ -50,6 +50,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[2] > '+str(cutList['jet3PtCut'])+')'
 	cut += ' && (minDR_lepJet > 0.4)'# || ptRel_lepJet > 40)'
 	cut += ' && (AK4HT  > '+str(cutList['AK4HTCut'])+')'
+	if 'CR' in region: 
+		cut += ' && (deltaR_lepJets[1] >= 0.4 && deltaR_lepJets[1] < '+str(cutList['drCut'])+')'
+	else: 
+		cut += ' && (deltaR_lepJets[1] >= '+str(cutList['drCut'])+')' #PS or SR
 	
 	if process.startswith('TTJetsSemiLepNjet0'): cut += ' && (isHTgt500Njetge9 == 0)'
 	if process.startswith('TTJetsSemiLepNjet9'): cut += ' && (isHTgt500Njetge9 == 1)'
@@ -58,12 +62,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	TrigSF   = 'triggerXSF'
 	TrigSFUp = '1'
 	TrigSFDn = '1'
-	#if isEM=='M' or '16' not in year: cut += ' && DataPastTriggerX == 1 && MCPastTriggerX == 1' # CROSS triggers (i.e., VLQ triggers)
 	cut += ' && DataPastTriggerX == 1 && MCPastTriggerX == 1' # CROSS triggers (i.e., VLQ triggers)
-	#cut += ' && DataPastTrigger == 1 && MCPastTrigger == 1' # Lep+Had triggers
-	#cut += ' && DataPastTrigger == 1 && MCLepPastTrigger == 1' # Lep triggers only
-	#cut += ' && DataHadPastTrigger == 1 && MCHadPastTrigger == 1' # Had triggers only
-	#if 'Data' not in process: cut += ' && MCLepPastTrigger == 0' # Had triggers only
 
 	weightStr = '1'
 	#Update here as needed!!!!!!
@@ -404,10 +403,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		# b-tagging:
 		BTAGupName = plotTreeName#.replace('_lepBJets','_bSFup_lepBJets')
 		BTAGdnName = plotTreeName#.replace('_lepBJets','_bSFdn_lepBJets')
-                BTAGCORRupName = plotTreeName#.replace('_lepBJets','_bSFup_lepBJets')
-                BTAGCORRdnName = plotTreeName#.replace('_lepBJets','_bSFdn_lepBJets')
-                BTAGUNCORRupName = plotTreeName#.replace('_lepBJets','_bSFup_lepBJets')
-                BTAGUNCORRdnName = plotTreeName#.replace('_lepBJets','_bSFdn_lepBJets')
+		BTAGCORRupName = plotTreeName#.replace('_lepBJets','_bSFup_lepBJets')
+		BTAGCORRdnName = plotTreeName#.replace('_lepBJets','_bSFdn_lepBJets')
+		BTAGUNCORRupName = plotTreeName#.replace('_lepBJets','_bSFup_lepBJets')
+		BTAGUNCORRdnName = plotTreeName#.replace('_lepBJets','_bSFdn_lepBJets')
 		MISTAGupName = plotTreeName#.replace('_lepBJets','_lSFup_lepBJets')
 		MISTAGdnName = plotTreeName#.replace('_lepBJets','_lSFdn_lepBJets')
 		if 'CSVwithSF' in BTAGupName:# or 'Htag' in BTAGupName or 'MleppB' in BTAGupName or 'BJetLead' in BTAGupName or 'minMlb' in BTAGupName: 

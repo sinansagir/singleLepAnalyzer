@@ -38,7 +38,7 @@ elif year=='R18':
 	from weights18 import *
 
 iPlot=sys.argv[2]
-saveKey = '_2b300GeV3b150GeV4b50GeVbins'
+saveKey = ''
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
@@ -61,15 +61,15 @@ normalizeTheorySystSig = True #normalize renorm/fact, PDF and ISR/FSR systematic
 normalizeTheorySystBkg = False #normalize renorm/fact, PDF and ISR/FSR systematics to nominal templates for backgrounds
 if normalizeTheorySystBkg: saveKey+='_tshape'
 #tttt, X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!
-sigName = 'tttt' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
-massList = [690]
+sigName = 'X53' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
+massList = range(900,1800,100)
 sigProcList = [sigName+'M'+str(mass) for mass in massList]
 if sigName=='tttt': sigProcList = [sigName]
 if sigName=='X53': 
 	sigProcList = [sigName+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
 	sigProcList+= [sigName+'RHM'+str(mass) for mass in range(900,1700+1,100)]
-ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
-bkgProcList = ttProcList + ['ttH','top','ewk','qcd'] #put the most dominant process first
+ttProcList = []#['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
+bkgProcList = ttProcList + ['top','ewk','qcd'] #put the most dominant process first
 removeSystFromYields = ['CSVshapehf','CSVshapelf','hdamp','ue','njet','njetsf'] #list of systematics to be removed from yield errors
 removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
@@ -609,8 +609,8 @@ for rfile in rfiles:
 					hsUp,hsDn = smoothShape(hNm,hUp,hDn,smoothingAlgo,symmetrizeSmoothing)
 					hsUp.Write()
 					hsDn.Write()
-                                        yieldsAll[hsUp.GetName().replace('_sig','_'+rfile.split('_')[-2])] = hsUp.Integral()
-                                        yieldsAll[hsDn.GetName().replace('_sig','_'+rfile.split('_')[-2])] = hsDn.Integral()
+					yieldsAll[hsUp.GetName().replace('_sig','_'+rfile.split('_')[-2])] = hsUp.Integral()
+					yieldsAll[hsDn.GetName().replace('_sig','_'+rfile.split('_')[-2])] = hsDn.Integral()
 					#Add additional shift histograms to be able to uncorrelate them across years
 					newEnameUp = hsUp.GetName().replace(upTag,'_'+year+upTag).replace(downTag,'_'+year+downTag)
 					newEnameDn = hsDn.GetName().replace(upTag,'_'+year+upTag).replace(downTag,'_'+year+downTag)

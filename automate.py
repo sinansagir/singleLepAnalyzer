@@ -6,85 +6,23 @@ trainings=[
 
 {
 'year':'R17',
-'variable':['BDT','HT'],
-'postfix':'66vars_4j_pt20',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_66vars_mDepth2_4j_year2017/'
-},
-{
-'year':'R17',
-'variable':['BDT','HT'],
-'postfix':'66vars_6j_pt20',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_66vars_mDepth2_6j_year2017/'
-},
-{
-'year':'R17',
-'variable':['BDT','HT'],
-'postfix':'73vars_4j_pt20',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_73vars_mDepth2_4j_year2017/'
-},
-{
-'year':'R17',
-'variable':['BDT','HT'],
-'postfix':'73vars_6j_pt20',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_73vars_mDepth2_6j_year2017/'
-},
-
-{
-'year':'R18',
-'variable':['BDT','HT'],
-'postfix':'66vars_4j_pt20',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_66vars_mDepth2_4j_year2018/'
-},
-{
-'year':'R18',
-'variable':['BDT','HT'],
-'postfix':'66vars_6j_pt20',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_66vars_mDepth2_6j_year2018/'
-},
-{
-'year':'R18',
-'variable':['BDT','HT'],
-'postfix':'73vars_4j_pt20',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_73vars_mDepth2_4j_year2018/'
-},
-{
-'year':'R18',
-'variable':['BDT','HT'],
-'postfix':'73vars_6j_pt20',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_08262020_step3_wenyu/BDT_SepRank6j73vars2017year_73vars_mDepth2_6j_year2018/'
-},
-
-{
-'year':'R18',
 'variable':['HT'],
-'postfix':'HEM1516_201108',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_hem_110720_step1hadds/'
+'postfix':'211018',
+'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2017_Oct2019_X53_061321_step1hadds/'
 },
 {
 'year':'R18',
 'variable':['HT'],
-'postfix':'HEM1516syst_201108',
-'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_4t_072820_step1hadds/'
+'postfix':'211018',
+'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep2018_Oct2019_X53_061321_step1hadds/'
 },
 
 ]
 
 combinations = [
 {
-	'variable':'BDT',
-	'postfix':'66vars_4j_pt20'
-},
-{
-	'variable':'BDT',
-	'postfix':'66vars_6j_pt20'
-},
-{
-	'variable':'BDT',
-	'postfix':'73vars_4j_pt20'
-},
-{
-	'variable':'BDT',
-	'postfix':'73vars_6j_pt20'
+	'variable':'HT',
+	'postfix':'211018'
 }
 ]
 

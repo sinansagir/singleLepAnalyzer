@@ -39,20 +39,20 @@ isRebinned='_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
-sig='tttt' #  choose the 1st signal to plot
-sigleg='t#bar{t}t#bar{t}'
+sig='X53LHM1100' #M1100' #'X53X53'#'tttt' #  choose the 1st signal to plot
+sigleg='X_{5/3}#bar{X}_{5/3} LH (1.1 TeV)'#'t#bar{t}t#bar{t}'
 scaleSignalsToXsec = False # !!!!!Make sure you know signal x-sec used in input files to this script. If this is True, it will scale signal histograms by x-sec in weights.py!!!!!
 scaleSignals = False
 sigScaleFact = 10 #put -1 if auto-scaling wanted
 useCombineTemplates = True
 sigfile='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
+ttProcList = []#'ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 if iPlot=='HTYLD': 
-	ttProcList = ['ttbb','ttnobb']
+	ttProcList = []#'ttbb','ttnobb']
 	useCombineTemplates = False
 	scaleSignals = True
-bkgProcList = ttProcList+['ttH','top','ewk','qcd']
+bkgProcList = ttProcList+['top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
@@ -62,7 +62,7 @@ systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp'
 #systematicList+= ['CSVshapelf','CSVshapehf']
 if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
-useSmoothShapes = True
+useSmoothShapes = False
 if not isCategorized: useSmoothShapes = False
 doAllSys = True
 addCRsys = False
