@@ -6,9 +6,9 @@ from numpy import linspace
 parent = os.path.dirname(os.getcwd())
 thisdir= os.path.dirname(os.getcwd()+'/')
 sys.path.append(parent)
-from weights import *
+#from weights import *
 from analyze import *
-from samples import *
+#from samples import *
 from utils import *
 
 """
@@ -29,7 +29,7 @@ iPlot = 'HT' #choose a discriminant from plotList below!
 region = 'PS'
 isCategorized = 0
 doJetRwt= 0
-doAllSys= True
+doAllSys= False
 doHDsys = False
 doUEsys = False
 doPDF = True
@@ -81,8 +81,18 @@ for opt, arg in opts:
 	elif opt == '--nbtag': nbtaglist = [str(arg)]
 	elif opt == '--njets': njetslist = [str(arg)]
 
+if year=='R16':
+	from weights16 import *
+	from samples16 import *
+elif year=='R17':
+	from weights17 import *
+	from samples17 import *
+elif year=='R18':
+	from weights18 import *
+	from samples18 import *
+
 lumiStr = str(targetlumi/1000).replace('.','p') # 1/fb
-step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep'+year+'_Oct2019_4t_031920_step1hadds/nominal'
+step1Dir = '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+year[1:]+'_Oct2019_X53_061321_step1hadds/nominal'
 
 bkgList = [
 		  'DYMG200','DYMG400','DYMG600','DYMG800','DYMG1200','DYMG2500',
@@ -310,7 +320,7 @@ tFileData = {}
 catInd = 1
 for cat in catList:
 	if not runData: break
-	catDir = catList[2:]
+	catDir = cat[2:]
 	datahists = {}
 	if len(sys.argv)>1: outDir=sys.argv[1]
 	else: 
@@ -335,7 +345,7 @@ tFileBkg = {}
 catInd = 1
 for cat in catList:
 	if not runBkgs: break
-	catDir = catList[2:]
+	catDir = cat[2:]
 	bkghists  = {}
 	if len(sys.argv)>1: outDir=sys.argv[1]
 	else: 
@@ -391,7 +401,7 @@ tFileSig = {}
 catInd = 1
 for cat in catList:
 	if not runSigs: break
-	catDir = catList[2:]
+	catDir = cat[2:]
 	sighists  = {}
 	if len(sys.argv)>1: outDir=sys.argv[1]
 	else:
