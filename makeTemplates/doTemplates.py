@@ -28,7 +28,7 @@ doHDsys = False
 doUEsys = False
 doPDF = True
 addCRsys = False
-systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
+systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','btagcorr','btaguncorr','mistag','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']#,'hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'ht','trigeff','toppt'
 #systematicList+= ['CSVshapelf','CSVshapehf']
 systematicList+= ['JEC','JER']#,
 # 'JEC_Total','JEC_FlavorQCD',

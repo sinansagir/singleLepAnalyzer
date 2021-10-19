@@ -58,7 +58,7 @@ elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt']
 #systematicList+= ['CSVshapelf','CSVshapehf']
 if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
@@ -252,6 +252,8 @@ for catEStr in catsElist:
 	systematicList_ = systematicList[:]
 	if 'nB0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
 	if 'nHOT0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['hotstat','hotcspur','hotclosure']
+	if 'nT0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['tau32','jmst','jmrt']
+	if 'nW0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['tau21','jmsW','jmrW','tau21pt']
 	if useSmoothShapes: systematicList_ = ['lowess'+syst for syst in systematicList_]
 	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]
 	for isEM in isEMlist:
