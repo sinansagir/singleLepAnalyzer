@@ -33,7 +33,8 @@ combinations = [
 #4 dataCard + limit + significance
 #5 combination limit + significance
 #6 print results
-step=1
+step=4
+myconfig = '_RH'
 
 if step==1:
 	os.chdir('makeTemplates')
@@ -115,7 +116,7 @@ if step==4:
 	os.chdir('combineLimits')
 	for train in trainings:
 		for v in train['variable']:
-			shell_name = 'cfg/condor_step4_'+train['year']+'_'+train['postfix']+'_'+v+'.sh'
+			shell_name = 'cfg/condor_step4_'+train['year']+'_'+train['postfix']+myconfig+'_'+v+'.sh'
 			shell=open(shell_name,'w')
 			shell.write(
 '#!/bin/bash\n\
@@ -123,13 +124,16 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
 cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
-python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
-cd limits_'+train['year']+'_'+train['postfix']+'_'+v+'\n\
-combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig.txt\n\
-combine -M AsymptoticLimits cmb/workspace.root --run=blind --cminDefaultMinimizerStrategy 0 &> asy.txt\n\
+python dataCard.py '+train['year']+' '+v+' '+train['postfix']+' '+myconfig+'\n\
+cd limits_'+train['year']+'_'+train['postfix']+myconfig+'_'+v+'\n\
+combineTool.py -M Significance -d cmb/*/workspace.root --there -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 -n .sig --parallel 4\n\
+combineTool.py -M Significance -d cmb/*/workspace.root --there -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 -n .sig --parallel 4\n\
+combineTool.py -M AsymptoticLimits -d cmb/*/workspace.root --there --run=blind --cminDefaultMinimizerStrategy 0 -n .limit --parallel 4\n\
+combineTool.py -M CollectLimits */*/*.limit.* --use-dirs -o limits.json\n\
+combineTool.py -M CollectLimits */*/*.sig.* --use-dirs -o sigs.json\n\
 cd ..\n')
 			shell.close()
-			jdf_name = 'cfg/condor_step4_'+train['year']+'_'+train['postfix']+'_'+v+'.job'
+			jdf_name = 'cfg/condor_step4_'+train['year']+'_'+train['postfix']+myconfig+'_'+v+'.job'
 			jdf=open(jdf_name,'w')
 			jdf.write(
 'universe = vanilla\n\
@@ -152,8 +156,8 @@ if step==5:
 	os.chdir('combineLimits')
 	for c in combinations:
 		for v in c['variable']:
-			combo=c['postfix']+'_'+v
-			shell_name = 'cfg/condor_step5_'+combo+'.sh'
+			combo=c['postfix']+myconfig+'_'+v
+			shell_name = 'cfg/condor_step5_'+combo+'_R17p18.sh'
 			shell=open(shell_name,'w')
 			shell.write(
 '#!/bin/bash\n\
@@ -161,12 +165,12 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
 cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
-combineCards.py R17=limits_R17_'+combo+'/cmb/combined.txt.cmb R18=limits_R18_'+combo+'/cmb/combined.txt.cmb &> BDTcomb/'+combo+'.txt\n\
-text2workspace.py  BDTcomb/'+combo+'.txt  -o BDTcomb/'+combo+'.root\n\
-combine -M Significance BDTcomb/'+combo+'.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_'+combo+'.txt\n\
-combine -M AsymptoticLimits BDTcomb/'+combo+'.root --run=blind --cminDefaultMinimizerStrategy 0 &> BDTcomb/asy_'+combo+'.txt\n')
+combineCards.py R17=limits_R17_'+combo+'/cmb/combined.txt.cmb R18=limits_R18_'+combo+'/cmb/combined.txt.cmb &> HTcomb/'+combo+'_R17p18.txt\n\
+text2workspace.py  HTcomb/'+combo+'_R17p18.txt  -o HTcomb/'+combo+'_R17p18.root\n\
+combine -M Significance HTcomb/'+combo+'_R17p18.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> HTcomb/sig_exp_'+combo+'_R17p18.txt\n\
+combine -M AsymptoticLimits HTcomb/'+combo+'_R17p18.root --cminDefaultMinimizerStrategy 0 &> HTcomb/asy_'+combo+'_R17p18.txt\n')
 			shell.close()
-			jdf_name = 'cfg/condor_step5_'+combo+'.job'
+			jdf_name = 'cfg/condor_step5_'+combo+'_R17p18.job'
 			jdf=open(jdf_name,'w')
 			jdf.write(
 'universe = vanilla\n\

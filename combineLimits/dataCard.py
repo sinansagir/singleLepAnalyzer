@@ -9,14 +9,15 @@ sys.path.append(parent)
 from utils import *
 gROOT.SetBatch(1)
 
-def add_processes_and_observations(cb, prefix='tttt'):
+def add_processes_and_observations(cb, prefix='X53LH'):
 	print '>> Creating processes and observations...'
+	if prefix!='tttt' and not prefix.endswith('M'): prefix+='M'
 	for chn in chns:
 		cats_chn = cats[chn]
 		if 'isCR' not in chn:
 			cb.AddObservations(  ['*'],  [prefix], [era], [chn],                 cats_chn      )
 			cb.AddProcesses(     ['*'],  [prefix], [era], [chn], bkg_procs[chn], cats_chn, False  )
-			cb.AddProcesses(     [''], [prefix], [era], [chn], sig_procs,      cats_chn, True   )
+			cb.AddProcesses(     masses, [prefix], [era], [chn], sig_procs,      cats_chn, True   )
 		else:
 			cb.AddObservations(  ['all'],  [prefix], [era], [chn],                 cats_chn      )
 			cb.AddProcesses(     ['all'],  [prefix], [era], [chn], bkg_procs[chn], cats_chn, False  )
@@ -80,8 +81,8 @@ def add_standard_systematics(cb):
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.01)(['R17'], 1.02)(['R18'], 1.015)) # Uncorrelated part
 	if era!='R16': cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_R1718', 'lnN', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.006)(['R18'], 1.002)) # 2017 and 2018 correlated part
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_Run2', 'lnN', ch.SystMap('era')(['R16'], 1.006)(['R17'], 1.009)(['R18'], 1.02)) # Full correlated part
-	cb.cp().process(signal + allbkgs).channel(chnsE).AddSyst(cb, 'SFel_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.05)(['R17'], 1.05)(['R18'], 1.05)) # 1.5% el id/iso + 2.5% trigger ~ 3%, doubled trigger uncertainty during OR
-	cb.cp().process(signal + allbkgs).channel(chnsM).AddSyst(cb, 'SFmu_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.05)(['R17'], 1.05)(['R18'], 1.05)) # 1% mu id/iso + 2.5% trigger ~ 3%, doubled trigger uncertainty during OR
+	cb.cp().process(signal + allbkgs).channel(chnsE).AddSyst(cb, 'SFel_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.03)(['R17'], 1.03)(['R18'], 1.03)) # 1.5% el id/iso + 2.5% trigger ~ 3%, doubled trigger uncertainty during OR
+	cb.cp().process(signal + allbkgs).channel(chnsM).AddSyst(cb, 'SFmu_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.03)(['R17'], 1.03)(['R18'], 1.03)) # 1% mu id/iso + 2.5% trigger ~ 3%, doubled trigger uncertainty during OR
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'JEC_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # This one is being studied in B2G-19-001/AN2018_322_v7 (take the uncorrelated one to be conservative!)
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'JER_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	if era!='R18':
@@ -93,6 +94,13 @@ def add_standard_systematics(cb):
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotstat_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotcspur_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
 	cb.cp().process(signal + allbkgs).channel(chnsHOT).AddSyst(cb, smoothAlgo+'hotclosure_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Use same logic as b-tagging?
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'tau32', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) #ALl background no QCD?
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'tau21', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'tau21pt', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jmst', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) 
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jmsW', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jmrt', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'jmrW', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0))
 	#cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btag_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
 	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btagcorr', 'shape', ch.SystMap()(1.0)) # New year-to-year correlation
 	cb.cp().process(signal + allbkgs).channel(chnsB).AddSyst(cb, smoothAlgo+'btaguncorr_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # New year-to-year correlation
@@ -106,15 +114,15 @@ def add_standard_systematics(cb):
 			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'muRF_'+proc, 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
 			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'isr_'+proc, 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 			cb.cp().process([proc]).channel(chns).AddSyst(cb, smoothAlgo+'fsr_'+proc, 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
-	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'muRF_tttt', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
-	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'isr_tttt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
-	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'fsr_tttt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
-	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'pdf', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7
+# 	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'muRF_sig', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7 
+# 	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'isr_sig', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+# 	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'fsr_sig', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
+# 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'pdf', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7
 	#cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.945,1.048])) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
-	cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.91,1.11])) # hDamp uncertainty of +10/-7% added in quadrature with the x-sec uncertainty (+4.8/-5.5%)
-	cb.cp().process(['ewk']).channel(chns).AddSyst(cb, 'xsec_ewk', 'lnN', ch.SystMap()(1.038)) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
-	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'xsec_top', 'lnN', ch.SystMap()(1.04)) # ttV,ttH, and tt+XY uncertainties are 50% in OSDL and SSDL analyses, so aligning it with this inflated uncertainty.
-	cb.cp().process(['ttH']).channel(chns).AddSyst(cb, 'xsec_ttH', 'lnN', ch.SystMap()(1.2)) # Based on agreement with others in 15APR21 4tops meeting
+# 	cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.91,1.11])) # hDamp uncertainty of +10/-7% added in quadrature with the x-sec uncertainty (+4.8/-5.5%)
+# 	cb.cp().process(['ewk']).channel(chns).AddSyst(cb, 'xsec_ewk', 'lnN', ch.SystMap()(1.038)) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
+# 	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'xsec_top', 'lnN', ch.SystMap()(1.04)) # ttV,ttH, and tt+XY uncertainties are 50% in OSDL and SSDL analyses, so aligning it with this inflated uncertainty.
+	#cb.cp().process(['ttH']).channel(chns).AddSyst(cb, 'xsec_ttH', 'lnN', ch.SystMap()(1.2)) # Based on agreement with others in 15APR21 4tops meeting
 	#cb.cp().process(['ttH']).channel(chns).AddSyst(cb, 'xsec_ttH', 'lnN', ch.SystMap()(1.5)) # ttV,ttH, and tt+XY uncertainties are 50% in OSDL and SSDL analyses, so aligning it with this inflated uncertainty.
 	#cb.cp().process(['ttH']).channel(chns).AddSyst(cb, 'xsec_ttH', 'lnN', ch.SystMap()([0.90,1.07])) # HIG-19-011 (ttH full Run2) AN-2019/094 Tables 79-80 report +5.8%/-9.2% for scale and 3.6% for PDF, based on https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt13TeV#ttH_Process. This twiki scale uncertainty is in line with LHC Higgs cross sections report: https://arxiv.org/pdf/1610.07922.pdf (Table 36).
 	# Additional TOP bkg group x-sec uncertainties tested:
@@ -223,9 +231,10 @@ def create_workspace(cb):
 	print '>> Creating workspace...'
 	
 	for chn in ['cmb']:#+chns:
-		chnDir = os.getcwd()+'/limits_'+template+saveKey+'/'+chn+'/'
-		cmd = 'combineTool.py -M T2W -i '+chnDir+' -o workspace.root --parallel 4'
-		os.system(cmd)
+		for mass in masses:
+			chnDir = os.getcwd()+'/limits_'+template+saveKey+'/'+chn+'/'+mass
+			cmd = 'combineTool.py -M T2W -i '+chnDir+' -o workspace.root --parallel 4'
+			os.system(cmd)
 		
 
 def go(cb):
@@ -251,17 +260,17 @@ if __name__ == '__main__':
 	if era=='R16': lumiStr = '35p867fb'
 	elif era=='R17': lumiStr = '41p53fb'
 	elif era=='R18': lumiStr = '59p97fb'
-	smoothAlgo = 'lowess' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
+	smoothAlgo = '' #leave empty if smoothed shapes are not wanted, else enter 'lowess', 'super', or 'kern'
 	tag = ''#'_2b300GeV3b150GeV4b50GeVbins'
-	saveKey = '_ttH20_'+iPlot
+	saveKey = '_RH_'+iPlot
 	fileDir = '../makeTemplates/'
 	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)
 	os.system('cp '+fileDir+'templates_'+template+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3.root ./limits_'+template+saveKey+'/')
 	rfile = './limits_'+template+saveKey+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3.root'
 	
-	ttbkgs = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
-	allbkgs = ttbkgs + ['ttH','top','ewk','qcd']
+	ttbkgs = []#['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
+	allbkgs = ttbkgs + ['top','ewk','qcd']
 	dataName = 'data_obs'
 	mRFnorm = {'ttnobb':1.36,'ttbb':1.36,'top':1.47,'ewk':1.31,'qcd':1.38}
 	ISRnorm = {'ttnobb':1.17,'ttbb':1.15,'top':1.16,'ewk':1.00,'qcd':1.11}
@@ -287,10 +296,16 @@ if __name__ == '__main__':
 # 	if era=='R18':
 # 		bkg_procs['isSR_isE_nHOT1p_nT0p_nW0p_nB4p_nJ9']=['ttbb', 'ttcc', 'ttjj', 'top']
 	
-	sig_procs = ['tttt']
+	signal = 'X53RH'	
+	sig_procs = [signal]
+	if signal!='tttt':sig_procs = [signal+'M']#['tttt']
 	
 	cats = {}
 	for chn in chns: cats[chn] = [(0, '')]
 	
 	masses = ch.ValsFromRange('690')
+	if signal.endswith('LH'): 
+		if era == 'R18': masses = ch.ValsFromRange('1100,1200,1400,1500,1700')
+		if era == 'R17': masses = ch.ValsFromRange('1100,1200,1400,1700')
+	if signal.endswith('RH'): masses = ch.ValsFromRange('900:1700|100')
 	go(cb)
