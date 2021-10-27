@@ -13,19 +13,21 @@ gROOT.SetBatch(1)
 start_time = time.time()
 
 year=sys.argv[1]
-saveKey = ''#'_ttH'
+saveKey = ''#'_ttB'
 cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
 theDir = 'templates_'+year+'_'+sys.argv[2]
 outDir = os.getcwd()+'/'+theDir+'/'+cutString
 
+use_ttBsamples = False
 writeSummaryHists = True
 scaleSignalXsecTo1pb = False # !!!!!Make sure you know signal x-sec used in input files to this script. If this is True, it will scale signal histograms by 1/x-sec in weights.py!!!!!
 lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
 ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
 ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
+if use_ttBsamples: ttHFsf = 1
 doAllSys = True
-doHDsys = True
-doUEsys = True
+doHDsys = False
+doUEsys = False
 doPDF = True
 addCRsys = False
 systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
@@ -61,15 +63,25 @@ bkgProcs['VV']     = ['WW','WZ','ZZ']
 TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9','TTJetsSemiLepNjet9bin']
 bkgProcs['tt1b']  = [tt+'TT1b' for tt in TTlist]
 bkgProcs['tt2b']  = [tt+'TT2b' for tt in TTlist]
-bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
+if use_ttBsamples:
+	bkgProcs['tt1b']  = [tt.replace('TTJets','TTbb4f')+'TT1b' for tt in TTlist if tt!='TTJetsSemiLepNjet9bin']
+	bkgProcs['tt2b']  = [tt.replace('TTJets','TTbb4f')+'TT2b' for tt in TTlist if tt!='TTJetsSemiLepNjet9bin']
+	bkgProcs['ttbb']  = [tt.replace('TTJets','TTbb4f')+'TTbb' for tt in TTlist if tt!='TTJetsSemiLepNjet9bin']
+bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
 if year=='R18':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
 else:
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
-bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
+bkgProcs['ttnobb'] = bkgProcs['ttjj'] + bkgProcs['ttcc']
+if use_ttBsamples: 
+	bkgProcs['ttbb'] += bkgProcs['tt1b'] + bkgProcs['tt2b']
+else: 
+	bkgProcs['ttnobb'] += bkgProcs['tt1b'] + bkgProcs['tt2b']
+# bkgProcs['ttnobb'] = bkgProcs['ttjj'] + bkgProcs['ttcc']
+# bkgProcs['ttbb'] += bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 if year!='R16': bkgProcs['T']+= ['Tbs']
 bkgProcs['TTH'] = ['TTHB','TTHnoB']
