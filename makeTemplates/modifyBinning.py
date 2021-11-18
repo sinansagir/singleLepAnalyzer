@@ -43,7 +43,7 @@ saveKey = ''
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]+'/'+cutString
-combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
+combinefile = 'templates_'+iPlot+'_'+lumiStr+'_new.root'
 # combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 blindBDT = False
@@ -85,7 +85,7 @@ removeSystFromYields+= ['PSwgt'] #remove if envelope method is not used, otherwi
 removeSystFromYields+= ['btag'] #remove if year-to-year correlation is used, otherwise replace with ['btagcorr','btaguncorr']
 
 minNbins=1 #min number of bins to be merged
-stat = 1.1 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
+stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if 'kinematics' in templateDir: 
 	stat = 1.1
 	doSmoothing = False
@@ -266,7 +266,9 @@ for chn in totBkgHists.keys():
 			# if nBinsMerged<minNbins or \
 			# ('_nB2_' in chn and nBinsMerged<24 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')) or \
 			# ('_nB3_' in chn and nBinsMerged<12 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')): continue
-			if totTempBinContent_E>0. and totTempBinContent_M>0.:
+			
+			# if totTempBinContent_E>0. and totTempBinContent_M>0.:
+			if totTempBinContent_E>9.99 and totTempBinContent_M>9.99 and totDataTempBinContent_E>0.99 and totDataTempBinContent_M>0.99:
 				if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
 					totTempBinContent_E = 0.
 					totTempBinContent_M = 0.
@@ -333,6 +335,7 @@ if rebinYear!=year: #if binning requested w.r.t. another year, now we get back t
 
 iRfile=0
 yieldsAll = {}
+yieldsUAll = {}
 yieldsErrsAll = {}
 nBBnuis = {}
 nBBnuis['bkg'] = 0
@@ -345,6 +348,8 @@ for rfile in rfiles:
 	outputRfiles[iRfile] = TFile(rfile.replace('.root',saveKey+'_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
 
 	print "PROGRESS:"
+	nbinslist={}
+	nunweighted={}
 	for chn in channels:
 		print "         ",chn,gettime()
 		rebinnedHists = {}
@@ -391,6 +396,8 @@ for rfile in rfiles:
 			yieldHistName = hist
 			if not rebinCombine: yieldHistName = hist.replace('_sig','_'+rfile.split('_')[-2])
 			yieldsAll[yieldHistName] = rebinnedHists[hist].Integral()
+			yieldsUAll[yieldHistName] = rebinnedHists[hist].GetEntries()
+			nbinslist[chn]= rebinnedHists[hist].GetNbinsX()
 			yieldsErrsAll[yieldHistName] = 0.
 			for ibin in range(1,rebinnedHists[hist].GetXaxis().GetNbins()+1):
 				yieldsErrsAll[yieldHistName] += rebinnedHists[hist].GetBinError(ibin)**2
@@ -488,7 +495,7 @@ for rfile in rfiles:
 			newMuRFName = 'muRF'
 			for hist in muRUphists:
 				proc_ = hist.split('__')[1]
-				if proc_ in ttProcList: proc_ = 'tt'
+				# if proc_ in ttProcList: proc_ = 'tt'
 				muRFUpHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+upTag))
 				muRFDnHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+downTag))
 				histList = [
@@ -540,7 +547,7 @@ for rfile in rfiles:
 			newPSwgtName = 'PSwgt'
 			for hist in isrUphists:
 				proc_ = hist.split('__')[1]
-				if proc_ in ttProcList: proc_ = 'tt'
+				# if proc_ in ttProcList: proc_ = 'tt'
 				PSwgtUpHist = rebinnedHists[hist].Clone(hist.replace('isr'+upTag,newPSwgtName+upTag))
 				PSwgtDnHist = rebinnedHists[hist].Clone(hist.replace('isr'+upTag,newPSwgtName+downTag))
 				histList = [
@@ -775,7 +782,7 @@ def getShapeSystUnc(proc,chn):
 
 table = []
 exceltable = {}
-exceltable['YIELDS'] = [proc for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList]
+exceltable['YIELDS'] = [proc for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList] + ['Nunwghtevt','Nbin']
 for chn in channels: exceltable[chn] = []
 
 for isEM in isEMlist:
@@ -789,7 +796,7 @@ for isEM in isEMlist:
 					table.append(['',isEM+'_'+nhott+'_'+nttag+'_'+nWtag+'_'+nbtag+'_yields'])
 					table.append(['break'])
 					table.append(['YIELDS']+[chn for chn in channels if isEM in chn and nhott+'_' in chn and nttag+'_' in chn and nWtag+'_' in chn and nbtag+'_' in chn]+['\\\\'])
-					for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList:
+					for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList:#+ ['Nunwghtevt','Nbin']:
 						row = [procNames[proc]]
 						for chn in channels:
 							if not (isEM in chn and nhott+'_' in chn and nttag+'_' in chn and nWtag+'_' in chn and nbtag+'_' in chn): continue
@@ -801,6 +808,7 @@ for isEM in isEMlist:
 								for bkg in bkgProcList:
 									try:
 										yieldtemp += yieldsAll[histoPrefix+bkg]
+										yieldutemp += yieldsUAll[histoPrefix+bkg]
 										yielderrtemp += yieldsErrsAll[histoPrefix+bkg]**2
 										yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldsAll[histoPrefix+bkg])**2
 										yielderrtemp += (getShapeSystUnc(bkg,chn)*yieldsAll[histoPrefix+bkg])**2
@@ -836,6 +844,17 @@ for isEM in isEMlist:
 								exceltable[chn].append(str(yieldtemp)+' $\pm$ '+str(yielderrtemp))
 						row.append('\\\\')
 						table.append(row)
+					for chn in channels:
+						if not (isEM in chn and nhott+'_' in chn and nttag+'_' in chn and nWtag+'_' in chn and nbtag+'_' in chn): continue
+						histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
+						yieldutemp = 0.
+						for bkg in bkgProcList:
+							try:
+								yieldutemp += yieldsUAll[histoPrefix+bkg]
+							except:
+								pass
+						exceltable[chn].append(yieldutemp)
+						exceltable[chn].append(nbinslist[chn])
 					iSig = 0
 					for sig in sigProcList:
 						row=['S/$\sigma_{B}$'+sig]

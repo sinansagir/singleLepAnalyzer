@@ -51,7 +51,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	cut += ' && (minDR_lepJet > 0.4)'# || ptRel_lepJet > 40)'
 	cut += ' && (AK4HT  > '+str(cutList['AK4HTCut'])+')'
 	
-	# cut += ' && (nPV_MultiLepCalc>=25)'
+	cut += ' && (nPV_MultiLepCalc>=25)'
 	# cut += ' && (nPV_MultiLepCalc<25)'
 
 	if process.startswith('TTJetsSemiLepNjet0'): cut += ' && (isHTgt500Njetge9 == 0)'

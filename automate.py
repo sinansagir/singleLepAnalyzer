@@ -5,7 +5,7 @@ cmsswbase = '/home/eusai/4t/CMSSW_10_2_16_UL/src'
 
 trainings=[]
 
-years=['18']#['16','17','18']#['16','17','18']#,16]
+years=['16','17','18']#['16','17','18']#,16]
 prod={
 '16':'Oct2019',
 '17':'Oct2019',
@@ -95,74 +95,74 @@ prod={
 
 # vrs=['BDT','NJetsCSV_MultiLepCalc','NJets_JetSubCalc','thirdcsvb_bb','fourthcsvb_bb']
 
-vrs=[
-'BDT_tt','BDT_ttH','BDT_ttbb',
+# vrs=[
+# 'BDT_tt','BDT_ttH','BDT_ttbb',
 
-'BDTsum',#BDT_tt + BDT_ttH + BDT_ttbb
-'BDTprod',#(1+BDT_tt) * (1+BDT_ttH) * (1+BDT_ttbb)
+# 'BDTsum',#BDT_tt + BDT_ttH + BDT_ttbb
+# 'BDTprod',#(1+BDT_tt) * (1+BDT_ttH) * (1+BDT_ttbb)
 
-'BDTtt+tth',#BDT_tt+BDT_ttH
-'BDTtth+ttbb',#BDT_ttH+BDT_ttbb
-'BDTtt+ttbb',#BDT_tt+BDT_ttbb
+# 'BDTtt+tth',#BDT_tt+BDT_ttH
+# 'BDTtth+ttbb',#BDT_ttH+BDT_ttbb
+# 'BDTtt+ttbb',#BDT_tt+BDT_ttbb
 
-'BDTtt*tth',#BDT_tt*BDT_ttH
-'BDTtth*ttbb',#BDT_ttH*BDT_ttbb
-'BDTtt*ttbb',#BDT_tt*BDT_ttbb
+# 'BDTtt*tth',#BDT_tt*BDT_ttH
+# 'BDTtth*ttbb',#BDT_ttH*BDT_ttbb
+# 'BDTtt*ttbb',#BDT_tt*BDT_ttbb
 
-'BDTtt+tthVSttbb',#BDT_tt+BDT_ttH vs BDT_ttbb
-'BDTtth+ttbbVStt',#BDT_tt vs BDT_ttH+BDT_ttbb
-'BDTtt+ttbbVStth',#BDT_tt+BDT_ttbb vs BDT_ttH 
+# 'BDTtt+tthVSttbb',#BDT_tt+BDT_ttH vs BDT_ttbb
+# 'BDTtth+ttbbVStt',#BDT_tt vs BDT_ttH+BDT_ttbb
+# 'BDTtt+ttbbVStth',#BDT_tt+BDT_ttbb vs BDT_ttH 
 
-'BDTtt*tthVSttbb',#(1+BDT_tt)*(1+BDT_ttH) vs (1+BDT_ttbb)
-'BDTtth*ttbbVStt',#(1+BDT_tt) vs (1+BDT_ttH)*(1+BDT_ttbb)
-'BDTtt*ttbbVStth',#(1+BDT_tt)*(1+BDT_ttbb) vs (1+BDT_ttH)  
+# 'BDTtt*tthVSttbb',#(1+BDT_tt)*(1+BDT_ttH) vs (1+BDT_ttbb)
+# 'BDTtth*ttbbVStt',#(1+BDT_tt) vs (1+BDT_ttH)*(1+BDT_ttbb)
+# 'BDTtt*ttbbVStth',#(1+BDT_tt)*(1+BDT_ttbb) vs (1+BDT_ttH)  
 
-'LBDT',#L(BDT_tt)*L(BDT_ttH)*L(BDT_ttbb)
-'LBDTtt*tthVSttbb',#L(BDT_tt)*L(BDT_ttH) vs L(BDT_ttbb)
-'LBDTtth*ttbbVStt',#L(BDT_tt) vs L(BDT_ttH)*L(BDT_ttbb)
-'LBDTtt*ttbbVStth',#L(BDT_tt)*L(BDT_ttbb) vs L(BDT_ttH) 
-]
-# vrs=['BDT',
-# 'NJets_JetSubCalc',
-# 'fourthcsvb_bb',
-# 'thirdcsvb_bb',
-# 'sixthJetPt',
-# 'ratio_HTdHT4leadjets',
-# 'BDTtrijet2',
-# 'AK4HTpMETpLepPt',
-# 'AK4HT',
-# 'fifthJetPt',
-# 'NJetsCSV_MultiLepCalc',
-# 'PtFifthJet',
-# 'hemiout',
-# 'HT_2m',
-# 'BDTtrijet3',
-# 'M_allJet_W',
-# 'HT_bjets',
-# 'FW_momentum_6',
-# 'secondJetPt',
-# 'NresolvedTops1pFake',
-# 'FW_momentum_5',
-# 'mass_lepBJet0',
-# 'MT_lepMet',
-# 'NJetsTtagged',
-# 'FW_momentum_4',
-# 'HOTGoodTrijet2_pTratio',
-# 'HOTGoodTrijet2_dRtrijetJetnotdijet',
-# 'HOTGoodTrijet2_dijetmass',
-# 'HOTGoodTrijet2_mass',
-# 'deltaR_minBB',
-# 'HOTGoodTrijet2_dRtridijet',
-# 'HOTGoodTrijet2_csvJetnotdijet',
-# 'BDTtrijet1',
-# 'Aplanarity',
-# 'mass_maxBBmass',
-# 'corr_met_MultiLepCalc',
-# 'theJetLeadPt',
-# 'BJetLeadPt',
-# 'mass_lepBJet_mindr',
-# 'Sphericity',
-# 'HOTGoodTrijet1_mass']
+# 'LBDT',#L(BDT_tt)*L(BDT_ttH)*L(BDT_ttbb)
+# 'LBDTtt*tthVSttbb',#L(BDT_tt)*L(BDT_ttH) vs L(BDT_ttbb)
+# 'LBDTtth*ttbbVStt',#L(BDT_tt) vs L(BDT_ttH)*L(BDT_ttbb)
+# 'LBDTtt*ttbbVStth',#L(BDT_tt)*L(BDT_ttbb) vs L(BDT_ttH) 
+# ]
+vrs=['BDT',
+'NJets_JetSubCalc',
+'fourthcsvb_bb',
+'thirdcsvb_bb',
+'sixthJetPt',
+'ratio_HTdHT4leadjets',
+'BDTtrijet2',
+'AK4HTpMETpLepPt',
+'AK4HT',
+'fifthJetPt',
+'NJetsCSV_MultiLepCalc',
+'PtFifthJet',
+'hemiout',
+'HT_2m',
+'BDTtrijet3',
+'M_allJet_W',
+'HT_bjets',
+'FW_momentum_6',
+'secondJetPt',
+'NresolvedTops1pFake',
+'FW_momentum_5',
+'mass_lepBJet0',
+'MT_lepMet',
+'NJetsTtagged',
+'FW_momentum_4',
+'HOTGoodTrijet2_pTratio',
+'HOTGoodTrijet2_dRtrijetJetnotdijet',
+'HOTGoodTrijet2_dijetmass',
+'HOTGoodTrijet2_mass',
+'deltaR_minBB',
+'HOTGoodTrijet2_dRtridijet',
+'HOTGoodTrijet2_csvJetnotdijet',
+'BDTtrijet1',
+'Aplanarity',
+'mass_maxBBmass',
+'corr_met_MultiLepCalc',
+'theJetLeadPt',
+'BJetLeadPt',
+'mass_lepBJet_mindr',
+'Sphericity',
+'HOTGoodTrijet1_mass']
 
 # vrs=['BDT','AK4HT','AK4HTpMETpLepPt','Aplanarity','BDTtrijet1','BDTtrijet2','BDTtrijet3','BDTtrijet4','BJetLeadPt',
 # 'FW_momentum_0','FW_momentum_1','FW_momentum_2','FW_momentum_3','FW_momentum_4','FW_momentum_5','FW_momentum_6',
@@ -186,12 +186,12 @@ for y in years:
 		tmp={
 		'year':'R'+y,
 		# 'variable':['BDT'],
-		'variable':['NPV'],
-		# 'variable':vrs,#['BDT'],
+		# 'variable':['NPV'],
+		'variable':vrs,#['BDT'],
 		# 'postfix':p+'_053121pt50',#+'_lim',#'NoNBtagSF_'+p,
 		# 'postfix':'multibdt_cr_2',#+'_lim',#'NoNBtagSF_'+p,
 		# 'postfix':'jet12_50',#+'_lim',#'NoNBtagSF_'+p,
-		 'postfix':'pukin',
+		 'postfix':'cr3hipu',
 		#'postfix':'40vars_6j_NJetsCSV_053121lim910',
 		#'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_01272021_step3_wenyu/BDT_SepRank6j73vars2017year40top_40vars_mDepth2_6j_year20'+y+'_NJetsCSV/'
 		# 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03062021_step2/'#DeepCSV 
@@ -209,53 +209,86 @@ for y in years:
 # #for step2
 trainings=[]
 for y in years:
-	tmp={
-	'year':'R'+y,
-	'variable':['BDT'],
-	'postfix':'jet40',#+'_lim',#'NoNBtagSF_'+p,
-	'path':''
-	}
-	trainings.append(tmp)
+
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':vrs,
+	# 'postfix':'cr3hipu',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
+
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':vrs,
+	# 'postfix':'cr3lopu',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
 
 	tmp={
 	'year':'R'+y,
 	'variable':['BDT'],
-	'postfix':'jet50',#+'_lim',#'NoNBtagSF_'+p,
+	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1',#+'_lim',#'NoNBtagSF_'+p,
 	'path':''
 	}
 	trainings.append(tmp)
 
-	tmp={
-	'year':'R'+y,
-	'variable':['BDT'],
-	'postfix':'lopu',#+'_lim',#'NoNBtagSF_'+p,
-	'path':''
-	}
-	trainings.append(tmp)
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':['BDTYLD'],
+	# 'postfix':'jet40',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
 
-	tmp={
-	'year':'R'+y,
-	'variable':['BDT'],
-	'postfix':'hipu',#+'_lim',#'NoNBtagSF_'+p,
-	'path':''
-	}
-	trainings.append(tmp)
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':['BDTYLD'],
+	# 'postfix':'jet50',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
 
-	tmp={
-	'year':'R'+y,
-	'variable':['NPV'],
-	'postfix':'pu',#+'_lim',#'NoNBtagSF_'+p,
-	'path':''
-	}
-	trainings.append(tmp)
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':['BDTYLD'],
+	# 'postfix':'lopu',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
 
-	tmp={
-	'year':'R'+y,
-	'variable':['NPV'],
-	'postfix':'pukin',#+'_lim',#'NoNBtagSF_'+p,
-	'path':''
-	}
-	trainings.append(tmp)
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':['BDTYLD'],
+	# 'postfix':'hipu',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
+
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':['NPV'],
+	# 'postfix':'pu',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
+
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':['NPV'],
+	# 'postfix':'pukin',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
+
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':vrs,
+	# 'postfix':'40vars_6j_NJetsCSV_053121cr3',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
 
 
 
@@ -263,129 +296,11 @@ for y in years:
 
 combinations = [
 
-# {
-# 	'variable':'BDT',
-# 	'postfix':'rmCSVlim'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim678'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim910'
-# },
-
-
-# {
-# 	'variable':'BDT',
-# 	'postfix':'rmCSVlim'
-# },
-
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_negbdt'
-# },
-
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1'
-# },
-
-
-
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121pt50'
-# },
-
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_onebin'
-# },		
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_nohotclosure'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_0p25hotclosure'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_scalehotclosure'
-# },
-
-
-
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'50vars_6j_NJetsCSV_053121lim'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'50vars_6j_NJetsCSV_053121lim_newbin1'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin2'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'50vars_6j_NJetsCSV_053121lim_newbin2'
-# },
-
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin3'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'50vars_6j_NJetsCSV_053121lim_newbin3'
-# },
-
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_noHOT'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'50vars_6j_NJetsCSV_053121lim_noHOT'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_noHOT_newbin1'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'50vars_6j_NJetsCSV_053121lim_noHOT_newbin1'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'40vars_6j_NJetsCSV_053121lim_noHOT_newbin2'
-# },
-# {
-# 	'variable':'BDT',
-# 	'postfix':'50vars_6j_NJetsCSV_053121lim_noHOT_newbin2'
-# },
-
 {
 	'variable':'BDT',
-	'postfix':'40vars_6j_NJetsCSV_053121lim678'
+	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1'
 },
 
-{
-	'variable':'BDT',
-	'postfix':'40vars_6j_NJetsCSV_053121lim910'
-},
 	
 
 ]
@@ -406,7 +321,7 @@ combinations = [
 #4 dataCard + limit + significance
 #5 combination limit + significance
 #6 print results
-step=2
+step=6
 
 if step==1:
 	os.chdir('makeTemplates')
@@ -465,9 +380,9 @@ cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 # python modifyTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n\
-# python modifyBinning.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+python modifyBinning.py '+train['year']+' '+v+' '+train['postfix']+'\n\
 # python plotFullRun2.py '+v+' '+train['postfix']+'\n\
-python plotTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n')
+# python plotTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n')
 			shell.close()
 			jdf_name = 'cfg/condor_step3_'+train['year']+'_'+train['postfix']+'_'+v+'.job'
 			jdf=open(jdf_name,'w')
@@ -504,7 +419,8 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
 cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
-python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+# python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+python dataCardDecoupleTTbarUncs.py '+train['year']+' '+v+' '+train['postfix']+'\n\
 cd limits_'+train['year']+'_'+train['postfix']+'_'+v+'\n\
 combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_exp.txt\n\
 combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_obs.txt\n\
@@ -512,9 +428,9 @@ combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMin
 # combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> sig_exp_freezetth.txt\n\
 # combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> sig_obs_freezetth.txt\n\
 # combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> asy_freezetth.txt\n\
-combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters ttHF &> sig_exp_freezetthf.txt\n\
-combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters ttHF &> sig_obs_freezetthf.txt\n\
-combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters ttHF &> asy_freezetthf.txt\n\
+# combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters ttHF &> sig_exp_freezetthf.txt\n\
+# combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters ttHF &> sig_obs_freezetthf.txt\n\
+# combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters ttHF &> asy_freezetthf.txt\n\
 # combine -M MultiDimFit cmb/workspace.root --cminDefaultMinimizerStrategy 0 &> mlfit.txt\n\
 cd ..\n')
 			shell.close()
