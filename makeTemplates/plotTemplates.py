@@ -37,10 +37,17 @@ templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
 blindBDT = False
 
+# isRebinned='_rebinned_stat0p3_bdtcorr' #post for ROOT file names
+# isRebinned='_rebinned_stat0p3' #post for ROOT file names
+# isRebinned='_merge_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_merge_rebinned_stat0p3_bdtcorr' #post for ROOT file names
 # isRebinned='_new_rebinned_stat1p1' #post for ROOT file names
-isRebinned='_new_rebinned_stat0p3' #post for ROOT file names
+# isRebinned='_rebinned_statVar' #post for ROOT file names
+# isRebinned='_merge_rebinned_statVar' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
+
+dofit=True
 
 sig='tttt' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
@@ -69,7 +76,7 @@ useSmoothShapes = True
 if not isCategorized: useSmoothShapes = False
 doAllSys = True
 addCRsys = False
-doNormByBinWidth=True
+doNormByBinWidth=False ######################################
 doOneBand = True
 blind = False
 yLog  = True
@@ -243,7 +250,7 @@ if not blind: tagPosY-=0.13
 
 table = []
 table.append(['break'])
-table.append(['Categories','prob_KS','prob_KS_X','prob_chi2','chi2','ndof'])
+table.append(['Categories','prob_KS','prob_KS_X','prob_chi2','chi2','prob_AD','ndof'])
 table.append(['break'])
 bkghists = {}
 bkghistsmerged = {}
@@ -346,6 +353,7 @@ for catEStr in catsElist:
 		prob_KS_X = bkgHT_test.KolmogorovTest(hData_test,"X")
 		prob_chi2 = hData_test.Chi2Test(bkgHT_test,"UW")
 		chi2 = hData_test.Chi2Test(bkgHT_test,"UW CHI2")
+		prob_AD = hData_test.AndersonDarlingTest(bkgHT_test)
 		if hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")!=0: ndof = hData_test.Chi2Test(bkgHT_test,"UW CHI2")/hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")
 		else: ndof = 0
 		print '/'*80,'\n','*'*80
@@ -355,7 +363,7 @@ for catEStr in catsElist:
 		print histPrefix+'_Chi2Test:'
 		print "p-value =",prob_chi2,"CHI2/NDF",chi2,"/",ndof
 		print '*'*80,'\n','/'*80
-		table.append([catStr,prob_KS,prob_KS_X,prob_chi2,chi2,ndof])
+		table.append([catStr,prob_KS,prob_KS_X,prob_chi2,chi2,prob_AD,ndof])
 		
 		bkgHTgerr = totBkgTemp3[catStr].Clone()
 
@@ -589,6 +597,10 @@ for catEStr in catsElist:
 			pull.SetFillColor(1)
 			pull.SetLineColor(1)
 			formatLowerHist(pull,iPlot)
+
+			if dofit:
+				pull.Fit("pol1","","",-1,1)	
+
 			pull.Draw("E0")#"E1")
 			
 			BkgOverBkg = pull.Clone("bkgOverbkg")
@@ -691,8 +703,8 @@ for catEStr in catsElist:
 		if compareShapes: savePrefix+='_shp'
 		if doOneBand: savePrefix+='_totBand'
 
-		#c1.SaveAs(savePrefix+'.png')
-		# c1.SaveAs(savePrefix+'.pdf')
+		# c1.SaveAs(savePrefix+'.png')
+		c1.SaveAs(savePrefix+'.pdf')
 # 		c1.SaveAs(savePrefix+'.eps')
 # 		c1.SaveAs(savePrefix+'.root')
 # 		c1.SaveAs(savePrefix+'.C')
@@ -785,6 +797,7 @@ for catEStr in catsElist:
 	prob_KS_X = bkgHTmerged_test.KolmogorovTest(hDatamerged_test,"X")
 	prob_chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW")
 	chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")
+	prob_AD = hData_test.AndersonDarlingTest(bkgHT_test)
 	if hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")!=0: ndof = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")/hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")
 	else: ndof = 0
 	print '/'*80,'\n','*'*80
@@ -794,7 +807,7 @@ for catEStr in catsElist:
 	print histPrefixE.replace('isE','isL')+'_Chi2Test:'
 	print "p-value =",prob_chi2,"CHI2/NDF",chi2,"/",ndof
 	print '*'*80,'\n','/'*80
-	table.append([catLStr,prob_KS,prob_KS_X,prob_chi2,chi2,ndof])
+	table.append([catLStr,prob_KS,prob_KS_X,prob_chi2,chi2,prob_AD,ndof])
 
 	bkgHTgerrmerged = totBkgTemp3[catLStr].Clone()
 
@@ -998,6 +1011,14 @@ for catEStr in catsElist:
 		pullmerged.SetFillColor(1)
 		pullmerged.SetLineColor(1)
 		formatLowerHist(pullmerged,iPlot)
+
+		if dofit:
+			if True:#'nB2_' in catEStr:
+				fitresult = pullmerged.Fit("pol1","S","",-1,1)	
+				ffff=open(templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'+'fitresult_'+catEStr+'.txt', 'w')
+				ffff.write(str(fitresult.Parameter(0))+' + BDT * '+str(fitresult.Parameter(1))+'\n')
+				ffff.close()
+
 		pullmerged.Draw("E0")#"E1")
 		
 		BkgOverBkgmerged = pullmerged.Clone("bkgOverbkgmerged")
@@ -1105,8 +1126,8 @@ for catEStr in catsElist:
 	if compareShapes: savePrefixmerged+='_shp'
 	if doOneBand: savePrefixmerged+='_totBand'
 
-	c1merged.SaveAs(savePrefixmerged+'.png')
-	# c1merged.SaveAs(savePrefixmerged+'.pdf')
+	# c1merged.SaveAs(savePrefixmerged+'.png')
+	c1merged.SaveAs(savePrefixmerged+'.pdf')
 # 	c1merged.SaveAs(savePrefixmerged+'.eps')
 # 	c1merged.SaveAs(savePrefixmerged+'.root')
 # 	c1merged.SaveAs(savePrefixmerged+'.C')
