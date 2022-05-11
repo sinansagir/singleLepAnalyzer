@@ -48,7 +48,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[0] > '+str(cutList['jet1PtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[1] > '+str(cutList['jet2PtCut'])+')'
 	cut += ' && (theJetPt_JetSubCalc_PtOrdered[2] > '+str(cutList['jet3PtCut'])+')'
-	cut += ' && (minDR_lepJet > 0.4)'# || ptRel_lepJet > 40)'
+	if iPlot != 'mindeltaR':
+		cut += ' && (minDR_lepJet > 0.4)'# || ptRel_lepJet > 40)'
 	cut += ' && (AK4HT  > '+str(cutList['AK4HTCut'])+')'
 	
 	if process.startswith('TTJetsSemiLepNjet0'): cut += ' && (isHTgt500Njetge9 == 0)'

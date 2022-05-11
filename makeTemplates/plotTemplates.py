@@ -35,7 +35,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-isRebinned='_R18bins_rebinned_stat0p3'#'_2b300GeV3b150GeV4b50GeVbins_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_rebinned_stat0p3'#'_2b300GeV3b150GeV4b50GeVbins_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
@@ -72,7 +72,7 @@ doNormByBinWidth=True
 doOneBand = True
 blind = False
 yLog  = True
-doRealPull = True
+doRealPull = False
 compareShapes = False
 if not isCategorized: blind = False
 if blind or doRealPull: doOneBand = False
