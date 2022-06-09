@@ -242,13 +242,13 @@ for y in years:
 	# }
 	# trainings.append(tmp)
 
-	tmp={
-	'year':'R'+y,
-	'variable':['BDT'],
-	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_bdtcorr_uncorrdsysyearnj',#+'_lim',#'NoNBtagSF_'+p,
-	'path':''
-	}
-	trainings.append(tmp)
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':['BDT'],
+	# 'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_bdtcorr_uncorrdsysyearnj',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
 
 	# tmp={
 	# 'year':'R'+y,
@@ -293,13 +293,13 @@ for y in years:
 	# }
 	# trainings.append(tmp)
 
-	# tmp={
-	# 'year':'R'+y,
-	# 'variable':['BDT'],
-	# 'postfix':'40vars_6j_NJetsCSV_053121cr3',#+'_lim',#'NoNBtagSF_'+p,
-	# 'path':''
-	# }
-	# trainings.append(tmp)
+	tmp={
+	'year':'R'+y,
+	'variable':['BDT'],
+	'postfix':'40vars_6j_NJetsCSV_053121cr3',#+'_lim',#'NoNBtagSF_'+p,
+	'path':''
+	}
+	trainings.append(tmp)
 
 	# tmp={
 	# 'year':'R'+y,
@@ -405,15 +405,15 @@ combinations = [
 # 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_bdtcorr_corrdsys'
 # },
 
-{
-	'variable':'BDT',
-	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_bdtcorr_uncorrdsysyear'
-},
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_bdtcorr_uncorrdsysyear'
+# },
 
-{
-	'variable':'BDT',
-	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_bdtcorr_uncorrdsysyearnj'
-},
+# {
+# 	'variable':'BDT',
+# 	'postfix':'40vars_6j_NJetsCSV_053121lim_newbin1_bdtcorr_uncorrdsysyearnj'
+# },
 	
 
 ]
@@ -434,7 +434,7 @@ combinations = [
 #4 dataCard + limit + significance
 #5 combination limit + significance
 #6 print results
-step=6
+step=3
 
 if step==1:
 	os.chdir('makeTemplates')

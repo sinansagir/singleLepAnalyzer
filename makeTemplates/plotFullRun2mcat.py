@@ -29,10 +29,10 @@ years_lumi_str = {
 
 year=sys.argv[3]
 lumiStr= years_lumi_str[year]
-lumi=years_lumi_float[year]#137.4 #for plots
+lumi=137.4#years_lumi_float[year]#137.4 #for plots
 yearstoadd = {
-# 'R16':'35p867',
-# 'R17':'41p53',
+'R16':'35p867',
+'R17':'41p53',
 }
 	
 region='SR' #PS,SR,TTCR,WJCR
@@ -46,7 +46,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[2]+'/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_R18bins_rebinned_stat0p3_bdtcorr'#'_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '_v4' # tag for plot names
 
@@ -68,13 +68,13 @@ elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top'
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 sigColor= rt.kBlack
 
-systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf','bdtshape']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 if year != 'R18': systematicList += ['prefire']
 useSmoothShapes = True
 if not isCategorized: useSmoothShapes = False
 doAllSys = True
 addCRsys = False
-doOneBand = False
+doOneBand = True
 blind = False
 yLog  = True
 doRealPull = False
@@ -105,8 +105,8 @@ if not os.path.exists(templateDir+sigfile):
 print "READING: "+templateDir+sigfile
 RFile = rt.TFile(templateDir+sigfile)
 RFiles = {}
-# RFiles['R16'] = rt.TFile(templateDir.replace(year,'R16')+sigfile.replace(lumiStr,yearstoadd['R16']))
-# RFiles['R17'] = rt.TFile(templateDir.replace(year,'R17')+sigfile.replace(lumiStr,yearstoadd['R17']))
+RFiles['R16'] = rt.TFile(templateDir.replace(year,'R16')+sigfile.replace(lumiStr,yearstoadd['R16']))
+RFiles['R17'] = rt.TFile(templateDir.replace(year,'R17')+sigfile.replace(lumiStr,yearstoadd['R17']))
 
 datahists = [k.GetName() for k in RFile.GetListOfKeys() if '__'+dataName in k.GetName()]
 catsElist = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isE_' in hist]
@@ -123,11 +123,17 @@ catsElist = [#manually add the list of categories to be displayed together (SHOU
 # 'isE_nHOT1p_nT0p_nW0p_nB3_nJ8p',
 # 'isE_nHOT1p_nT0p_nW0p_nB4p_nJ7p',
 
-'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ6',
-'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ7',
-'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ8',
-'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ9',
-'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ10p',
+'isE_nHOT1p_nT0p_nW0p_nB2_nJ8p',
+'isE_nHOT1p_nT0p_nW0p_nB3_nJ8p',
+'isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p',
+
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ6',
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ7',
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ8',
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ9',
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ10p',
+
+
 # 'isE_nHOT0_nT0p_nW0p_nB3_nJ6',
 # 'isE_nHOT0_nT0p_nW0p_nB3_nJ7',
 # 'isE_nHOT0_nT0p_nW0p_nB3_nJ8',
@@ -239,7 +245,7 @@ iPos = 0#11
 if( iPos==0 ): CMS_lumi.relPosX = 0.12
 
 H_ref = 600; 
-W_ref = 1600; 
+W_ref = 800; 
 W = W_ref
 H = H_ref
 
@@ -535,7 +541,7 @@ for isEM in ['E','M','L']:
 		#lPad.SetTickx(0)
 		#lPad.SetTicky(0)
 		lPad.Draw()
-	hDataCats[isEM].SetMaximum(1.2*max(hDataCats[isEM].GetMaximum(),bkgHT.GetMaximum()))
+	hDataCats[isEM].SetMaximum(1.8*max(hDataCats[isEM].GetMaximum(),bkgHT.GetMaximum()))
 	#hDataCats[isEM].SetMinimum(0.015)
 	hDataCats[isEM].SetTitle("")
 	hDataCats[isEM].GetYaxis().SetTitle("Events / bin")
@@ -762,8 +768,8 @@ for isEM in ['E','M','L']:
 	if doOneBand: savePrefix+='_totBand'
 
 	if 'isL' in savePrefix:
-		c1.SaveAs(savePrefix+'_'+sys.argv[4]+'_'+sys.argv[5]+'.png')
-	# c1.SaveAs(savePrefix+'.pdf')
+		# c1.SaveAs(savePrefix+'_'+sys.argv[4]+'_'+sys.argv[5]+'.png')
+		c1.SaveAs(savePrefix+'.pdf')
 	# c1.SaveAs(savePrefix+'.eps')
 	# c1.SaveAs(savePrefix+'.root')
 	# c1.SaveAs(savePrefix+'.C')

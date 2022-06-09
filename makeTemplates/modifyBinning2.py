@@ -43,14 +43,9 @@ saveKey = ''
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]+'/'+cutString
-# combinefile = 'templates_'+iPlot+'_'+lumiStr+'_merge.root'
 combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 blindBDT = False
-
-rebinYear = 'R18' #rebin w.r.t. another years templates, leave empty to disable this option. Assumes all year paths differ by only year tag from the selected 'year' path above
-if rebinYear!='': saveKey+='_'+rebinYear+'bins'
-yeartolumi = {'R16':'35p867fb','R17':'41p53fb','R18':'59p97fb'}
 
 quiet = True #if you don't want to see the warnings that are mostly from the stat. shape algorithm!
 rebinCombine = True #else rebins theta templates
@@ -84,13 +79,8 @@ removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 removeSystFromYields+= ['PSwgt'] #remove if envelope method is not used, otherwise replace with ['isr','fsr']
 removeSystFromYields+= ['btag'] #remove if year-to-year correlation is used, otherwise replace with ['btagcorr','btaguncorr']
 
-apply_bdt_shape_corr=True
-minNbins=2 #min number of bins to be merged
+minNbins=1 #min number of bins to be merged
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
-if iPlot[0]=='N':
-	minNbins=1 #min number of bins to be merged
-	stat = 1.1
-
 if 'kinematics' in templateDir: 
 	stat = 1.1
 	doSmoothing = False
@@ -124,14 +114,7 @@ if iPlot=='BDT' and stat<1.:
 	minNbins=2 #(assuming initial hists are 15 GeV bins) min 30GeV bin width
 	xMin = -1
 	xMax = 1
-
-# minNbins=2
-
-# outro='Var'#str(stat)
-outro=str(stat)
-if apply_bdt_shape_corr:
-	outro = outro+'_bdtcorr'
-	
+		
 if rebinCombine:
 	dataName = 'data_obs'
 	upTag = 'Up'
@@ -188,25 +171,9 @@ for file in findfiles(templateDir, '*.root'):
 	rfiles.append(file)
 if rebinCombine: rfiles = [templateDir+'/'+combinefile]
 
-if rebinYear!='': #if binning requested w.r.t. another year, first get histograms from that file for finding the bins
-	tfile = TFile(rfiles[0].replace(year,rebinYear).replace(lumiStr,yeartolumi[rebinYear]))
-else: 
-	tfile = TFile(rfiles[0])
-
-
+tfile = TFile(rfiles[0])
 datahists = [k.GetName() for k in tfile.GetListOfKeys() if '__'+dataName in k.GetName()]
 channels = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isL_' not in hist]
-
-shiftlist=[]
-for i in range(len(channels)):
-	if 'nJ10p' in channels[i]:
-		shiftlist.append(i)
-for i in shiftlist:
-	toshift=channels[i]
-	channels.remove(toshift)
-	channels.insert(i+4,toshift)
-
-
 allhists = {chn:[hist.GetName() for hist in tfile.GetListOfKeys() if '_'+chn+'_' in hist.GetName()] for chn in channels}
 
 totBkgHists = {}
@@ -261,24 +228,9 @@ for chn in totBkgHists.keys():
 			totDataTempBinErrSquared_E += dataHists_[chn].GetBinError(Nbins+1-iBin)**2
 			totDataTempBinErrSquared_M += dataHists_[chn.replace('isE','isM')].GetBinError(Nbins+1-iBin)**2
 			nBinsMerged+=1
-			if nBinsMerged<minNbins: continue
-			if iPlot=='BDT': #!!! BDT binning !!!
-				# if '_nB2_' in chn and nBinsMerged<minNbins*2: continue
-				if ('_nB2_' in chn and nBinsMerged<minNbins*6) or ('_nB3_' in chn and nBinsMerged<minNbins*3): continue
-			if iPlot=='HT': #!!! HT binning !!!
-				if ('_nB2_' in chn and nBinsMerged<minNbins*6) or ('_nB3_' in chn and nBinsMerged<minNbins*3): 
-					if not (year=='R16' and rebinYear=='R16' and 'nHOT1p_nT0p_nW0p_nB2_nJ7' in chn and nBinsMerged>=minNbins*4): continue
 			#if nBinsMerged<minNbins: continue
-			# if nBinsMerged<minNbins or ('_nB2_' in chn and nBinsMerged<4 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')): continue
-			# if nBinsMerged<minNbins or \
-			# ('_nB2_' in chn and nBinsMerged<12 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')) or \
-			# ('_nB3_' in chn and nBinsMerged<6 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')): continue
-			# if nBinsMerged<minNbins or \
-			# ('_nB2_' in chn and nBinsMerged<24 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')) or \
-			# ('_nB3_' in chn and nBinsMerged<12 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')): continue
-			
+			if nBinsMerged<minNbins or ('_nB2_' in chn and nBinsMerged<4 and (iPlot.startswith('HT') or iPlot=='ST' or iPlot=='BDT')): continue
 			if totTempBinContent_E>0. and totTempBinContent_M>0.:
-			# if totTempBinContent_E>9.99 and totTempBinContent_M>9.99 and totDataTempBinContent_E>0.99 and totDataTempBinContent_M>0.99:
 				if math.sqrt(totTempBinErrSquared_E)/totTempBinContent_E<=stat and math.sqrt(totTempBinErrSquared_M)/totTempBinContent_M<=stat:
 					totTempBinContent_E = 0.
 					totTempBinContent_M = 0.
@@ -311,14 +263,6 @@ for chn in xbinsListTemp.keys():
 	if (iPlot.startswith('HT') or iPlot=='maxJJJpt' or iPlot=='ST') and stat<1.: xMax = xbinsList[chn][-2]+(500-xbinsList[chn][-2]%500)
 	if xMin>xbinsList[chn][0]: xbinsList[chn][0] = xMin
 	if xMax<xbinsList[chn][-1] and xMin!=xMax: xbinsList[chn][-1] = xMax
-	# xbinsList[chn] = [xbinsList[chn][0],xbinsList[chn][-1]]
-	# for bin_index,bin_value in enumerate(xbinsList[chn]):
-	# 	# print bin_index,bin_value
-	# 	if bin_value>0:
-	# 		# print 'found'
-	# 		xbinsList[chn]=xbinsList[chn][:bin_index+1]
-	# 		break
-
 	for ibin in range(1,len(xbinsList[chn])-1):
 		if xbinsList[chn][ibin]<=xbinsList[chn][0] or xbinsList[chn][ibin]>=xbinsList[chn][-1]: del xbinsList[chn][ibin]
 	print chn,"=",xbinsList[chn]
@@ -329,23 +273,8 @@ print "//"*40
 xbins = {}
 for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 
-if rebinYear!=year: #if binning requested w.r.t. another year, now we get back to actual histograms after finding the binning
-	tfile = TFile(rfiles[0])
-	datahists = [k.GetName() for k in tfile.GetListOfKeys() if '__'+dataName in k.GetName()]
-	channels = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isL_' not in hist]
-	allhists = {chn:[hist.GetName() for hist in tfile.GetListOfKeys() if '_'+chn+'_' in hist.GetName()] for chn in channels}
-	shiftlist=[]
-	for i in range(len(channels)):
-		if 'nJ10p' in channels[i]:
-			shiftlist.append(i)
-	for i in shiftlist:
-		toshift=channels[i]
-		channels.remove(toshift)
-		channels.insert(i+4,toshift)
-
 iRfile=0
 yieldsAll = {}
-yieldsUAll = {}
 yieldsErrsAll = {}
 nBBnuis = {}
 nBBnuis['bkg'] = 0
@@ -355,11 +284,9 @@ for rfile in rfiles:
 	tfiles = {}
 	outputRfiles = {}
 	tfiles[iRfile] = TFile(rfile)	
-	outputRfiles[iRfile] = TFile(rfile.replace('.root',saveKey+'_rebinned_stat'+outro.replace('.','p')+'.root'),'RECREATE')
+	outputRfiles[iRfile] = TFile(rfile.replace('.root',saveKey+'_rebinned_stat'+str(stat).replace('.','p')+'.root'),'RECREATE')
 
 	print "PROGRESS:"
-	nbinslist={}
-	nunweighted={}
 	for chn in channels:
 		print "         ",chn,gettime()
 		rebinnedHists = {}
@@ -369,183 +296,11 @@ for rfile in rfiles:
 			rebinnedHists[hist].SetDirectory(0)
 			overflow(rebinnedHists[hist])
 			underflow(rebinnedHists[hist])
-
-			if apply_bdt_shape_corr:
-				if 'data' not in hist:
-					if 'BDT_' in hist:
-						newnameup=''
-						newnamedown=''
-						newnameyearup=''
-						newnameyeardown=''
-						newnameyearnjup=''
-						newnameyearnjdown=''
-						if len(hist.split('__'))==2:
-							if '16' in year:
-								newnameyearup = rebinnedHists[hist].GetName()+'__bdtshapeR16Up'
-								rebinnedHists[newnameyearup] = rebinnedHists[hist].Clone(newnameyearup)
-								newnameyeardown = rebinnedHists[hist].GetName()+'__bdtshapeR16Down'
-								rebinnedHists[newnameyeardown] = rebinnedHists[hist].Clone(newnameyeardown)
-								if 'nJ6' in hist:
-									newnameyearnjup = rebinnedHists[hist].GetName()+'__bdtshapeR16j6Up'
-									rebinnedHists[newnameyearnjup] = rebinnedHists[hist].Clone(newnameyearnjup)
-									newnameyearnjdown = rebinnedHists[hist].GetName()+'__bdtshapeR16j6Down'
-									rebinnedHists[newnameyearnjdown] = rebinnedHists[hist].Clone(newnameyearnjdown)
-								elif 'nJ7' in hist:
-									newnameyearnjup = rebinnedHists[hist].GetName()+'__bdtshapeR16j7Up'
-									rebinnedHists[newnameyearnjup] = rebinnedHists[hist].Clone(newnameyearnjup)
-									newnameyearnjdown = rebinnedHists[hist].GetName()+'__bdtshapeR16j7Down'
-									rebinnedHists[newnameyearnjdown] = rebinnedHists[hist].Clone(newnameyearnjdown)
-								else:
-									newnameyearnjup = rebinnedHists[hist].GetName()+'__bdtshapeR16j8pUp'
-									rebinnedHists[newnameyearnjup] = rebinnedHists[hist].Clone(newnameyearnjup)
-									newnameyearnjdown = rebinnedHists[hist].GetName()+'__bdtshapeR16j8pDown'
-									rebinnedHists[newnameyearnjdown] = rebinnedHists[hist].Clone(newnameyearnjdown)
-							elif '17' in year:
-								newnameyearup = rebinnedHists[hist].GetName()+'__bdtshapeR17Up'
-								rebinnedHists[newnameyearup] = rebinnedHists[hist].Clone(newnameyearup)
-								newnameyeardown = rebinnedHists[hist].GetName()+'__bdtshapeR17Down'
-								rebinnedHists[newnameyeardown] = rebinnedHists[hist].Clone(newnameyeardown)
-								if 'nJ6' in hist:
-									newnameyearnjup = rebinnedHists[hist].GetName()+'__bdtshapeR17j6Up'
-									rebinnedHists[newnameyearnjup] = rebinnedHists[hist].Clone(newnameyearnjup)
-									newnameyearnjdown = rebinnedHists[hist].GetName()+'__bdtshapeR17j6Down'
-									rebinnedHists[newnameyearnjdown] = rebinnedHists[hist].Clone(newnameyearnjdown)
-								elif 'nJ7' in hist:
-									newnameyearnjup = rebinnedHists[hist].GetName()+'__bdtshapeR17j7Up'
-									rebinnedHists[newnameyearnjup] = rebinnedHists[hist].Clone(newnameyearnjup)
-									newnameyearnjdown = rebinnedHists[hist].GetName()+'__bdtshapeR17j7Down'
-									rebinnedHists[newnameyearnjdown] = rebinnedHists[hist].Clone(newnameyearnjdown)
-								else:
-									newnameyearnjup = rebinnedHists[hist].GetName()+'__bdtshapeR17j8pUp'
-									rebinnedHists[newnameyearnjup] = rebinnedHists[hist].Clone(newnameyearnjup)
-									newnameyearnjdown = rebinnedHists[hist].GetName()+'__bdtshapeR17j8pDown'
-									rebinnedHists[newnameyearnjdown] = rebinnedHists[hist].Clone(newnameyearnjdown)
-							elif '18' in year:
-								newnameyearup = rebinnedHists[hist].GetName()+'__bdtshapeR18Up'
-								rebinnedHists[newnameyearup] = rebinnedHists[hist].Clone(newnameyearup)
-								newnameyeardown = rebinnedHists[hist].GetName()+'__bdtshapeR18Down'
-								rebinnedHists[newnameyeardown] = rebinnedHists[hist].Clone(newnameyeardown)
-								if 'nJ6' in hist:
-									newnameyearnjup = rebinnedHists[hist].GetName()+'__bdtshapeR18j6Up'
-									rebinnedHists[newnameyearnjup] = rebinnedHists[hist].Clone(newnameyearnjup)
-									newnameyearnjdown = rebinnedHists[hist].GetName()+'__bdtshapeR18j6Down'
-									rebinnedHists[newnameyearnjdown] = rebinnedHists[hist].Clone(newnameyearnjdown)
-								elif 'nJ7' in hist:
-									newnameyearnjup = rebinnedHists[hist].GetName()+'__bdtshapeR18j7Up'
-									rebinnedHists[newnameyearnjup] = rebinnedHists[hist].Clone(newnameyearnjup)
-									newnameyearnjdown = rebinnedHists[hist].GetName()+'__bdtshapeR18j7Down'
-									rebinnedHists[newnameyearnjdown] = rebinnedHists[hist].Clone(newnameyearnjdown)
-								else:
-									newnameyearnjup = rebinnedHists[hist].GetName()+'__bdtshapeR18j8pUp'
-									rebinnedHists[newnameyearnjup] = rebinnedHists[hist].Clone(newnameyearnjup)
-									newnameyearnjdown = rebinnedHists[hist].GetName()+'__bdtshapeR18j8pDown'
-									rebinnedHists[newnameyearnjdown] = rebinnedHists[hist].Clone(newnameyearnjdown)
-
-								# if 'nJ6' in hist:
-								# elif 'nJ7' in hist:
-								# else:
-							newnameup = rebinnedHists[hist].GetName()+'__bdtshapeUp'
-							rebinnedHists[newnameup] = rebinnedHists[hist].Clone(newnameup)
-							newnamedown = rebinnedHists[hist].GetName()+'__bdtshapeDown'
-							rebinnedHists[newnamedown] = rebinnedHists[hist].Clone(newnamedown)
-
-						bdtxaxis = rebinnedHists[hist].GetXaxis()
-						for ibin in range(1, rebinnedHists[hist].GetNbinsX()+1):
-							bdt_value = bdtxaxis.GetBinCenter(ibin)
-							bdtsf = 0.0
-							bdtsfup = 0.0
-							bdtsfdown = 0.0
-							# if '16' in year:
-							# 	bdtsf= 1 + bdt_value * 0.0807265217397
-							# elif '17' in year:
-							# 	bdtsf= 1 + bdt_value * 0.270998297091
-							# elif '18' in year:
-							# 	bdtsf= 1 + bdt_value * 0.203741109069
-
-
-
-							if '16' in year:
-								if 'nJ6' in hist:
-									bdt_slope = 0.0937450844861
-									slope_unc = 0.03954
-									bdtsf= 1 + bdt_value * bdt_slope
-									bdtsfup= 1 + bdt_value * (bdt_slope+slope_unc)
-									bdtsfdown= 1 + bdt_value * (bdt_slope-slope_unc)
-								elif 'nJ7' in hist:
-									bdt_slope = (-0.00894346891159)
-									slope_unc = 0.053776
-									bdtsf= 1 + bdt_value * bdt_slope
-									bdtsfup= 1 + bdt_value * (bdt_slope+slope_unc)
-									bdtsfdown= 1 + bdt_value * (bdt_slope-slope_unc)
-								else:
-									bdt_slope = 0.173812296254
-									slope_unc = 0.0667
-									bdtsf= 1 + bdt_value * bdt_slope
-									bdtsfup= 1 + bdt_value * (bdt_slope+slope_unc)
-									bdtsfdown= 1 + bdt_value * (bdt_slope-slope_unc)
-
-							elif '17' in year:
-								if 'nJ6' in hist:
-									bdt_slope = 0.289143733442
-									slope_unc = 0.0341
-									bdtsf= 1 + bdt_value * bdt_slope
-									bdtsfup= 1 + bdt_value * (bdt_slope+slope_unc)
-									bdtsfdown= 1 + bdt_value * (bdt_slope-slope_unc)
-								elif 'nJ7' in hist:
-									bdt_slope = 0.132767530026
-									slope_unc = 0.0420
-									bdtsf= 1 + bdt_value * bdt_slope
-									bdtsfup= 1 + bdt_value * (bdt_slope+slope_unc)
-									bdtsfdown= 1 + bdt_value * (bdt_slope-slope_unc)
-								else:
-									bdt_slope = 0.208504155884
-									slope_unc = 0.0496
-									bdtsf= 1 + bdt_value * bdt_slope
-									bdtsfup= 1 + bdt_value * (bdt_slope+slope_unc)
-									bdtsfdown= 1 + bdt_value * (bdt_slope-slope_unc)
-
-							elif '18' in year:
-								if 'nJ6' in hist:
-									bdt_slope = 0.183268604689
-									slope_unc = 0.0301
-									bdtsf= 1 + bdt_value * bdt_slope
-									bdtsfup= 1 + bdt_value * (bdt_slope+slope_unc)
-									bdtsfdown= 1 + bdt_value * (bdt_slope-slope_unc)
-								elif 'nJ7' in hist:
-									bdt_slope = 0.265829723612
-									slope_unc = 0.0381
-									bdtsf= 1 + bdt_value * bdt_slope
-									bdtsfup= 1 + bdt_value * (bdt_slope+slope_unc)
-									bdtsfdown= 1 + bdt_value * (bdt_slope-slope_unc)
-								else:
-									bdt_slope = 0.349667309916
-									slope_unc = 0.0467
-									bdtsf= 1 + bdt_value * bdt_slope
-									bdtsfup= 1 + bdt_value * (bdt_slope+slope_unc)
-									bdtsfdown= 1 + bdt_value * (bdt_slope-slope_unc)
-
-							old_bin_content=rebinnedHists[hist].GetBinContent(ibin)
-							rebinnedHists[hist].SetBinContent(ibin,old_bin_content*bdtsf)
-							if len(hist.split('__'))==2:
-								rebinnedHists[newnameup].SetBinContent(ibin,old_bin_content*bdtsfup)
-								rebinnedHists[newnamedown].SetBinContent(ibin,old_bin_content*bdtsfdown)
-								rebinnedHists[newnameyearup].SetBinContent(ibin,old_bin_content*bdtsfup)
-								rebinnedHists[newnameyeardown].SetBinContent(ibin,old_bin_content*bdtsfdown)
-								rebinnedHists[newnameyearnjup].SetBinContent(ibin,old_bin_content*bdtsfup)
-								rebinnedHists[newnameyearnjdown].SetBinContent(ibin,old_bin_content*bdtsfdown)
-						if len(hist.split('__'))==2:
-							rebinnedHists[newnameup].Write()
-							rebinnedHists[newnamedown].Write()
-							rebinnedHists[newnameyearup].Write()
-							rebinnedHists[newnameyeardown].Write()
-							rebinnedHists[newnameyearnjup].Write()
-							rebinnedHists[newnameyearnjdown].Write()
-
 			if 'BDT_' in hist and blindBDT and '__'+dataName in hist:
 				zero_bin=rebinnedHists[hist].FindBin(0)
 				max_bin=rebinnedHists[hist].GetNbinsX()+1
 				for imtt in range(zero_bin,max_bin):
-					rebinnedHists[hist].SetBinContent(imtt,-100.0)
+					rebinnedHists[hist].SetBinContent(imtt,0)
 			
 			if '__pdf' in hist:
 				if upTag not in hist and downTag not in hist: continue
@@ -578,8 +333,6 @@ for rfile in rfiles:
 			yieldHistName = hist
 			if not rebinCombine: yieldHistName = hist.replace('_sig','_'+rfile.split('_')[-2])
 			yieldsAll[yieldHistName] = rebinnedHists[hist].Integral()
-			yieldsUAll[yieldHistName] = rebinnedHists[hist].GetEntries()
-			nbinslist[chn]= rebinnedHists[hist].GetNbinsX()
 			yieldsErrsAll[yieldHistName] = 0.
 			for ibin in range(1,rebinnedHists[hist].GetXaxis().GetNbins()+1):
 				yieldsErrsAll[yieldHistName] += rebinnedHists[hist].GetBinError(ibin)**2
@@ -677,7 +430,7 @@ for rfile in rfiles:
 			newMuRFName = 'muRF'
 			for hist in muRUphists:
 				proc_ = hist.split('__')[1]
-				# if proc_ in ttProcList: proc_ = 'tt'
+				if proc_ in ttProcList: proc_ = 'tt'
 				muRFUpHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+upTag))
 				muRFDnHist = rebinnedHists[hist].Clone(hist.replace('muR'+upTag,newMuRFName+downTag))
 				histList = [
@@ -729,7 +482,7 @@ for rfile in rfiles:
 			newPSwgtName = 'PSwgt'
 			for hist in isrUphists:
 				proc_ = hist.split('__')[1]
-				# if proc_ in ttProcList: proc_ = 'tt'
+				if proc_ in ttProcList: proc_ = 'tt'
 				PSwgtUpHist = rebinnedHists[hist].Clone(hist.replace('isr'+upTag,newPSwgtName+upTag))
 				PSwgtDnHist = rebinnedHists[hist].Clone(hist.replace('isr'+upTag,newPSwgtName+downTag))
 				histList = [
@@ -863,7 +616,7 @@ for rfile in rfiles:
 				zero_bin=rebinnedHists[hist].FindBin(0)
 				max_bin=rebinnedHists[hist].GetNbinsX()+1
 				for imtt in range(zero_bin,max_bin):
-					rebinnedHists[hist].SetBinContent(imtt,-100.0)
+					rebinnedHists[hist].SetBinContent(imtt,0)
 					
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()
@@ -964,7 +717,7 @@ def getShapeSystUnc(proc,chn):
 
 table = []
 exceltable = {}
-exceltable['YIELDS'] = [proc for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList] + ['Nunwghtevt','Nbin']
+exceltable['YIELDS'] = [proc for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList]
 for chn in channels: exceltable[chn] = []
 
 for isEM in isEMlist:
@@ -978,7 +731,7 @@ for isEM in isEMlist:
 					table.append(['',isEM+'_'+nhott+'_'+nttag+'_'+nWtag+'_'+nbtag+'_yields'])
 					table.append(['break'])
 					table.append(['YIELDS']+[chn for chn in channels if isEM in chn and nhott+'_' in chn and nttag+'_' in chn and nWtag+'_' in chn and nbtag+'_' in chn]+['\\\\'])
-					for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList:#+ ['Nunwghtevt','Nbin']:
+					for proc in bkgProcList+['totBkg',dataName,'dataOverBkg']+sigProcList:
 						row = [procNames[proc]]
 						for chn in channels:
 							if not (isEM in chn and nhott+'_' in chn and nttag+'_' in chn and nWtag+'_' in chn and nbtag+'_' in chn): continue
@@ -990,7 +743,6 @@ for isEM in isEMlist:
 								for bkg in bkgProcList:
 									try:
 										yieldtemp += yieldsAll[histoPrefix+bkg]
-										yieldutemp += yieldsUAll[histoPrefix+bkg]
 										yielderrtemp += yieldsErrsAll[histoPrefix+bkg]**2
 										yielderrtemp += (modelingSys[bkg+'_'+modTag]*yieldsAll[histoPrefix+bkg])**2
 										yielderrtemp += (getShapeSystUnc(bkg,chn)*yieldsAll[histoPrefix+bkg])**2
@@ -1026,17 +778,6 @@ for isEM in isEMlist:
 								exceltable[chn].append(str(yieldtemp)+' $\pm$ '+str(yielderrtemp))
 						row.append('\\\\')
 						table.append(row)
-					for chn in channels:
-						if not (isEM in chn and nhott+'_' in chn and nttag+'_' in chn and nWtag+'_' in chn and nbtag+'_' in chn): continue
-						histoPrefix = allhists[chn][0][:allhists[chn][0].find('__')+2]
-						yieldutemp = 0.
-						for bkg in bkgProcList:
-							try:
-								yieldutemp += yieldsUAll[histoPrefix+bkg]
-							except:
-								pass
-						exceltable[chn].append(yieldutemp)
-						exceltable[chn].append(nbinslist[chn])
 					iSig = 0
 					for sig in sigProcList:
 						row=['S/$\sigma_{B}$'+sig]
@@ -1205,13 +946,13 @@ table.append(['break'])
 postFix = ''
 if addShapes: postFix+='_addShps'
 if addCRsys: postFix+='_addCRunc'
-out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root',saveKey+'_rebinned_stat'+outro.replace('.','p'))+postFix+'.txt','w')
+out=open(templateDir+'/'+combinefile.replace('templates','yields').replace('.root',saveKey+'_rebinned_stat'+str(stat).replace('.','p'))+postFix+'.txt','w')
 printTable(table,out)
 
 print "       WRITING SUMMARY TEMPLATES: "
 for signal in sigProcList:
 	print "              ... "+signal
-	yldRfileName = templateDir+'/'+combinefile.replace(iPlot,iPlot+'YLD_'+signal).replace('.root',saveKey+'_rebinned_stat'+outro.replace('.','p')+'.root')
+	yldRfileName = templateDir+'/'+combinefile.replace(iPlot,iPlot+'YLD_'+signal).replace('.root',saveKey+'_rebinned_stat'+str(stat).replace('.','p')+'.root')
 	yldRfile = {}
 	yldRfile[signal] = TFile(yldRfileName,'RECREATE')
 	for isEM in isEMlist:		
