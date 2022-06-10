@@ -190,7 +190,7 @@ def add_HF_systematics(cb):
 	
 	signal = cb.cp().signals().process_set()
 	
-	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'ttHF', 'lnN', ch.SystMap()(1.13)) # Uncorrelated; from TOP-18-002 (v34) Table 4, sqrt(0.2^2+0.6^2)/4.7 ~ 0.134565 ~ 0.13
+	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'ttHF', 'lnN', ch.SystMap()(1.04)) # Uncorrelated; from TOP-18-002 (v34) Table 4, sqrt(0.2^2+0.6^2)/4.7 ~ 0.134565 ~ 0.13, UPDATE: 0.2/4.7 ~ 0.042553 when theory part is not included
 
 
 def add_Njet4to6p_systematics(cb):

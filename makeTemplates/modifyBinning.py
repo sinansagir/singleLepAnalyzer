@@ -157,6 +157,13 @@ htRwtSys = 0.0
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**2)#+njetSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2)#+njetSys**2)
 
+### SFs for theory uncertainties to include acceptance (or allow event migration)
+### Numbers calculated at preselection with 4+jets -- SS May2022
+muSFsUp = {'R16':1.2888,'R17':1.2890,'R18':1.2889}
+muSFsDn = {'R16':0.7524,'R17':0.7527,'R18':0.7523}
+pdfSFsUp = {'R16':1.0015,'R17':1.0015,'R18':1.0016}
+pdfSFsDn = {'R16':0.9976,'R17':0.9977,'R18':0.9976}
+
 removalKeys = {} # True == keep, False == remove
 removalKeys['JEC_Total'] = False
 removalKeys['JEC_FlavorQCD'] = False
@@ -701,7 +708,10 @@ for rfile in rfiles:
 					muRFDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
 				yieldsAll[muRFUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFUpHist.Integral()
 				yieldsAll[muRFDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFDnHist.Integral()
-				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
+				if normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist): #normalize up/down shifts to nominal for signal
+					muRFUpHist.Scale(1./muSFsUp[year]) #drop down
+					muRFDnHist.Scale(1./muSFsDn[year]) #raise up
+				if normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist): #normalize up/down shifts to nominal for background
 					muRFUpHist.Scale(histList[0].Integral()/(muRFUpHist.Integral()+zero))
 					muRFDnHist.Scale(histList[0].Integral()/(muRFDnHist.Integral()+zero))
 				muRFUpHist.Write()
@@ -821,7 +831,10 @@ for rfile in rfiles:
 					pdfDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
 				yieldsAll[pdfUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfUpHist.Integral()
 				yieldsAll[pdfDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfDnHist.Integral()
-				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
+				if normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist): #normalize up/down shifts to nominal for signal
+					pdfUpHist.Scale(1./pdfSFsUp[year]) #drop down
+					pdfDnHist.Scale(1./pdfSFsDn[year]) #raise up
+				if normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist): #normalize up/down shifts to nominal for background
 					nominalInt = rebinnedHists[hist[:hist.find('__pdf')]].Integral()
 					pdfUpHist.Scale(nominalInt/(pdfUpHist.Integral()+zero))
 					pdfDnHist.Scale(nominalInt/(pdfDnHist.Integral()+zero))
@@ -884,7 +897,7 @@ xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
 xsec_ttH = 0.20
 xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
 xsec_ewk = 0.038 #ewk (scale+pdf)
-ttHF = 0.13 # 13% ttbb cross section uncertainty
+ttHF = 0.04 # 4% ttbb cross section uncertainty (reduced from 13% from before when theory components included)
 hDamp = 0.085 # +10%/-7% (symmetrize)
 for chn in channels:
 	modTag = chn#[chn.find('nW'):]

@@ -22,7 +22,7 @@ writeSummaryHists = True
 scaleSignalXsecTo1pb = False # !!!!!Make sure you know signal x-sec used in input files to this script. If this is True, it will scale signal histograms by 1/x-sec in weights.py!!!!!
 lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
 ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
-ttLFsf = -1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
+ttLFsf = 1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
 doAllSys = True
 doHDsys = False
 doUEsys = False
@@ -63,14 +63,14 @@ TTlist = ['TTJetsHad','TTJets2L2nu','TTJetsSemiLepNjet0','TTJetsSemiLepNjet9','T
 bkgProcs['tt1b']  = [tt+'TT1b' for tt in TTlist]
 bkgProcs['tt2b']  = [tt+'TT2b' for tt in TTlist]
 bkgProcs['ttbj']  = bkgProcs['tt1b'] + bkgProcs['tt2b']
-bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist]
+bkgProcs['ttbb']  = [tt+'TTbb' for tt in TTlist] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['ttcc']  = [tt+'TTcc' for tt in TTlist]
 bkgProcs['ttjj']  = [tt+'TTjj' for tt in TTlist if tt!='TTJetsSemiLepNjet0']
 if year=='R18':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
 else:
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
-bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
+bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] #+ bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 if year!='R16': bkgProcs['T']+= ['Tbs']
 bkgProcs['TTH'] = ['TTHB','TTHnoB']
@@ -163,7 +163,7 @@ xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
 xsec_ttH = 0.20
 xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
 xsec_ewk = 0.038 #ewk (scale+pdf)
-ttHF = 0.13 # 13% ttbb cross section uncertainty
+ttHF = 0.04 # 4% ttbb cross section uncertainty (reduced from 13% from before when theory components included)
 hDamp = 0.085 # +10%/-7% (symmetrize)
 for tag in tagList:
 	modTag = tag#[tag.find('nT'):tag.find('nJ')-3]

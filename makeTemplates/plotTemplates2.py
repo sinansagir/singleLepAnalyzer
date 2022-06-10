@@ -123,7 +123,7 @@ xsec_ttbar = 0.0515 #ttbar (scale+pdf) +4.8%/-5.5% (symmetrize)
 xsec_ttH = 0.20
 xsec_top = 0.04 #top (scale+pdf) #inflated unc. aligned with OSDL/SSDL ttH/ttV/tt+XY
 xsec_ewk = 0.038 #ewk (scale+pdf)
-ttHF = 0.13 # 13% ttbb cross section uncertainty
+ttHF = 0.04 # 4% ttbb cross section uncertainty (reduced from 13% from before when theory components included)
 hDamp = 0.085 # +10%/-7% (symmetrize)
 for catEStr in catsElist:
 	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]
