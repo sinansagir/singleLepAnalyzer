@@ -4,6 +4,7 @@ import os,sys,time,math,pickle,itertools
 parent = os.path.dirname(os.getcwd())
 sys.path.append(parent)
 import ROOT as rt
+#from weights import *
 from modSyst import *
 from utils import *
 import CMS_lumi, tdrstyle
@@ -11,30 +12,32 @@ import CMS_lumi, tdrstyle
 rt.gROOT.SetBatch(1)
 start_time = time.time()
 
-# This script produces plots combining all 3 years.
-# It assumes that the paths for different years only differs by the year tag; R16, R17, and R18.
-year='R18'
-lumiStr= '59p97'
-lumi=137.4 #for plots
-yearstoadd = {
-'R16':'35p867',
-'R17':'41p53',
-}
+year=sys.argv[1]
+if year=='R16':
+	from weights16 import *
+	lumi=35.9 #for plots
+elif year=='R17':
+	from weights17 import *
+	lumi=41.5 #for plots
+elif year=='R18':
+	from weights18 import *
+	lumi=59.97 #for plots
+lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 	
 region='SR' #PS,SR,TTCR,WJCR
 isCategorized=1
-iPlot=sys.argv[1]
+iPlot=sys.argv[2]
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
 if region=='SR': pfix='templates_'+year
 elif region=='WJCR': pfix='wjets_'+year
 elif region=='TTCR': pfix='ttbar_'+year
-# if not isCategorized: pfix='kinematics_'+region+'_'+year
-templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[2]+'/'+cutString+'/'
+if not isCategorized: pfix='kinematics_'+region+'_'+year
+templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-# isRebinned='_2b300GeV3b150GeV4b50GeVbins_R18bins_rebinned_stat0p3' #post for ROOT file names
-isRebinned='_new_rebinned_stat1p1'
-# isRebinned='_R18bins_rebinned_stat0p3'
+blindBDT = False
+
+isRebinned='_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
@@ -44,58 +47,30 @@ scaleSignalsToXsec = False # !!!!!Make sure you know signal x-sec used in input 
 scaleSignals = False
 sigScaleFact = 10 #put -1 if auto-scaling wanted
 useCombineTemplates = True
-sigfile='templates_'+iPlot+'_'+sig+'_'+lumiStr+'fb'+isRebinned+'.root'
+sigfile='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
-if iPlot=='BDTYLD': 
-	ttProcList = ['ttnobb','ttbb']#['ttbb','ttnobb']
+if iPlot=='HTYLD': 
+	ttProcList = ['ttbb','ttnobb']
 	useCombineTemplates = False
-	scaleSignals = False
-
-# ROOT.TColor.GetColor(hex_code_string)
-
-ttH_color=rt.TColor.GetColor('#163d4e')
-top_color=rt.TColor.GetColor('#54792f')
-ewk_color=rt.TColor.GetColor('#d07e93')
-ttnobb_color=rt.TColor.GetColor('#cf9ddb')
-qcd_color=rt.TColor.GetColor('#c1caf3')
-ttbb_color=rt.TColor.GetColor('#d3eeef')
-# rt.TColor.GetColor('')
-
-
-
+	scaleSignals = True
 bkgProcList = ttProcList+['ttH','top','ewk','qcd']
-bkgHistColors = {
-	'ttnobb':ttnobb_color,
-	'ttbb':ttbb_color,
-	'ttH':ttH_color,
-	'top':top_color,
-	'ewk':ewk_color,
-	'qcd':qcd_color
-}
-
-# if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-# elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-# elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
-# else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
-
-# bkgProcList = ttProcList+['ttH','top','ewk','qcd']
-# if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-# elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-# elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
-# else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
+if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
+else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
 systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
-systematicList += ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']
-systematicList += ['hotstat','hotcspur','hotclosure']
+systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#['CSVshapelf','CSVshapehf']
 if year != 'R18': systematicList += ['prefire']
+#if year == 'R18': systematicList += ['hem']
 useSmoothShapes = True
 if not isCategorized: useSmoothShapes = False
 doAllSys = True
 addCRsys = False
 doNormByBinWidth=True
 doOneBand = True
-blind = False
+blind = True
 yLog  = True
 doRealPull = False
 compareShapes = False
@@ -125,9 +100,6 @@ if not os.path.exists(templateDir+sigfile):
 	os._exit(1)
 print "READING: "+templateDir+sigfile
 RFile = rt.TFile(templateDir+sigfile)
-RFiles = {}
-RFiles['R16'] = rt.TFile(templateDir.replace(year,'R16')+sigfile.replace(lumiStr,yearstoadd['R16']))
-RFiles['R17'] = rt.TFile(templateDir.replace(year,'R17')+sigfile.replace(lumiStr,yearstoadd['R17']))
 
 datahists = [k.GetName() for k in RFile.GetListOfKeys() if '__'+dataName in k.GetName()]
 catsElist = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isE_' in hist]
@@ -137,6 +109,8 @@ if year=='R17': lumiSys = 0.023
 trigSys = 0.0 # trigger uncertainty
 lepIdSys = 0.03 # lepton id uncertainty
 lepIsoSys = 0.0 # lepton isolation uncertainty
+# njetSys = 0.048
+# if year=='R17': njetSys = 0.075
 corrdSys = math.sqrt(lumiSys**2+trigSys**2+lepIdSys**2+lepIsoSys**2)#+njetSys**2) #cheating while total e/m values are close
 
 QCDscale_ttbar = 0.0295 #ttbar +2.4%/-3.5% (symmetrize)
@@ -191,24 +165,24 @@ def formatUpperHist(histogram,histogramBkg):
 
 	if 'JetPt' in histogram.GetName() or 'JetEta' in histogram.GetName() or 'JetPhi' in histogram.GetName() or 'Pruned' in histogram.GetName() or 'Tau' in histogram.GetName() or 'SoftDropMass' in histogram.GetName(): histogram.GetYaxis().SetTitle(histogram.GetYaxis().GetTitle().replace("Events","Jets"))
 	histogram.GetYaxis().CenterTitle()
-	histogram.SetMinimum(0.00101)
+	histogram.SetMinimum(0.0000101)
 	if region=='PS': histogram.SetMinimum(0.0101)
 	if not yLog: 
 		histogram.SetMinimum(0.015)
 	if yLog:
 		uPad.SetLogy()
 		if 'YLD' in iPlot: 
-			histogram.SetMaximum(2e4*histogramBkg.GetMaximum())
+			histogram.SetMaximum(2e3*histogramBkg.GetMaximum())
 			histogram.SetMinimum(0.101)
 		elif not isCategorized:
 			histogram.SetMaximum(5e6*histogramBkg.GetMaximum())
-		else: histogram.SetMaximum(2e8*histogramBkg.GetMaximum())
+		else: histogram.SetMaximum(2e2*histogramBkg.GetMaximum())
 	else: 
 		if 'YLD' in iPlot: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
 		else: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
 		
 def formatLowerHist(histogram,disc):
-	histogram.GetXaxis().SetLabelSize(.1)
+	histogram.GetXaxis().SetLabelSize(.12)
 	histogram.GetXaxis().SetTitleSize(0.15)
 	histogram.GetXaxis().SetTitleOffset(0.95)
 	histogram.GetXaxis().SetNdivisions(506)
@@ -255,7 +229,7 @@ iPeriod = 4 #see CMS_lumi.py module for usage!
 T = 0.10*H_ref
 B = 0.35*H_ref 
 if blind == True: B = 0.12*H_ref
-if 'YLD' in iPlot: B = 0.45*H_ref
+if 'YLD' in iPlot: B = 0.30*H_ref
 L = 0.12*W_ref
 R = 0.04*W_ref
 
@@ -278,12 +252,12 @@ totBkgTemp2 = {}
 totBkgTemp3 = {}
 for catEStr in catsElist:
 	systematicList_ = systematicList[:]
-	# if 'nB0p' not in catEStr or iPlot=='HTYLD': systematicList_ += []#,'btag']
-	# if 'nHOT0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['hotstat','hotcspur','hotclosure']
+	if 'nB0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
+	if 'nHOT0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['hotstat','hotcspur','hotclosure']
 	if useSmoothShapes: systematicList_ = ['lowess'+syst for syst in systematicList_]
 	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]
 	for isEM in isEMlist:
-		histPrefix=iPlot+'_'+lumiStr+'fb_'
+		histPrefix=iPlot+'_'+lumiInTemplates+'fb_'
 		catStr=catEStr.replace('isE','is'+isEM)
 		histPrefix+=catStr
 		print histPrefix
@@ -291,15 +265,12 @@ for catEStr in catsElist:
 		for proc in bkgProcList: 
 			try:
 				bkghists[proc+catStr] = RFile.Get(histPrefix+'__'+proc).Clone()
-				for year_ in RFiles.keys(): bkghists[proc+catStr].Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+proc))
 				totBkg += bkghists[proc+catStr].Integral()
 			except:
 				print "There is no "+proc+"!!! Skipping it....."
 				pass
 		hData = RFile.Get(histPrefix+'__'+dataName).Clone()
-		for year_ in RFiles.keys(): hData.Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
 		hData_test = RFile.Get(histPrefix+'__'+dataName).Clone()
-		for year_ in RFiles.keys(): hData_test.Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
 		bkgHT_test = bkghists[bkgProcList[0]+catStr].Clone()
 		for proc in bkgProcList:
 			if proc==bkgProcList[0]: continue
@@ -307,7 +278,6 @@ for catEStr in catsElist:
 			except: pass
 		print hData_test.Integral(),bkgHT_test.Integral()
 		hsig = RFile.Get(histPrefix+'__'+sigName).Clone(histPrefix+'__'+sigName)
-		for year_ in RFiles.keys(): hsig.Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+sigName))
 		if scaleSignalsToXsec: hsig.Scale(xsec[sig])
 		if doNormByBinWidth:
 			for proc in bkgProcList:
@@ -324,7 +294,6 @@ for catEStr in catsElist:
 					for proc in bkgProcList:
 						try: 
 							systHists[proc+catStr+syst+ud] = RFile.Get(histPrefix+'__'+proc+'__'+syst+ud).Clone()
-							for year_ in RFiles.keys(): systHists[proc+catStr+syst+ud].Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+proc+'__'+syst+ud))
 							if doNormByBinWidth: normByBinWidth(systHists[proc+catStr+syst+ud])
 						except: 
 							print "There is no "+syst+ud+" for "+proc+"!!! Skipping it....."
@@ -376,9 +345,8 @@ for catEStr in catsElist:
 		prob_KS_X = bkgHT_test.KolmogorovTest(hData_test,"X")
 		prob_chi2 = hData_test.Chi2Test(bkgHT_test,"UW")
 		chi2 = hData_test.Chi2Test(bkgHT_test,"UW CHI2")
-		# if hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")!=0: ndof = int(hData_test.Chi2Test(bkgHT_test,"UW CHI2")/hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF"))
-		# else: ndof = 0
-		ndof=0
+		if hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")!=0: ndof = int(hData_test.Chi2Test(bkgHT_test,"UW CHI2")/hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF"))
+		else: ndof = 0
 		print '/'*80,'\n','*'*80
 		print histPrefix+'_KS =',prob_KS
 		print 'WARNING: KS test works on unbinned distributions. For binned histograms, see NOTE3 at https://root.cern.ch/doc/master/classTH1.html#a2747cabe9ebe61c2fdfd74ff307cef3a'
@@ -713,7 +681,7 @@ for catEStr in catsElist:
 		#c1.Write()
 		savePrefix = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 		if not os.path.exists(savePrefix): os.system('mkdir '+savePrefix)
-		savePrefix+=histPrefix.replace(lumiStr,str(lumi).replace('.','p'))+isRebinned+saveKey
+		savePrefix+=histPrefix+isRebinned+saveKey
 		savePrefix=savePrefix.replace('nHOT0p_','').replace('nT0p_','').replace('nW0p_','').replace('nB0p_','').replace('nJ0p_','').replace('_rebinned_stat1p1','')
 		if doRealPull: savePrefix+='_pull'
 		if doNormByBinWidth: savePrefix+='_NBBW'
@@ -733,38 +701,26 @@ for catEStr in catsElist:
 			except: pass
 					
 	# Making plots for e+jets/mu+jets combined #
-	histPrefixE = iPlot+'_'+lumiStr+'fb_'+catEStr
-	histPrefixM = iPlot+'_'+lumiStr+'fb_'+catEStr.replace('isE','isM')
+	histPrefixE = iPlot+'_'+lumiInTemplates+'fb_'+catEStr
+	histPrefixM = iPlot+'_'+lumiInTemplates+'fb_'+catEStr.replace('isE','isM')
 	catLStr = catEStr.replace('isE','isL')
 	totBkgMerged = 0.
 	for proc in bkgProcList:
 		try: 
 			bkghistsmerged[proc+catLStr] = RFile.Get(histPrefixE+'__'+proc).Clone()
 			bkghistsmerged[proc+catLStr].Add(RFile.Get(histPrefixM+'__'+proc))
-			for year_ in RFiles.keys(): 
-				bkghistsmerged[proc+catLStr].Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,yearstoadd[year_])+'__'+proc))
-				bkghistsmerged[proc+catLStr].Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,yearstoadd[year_])+'__'+proc))
 			totBkgMerged += bkghistsmerged[proc+catLStr].Integral()
 		except:pass
 	hDatamerged = RFile.Get(histPrefixE+'__'+dataName).Clone()
 	hDatamerged.Add(RFile.Get(histPrefixM+'__'+dataName).Clone())
-	for year_ in RFiles.keys(): 
-		hDatamerged.Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
-		hDatamerged.Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
 	hDatamerged_test = RFile.Get(histPrefixE+'__'+dataName).Clone()
 	hDatamerged_test.Add(RFile.Get(histPrefixM+'__'+dataName).Clone())
-	for year_ in RFiles.keys(): 
-		hDatamerged_test.Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
-		hDatamerged_test.Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,yearstoadd[year_])+'__'+dataName))
 	bkgHTmerged_test = bkghistsmerged[bkgProcList[0]+catLStr].Clone()
 	for proc in bkgProcList[1:]:
 		try: bkgHTmerged_test.Add(bkghistsmerged[proc+catLStr])
 		except: pass
 	hsigmerged = RFile.Get(histPrefixE+'__'+sigName).Clone(histPrefixE+'__'+sigName+'merged')
 	hsigmerged.Add(RFile.Get(histPrefixM+'__'+sigName).Clone())
-	for year_ in RFiles.keys(): 
-		hsigmerged.Add(RFiles[year_].Get(histPrefixE.replace(lumiStr,yearstoadd[year_])+'__'+sigName))
-		hsigmerged.Add(RFiles[year_].Get(histPrefixM.replace(lumiStr,yearstoadd[year_])+'__'+sigName))
 	if scaleSignalsToXsec: hsigmerged.Scale(xsec[sig])
 	if doNormByBinWidth:
 		for proc in bkgProcList:
@@ -828,9 +784,8 @@ for catEStr in catsElist:
 	prob_KS_X = bkgHTmerged_test.KolmogorovTest(hDatamerged_test,"X")
 	prob_chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW")
 	chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")
-	# if hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")!=0: ndof = int(hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")/hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF"))
-	# else: ndof = 0
-	ndof=0
+	if hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")!=0: ndof = int(hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")/hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF"))
+	else: ndof = 0
 	print '/'*80,'\n','*'*80
 	print histPrefixE.replace('isE','isL')+'_KS =',prob_KS
 	print 'WARNING: KS test works on unbinned distributions. For binned histograms, see NOTE3 at https://root.cern.ch/doc/master/classTH1.html#a2747cabe9ebe61c2fdfd74ff307cef3a'
@@ -1140,7 +1095,7 @@ for catEStr in catsElist:
 	#c1merged.Write()
 	savePrefixmerged = templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'
 	if not os.path.exists(savePrefixmerged): os.system('mkdir '+savePrefixmerged)
-	savePrefixmerged+=histPrefixE.replace('isE','isL').replace(lumiStr,str(lumi).replace('.','p'))+isRebinned+saveKey
+	savePrefixmerged+=histPrefixE.replace('isE','isL')+isRebinned+saveKey
 	savePrefixmerged=savePrefixmerged.replace('nHOT0p_','').replace('nT0p_','').replace('nW0p_','').replace('nB0p_','').replace('nJ0p_','').replace('_rebinned_stat1p1','')
 	if doRealPull: savePrefixmerged+='_pull'
 	if doNormByBinWidth: savePrefixmerged+='_NBBW'
@@ -1164,7 +1119,6 @@ if not doNormByBinWidth:
 	printTable(table,out)
 			
 RFile.Close()
-for year_ in RFiles.keys(): RFiles[year_].Close()
 
 print("--- %s minutes ---" % (round(time.time() - start_time, 2)/60))
 

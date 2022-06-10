@@ -1,0 +1,71 @@
+#source transfer R16_GOF
+#source transfer R17_GOF
+#source transfer R18_GOF
+
+#source transfer R17_GOF_deepjet_no2DHTSF_v2
+#source transfer R17_GOF_deepjet_2DHTSF_v2
+#source transfer R17_GOF_2DHTSF_v3
+#source transfer R17_GOF_no2DHTSF_v3
+
+source transfer R16_40vars_6j_NJetsCSV_053121bdtkin
+source transfer R16_40vars_6j_NJetsCSV_053121kin
+source transfer R16_50vars_6j_NJetsCSV_053121bdtkin
+source transfer R17_40vars_6j_NJetsCSV_053121bdtkin
+source transfer R17_40vars_6j_NJetsCSV_053121kin
+source transfer R17_50vars_6j_NJetsCSV_053121bdtkin
+source transfer R18_40vars_6j_NJetsCSV_053121bdtkin
+source transfer R18_40vars_6j_NJetsCSV_053121kin
+source transfer R18_50vars_6j_NJetsCSV_053121bdtkin
+
+#source transfer R16_40vars_4j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R16_40vars_4j_NJetsCSV_v1_21apr21lim
+#source transfer R16_40vars_6j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R16_40vars_6j_NJetsCSV_v1_21apr21kin
+#source transfer R16_40vars_6j_NJetsCSV_v1_21apr21lim
+#source transfer R16_50vars_4j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R16_50vars_4j_NJetsCSV_v1_21apr21lim
+#source transfer R16_50vars_6j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R16_50vars_6j_NJetsCSV_v1_21apr21lim
+#source transfer R17_40vars_4j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R17_40vars_4j_NJetsCSV_v1_21apr21lim
+#source transfer R17_40vars_6j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R17_40vars_6j_NJetsCSV_v1_21apr21kin
+#source transfer R17_40vars_6j_NJetsCSV_v1_21apr21lim
+#source transfer R17_50vars_4j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R17_50vars_4j_NJetsCSV_v1_21apr21lim
+#source transfer R17_50vars_6j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R17_50vars_6j_NJetsCSV_v1_21apr21lim
+#source transfer R18_40vars_4j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R18_40vars_4j_NJetsCSV_v1_21apr21lim
+#source transfer R18_40vars_6j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R18_40vars_6j_NJetsCSV_v1_21apr21kin
+#source transfer R18_40vars_6j_NJetsCSV_v1_21apr21lim
+#source transfer R18_50vars_4j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R18_50vars_4j_NJetsCSV_v1_21apr21lim
+#source transfer R18_50vars_6j_NJetsCSV_v1_21apr21bdtkin
+#source transfer R18_50vars_6j_NJetsCSV_v1_21apr21lim
+
+#source transfer R16_AsInHT
+#source transfer R16_BtagPlusCsv
+#source transfer R16_CsvOnly
+#source transfer R16_CsvNoRenorm
+
+#source transfer R17_AsInHT
+#source transfer R17_BtagPlusCsv
+#source transfer R17_CsvOnly
+#source transfer R17_CsvNoRenorm
+
+#source transfer R18_AsInHT
+#source transfer R18_BtagPlusCsv
+#source transfer R18_CsvOnly
+#source transfer R18_CsvNoRenorm
+
+#source transfer R17_XGBk1_40top_4j
+#source transfer R17_XGBk1_40top_6j
+#source transfer R17_XGBk1_50top_4j
+#source transfer R17_XGBk1_50top_6j
+#source transfer R18_XGBk1_40top_4j
+#source transfer R18_XGBk1_40top_6j
+#source transfer R18_XGBk1_50top_4j
+#source transfer R18_XGBk1_50top_6j
+

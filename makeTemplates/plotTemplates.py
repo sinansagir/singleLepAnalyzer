@@ -35,9 +35,19 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
-isRebinned='_rebinned_stat0p3'#'_2b300GeV3b150GeV4b50GeVbins_rebinned_stat0p3' #post for ROOT file names
+blindBDT = False
+
+# isRebinned='_rebinned_stat0p3_bdtcorr' #post for ROOT file names
+# isRebinned='_rebinned_stat0p3' #post for ROOT file names
+# isRebinned='_merge_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_merge_rebinned_stat0p3_bdtcorr' #post for ROOT file names
+# isRebinned='_new_rebinned_stat1p1' #post for ROOT file names
+# isRebinned='_rebinned_statVar' #post for ROOT file names
+# isRebinned='_merge_rebinned_statVar' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
+
+dofit=True
 
 sig='tttt' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
@@ -48,8 +58,8 @@ useCombineTemplates = True
 sigfile='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
 ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
-if iPlot=='HTYLD': 
-	#ttProcList = ['ttbb','ttnobb']
+if iPlot=='HTYLD' or iPlot=='BDTYLD': 
+	ttProcList = ['ttbb','ttnobb']
 	useCombineTemplates = False
 	#scaleSignals = True
 bkgProcList = ttProcList+['ttH','top','ewk','qcd']
@@ -61,14 +71,14 @@ elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top'
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
 systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
-if iPlot=='BDT': systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#['CSVshapelf','CSVshapehf']
+systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#['CSVshapelf','CSVshapehf']
 if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
 useSmoothShapes = True
 if not isCategorized: useSmoothShapes = False
 doAllSys = True
 addCRsys = False
-doNormByBinWidth=True
+doNormByBinWidth=False ######################################
 doOneBand = True
 blind = False
 yLog  = True
@@ -102,7 +112,7 @@ print "READING: "+templateDir+sigfile
 RFile = rt.TFile(templateDir+sigfile)
 
 datahists = [k.GetName() for k in RFile.GetListOfKeys() if '__'+dataName in k.GetName()]
-catsElist = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if 'isE_' in hist]
+catsElist = [hist[hist.find('fb_')+3:hist.find('__')] for hist in datahists if ('isE_' in hist)]#if ('isE_' in hist and ('6p' in hist or '8p' in hist))]
 
 lumiSys = 0.025 # lumi uncertainty
 if year=='R17': lumiSys = 0.023
@@ -165,7 +175,7 @@ def formatUpperHist(histogram,histogramBkg):
 
 	if 'JetPt' in histogram.GetName() or 'JetEta' in histogram.GetName() or 'JetPhi' in histogram.GetName() or 'Pruned' in histogram.GetName() or 'Tau' in histogram.GetName() or 'SoftDropMass' in histogram.GetName(): histogram.GetYaxis().SetTitle(histogram.GetYaxis().GetTitle().replace("Events","Jets"))
 	histogram.GetYaxis().CenterTitle()
-	histogram.SetMinimum(0.0000101)
+	histogram.SetMinimum(0.000101)
 	if region=='PS': histogram.SetMinimum(0.0101)
 	if not yLog: 
 		histogram.SetMinimum(0.015)
@@ -176,7 +186,7 @@ def formatUpperHist(histogram,histogramBkg):
 			histogram.SetMinimum(0.101)
 		elif not isCategorized:
 			histogram.SetMaximum(5e6*histogramBkg.GetMaximum())
-		else: histogram.SetMaximum(2e2*histogramBkg.GetMaximum())
+		else: histogram.SetMaximum(2e11*histogramBkg.GetMaximum())
 	else: 
 		if 'YLD' in iPlot: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
 		else: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
@@ -228,7 +238,9 @@ iPeriod = 4 #see CMS_lumi.py module for usage!
 
 # references for T, B, L, R
 T = 0.10*H_ref
-B = 0.35*H_ref
+B = 0.35*H_ref 
+if blind == True: B = 0.12*H_ref
+if 'YLD' in iPlot: B = 0.60*H_ref
 L = 0.12*W_ref
 R = 0.04*W_ref
 if 'YLD' in iPlot: B = 0.46*H_ref
@@ -245,7 +257,7 @@ if not blind: tagPosY-=0.13
 
 table = []
 table.append(['break'])
-table.append(['Categories','prob_KS','prob_KS_X','prob_chi2','chi2','ndof'])
+table.append(['Categories','prob_KS','prob_KS_X','prob_chi2','chi2','prob_AD','ndof'])
 table.append(['break'])
 bkghists = {}
 bkghistsmerged = {}
@@ -348,7 +360,8 @@ for catEStr in catsElist:
 		prob_KS_X = bkgHT_test.KolmogorovTest(hData_test,"X")
 		prob_chi2 = hData_test.Chi2Test(bkgHT_test,"UW")
 		chi2 = hData_test.Chi2Test(bkgHT_test,"UW CHI2")
-		if hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")!=0: ndof = int(hData_test.Chi2Test(bkgHT_test,"UW CHI2")/hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF"))
+		prob_AD = hData_test.AndersonDarlingTest(bkgHT_test)
+		if hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")!=0: ndof = hData_test.Chi2Test(bkgHT_test,"UW CHI2")/hData_test.Chi2Test(bkgHT_test,"UW CHI2/NDF")
 		else: ndof = 0
 		print '/'*80,'\n','*'*80
 		print histPrefix+'_KS =',prob_KS
@@ -357,7 +370,7 @@ for catEStr in catsElist:
 		print histPrefix+'_Chi2Test:'
 		print "p-value =",prob_chi2,"CHI2/NDF",chi2,"/",ndof
 		print '*'*80,'\n','/'*80
-		table.append([catStr,prob_KS,prob_KS_X,prob_chi2,chi2,ndof])
+		table.append([catStr,prob_KS,prob_KS_X,prob_chi2,chi2,prob_AD,ndof])
 		
 		bkgHTgerr = totBkgTemp3[catStr].Clone()
 
@@ -458,7 +471,7 @@ for catEStr in catsElist:
 		if not doNormByBinWidth: hData.SetMaximum(1.2*max(hData.GetMaximum(),bkgHT.GetMaximum()))
 		#hData.SetMinimum(0.015)
 		hData.SetTitle("")
-		if doNormByBinWidth: hData.GetYaxis().SetTitle("< Events / GeV >")
+		if doNormByBinWidth: hData.GetYaxis().SetTitle("< Events / BDT A.U. >")
 		elif isRebinned!='': hData.GetYaxis().SetTitle("Events / bin")
 		else: hData.GetYaxis().SetTitle("Events / bin")
 		formatUpperHist(hData,hData)
@@ -470,7 +483,7 @@ for catEStr in catsElist:
 			else: hData.Draw("esamex0")
 		if blind: 
 			#hsig.SetMinimum(0.015)
-			if doNormByBinWidth: hsig.GetYaxis().SetTitle("< Events / GeV >")
+			if doNormByBinWidth: hsig.GetYaxis().SetTitle("< Events / BDT A.U. >")
 			elif isRebinned!='': hsig.GetYaxis().SetTitle("Events / bin")
 			else: hsig.GetYaxis().SetTitle("Events / bin")
 			if doNormByBinWidth: normByBinWidth(bkgHT_test)
@@ -591,6 +604,10 @@ for catEStr in catsElist:
 			pull.SetFillColor(1)
 			pull.SetLineColor(1)
 			formatLowerHist(pull,iPlot)
+
+			if dofit:
+				pull.Fit("pol1","","",-1,1)	
+
 			pull.Draw("E0")#"E1")
 			
 			BkgOverBkg = pull.Clone("bkgOverbkg")
@@ -693,7 +710,7 @@ for catEStr in catsElist:
 		if compareShapes: savePrefix+='_shp'
 		if doOneBand: savePrefix+='_totBand'
 
-		c1.SaveAs(savePrefix+'.png')
+		# c1.SaveAs(savePrefix+'.png')
 		c1.SaveAs(savePrefix+'.pdf')
 # 		c1.SaveAs(savePrefix+'.eps')
 # 		c1.SaveAs(savePrefix+'.root')
@@ -787,7 +804,8 @@ for catEStr in catsElist:
 	prob_KS_X = bkgHTmerged_test.KolmogorovTest(hDatamerged_test,"X")
 	prob_chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW")
 	chi2 = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")
-	if hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")!=0: ndof = int(hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")/hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF"))
+	prob_AD = hData_test.AndersonDarlingTest(bkgHT_test)
+	if hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")!=0: ndof = hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2")/hDatamerged_test.Chi2Test(bkgHTmerged_test,"UW CHI2/NDF")
 	else: ndof = 0
 	print '/'*80,'\n','*'*80
 	print histPrefixE.replace('isE','isL')+'_KS =',prob_KS
@@ -796,7 +814,7 @@ for catEStr in catsElist:
 	print histPrefixE.replace('isE','isL')+'_Chi2Test:'
 	print "p-value =",prob_chi2,"CHI2/NDF",chi2,"/",ndof
 	print '*'*80,'\n','/'*80
-	table.append([catLStr,prob_KS,prob_KS_X,prob_chi2,chi2,ndof])
+	table.append([catLStr,prob_KS,prob_KS_X,prob_chi2,chi2,prob_AD,ndof])
 
 	bkgHTgerrmerged = totBkgTemp3[catLStr].Clone()
 
@@ -890,7 +908,7 @@ for catEStr in catsElist:
 		lPad.Draw()
 	if not doNormByBinWidth: hDatamerged.SetMaximum(1.2*max(hDatamerged.GetMaximum(),bkgHTmerged.GetMaximum()))
 	#hDatamerged.SetMinimum(0.015)
-	if doNormByBinWidth: hDatamerged.GetYaxis().SetTitle("< Events / GeV >")
+	if doNormByBinWidth: hDatamerged.GetYaxis().SetTitle("< Events / BDT A.U. >")
 	elif isRebinned!='': hDatamerged.GetYaxis().SetTitle("Events / bin")
 	else: hDatamerged.GetYaxis().SetTitle("Events / bin")
 	formatUpperHist(hDatamerged,hDatamerged)
@@ -903,7 +921,7 @@ for catEStr in catsElist:
 		else: hDatamerged.Draw("esamex0")
 	if blind: 
 		#hsigmerged.SetMinimum(0.015)
-		if doNormByBinWidth: hsigmerged.GetYaxis().SetTitle("< Events / GeV >")
+		if doNormByBinWidth: hsigmerged.GetYaxis().SetTitle("< Events / BDT A.U. >")
 		elif isRebinned!='': hsigmerged.GetYaxis().SetTitle("Events / bin")
 		else: hsigmerged.GetYaxis().SetTitle("Events / bin")
 		if doNormByBinWidth: normByBinWidth(bkgHTmerged_test)
@@ -1000,6 +1018,14 @@ for catEStr in catsElist:
 		pullmerged.SetFillColor(1)
 		pullmerged.SetLineColor(1)
 		formatLowerHist(pullmerged,iPlot)
+
+		if dofit:
+			if True:#'nB2_' in catEStr:
+				fitresult = pullmerged.Fit("pol1","S","",-1,1)	
+				ffff=open(templateDir.replace(cutString,'')+templateDir.split('/')[-2]+'plots/'+'fitresult_'+catEStr+'.txt', 'w')
+				ffff.write(str(fitresult.Parameter(0))+' + BDT * '+str(fitresult.Parameter(1))+'\n')
+				ffff.close()
+
 		pullmerged.Draw("E0")#"E1")
 		
 		BkgOverBkgmerged = pullmerged.Clone("bkgOverbkgmerged")
@@ -1107,7 +1133,7 @@ for catEStr in catsElist:
 	if compareShapes: savePrefixmerged+='_shp'
 	if doOneBand: savePrefixmerged+='_totBand'
 
-	c1merged.SaveAs(savePrefixmerged+'.png')
+	# c1merged.SaveAs(savePrefixmerged+'.png')
 	c1merged.SaveAs(savePrefixmerged+'.pdf')
 # 	c1merged.SaveAs(savePrefixmerged+'.eps')
 # 	c1merged.SaveAs(savePrefixmerged+'.root')

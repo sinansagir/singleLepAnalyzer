@@ -17,26 +17,14 @@ elif year=='R18':
 	from weights18 import *
 
 iPlot=sys.argv[2]
-saveKey = '_merge'#'_2b300GeV3b150GeV4b50GeVbins'
+saveKey = '_new'#'_2b300GeV3b150GeV4b50GeVbins'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]
 combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 njetslist = {
-# '_nJ6':('_nJ6','_nJ7','_nJ8','_nJ9','_nJ10p'),
-# '_nJ7':('_nJ7','_nJ8','_nJ9','_nJ10p'),
-# '_nJ8':('_nJ8','_nJ9','_nJ10p'),
-'_nJ6':('_nJ6','_nJ7','_nJ8p'),
-'_nJ8p':('_nJ8p'),
-# '_nJ4':('_nJ4','_nJ5','_nJ6','_nJ7'),
-# '_nJ8':('_nJ8p'),
-# '_nJ8':('_nJ8','_nJ9','_nJ10p'),
-# '_nJ8':('_nJ8','_nJ9','_nJ10p'),
-}
-
-nhotslist = {
-
-'_nHOT0':('_nHOT0','_nHOT1p'),
-
+'_nJ6':('_nJ6','_nJ7','_nJ8','_nJ9','_nJ10p'),
+'_nJ7':('_nJ7','_nJ8','_nJ9','_nJ10p'),
+'_nJ8':('_nJ8','_nJ9','_nJ10p'),
 }
 
 rebinCombine = True #else rebins theta templates
@@ -93,36 +81,18 @@ for rfile in rfiles:
 		for hist in allhists[chn]:
 			rebinnedHists[hist]=tfiles[iRfile].Get(hist)
 			rebinnedHists[hist].SetDirectory(0)
-			# if 'nJ8p' in chn:
-			# 	rebinnedHists[hist].Write()				
+			rebinnedHists[hist].Write()				
 			#Add new inclusive categories
 			nJet_ = '_'+chn.split('_')[-1]
-			nB_ = '_'+chn.split('_')[-2]
-			nHOT_ = '_'+chn.split('_')[-5]
-			if nHOT_ in nhotslist.keys():
-				newHname = rebinnedHists[hist].GetName().replace(nHOT_,nHOT_+'p')
-				# if 'p' in nJet_:
-					# newHname = rebinnedHists[hist].GetName().replace(nB_,nB_+'p')
+			if nJet_ in njetslist.keys():
+				newHname = rebinnedHists[hist].GetName().replace(nJet_,nJet_+'p')
 				rebinnedHists[newHname] = rebinnedHists[hist].Clone(newHname)
-				# for ib in ['_nB3','_nB4p']:
-				for ihot in nhotslist[nHOT_]:
-						# if nJet_==ijet:continue
-					try: rebinnedHists[newHname].Add(tfiles[iRfile].Get(hist.replace(nHOT_,ihot)).Clone())
+				for ijet in njetslist[nJet_]:
+					if nJet_==ijet:continue
+					try: rebinnedHists[newHname].Add(tfiles[iRfile].Get(hist.replace(nJet_,ijet)).Clone())
 					except:
-						print 'MISSING PROC:',hist.replace(nHOT_,ihot	)
+						print 'MISSING PROC:',hist.replace(nJet_,ijet)
 				rebinnedHists[newHname].Write()
-			# if nJet_ in njetslist.keys() and nB_=='_nB2':
-			# 	newHname = rebinnedHists[hist].GetName().replace(nJet_,nJet_+'p').replace(nB_,nB_+'p')
-			# 	if 'p' in nJet_:
-			# 		newHname = rebinnedHists[hist].GetName().replace(nB_,nB_+'p')
-			# 	rebinnedHists[newHname] = rebinnedHists[hist].Clone(newHname)
-			# 	for ib in ['_nB3','_nB4p']:
-			# 		for ijet in njetslist[nJet_]:
-			# 			# if nJet_==ijet:continue
-			# 			try: rebinnedHists[newHname].Add(tfiles[iRfile].Get(hist.replace(nJet_,ijet).replace(nB_,ib)).Clone())
-			# 			except:
-			# 				print 'MISSING PROC:',hist.replace(nJet_,ijet).replace(nB_,ib)
-			# 	rebinnedHists[newHname].Write()
 	tfiles[iRfile].Close()
 	outputRfiles[iRfile].Close()
 	iRfile+=1
