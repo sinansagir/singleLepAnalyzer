@@ -62,8 +62,8 @@ systematics = ['bdt']
 # 'JEC_HF','JEC_HF_'+year.replace('R','20'),
 # 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
 # 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
-systematics = ['hdamp','ue']
-#systematics = ['lowess'+syst for syst in systematics]
+#systematics = ['hdamp','ue']
+systematics = ['lowess'+syst for syst in systematics]
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
 RFile = rt.TFile(templateFile)

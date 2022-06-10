@@ -27,9 +27,6 @@ nRun_TTJets2L2nu = 68448328.0 # from integral 69155808.0, file TTTo2L2Nu_TuneCP5
 nRun_TTJets700mtt = 38299363.0 # from 39258853, file TT_Mtt-700to1000_TuneCP5_13TeV-powheg-pythia8_hadd.root
 nRun_TTJets1000mtt = 21288395.0 # from integral 22458751.0, file TT_Mtt-1000toInf_TuneCP5_PSweights_13TeV-powheg
 nRun_TTJetsSemiLepNjet9 = 8648145.0 # from integral, file TTToSemiLepton_HT500Njet9_TuneCP5_PSweights_13TeV-powheg-pythia8_Mtt0to700_hadd.root
-nRun_TTbb4fHad = 5931890.0 # from file TTbb_4f_TTToHadronic_TuneCP5-Powheg-Openloops-Pythia8_tt1b_hadd.root
-nRun_TTbb4fSemiLep = 4999229.0 # from file TTbb_4f_TTToSemiLeptonic_TuneCP5-Powheg-Openloops-Pythia8_HT0Njet0_tt1b_hadd.root
-nRun_TTbb4f2L2nu = 3250164.0 # from file TTbb_4f_TTTo2l2nu_TuneCP5-Powheg-Openloops-Pythia8_tt1b_hadd.root
 nRun['TTJetsHad0']    = nRun_TTJetsHad * filtEff_TTJets0mtt 
 nRun['TTJetsHad700']  = nRun_TTJetsHad * filtEff_TTJets700mtt  + nRun_TTJets700mtt  * BR_TTJetsHad
 nRun['TTJetsHad1000'] = nRun_TTJetsHad * filtEff_TTJets1000mtt + nRun_TTJets1000mtt * BR_TTJetsHad
@@ -48,11 +45,6 @@ nRun['TTJetsSemiLepNjet9'] = nRun_TTJetsSemiLep * filtEff_TTJetsSemiLepNjet9 + n
 nRun['TTJetsSemiLepNjet9bin'] = nRun['TTJetsSemiLepNjet9']
 nRun['TTJets2L2nu'] = nRun_TTJets2L2nu
 nRun['TTJetsSemiLep'] = nRun_TTJetsSemiLep
-nRun['TTbb4fHad'] = nRun_TTbb4fHad
-nRun['TTbb4fSemiLep'] = nRun_TTbb4fSemiLep
-nRun['TTbb4fSemiLepNjet0'] = nRun_TTbb4fSemiLep
-nRun['TTbb4fSemiLepNjet9'] = nRun_TTbb4fSemiLep
-nRun['TTbb4f2L2nu'] = nRun_TTbb4f2L2nu
 
 nRun['TTJets2L2nuUEdn'] = 5431150.0 # from integral, file TTTo2L2Nu_TuneCP5down_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root
 nRun['TTJets2L2nuUEup'] = 5455598.0 # from integral, file TTTo2L2Nu_TuneCP5up_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root
@@ -66,12 +58,6 @@ nRun['TTJetsHadUEdn'] = 25943263.0 # from integral, file TTToHadronic_TuneCP5dow
 nRun['TTJetsHadUEup'] = 26986311.0 # from integral, file TTToHadronic_TuneCP5up_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root
 nRun['TTJetsHadHDAMPdn'] = 26007959.0 # from integral, file TTToHadronic_hdampDOWN_TuneCP5_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root
 nRun['TTJetsHadHDAMPup'] = 25586551.0 # from integral, file TTToHadronic_hdampUP_TuneCP5_PSweights_13TeV-powheg-pythia8_ttbb_hadd.root
-nRun['TTbb4f2L2nuHDAMPdn'] = 1795122.0 # from integral, file TTbb_4f_TTTo2l2nu_hdampDOWN_TuneCP5-Powheg-Openloops-Pythia8_tt1b_hadd.root
-nRun['TTbb4f2L2nuHDAMPup'] = 2125128.0 # from integral, file TTbb_4f_TTTo2l2nu_hdampUP_TuneCP5-Powheg-Openloops-Pythia8_tt1b_hadd.root
-nRun['TTbb4fSemiLepHDAMPdn'] = 1685846.0 # from integral, file TTbb_4f_TTToSemiLeptonic_hdampDOWN_TuneCP5-Powheg-Openloops-Pythia8_HT0Njet0_tt1b_hadd.root
-nRun['TTbb4fSemiLepHDAMPup'] = 1829508.0 # from integral, file TTbb_4f_TTToSemiLeptonic_hdampUP_TuneCP5-Powheg-Openloops-Pythia8_HT0Njet0_tt1b_hadd.root
-nRun['TTbb4fHadHDAMPdn'] = 2006598.0 # from integral, file TTbb_4f_TTToHadronic_hdampDOWN_TuneCP5-Powheg-Openloops-Pythia8_tt1b_hadd.root
-nRun['TTbb4fHadHDAMPup'] = 1881082.0 # from integral, file TTbb_4f_TTToHadronic_hdampUP_TuneCP5-Powheg-Openloops-Pythia8_tt1b_hadd.root
 
 nRun_TTJetsSemiLepUEdn = nRun['TTJetsSemiLepUEdn']
 nRun_TTJetsSemiLepUEup = nRun['TTJetsSemiLepUEup']
@@ -93,10 +79,6 @@ nRun['TTJetsSemiLepHDAMPdnNjet9bin'] = nRun['TTJetsSemiLepHDAMPdnNjet9']
 nRun['TTJetsSemiLepHDAMPupNjet0'] = nRun_TTJetsSemiLepHDAMPup * ( 1. - filtEff_TTJetsSemiLepNjet9HDAMPup ) 
 nRun['TTJetsSemiLepHDAMPupNjet9'] = nRun_TTJetsSemiLepHDAMPup * filtEff_TTJetsSemiLepNjet9HDAMPup + nRun_TTJetsSemiLepHDAMPupNjet9
 nRun['TTJetsSemiLepHDAMPupNjet9bin'] = nRun['TTJetsSemiLepHDAMPupNjet9']
-nRun['TTbb4fSemiLepHDAMPdnNjet0'] = nRun['TTbb4fSemiLepHDAMPdn']
-nRun['TTbb4fSemiLepHDAMPdnNjet9'] = nRun['TTbb4fSemiLepHDAMPdn']
-nRun['TTbb4fSemiLepHDAMPupNjet0'] = nRun['TTbb4fSemiLepHDAMPup']
-nRun['TTbb4fSemiLepHDAMPupNjet9'] = nRun['TTbb4fSemiLepHDAMPup']
 
 nRun['Ts'] = 6895750.0 # from integral 6898000.0, file ST_s-channel_top_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
 nRun['Tbs'] = 2952214.0 # from integral 2953000.0, file ST_s-channel_antitop_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
@@ -200,15 +182,6 @@ xsec['TTJetsSemiLepNjet9bin'] = xsec['TTJetsSemiLepNjet9']
 xsec['TTJets2L2nu'] = xsec['TTJets'] * BR_TTJets2L2nu
 xsec['TTJetsSemiLep'] = xsec['TTJets'] * BR_TTJetsSemiLep
 
-xsec_TTbb4fSemiLep = 15.61 #from HIG-19-011/AN2019_094 analists (matching tt+B fraction) #19.28 from tt+bb MC
-xsec_TTbb4f2L2nu = 3.77 #from HIG-19-011/AN2019_094 analists (matching tt+B fraction) #4.59 from tt+bb MC
-xsec_TTbb4fHad = 16.14 #from HIG-19-011/AN2019_094 analists (matching tt+B fraction) #19.90 from tt+bb MC
-xsec['TTbb4fHad'] = xsec_TTbb4fHad
-xsec['TTbb4fSemiLep'] = xsec_TTbb4fSemiLep
-xsec['TTbb4fSemiLepNjet0'] = xsec_TTbb4fSemiLep
-xsec['TTbb4fSemiLepNjet9'] = xsec_TTbb4fSemiLep
-xsec['TTbb4f2L2nu'] = xsec_TTbb4f2L2nu
-
 xsec['TTJets2L2nuUEdn'] = xsec['TTJets'] * BR_TTJets2L2nu
 xsec['TTJets2L2nuUEup'] = xsec['TTJets'] * BR_TTJets2L2nu
 xsec['TTJets2L2nuHDAMPdn'] = xsec['TTJets'] * BR_TTJets2L2nu
@@ -222,13 +195,6 @@ xsec['TTJetsHadUEup'] = xsec['TTJets'] * BR_TTJetsHad
 xsec['TTJetsHadHDAMPdn'] = xsec['TTJets'] * BR_TTJetsHad
 xsec['TTJetsHadHDAMPup'] = xsec['TTJets'] * BR_TTJetsHad
 
-xsec['TTbb4fHadHDAMPdn'] = xsec_TTbb4fHad
-xsec['TTbb4fHadHDAMPup'] = xsec_TTbb4fHad
-xsec['TTbb4fSemiLepHDAMPdn'] = xsec_TTbb4fSemiLep
-xsec['TTbb4fSemiLepHDAMPup'] = xsec_TTbb4fSemiLep
-xsec['TTbb4f2L2nuHDAMPdn'] = xsec_TTbb4f2L2nu
-xsec['TTbb4f2L2nuHDAMPup'] = xsec_TTbb4f2L2nu
-
 xsec['TTJetsSemiLepUEdnNjet0'] = xsec['TTJets'] * BR_TTJetsSemiLep * ( 1. - filtEff_TTJetsSemiLepNjet9UEdn ) 
 xsec['TTJetsSemiLepUEdnNjet9'] = xsec['TTJets'] * BR_TTJetsSemiLep * filtEff_TTJetsSemiLepNjet9UEdn
 xsec['TTJetsSemiLepUEdnNjet9bin'] = xsec['TTJetsSemiLepUEdnNjet9']
@@ -241,10 +207,6 @@ xsec['TTJetsSemiLepHDAMPdnNjet9bin'] = xsec['TTJetsSemiLepHDAMPdnNjet9']
 xsec['TTJetsSemiLepHDAMPupNjet0'] = xsec['TTJets'] * BR_TTJetsSemiLep * ( 1. - filtEff_TTJetsSemiLepNjet9HDAMPup ) 
 xsec['TTJetsSemiLepHDAMPupNjet9'] = xsec['TTJets'] * BR_TTJetsSemiLep * filtEff_TTJetsSemiLepNjet9HDAMPup
 xsec['TTJetsSemiLepHDAMPupNjet9bin'] = xsec['TTJetsSemiLepHDAMPupNjet9']
-xsec['TTbb4fSemiLepHDAMPdnNjet0'] = xsec_TTbb4fSemiLep
-xsec['TTbb4fSemiLepHDAMPdnNjet9'] = xsec_TTbb4fSemiLep
-xsec['TTbb4fSemiLepHDAMPupNjet0'] = xsec_TTbb4fSemiLep
-xsec['TTbb4fSemiLepHDAMPupNjet9'] = xsec_TTbb4fSemiLep
 
 xsec['Ts'] = 6.35*0.3259 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
 xsec['Tbs'] = 3.97*0.3259 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
@@ -364,11 +326,6 @@ for flv in ['jj','cc','bb','1b','2b']:
 	weight['TTJetsSemiLepNjet0TT'+flv] = weight['TTJetsSemiLepNjet0']
 	weight['TTJetsSemiLepNjet9TT'+flv] = weight['TTJetsSemiLepNjet9']
 	weight['TTJetsSemiLepNjet9binTT'+flv] = weight['TTJetsSemiLepNjet9bin']
-	weight['TTbb4f2L2nuTT'+flv] = weight['TTbb4f2L2nu']
-	weight['TTbb4fHadTT'+flv] = weight['TTbb4fHad']
-	weight['TTbb4fSemiLepTT'+flv] = weight['TTbb4fSemiLep']
-	weight['TTbb4fSemiLepNjet0TT'+flv] = weight['TTbb4fSemiLepNjet0']
-	weight['TTbb4fSemiLepNjet9TT'+flv] = weight['TTbb4fSemiLepNjet9']
 	for syst in ['UEdn','UEup','HDAMPdn','HDAMPup']:
 		weight['TTJets2L2nu'+syst+'TT'+flv] = weight['TTJets2L2nu'+syst]
 		weight['TTJetsHad'+syst+'TT'+flv] = weight['TTJetsHad'+syst]
@@ -376,12 +333,6 @@ for flv in ['jj','cc','bb','1b','2b']:
 		weight['TTJetsSemiLep'+syst+'Njet0TT'+flv] = weight['TTJetsSemiLep'+syst+'Njet0']
 		weight['TTJetsSemiLep'+syst+'Njet9TT'+flv] = weight['TTJetsSemiLep'+syst+'Njet9']
 		weight['TTJetsSemiLep'+syst+'Njet9binTT'+flv] = weight['TTJetsSemiLep'+syst+'Njet9bin']
-		if 'HDAMP' in syst:
-			weight['TTbb4f2L2nu'+syst+'TT'+flv] = weight['TTbb4f2L2nu'+syst]
-			weight['TTbb4fHad'+syst+'TT'+flv] = weight['TTbb4fHad'+syst]
-			weight['TTbb4fSemiLep'+syst+'TT'+flv] = weight['TTbb4fSemiLep'+syst]
-			weight['TTbb4fSemiLep'+syst+'Njet0TT'+flv] = weight['TTbb4fSemiLep'+syst+'Njet0']
-			weight['TTbb4fSemiLep'+syst+'Njet9TT'+flv] = weight['TTbb4fSemiLep'+syst+'Njet9']
 
 weight['TTJetsSemiLepNjet0TTjj1'] = weight['TTJetsSemiLepNjet0']
 weight['TTJetsSemiLepNjet0TTjj2'] = weight['TTJetsSemiLepNjet0']

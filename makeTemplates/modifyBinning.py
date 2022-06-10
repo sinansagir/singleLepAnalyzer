@@ -38,7 +38,7 @@ elif year=='R18':
 	from weights18 import *
 
 iPlot=sys.argv[2]
-saveKey = ''#'_2b300GeV3b150GeV4b50GeVbins'
+saveKey = ''
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
@@ -157,13 +157,6 @@ htRwtSys = 0.0
 elcorrdSys = math.sqrt(lumiSys**2+eltrigSys**2+elIdSys**2+elIsoSys**2+htRwtSys**2)#+njetSys**2)
 mucorrdSys = math.sqrt(lumiSys**2+mutrigSys**2+muIdSys**2+muIsoSys**2+htRwtSys**2)#+njetSys**2)
 
-### SFs for theory uncertainties to include acceptance (or allow event migration)
-### Numbers calculated at preselection with 4+jets -- SS May2022
-muSFsUp = {'R16':1.2888,'R17':1.2890,'R18':1.2889}
-muSFsDn = {'R16':0.7524,'R17':0.7527,'R18':0.7523}
-pdfSFsUp = {'R16':1.0015,'R17':1.0015,'R18':1.0016}
-pdfSFsDn = {'R16':0.9976,'R17':0.9977,'R18':0.9976}
-
 removalKeys = {} # True == keep, False == remove
 removalKeys['JEC_Total'] = False
 removalKeys['JEC_FlavorQCD'] = False
@@ -215,15 +208,6 @@ for i in shiftlist:
 
 
 allhists = {chn:[hist.GetName() for hist in tfile.GetListOfKeys() if '_'+chn+'_' in hist.GetName()] for chn in channels}
-shiftlist=[]
-for i in range(len(channels)):
-	if 'nJ10p' in channels[i]:
-		shiftlist.append(i)
-for i in shiftlist:
-	toshift=channels[i]
-	nJ9ind = channels.index(toshift.replace('nJ10p','nJ9'))
-	channels.remove(toshift)
-	channels.insert(nJ9ind,toshift)
 
 totBkgHists = {}
 dataHists_ = {}
@@ -336,9 +320,7 @@ for chn in xbinsListTemp.keys():
 	# 		break
 
 	for ibin in range(1,len(xbinsList[chn])-1):
-		if xbinsList[chn][ibin-delcount]<=xbinsList[chn][0] or xbinsList[chn][ibin-delcount]>=xbinsList[chn][-1]: 
-			del xbinsList[chn][ibin-delcount]
-			delcount+=1
+		if xbinsList[chn][ibin]<=xbinsList[chn][0] or xbinsList[chn][ibin]>=xbinsList[chn][-1]: del xbinsList[chn][ibin]
 	print chn,"=",xbinsList[chn]
 print "//"*40
 print "==> Total number of bins =",totNbins
@@ -719,10 +701,7 @@ for rfile in rfiles:
 					muRFDnHist.SetBinError(ibin,histList[indCorrdDn].GetBinError(ibin))
 				yieldsAll[muRFUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFUpHist.Integral()
 				yieldsAll[muRFDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = muRFDnHist.Integral()
-				if normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist): #normalize up/down shifts to nominal for signal
-					muRFUpHist.Scale(1./muSFsUp[year]) #drop down
-					muRFDnHist.Scale(1./muSFsDn[year]) #raise up
-				if normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist): #normalize up/down shifts to nominal for background
+				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
 					muRFUpHist.Scale(histList[0].Integral()/(muRFUpHist.Integral()+zero))
 					muRFDnHist.Scale(histList[0].Integral()/(muRFDnHist.Integral()+zero))
 				muRFUpHist.Write()
@@ -842,10 +821,7 @@ for rfile in rfiles:
 					pdfDnHist.SetBinError(ibin,rebinnedHists[hist.replace('pdf0','pdf'+str(indPDFDn))].GetBinError(ibin))
 				yieldsAll[pdfUpHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfUpHist.Integral()
 				yieldsAll[pdfDnHist.GetName().replace('_sig','_'+rfile.split('_')[-2])] = pdfDnHist.Integral()
-				if normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist): #normalize up/down shifts to nominal for signal
-					pdfUpHist.Scale(1./pdfSFsUp[year]) #drop down
-					pdfDnHist.Scale(1./pdfSFsDn[year]) #raise up
-				if normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist): #normalize up/down shifts to nominal for background
+				if (normalizeTheorySystSig and ('__sig' in hist or '__'+sigName in hist)) or (normalizeTheorySystBkg and not ('__sig' in hist or '__'+sigName in hist)): #normalize up/down shifts to nominal
 					nominalInt = rebinnedHists[hist[:hist.find('__pdf')]].Integral()
 					pdfUpHist.Scale(nominalInt/(pdfUpHist.Integral()+zero))
 					pdfDnHist.Scale(nominalInt/(pdfDnHist.Integral()+zero))

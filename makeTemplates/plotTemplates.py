@@ -61,12 +61,10 @@ ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 if iPlot=='HTYLD' or iPlot=='BDTYLD': 
 	ttProcList = ['ttbb','ttnobb']
 	useCombineTemplates = False
-	#scaleSignals = True
+	scaleSignals = True
 bkgProcList = ttProcList+['ttH','top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-elif 'tttt' in sig: 
-	#bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-	bkgHistColors = {'ttbb':rt.TColor.GetColor("#d3eeef"),'ttnobb':rt.TColor.GetColor("#cf9ddb"),'ttH':rt.TColor.GetColor("#163d4e"),'top':rt.TColor.GetColor("#54792f"),'ewk':rt.TColor.GetColor("#d07e93"),'qcd':rt.TColor.GetColor("#c1caf3")} #4T
+elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
@@ -192,8 +190,7 @@ def formatUpperHist(histogram,histogramBkg):
 		else: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
 		
 def formatLowerHist(histogram,disc):
-	histogram.GetXaxis().SetLabelSize(0.12)
-	if 'YLD' in iPlot: histogram.GetXaxis().SetLabelSize(0.10)
+	histogram.GetXaxis().SetLabelSize(.12)
 	histogram.GetXaxis().SetTitleSize(0.15)
 	histogram.GetXaxis().SetTitleOffset(0.95)
 	histogram.GetXaxis().SetNdivisions(506)
@@ -243,10 +240,6 @@ if blind == True: B = 0.12*H_ref
 if 'YLD' in iPlot: B = 0.60*H_ref
 L = 0.12*W_ref
 R = 0.04*W_ref
-if 'YLD' in iPlot: B = 0.46*H_ref
-if blind == True: 
-	B = 0.12*H_ref
-	if 'YLD' in iPlot: B = 0.30*H_ref
 
 tagPosX = 0.76
 tagPosY = 0.62
@@ -688,7 +681,7 @@ for catEStr in catsElist:
 				else: pull.SetBinContent(binNo,0.)
 			pull.SetMaximum(3)
 			pull.SetMinimum(-3)
-			if '53' in sig or 'tttt' in sig:
+			if '53' in sig or '4T' in sig:
 				pull.SetFillColor(2)
 				pull.SetLineColor(2)
 			else:
@@ -1106,7 +1099,7 @@ for catEStr in catsElist:
 			else: pullmerged.SetBinContent(binNo,0.)
 		pullmerged.SetMaximum(3)
 		pullmerged.SetMinimum(-3)
-		if '53' in sig or 'tttt' in sig:
+		if '53' in sig or '4T' in sig:
 			pullmerged.SetFillColor(2)
 			pullmerged.SetLineColor(2)
 		else:
