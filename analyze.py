@@ -52,6 +52,9 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		cut += ' && (minDR_lepJet > 0.4)'# || ptRel_lepJet > 40)'
 	cut += ' && (AK4HT  > '+str(cutList['AK4HTCut'])+')'
 	
+	cut += ' && (nPV_MultiLepCalc>=25)'
+	# cut += ' && (nPV_MultiLepCalc<25)'
+
 	if process.startswith('TTJetsSemiLepNjet0'): cut += ' && (isHTgt500Njetge9 == 0)'
 	if process.startswith('TTJetsSemiLepNjet9'): cut += ' && (isHTgt500Njetge9 == 1)'
 
@@ -161,6 +164,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		weightStr          += ' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
 		if '16' in year: weightStr += ' * muTrkSF * muPtSF'
 		#weightStr 	   	   += ' * btagCSVWeight * btagCSVRenormWeight'
+		weightStr += ' * btagCSVWeight * btagCSV2DWeight_HTnj'
 		weightStrNoNjet = weightStr
 		#weightStr = njetStr + ' * ' + weightStr #UNCOMMENT HERE TO APPLY NJET SF!!!!!!!
 		weightTriggerUpStr  = weightStr.replace(TrigSF,'('+TrigSF+'+'+TrigSF+'Uncert)')
@@ -185,10 +189,29 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		weightNjetDownStr   = njetDownStr + ' * ' + weightStrNoNjet
 		weightNjetSFUpStr   = njetStr + ' * ' + weightStrNoNjet
 		weightNjetSFDownStr = weightStrNoNjet
-		weightCSVshapelfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFup')
-		weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn')
-		weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup')
-		weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn')
+		
+		weightCSVshapelfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFup').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_LFup')
+		weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_LFdn')
+		weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_HFup')
+		weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_HFdn')
+		
+		weightCSVshapejesUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesUp').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_jesup')
+		weightCSVshapejesDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesDn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_jesdn')
+		weightCSVshapehfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats1up')
+		weightCSVshapehfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats1dn')
+		weightCSVshapehfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats2up')
+		weightCSVshapehfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats2dn')
+		weightCSVshapecferr1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr1up')
+		weightCSVshapecferr1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr1dn')
+		weightCSVshapecferr2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr2up')
+		weightCSVshapecferr2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr2dn')
+		weightCSVshapelfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats1up')
+		weightCSVshapelfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats1dn')
+		weightCSVshapelfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats2up')
+		weightCSVshapelfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats2dn')
+ 
+
+		
 	else:
 		if '17' in year: cut += ' && !((run_CommonCalc == 299480 && lumi_CommonCalc == 7) || (run_CommonCalc == 301397 && lumi_CommonCalc == 518) || (run_CommonCalc == 305366 && lumi_CommonCalc == 395))' # for 1lep2017_Oct2019
 		elif '18' in year: cut += ' && !((run_CommonCalc == 322430 && lumi_CommonCalc >= 502 && lumi_CommonCalc <= 794) || (run_CommonCalc == 322431 && lumi_CommonCalc <= 53))' # for 1lep2018_Oct2019
@@ -210,9 +233,15 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	nhottLJMETname = 'NresolvedTops1pFake'
 	nttagLJMETname = 'NJetsTtagged'
 	nWtagLJMETname = 'NJetsWtagged'
-	nbtagLJMETname = 'NJetsCSVwithSF_MultiLepCalc' # _MultiLepCalc version uses DeepCSV and _JetSubCalc version uses DeepFlv in Oct2019 production!
+# 	nbtagLJMETname = 'NJetsCSVwithSF_MultiLepCalc' # _MultiLepCalc version uses DeepCSV and _JetSubCalc version uses DeepFlv in Oct2019 production!
+	nbtagLJMETname = 'NJetsCSV_MultiLepCalc' # _MultiLepCalc version uses DeepCSV and _JetSubCalc version uses DeepFlv in Oct2019 production!
 	if 'BJets' in iPlot: nbtagLJMETname = plotTreeName
 	njetsLJMETname = 'NJets_JetSubCalc'
+
+	# nbtagLJMETname = 'NJetsCSV40_MultiLepCalc'
+	# njetsLJMETname = 'NJets40_JetSubCalc'
+	# nbtagLJMETname = 'NJetsCSV50_MultiLepCalc'
+	# njetsLJMETname = 'NJets50_JetSubCalc'
 
 	nhottCut = ''
 	if 'p' in nhott: nhottCut+=' && '+nhottLJMETname+'>='+nhott[:-1]
@@ -252,14 +281,14 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 # 		elif flv=='_tt2b': fullcut+=' && genTtbarIdCategory_TTbarMassCalc[0]==4'
 		
 	# replace cuts for shifts
-	cut_btagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFup')
-	cut_btagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFdn')
-	cut_btagcorrUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFCorrup')
-	cut_btagcorrDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFCorrdn')
-	cut_btaguncorrUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFUncorrup')
-	cut_btaguncorrDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFUncorrdn')
-	cut_mistagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_lSFup')
-	cut_mistagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_lSFdn')
+# 	cut_btagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFup')
+# 	cut_btagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFdn')
+# 	cut_btagcorrUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFCorrup')
+# 	cut_btagcorrDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFCorrdn')
+# 	cut_btaguncorrUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFUncorrup')
+# 	cut_btaguncorrDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_bSFUncorrdn')
+# 	cut_mistagUp = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_lSFup')
+# 	cut_mistagDn = fullcut.replace(nbtagLJMETname,nbtagLJMETname+'_lSFdn')
 	
 	cut_tau21Up = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[0]')
 	cut_tau21Dn = fullcut.replace(nWtagLJMETname,nWtagLJMETname+'_shifts[1]')
@@ -295,7 +324,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	if isPlot2D: hists[histName]  = TH2D(histName,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[histName]  = TH1D(histName,xAxisLabel,len(xbins)-1,xbins)
 	if doAllSys:
-		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf']#,'toppt'
+		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf','CSVshapejes','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#,'bdt']#,'toppt'
 		if '18' not in year: systList += ['prefire']
 		for proc in tTree.keys():
 			if proc.endswith('Up'):
@@ -316,6 +345,10 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 # 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'triggerDown')   , weightTriggerDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupUp')      , weightPileupUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupDown')    , weightPileupDownStr+'*('+fullcut+')', 'GOFF')
+
+		# tTree[process].Draw(plotTreeName+'*1.10 >> '+histName.replace(iPlot,iPlot+'bdtUp')      , weightStr+'*('+fullcut+')', 'GOFF')
+		# tTree[process].Draw(plotTreeName+'*0.90 >> '+histName.replace(iPlot,iPlot+'bdtDown')    , weightStr+'*('+fullcut+')', 'GOFF')
+
 		if '18' not in year:
 			tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'prefireUp')  , weightPrefireUpStr+'*('+fullcut+')', 'GOFF')
 			tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'prefireDown'), weightPrefireDownStr+'*('+fullcut+')', 'GOFF')
@@ -335,10 +368,32 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'njetDown')      , weightNjetDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'njetsfUp')      , weightNjetSFUpStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'njetsfDown')    , weightNjetSFDownStr+'*('+fullcut+')', 'GOFF')
-# 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfUp')  , weightCSVshapelfUpStr+'*('+fullcut+')', 'GOFF')
-# 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfDown'), weightCSVshapelfDownStr+'*('+fullcut+')', 'GOFF')
-# 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfUp')  , weightCSVshapehfUpStr+'*('+fullcut+')', 'GOFF')
-# 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfDown'), weightCSVshapehfDownStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfUp')  , weightCSVshapelfUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfDown'), weightCSVshapelfDownStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfUp')  , weightCSVshapehfUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfDown'), weightCSVshapehfDownStr+'*('+fullcut+')', 'GOFF')
+		#jes
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapejesUp')  , weightCSVshapejesUpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapejesDown'), weightCSVshapejesDownStr+'*('+fullcut+')', 'GOFF')
+		#hfstats1
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfstats1Up')  , weightCSVshapehfstats1UpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfstats1Down'), weightCSVshapehfstats1DownStr+'*('+fullcut+')', 'GOFF')
+		#hfstats2				
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfstats2Up')  , weightCSVshapehfstats2UpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapehfstats2Down'), weightCSVshapehfstats2DownStr+'*('+fullcut+')', 'GOFF')
+		#cferr1					
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapecferr1Up')  , weightCSVshapecferr1UpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapecferr1Down'), weightCSVshapecferr1DownStr+'*('+fullcut+')', 'GOFF')
+		#cferr2					
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapecferr2Up')  , weightCSVshapecferr2UpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapecferr2Down'), weightCSVshapecferr2DownStr+'*('+fullcut+')', 'GOFF')
+		#lfstats1					
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfstats1Up')  , weightCSVshapelfstats1UpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfstats1Down'), weightCSVshapelfstats1DownStr+'*('+fullcut+')', 'GOFF')
+		#lfstats2					
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfstats2Up')  , weightCSVshapelfstats2UpStr+'*('+fullcut+')', 'GOFF')
+		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'CSVshapelfstats2Down'), weightCSVshapelfstats2DownStr+'*('+fullcut+')', 'GOFF')
+		
 
 		# Change the plot name itself for shifts if needed
 		# hot-tagging:
@@ -411,32 +466,36 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
                 BTAGUNCORRdnName = plotTreeName#.replace('_lepBJets','_bSFdn_lepBJets')
 		MISTAGupName = plotTreeName#.replace('_lepBJets','_lSFup_lepBJets')
 		MISTAGdnName = plotTreeName#.replace('_lepBJets','_lSFdn_lepBJets')
-		if 'CSVwithSF' in BTAGupName:# or 'Htag' in BTAGupName or 'MleppB' in BTAGupName or 'BJetLead' in BTAGupName or 'minMlb' in BTAGupName: 
-			BTAGupName = BTAGupName+'_bSFup'
-			BTAGdnName = BTAGdnName+'_bSFdn'
-                        BTAGCORRupName = BTAGCORRupName+'_bSFCorrup'
-                        BTAGCORRdnName = BTAGCORRdnName+'_bSFCorrdn'
-                        BTAGUNCORRupName = BTAGUNCORRupName+'_bSFUncorrup'
-                        BTAGUNCORRdnName = BTAGUNCORRdnName+'_bSFUncorrdn'
-			MISTAGupName = MISTAGupName+'_lSFup'
-			MISTAGdnName = MISTAGdnName+'_lSFdn'
+# 		if 'CSVwithSF' in BTAGupName:# or 'Htag' in BTAGupName or 'MleppB' in BTAGupName or 'BJetLead' in BTAGupName or 'minMlb' in BTAGupName: 
+# 			BTAGupName = BTAGupName+'_bSFup'
+# 			BTAGdnName = BTAGdnName+'_bSFdn'
+#                         BTAGCORRupName = BTAGCORRupName+'_bSFCorrup'
+#                         BTAGCORRdnName = BTAGCORRdnName+'_bSFCorrdn'
+#                         BTAGUNCORRupName = BTAGUNCORRupName+'_bSFUncorrup'
+#                         BTAGUNCORRdnName = BTAGUNCORRdnName+'_bSFUncorrdn'
+# 			MISTAGupName = MISTAGupName+'_lSFup'
+# 			MISTAGdnName = MISTAGdnName+'_lSFdn'
 		print 'BTAG SHIFT LJMET NAMES:',BTAGupName,BTAGdnName,MISTAGupName,MISTAGdnName
-		if nbtag!='0p':
-			tTree[process].Draw(BTAGupName  +' >> '+histName.replace(iPlot,iPlot+'btagUp')    , weightStr+'*('+cut_btagUp+')', 'GOFF')
-			tTree[process].Draw(BTAGdnName  +' >> '+histName.replace(iPlot,iPlot+'btagDown')  , weightStr+'*('+cut_btagDn+')', 'GOFF')
-			tTree[process].Draw(BTAGCORRupName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrUp')    , weightStr+'*('+cut_btagcorrUp+')', 'GOFF')
-			tTree[process].Draw(BTAGCORRdnName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrDown')  , weightStr+'*('+cut_btagcorrDn+')', 'GOFF')
-			tTree[process].Draw(BTAGUNCORRupName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrUp')    , weightStr+'*('+cut_btaguncorrUp+')', 'GOFF')
-			tTree[process].Draw(BTAGUNCORRdnName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrDown')  , weightStr+'*('+cut_btaguncorrDn+')', 'GOFF')
-			tTree[process].Draw(MISTAGupName+' >> '+histName.replace(iPlot,iPlot+'mistagUp')  , weightStr+'*('+cut_mistagUp+')', 'GOFF')
-			tTree[process].Draw(MISTAGdnName+' >> '+histName.replace(iPlot,iPlot+'mistagDown'), weightStr+'*('+cut_mistagDn+')', 'GOFF')
+# 		if nbtag!='0p':
+# 			tTree[process].Draw(BTAGupName  +' >> '+histName.replace(iPlot,iPlot+'btagUp')    , weightStr+'*('+cut_btagUp+')', 'GOFF')
+# 			tTree[process].Draw(BTAGdnName  +' >> '+histName.replace(iPlot,iPlot+'btagDown')  , weightStr+'*('+cut_btagDn+')', 'GOFF')
+# 			tTree[process].Draw(BTAGCORRupName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrUp')    , weightStr+'*('+cut_btagcorrUp+')', 'GOFF')
+# 			tTree[process].Draw(BTAGCORRdnName  +' >> '+histName.replace(iPlot,iPlot+'btagcorrDown')  , weightStr+'*('+cut_btagcorrDn+')', 'GOFF')
+# 			tTree[process].Draw(BTAGUNCORRupName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrUp')    , weightStr+'*('+cut_btaguncorrUp+')', 'GOFF')
+# 			tTree[process].Draw(BTAGUNCORRdnName  +' >> '+histName.replace(iPlot,iPlot+'btaguncorrDown')  , weightStr+'*('+cut_btaguncorrDn+')', 'GOFF')
+# 			tTree[process].Draw(MISTAGupName+' >> '+histName.replace(iPlot,iPlot+'mistagUp')  , weightStr+'*('+cut_mistagUp+')', 'GOFF')
+# 			tTree[process].Draw(MISTAGdnName+' >> '+histName.replace(iPlot,iPlot+'mistagDown'), weightStr+'*('+cut_mistagDn+')', 'GOFF')
 
 		for proc in tTree.keys():
 			if proc.endswith('Up') and tTree[proc]:
 				systName = proc[:-2].replace(process,'')
 				print 'Processing '+systName+' ...'
-				tTree[process+systName+'Up'].Draw(plotTreeName   +' >> '+histName.replace(iPlot,iPlot+systName+'Up')  , weightStr+'*('+fullcut+')', 'GOFF')
-				tTree[process+systName+'Down'].Draw(plotTreeName +' >> '+histName.replace(iPlot,iPlot+systName+'Down'), weightStr+'*('+fullcut+')', 'GOFF')
+				if systName == 'JEC':
+					tTree[process+systName+'Up'].Draw(plotTreeName   +' >> '+histName.replace(iPlot,iPlot+systName+'Up')  , weightCSVshapejesUpStr+'*('+fullcut+')', 'GOFF')
+					tTree[process+systName+'Down'].Draw(plotTreeName +' >> '+histName.replace(iPlot,iPlot+systName+'Down'), weightCSVshapejesDownStr+'*('+fullcut+')', 'GOFF')
+				else:
+					tTree[process+systName+'Up'].Draw(plotTreeName   +' >> '+histName.replace(iPlot,iPlot+systName+'Up')  , weightStr+'*('+fullcut+')', 'GOFF')
+					tTree[process+systName+'Down'].Draw(plotTreeName +' >> '+histName.replace(iPlot,iPlot+systName+'Down'), weightStr+'*('+fullcut+')', 'GOFF')
 		if doPDF:
 			print 'Processing PDF ...'
 			for i in range(100): 

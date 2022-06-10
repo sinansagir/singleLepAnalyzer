@@ -93,10 +93,13 @@ nRun['TTJetsSemiLepHDAMPdnNjet9bin'] = nRun['TTJetsSemiLepHDAMPdnNjet9']
 nRun['TTJetsSemiLepHDAMPupNjet0'] = nRun_TTJetsSemiLepHDAMPup * ( 1. - filtEff_TTJetsSemiLepNjet9HDAMPup ) 
 nRun['TTJetsSemiLepHDAMPupNjet9'] = nRun_TTJetsSemiLepHDAMPup * filtEff_TTJetsSemiLepNjet9HDAMPup + nRun_TTJetsSemiLepHDAMPupNjet9
 nRun['TTJetsSemiLepHDAMPupNjet9bin'] = nRun['TTJetsSemiLepHDAMPupNjet9']
+<<<<<<< HEAD
 nRun['TTbb4fSemiLepHDAMPdnNjet0'] = nRun['TTbb4fSemiLepHDAMPdn']
 nRun['TTbb4fSemiLepHDAMPdnNjet9'] = nRun['TTbb4fSemiLepHDAMPdn']
 nRun['TTbb4fSemiLepHDAMPupNjet0'] = nRun['TTbb4fSemiLepHDAMPup']
 nRun['TTbb4fSemiLepHDAMPupNjet9'] = nRun['TTbb4fSemiLepHDAMPup']
+=======
+>>>>>>> 3d14dc1b0f59d19b6a15bbf114c9b5ea9fc8d148
 
 #nRun['Ts'] = 12458638.0 # from integral , file ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8_hadd.root
 nRun['Ts']  = 6932180.0 # from integral , file ST_s-channel_top_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
@@ -244,10 +247,13 @@ xsec['TTJetsSemiLepHDAMPdnNjet9bin'] = xsec['TTJetsSemiLepHDAMPdnNjet9']
 xsec['TTJetsSemiLepHDAMPupNjet0'] = xsec['TTJets'] * BR_TTJetsSemiLep * ( 1. - filtEff_TTJetsSemiLepNjet9HDAMPup ) 
 xsec['TTJetsSemiLepHDAMPupNjet9'] = xsec['TTJets'] * BR_TTJetsSemiLep * filtEff_TTJetsSemiLepNjet9HDAMPup
 xsec['TTJetsSemiLepHDAMPupNjet9bin'] = xsec['TTJetsSemiLepHDAMPupNjet9']
+<<<<<<< HEAD
 xsec['TTbb4fSemiLepHDAMPdnNjet0'] = xsec_TTbb4fSemiLep
 xsec['TTbb4fSemiLepHDAMPdnNjet9'] = xsec_TTbb4fSemiLep
 xsec['TTbb4fSemiLepHDAMPupNjet0'] = xsec_TTbb4fSemiLep
 xsec['TTbb4fSemiLepHDAMPupNjet9'] = xsec_TTbb4fSemiLep
+=======
+>>>>>>> 3d14dc1b0f59d19b6a15bbf114c9b5ea9fc8d148
 
 #xsec['Ts'] = 10.32*0.3259 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
 xsec['Ts'] = 6.35*0.3259 # https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SingleTopRefXsec
@@ -385,4 +391,3 @@ weight['TTJetsSemiLepNjet0TTjj2'] = weight['TTJetsSemiLepNjet0']
 for sample in weight.keys():
         if 'TTJetsSemiLep' in sample and ('Njet0TT' in sample or 'Njet9TT' in sample):
                 weight[sample.replace('TTJetsSemiLep','TTJetsSemiLepInc')] = weight[sample[:sample.find('Njet')]]
-

@@ -377,4 +377,3 @@ weight['TTJetsSemiLepNjet0TTjj2'] = weight['TTJetsSemiLepNjet0']
 weight['TTJetsSemiLepNjet0TTjj3'] = weight['TTJetsSemiLepNjet0']
 weight['TTJetsSemiLepNjet0TTjj4'] = weight['TTJetsSemiLepNjet0']
 weight['TTJetsSemiLepNjet0TTjj5'] = weight['TTJetsSemiLepNjet0']
-

@@ -13,9 +13,23 @@ start_time = time.time()
 
 # This script produces plots combining all 3 years.
 # It assumes that the paths for different years only differs by the year tag; R16, R17, and R18.
-year='R18'
-lumiStr= '59p97'
-lumi=137.4 #for plots
+
+# python plotFullRun2mcat.py BDT 40vars_6j_NJetsCSV_053121lim_newbin1 R18 1p 4p
+
+years_lumi_float = {
+'R18':59.97,
+'R16':35.867,
+'R17':41.53,
+}
+years_lumi_str = {
+'R18':'59p97',
+'R16':'35p867',
+'R17':'41p53',
+}
+
+year=sys.argv[3]
+lumiStr= years_lumi_str[year]
+lumi=137.4#years_lumi_float[year]#137.4 #for plots
 yearstoadd = {
 'R16':'35p867',
 'R17':'41p53',
@@ -32,7 +46,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[2]+'/'+cutString+'/'
 
-isRebinned='_R18bins_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_R18bins_rebinned_stat0p3_bdtcorr'#'_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '_v4' # tag for plot names
 
@@ -54,13 +68,13 @@ elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top'
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 sigColor= rt.kBlack
 
-systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf','bdtshape']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 if year != 'R18': systematicList += ['prefire']
 useSmoothShapes = True
 if not isCategorized: useSmoothShapes = False
 doAllSys = True
 addCRsys = False
-doOneBand = False
+doOneBand = True
 blind = False
 yLog  = True
 doRealPull = False
@@ -112,6 +126,25 @@ catsElist = [#manually add the list of categories to be displayed together (SHOU
 'isE_nHOT1p_nT0p_nW0p_nB2_nJ8p',
 'isE_nHOT1p_nT0p_nW0p_nB3_nJ8p',
 'isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p',
+
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ6',
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ7',
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ8',
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ9',
+# 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ10p',
+
+
+# 'isE_nHOT0_nT0p_nW0p_nB3_nJ6',
+# 'isE_nHOT0_nT0p_nW0p_nB3_nJ7',
+# 'isE_nHOT0_nT0p_nW0p_nB3_nJ8',
+# 'isE_nHOT0_nT0p_nW0p_nB3_nJ9',
+# 'isE_nHOT0_nT0p_nW0p_nB3_nJ10p',
+# 'isE_nHOT0_nT0p_nW0p_nB4p_nJ6',
+# 'isE_nHOT0_nT0p_nW0p_nB4p_nJ7',
+# 'isE_nHOT0_nT0p_nW0p_nB4p_nJ8',
+# 'isE_nHOT0_nT0p_nW0p_nB4p_nJ9',
+# 'isE_nHOT0_nT0p_nW0p_nB4p_nJ10p',
+
 ]
 catBound = {}
 
@@ -242,6 +275,7 @@ nBinsBkg = 0
 for catEStr in catsElist:
 	histPrefix=iPlot+'_'+lumiStr+'fb_'
 	histPrefix+=catEStr
+	print histPrefix+'__'+dataName
 	nBinsBkg += RFile.Get(histPrefix+'__'+dataName).GetNbinsX()
 for em in ['E','M','L']:
 	xaxislabel = 'H_{T} bins'
@@ -507,7 +541,7 @@ for isEM in ['E','M','L']:
 		#lPad.SetTickx(0)
 		#lPad.SetTicky(0)
 		lPad.Draw()
-	hDataCats[isEM].SetMaximum(1.2*max(hDataCats[isEM].GetMaximum(),bkgHT.GetMaximum()))
+	hDataCats[isEM].SetMaximum(1.8*max(hDataCats[isEM].GetMaximum(),bkgHT.GetMaximum()))
 	#hDataCats[isEM].SetMinimum(0.015)
 	hDataCats[isEM].SetTitle("")
 	hDataCats[isEM].GetYaxis().SetTitle("Events / bin")
@@ -733,8 +767,9 @@ for isEM in ['E','M','L']:
 	if compareShapes: savePrefix+='_shp'
 	if doOneBand: savePrefix+='_totBand'
 
-	c1.SaveAs(savePrefix+'.png')
-	c1.SaveAs(savePrefix+'.pdf')
+	if 'isL' in savePrefix:
+		# c1.SaveAs(savePrefix+'_'+sys.argv[4]+'_'+sys.argv[5]+'.png')
+		c1.SaveAs(savePrefix+'.pdf')
 	# c1.SaveAs(savePrefix+'.eps')
 	# c1.SaveAs(savePrefix+'.root')
 	# c1.SaveAs(savePrefix+'.C')

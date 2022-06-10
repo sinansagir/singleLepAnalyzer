@@ -392,4 +392,3 @@ weight['TTJetsSemiLepNjet0TTjj5'] = weight['TTJetsSemiLepNjet0']
 for sample in weight.keys():
         if 'TTJetsSemiLep' in sample and ('Njet0TT' in sample or 'Njet9TT' in sample):
                 weight[sample.replace('TTJetsSemiLep','TTJetsSemiLepInc')] = weight[sample[:sample.find('Njet')]]
-

@@ -14,7 +14,10 @@ rt.gROOT.SetBatch(1)
 
 outDir = os.getcwd()+'/'
 iPlot = sys.argv[1]#'HT'
-year = 'R18'
+year = sys.argv[2]#'R16'
+
+addStat=True
+
 if year=='R16':
 	lumiStr = '35p867fb'
 	lumi=35.9 #for plots
@@ -26,8 +29,8 @@ elif year=='R18':
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
 useCombine = True
-tempVersion = 'templates_'+year+'_2021_4_6'
-isRebinned = '_2b300GeV3b150GeV4b50GeVbins_rebinned_stat0p3'
+tempVersion = 'templates_'+year+'_40vars_6j_NJetsCSV_053121lim2'
+isRebinned = '_rebinned_stat0p3'
 if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
 saveKey = ''#'_tshape'
@@ -45,10 +48,12 @@ if 'kinematics' in tempVersion:
 	nhottlist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
-systematics = ['pileup','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+systematics = ['hotclosure']#['pileup','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf','CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+# 'btag','btagcorr','btaguncorr','mistag',
 if year!='R18': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
 systematics+= ['JEC','JER']#,
+systematics = ['bdt']
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
 # 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
@@ -77,9 +82,12 @@ for signal in signameList:
 		else: Prefix = iPlot+'_'+lumiStr+'_'+cat+'__sig'
 		nBins[signal] += RFile.Get(Prefix).GetNbinsX()
 
+max_stat=-1.0
+
 comboHists = {}			
 for signal in signameList:
 	RFile = rt.TFile(templateFile.replace(signameList[0],signal))
+	distr=rt.TH1F('err',';relative statistical error;N of bins',100,0,2)
 	for em in isEMlist:
 		comboHists[signal+em]=rt.TH1F(signal+em,'Bin #',nBins[signal],0,nBins[signal])
 		for syst in systematics:
@@ -101,6 +109,18 @@ for signal in signameList:
 					comboHists[signal+em].SetBinContent(ibin+jbin,hNm.GetBinContent(jbin))
 					comboHists[signal+em+syst+'Up'].SetBinContent(ibin+jbin,hUp.GetBinContent(jbin))
 					comboHists[signal+em+syst+'Dn'].SetBinContent(ibin+jbin,hDn.GetBinContent(jbin))
+					if addStat:
+						if hUp.GetBinContent(jbin)>0.0000001:
+							distr.Fill(hUp.GetBinError(jbin)/hUp.GetBinContent(jbin))
+							if hUp.GetBinError(jbin)/hUp.GetBinContent(jbin)>max_stat:
+								max_stat=hUp.GetBinError(jbin)/hUp.GetBinContent(jbin)
+						if hDn.GetBinContent(jbin)>0.0000001:
+							distr.Fill(hDn.GetBinError(jbin)/hDn.GetBinContent(jbin))
+							if hDn.GetBinError(jbin)/hDn.GetBinContent(jbin)>max_stat:
+								max_stat=hDn.GetBinError(jbin)/hDn.GetBinContent(jbin)
+						comboHists[signal+em].SetBinError(ibin+jbin,hNm.GetBinError(jbin))
+						comboHists[signal+em+syst+'Up'].SetBinError(ibin+jbin,hUp.GetBinError(jbin))
+						comboHists[signal+em+syst+'Dn'].SetBinError(ibin+jbin,hDn.GetBinError(jbin))
 # 					comboHists[signal+em].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
 # 					comboHists[signal+em+syst+'Up'].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
 # 					comboHists[signal+em+syst+'Dn'].GetXaxis().SetBinLabel(ibin+jbin,str(ibin+jbin))
@@ -163,18 +183,55 @@ for signal in signameList:
 			#comboHists[signal+em+syst+'Up'].SetMaximum(1.1*max(comboHists[signal+em+syst+'Up'].GetMaximum(),comboHists[signal+em].GetMaximum(),comboHists[signal+em+syst+'Dn'].GetMaximum()))
 			comboHists[signal+em+syst+'Up'].GetYaxis().SetRangeUser(0.0001,1.1*max(comboHists[signal+em+syst+'Up'].GetMaximum(),comboHists[signal+em].GetMaximum(),comboHists[signal+em+syst+'Dn'].GetMaximum()))
 
-			comboHists[signal+em+syst+'Up'].Draw('hist')
-			comboHists[signal+em].Draw('samehist')
-			comboHists[signal+em+syst+'Dn'].Draw('samehist')
+			if addStat:
+				comboHistsUp2=comboHists[signal+em+syst+'Up'].Clone()
+				comboHists2=comboHists[signal+em].Clone()
+				comboHistsDn2=comboHists[signal+em+syst+'Dn'].Clone()
+				comboHists[signal+em+syst+'Up'].SetLineWidth(1)
+				comboHists[signal+em].SetLineWidth(1)
+				comboHists[signal+em+syst+'Dn'].SetLineWidth(1)
+				comboHistsUp2.SetFillColorAlpha(rt.kRed,0.3)
+				comboHists2.SetFillColorAlpha(rt.kBlack,0.3)
+				comboHistsDn2.SetFillColorAlpha(rt.kBlue,0.3)
+
+				comboHists[signal+em+syst+'Up'].Draw('hist')
+				comboHists[signal+em].Draw('samehist')
+				comboHists[signal+em+syst+'Dn'].Draw('samehist')
+				comboHistsUp2.Draw('same e2')
+				comboHists2.Draw('same e2')
+				comboHistsDn2.Draw('same e2')
+			else:
+				comboHists[signal+em+syst+'Up'].Draw('hist')
+				comboHists[signal+em].Draw('samehist')
+				comboHists[signal+em+syst+'Dn'].Draw('samehist')
 			#uPad.RedrawAxis()
 
 			lPad.cd()
 			rt.gStyle.SetOptTitle(0)
 			pullUp = comboHists[signal+em+syst+'Up'].Clone()
+
+
+			pullUp_original=pullUp.Clone()
 			for iBin in range(0,pullUp.GetXaxis().GetNbins()+2):
-				pullUp.SetBinContent(iBin,pullUp.GetBinContent(iBin)-comboHists[signal+em].GetBinContent(iBin))
-				pullUp.SetBinError(iBin,math.sqrt(pullUp.GetBinError(iBin)**2+comboHists[signal+em].GetBinError(iBin)**2))
-			pullUp.Divide(comboHists[signal+em])
+
+				if abs(pullUp_original.GetBinContent(iBin))<0.0000000001:
+					pullUp_original.SetBinContent(iBin,pullUp_original.GetBinContent(iBin)+0.0000000001)
+				if abs(comboHists[signal+em].GetBinContent(iBin))<0.0000000001:
+					comboHists[signal+em].SetBinContent(iBin,comboHists[signal+em].GetBinContent(iBin)+0.0000000001)
+				pullUp.SetBinContent(iBin,pullUp_original.GetBinContent(iBin)/comboHists[signal+em].GetBinContent(iBin)-1)
+				
+				pullUp.SetBinError(iBin,
+					(pullUp.GetBinContent(iBin)+1)*math.sqrt(\
+						(pullUp_original.GetBinError(iBin)/pullUp_original.GetBinContent(iBin))**2+\
+						(comboHists[signal+em].GetBinError(iBin)/comboHists[signal+em].GetBinContent(iBin))**2\
+						-2*(pullUp_original.GetBinError(iBin)/pullUp_original.GetBinContent(iBin))*(comboHists[signal+em].GetBinError(iBin)/comboHists[signal+em].GetBinContent(iBin))\
+						))
+
+
+			# for iBin in range(0,pullUp.GetXaxis().GetNbins()+2):
+			# 	pullUp.SetBinContent(iBin,pullUp.GetBinContent(iBin)-comboHists[signal+em].GetBinContent(iBin))
+			# 	pullUp.SetBinError(iBin,math.sqrt(pullUp.GetBinError(iBin)**2+comboHists[signal+em].GetBinError(iBin)**2))
+			# pullUp.Divide(comboHists[signal+em])
 			pullUp.SetTitle('')
 			pullUp.SetFillColor(rt.kWhite)
 			pullUp.SetLineColor(rt.kRed)
@@ -194,10 +251,26 @@ for signal in signameList:
 			#pullUp.SetMaximum(pullUp.GetMaximum())
 
 			pullDown = comboHists[signal+em+syst+'Dn'].Clone()
+			pullDown_original=pullDown.Clone()
 			for iBin in range(0,pullDown.GetXaxis().GetNbins()+2):
-				pullDown.SetBinContent(iBin,pullDown.GetBinContent(iBin)-comboHists[signal+em].GetBinContent(iBin))
-				pullDown.SetBinError(iBin,math.sqrt(pullDown.GetBinError(iBin)**2+comboHists[signal+em].GetBinError(iBin)**2))
-			pullDown.Divide(comboHists[signal+em])
+
+				if abs(pullDown_original.GetBinContent(iBin))<0.0000000001:
+					pullDown_original.SetBinContent(iBin,pullDown_original.GetBinContent(iBin)+0.0000000001)
+				if abs(comboHists[signal+em].GetBinContent(iBin))<0.0000000001:
+					comboHists[signal+em].SetBinContent(iBin,comboHists[signal+em].GetBinContent(iBin)+0.0000000001)
+				pullDown.SetBinContent(iBin,pullDown_original.GetBinContent(iBin)/comboHists[signal+em].GetBinContent(iBin)-1)
+				
+				pullDown.SetBinError(iBin,
+					(pullDown.GetBinContent(iBin)+1)*math.sqrt(\
+						(pullDown_original.GetBinError(iBin)/pullDown_original.GetBinContent(iBin))**2+\
+						(comboHists[signal+em].GetBinError(iBin)/comboHists[signal+em].GetBinContent(iBin))**2\
+						-2*(pullDown_original.GetBinError(iBin)/pullDown_original.GetBinContent(iBin))*(comboHists[signal+em].GetBinError(iBin)/comboHists[signal+em].GetBinContent(iBin))\
+						))
+				# print pullDown.GetBinError(iBin)
+					# math.sqrt(pullDown.GetBinError(iBin)**2+comboHists[signal+em].GetBinError(iBin)**2-2*pullDown_original.GetBinError(iBin)*comboHists[signal+em].GetBinError(iBin)))
+			# pullDown.Divide(comboHists[signal+em])
+			# for iBin in range(0,pullDown.GetXaxis().GetNbins()+2):
+
 			pullDown.SetTitle('')
 			pullDown.SetFillColor(rt.kWhite)
 			pullDown.SetLineColor(rt.kBlue)
@@ -217,8 +290,21 @@ for signal in signameList:
 			pullUp.SetMaximum(1.4)#max(pullDown.GetMaximum(),pullUp.GetMaximum()))
 			#pullDown.SetMinimum(pullDown.GetMinimum())
 			#pullDown.SetMaximum(pullDown.GetMaximum())
-			pullUp.Draw('hist')
-			pullDown.Draw('samehist')
+			if addStat:
+				pullUp2=pullUp.Clone()
+				pullDown2=pullDown.Clone()
+				pullUp.SetLineWidth(1)
+				pullDown.SetLineWidth(1)
+				pullUp2.SetFillColorAlpha(rt.kRed,0.3)
+				pullDown2.SetFillColorAlpha(rt.kBlue,0.3)
+				
+				pullUp.Draw('hist')
+				pullDown.Draw('same hist')
+				pullUp2.Draw('same e2')
+				pullDown2.Draw('same e2')
+			else:	
+				pullUp.Draw('hist')
+				pullDown.Draw('samehist')
 			lPad.RedrawAxis()
 
 			uPad.cd()
@@ -267,7 +353,12 @@ for signal in signameList:
 			chLatex.DrawLatex(0.45, 0.84, flvString)
 	
 			canv.SaveAs(tempVersion+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+saveKey+'_'+signal+'.pdf')
-			canv.SaveAs(tempVersion+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+saveKey+'_'+signal+'.png')
+			# canv.SaveAs(tempVersion+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+saveKey+'_'+signal+'.png')
 			#canv.SaveAs(tempVersion+'/'+syst+'_'+iPlot+'_'+lumiStr+'_is'+em+saveKey+'_'+signal+'.eps')
 
+	cc=rt.TCanvas()
+	distr.Draw()
+	cc.SaveAs(year+'3Sig.pdf')
 	RFile.Close()
+
+print max_stat

@@ -30,9 +30,10 @@ doHDsys = False
 doUEsys = False
 doPDF = True
 addCRsys = False
-systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt'
-#systematicList+= ['CSVshapelf','CSVshapehf']
+systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt' #,'btag','btagcorr','btaguncorr','mistag'
+systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']
 systematicList+= ['JEC','JER']#,
+# systematicList+= ['bdt']
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
 # 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
@@ -75,13 +76,7 @@ if year=='R18':
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2']]
 else:
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
-bkgProcs['ttnobb'] = bkgProcs['ttjj'] + bkgProcs['ttcc']
-if use_ttBsamples: 
-	bkgProcs['ttbb'] += bkgProcs['tt1b'] + bkgProcs['tt2b']
-else: 
-	bkgProcs['ttnobb'] += bkgProcs['tt1b'] + bkgProcs['tt2b']
-# bkgProcs['ttnobb'] = bkgProcs['ttjj'] + bkgProcs['ttcc']
-# bkgProcs['ttbb'] += bkgProcs['tt1b'] + bkgProcs['tt2b']
+bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] + bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 if year!='R16': bkgProcs['T']+= ['Tbs']
 bkgProcs['TTH'] = ['TTHB','TTHnoB']
@@ -406,7 +401,11 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 				for proc in bkgGrupList+[signal]:
 					err_ = Double(0)
-					integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
+					integral_ = Double(0)
+					if '2' in hists[proc+i].__class__.__name__:
+						integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),1,hists[proc+i].GetYaxis().GetNbins(),err_)
+					else:
+						integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
 					if integral_==0: statUnc_ = 1e20
 					else: statUnc_ = err_/integral_
 					if proc in bkgGrupList and integral_/totBkg_ <= removeThreshold and statUnc_ >= removeStatUnc:
@@ -462,7 +461,11 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 			totBkg_ = sum([hists[proc+i].Integral() for proc in bkgGrupList])
 			for proc in bkgGrupList:
 				err_ = Double(0)
-				integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
+				integral_ = Double(0)
+				if '2' in hists[proc+i].__class__.__name__:
+					integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),1,hists[proc+i].GetYaxis().GetNbins(),err_)
+				else:
+					integral_ = hists[proc+i].IntegralAndError(1,hists[proc+i].GetXaxis().GetNbins(),err_)
 				if integral_==0: statUnc_ = 1e20
 				else: statUnc_ = err_/integral_
 				if integral_/totBkg_ <= removeThreshold and statUnc_ >= removeStatUnc:

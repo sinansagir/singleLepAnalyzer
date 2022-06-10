@@ -165,10 +165,13 @@ runSigs = True
 #for ind in range(len(ueList)):
 #        if 'TTJetsSemiLep' in ueList[ind]: ueList[ind]=ueList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
 # cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':510}
+
 cutList = {'elPtCut':20,'muPtCut':20,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
 if year=='R16': 
 	cutList['elPtCut'] = 35
 	cutList['muPtCut'] = 26
+
+# cutList = {'elPtCut':50,'muPtCut':50,'metCut':60,'mtCut':60,'jet1PtCut':0,'jet2PtCut':0,'jet3PtCut':0,'AK4HTCut':500}
 
 cutString  = 'el'+str(int(cutList['elPtCut']))+'mu'+str(int(cutList['muPtCut']))
 cutString += '_MET'+str(int(cutList['metCut']))+'_MT'+str(cutList['mtCut'])
@@ -193,6 +196,8 @@ def readTree(file):
 	return tFile, tTree 
 
 bigbins = [0,50,100,125,150,175,200,225,250,275,300,325,350,375,400,450,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2500,3000,3500,4000,5000]
+
+nbin_multiplier=1
 
 plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'deltaRAK8':('minDR_leadAK8otherAK8',linspace(0,5,51).tolist(),';min #DeltaR(1^{st} AK8 jet, other AK8 jet)'),
@@ -317,7 +322,159 @@ plotList = {#discriminantName:(discriminantLJMETName, binning, xAxisLabel)
 	'minMlb':('minMleppBjet',linspace(0, 1000, 101).tolist(),';min[M(l,b)] [GeV]'),
 	'minMlbSBins':('minMleppBjet',linspace(0, 1000, 1001).tolist(),';min[M(l,b)] [GeV]'),
 	'BDT':('BDT',linspace(-1, 1, 201).tolist(),';BDT'),
+	
+	
+	
+	'NJetsCSV_MultiLepCalc':('NJetsCSV_MultiLepCalc',linspace(0, 20, (21-1)*nbin_multiplier+1).tolist(),';b-tagged jet mult. no SF'),
+
+	'thirddeepjetb':('thirddeepjetb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepJet(3rdDeepJetJet)'),
+	'fourthdeepjetb':('fourthdeepjetb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepJet(4thDeepJetJet)'),
+	'HOTGoodTrijet2_deepjet_Jetnotdijet':('HOTGoodTrijet2_deepjet_Jetnotdijet', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_deepjet_Jetnotdijet'),
+	'NJetsCSV_JetSubCalc':('NJetsCSV_JetSubCalc',linspace(0, 10, (11-1)*nbin_multiplier+1).tolist(),';b-tagged DeepJet jet mult. no SF'),
+
+	# BDT input
+	'AK4HT':('AK4HT',linspace(0, 4000, (101-1)*nbin_multiplier+1).tolist(),';H_{T} [GeV]'),
+	'AK4HTpMETpLepPt':('AK4HTpMETpLepPt',linspace(0, 4000, (101-1)*nbin_multiplier+1).tolist(),';S_{T} [GeV]'),
+	'minMleppBjet':('minMleppBjet',linspace(0, 1000, (101-1)*nbin_multiplier+1).tolist(),';min[M(l,b)] [GeV]'),
+	'leptonPt_MultiLepCalc' :('leptonPt_MultiLepCalc',linspace(0, 600, (121-1)*nbin_multiplier+1).tolist(),';Lepton p_{T} [GeV]'),
+	'corr_met_MultiLepCalc'   :('corr_met_MultiLepCalc',linspace(0, 1500, (51-1)*nbin_multiplier+1).tolist(),';#slash{E}_{T} [GeV]'),
+	'NJets_JetSubCalc' :('NJets_JetSubCalc',linspace(0, 25, (26-1)*nbin_multiplier+1).tolist(),';AK4 jet multiplicity'),
+	'NJetsCSVwithSF_MultiLepCalc':('NJetsCSVwithSF_MultiLepCalc',linspace(0, 10, (11-1)*nbin_multiplier+1).tolist(),';b-tagged jet multiplicity'),
+	'NJetsTtagged':('NJetsTtagged',linspace(0, 4, (5-1)*nbin_multiplier+1).tolist(),';t-tagged jet multiplicity'),
+	'MT_lepMet':('MT_lepMet',linspace(0,250,(51-1)*nbin_multiplier+1).tolist(),';M_{T}(l,#slash{E}_{T}) [GeV]'),
+
+	'BDTtrijet2':('BDTtrijet2',linspace(-1, 1, (101-1)*nbin_multiplier+1).tolist(), ';BDTtrijet2'),
+	'thirdcsvb_bb':('thirdcsvb_bb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet)'),
+	'fourthcsvb_bb':('fourthcsvb_bb',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(4thDeepCSVJet)'),
+	'fifthJetPt':('fifthJetPt',linspace(0, 400, (101-1)*nbin_multiplier+1).tolist(), ';p_{T}(j_{5}) [GeV]'),
+	'BDTtrijet3':('BDTtrijet3',linspace(-1, 1, (101-1)*nbin_multiplier+1).tolist(), ';BDTtrijet3'),
+	'sixthJetPt':('sixthJetPt',linspace(0, 400, (51-1)*nbin_multiplier+1).tolist(), ';p_{T}(j_{6}) [GeV]'),
+	'BDTtrijet1':('BDTtrijet1',linspace(-1, 1, (101-1)*nbin_multiplier+1).tolist(), ';BDTtrijet1'),
+	'MT2bb':('MT2bb',linspace(0, 400, (51-1)*nbin_multiplier+1).tolist(), ';MT2bb [GeV]'),
+	'mass_maxJJJpt':('mass_maxJJJpt',linspace(0, 3000, (101-1)*nbin_multiplier+1).tolist(), ';M(jjj) with max[p_{T}(jjj)] [GeV]'),
+	'hemiout':('hemiout', linspace(0, 3000, (101-1)*nbin_multiplier+1).tolist(), ';Hemiout [GeV]'),
+	'Aplanarity':('Aplanarity',linspace(0, 0.5, (51-1)*nbin_multiplier+1).tolist(), ';Aplanarity'),
+	'centrality':('centrality',linspace(0, 1.0, (51-1)*nbin_multiplier+1).tolist(), ';Centrality'),
+	'HT_bjets':('HT_bjets',linspace(0, 1800, (101-1)*nbin_multiplier+1).tolist(),';HT(bjets) [GeV]'),
+	'FW_momentum_1':('FW_momentum_1',linspace(0, 1.0, (51-1)*nbin_multiplier+1).tolist(), ';1^{st} FW moment [GeV]'),
+	'mass_lepBJet0':('mass_lepBJet0',linspace(0, 1800, (101-1)*nbin_multiplier+1).tolist(), ';M(l,b_{1}) [GeV]'),
+	'mass_lepBJet_mindr':('mass_lepBJet_mindr',linspace(0, 800, (51-1)*nbin_multiplier+1).tolist(), ';M(l,b) with min[#DeltaR(l,b)] [GeV]'),
+	'deltaR_lepBJet_maxpt':('deltaR_lepBJet_maxpt',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(), ';#DeltaR(l,b)] with max[p_{T}(l,b)]'),
+	'Sphericity':('Sphericity',linspace(0, 1.0, (51-1)*nbin_multiplier+1).tolist(), ';Sphericity'),
+	'deltaR_lepbJetInMinMlb':('deltaR_lepbJetInMinMlb',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(),';#DeltaR(l,b) with min M(l, b)'),
+	'minDR_lepBJet':('minDR_lepBJet',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(), ';min[#DeltaR(l,b)]'),
+	'mass_maxBBmass':('mass_maxBBmass',linspace(0, 2000, (101-1)*nbin_multiplier+1).tolist(), ';max[M(b,b)] [GeV]'),
+	'deltaR_minBB':('deltaR_minBB',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(), ';min[#DeltaR(b,b)]'),
+	'aveBBdr':('aveBBdr',linspace(0, 6.0, (51-1)*nbin_multiplier+1).tolist(),';ave[#DeltaR(b,b)]'),
+	'ratio_HTdHT4leadjets':('ratio_HTdHT4leadjets',linspace(0, 2.6, (51-1)*nbin_multiplier+1).tolist(),';HT/HT(4 leading jets)'),
+	'aveCSVpt':('aveCSVpt',linspace(-0.3, 1.1, (101-1)*nbin_multiplier+1).tolist(),';p_{T} weighted CSV'),
+	'mass_lepJets0':('mass_lepJets0', linspace(0, 2200, (101-1)*nbin_multiplier+1).tolist(),';M(l,j_{1}) [GeV]'),
+	'mass_minBBdr':('mass_minBBdr', linspace(0, 1400, (51-1)*nbin_multiplier+1).tolist(),';M(b,b) with min[#DeltaR(b,b)] [GeV]'),
+	'mass_minLLdr':('mass_minLLdr', linspace(0, 600, (51-1)*nbin_multiplier+1).tolist(),';M(j,j) with min[#DeltaR(j,j)], j #neq b [GeV]'),
+	'theJetLeadPt':('theJetLeadPt', linspace(0, 1500, (101-1)*nbin_multiplier+1).tolist(),';p_{T}(j_{1}) [GeV]'),
+	'FW_momentum_5':('FW_momentum_5', linspace(0, 0.7, (101-1)*nbin_multiplier+1).tolist(),';5^{th} FW moment [GeV]'),
+	'deltaR_lepJetInMinMljet':('deltaR_lepJetInMinMljet', linspace(0, 4.5, (101-1)*nbin_multiplier+1).tolist(),';#DeltaR(l,j) with min M(l, j)'),
+	'secondJetPt':('secondJetPt',linspace(0, 2500, (101-1)*nbin_multiplier+1).tolist(), ';p_{T}(j_{2}) [GeV]'),
+	'BJetLeadPt':('BJetLeadPt', linspace(0, 2000, (101-1)*nbin_multiplier+1).tolist(),';p_{T}(b_{1}) [GeV]'),
+	'csvJet4':('csvJet4', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';DeepCSV(4thPtJet)'),
+	'lepDR_minBBdr':('lepDR_minBBdr', linspace(-1, 10, (51-1)*nbin_multiplier+1).tolist(),';#DeltaR(l,bb) with min[#DeltaR(b,b)]'),
+	'deltaEta_maxBB':('deltaEta_maxBB', linspace(-6, 11, (51-1)*nbin_multiplier+1).tolist(),';max[#Delta#eta(b,b)]'),
+	'FW_momentum_0':('FW_momentum_0', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';0^{th} FW moment [GeV]'),
+	'FW_momentum_2':('FW_momentum_2', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';2^{nd} FW moment [GeV]'),
+	'FW_momentum_3':('FW_momentum_3', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';3^{rd} FW moment [GeV]'),
+	'FW_momentum_4':('FW_momentum_4', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';4^{th} FW moment [GeV]'),
+	'FW_momentum_6':('FW_momentum_6', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';6^{th} FW moment [GeV]'),
+	'mass_lepJets1':('mass_lepJets1', linspace(0, 3000, (101-1)*nbin_multiplier+1).tolist(),';M(l,j_{2}) [GeV]'),
+	'mass_lepJets2':('mass_lepJets2', linspace(0, 3000, (101-1)*nbin_multiplier+1).tolist(),';M(l,j_{3}) [GeV]'),
+	'PtFifthJet':('PtFifthJet', linspace(-1, 2000, (101-1)*nbin_multiplier+1).tolist(),';5^{th} jet p_{T}, b-jet first [GeV]'),
+	'deltaPhi_lepJetInMinMljet':('deltaPhi_lepJetInMinMljet', linspace(-4, 4, (51-1)*nbin_multiplier+1).tolist(),';#DeltaPhi(l,j) with min M(l, j)'),
+	'deltaPhi_lepbJetInMinMlb':('deltaPhi_lepbJetInMinMlb', linspace(-11, 5, (101-1)*nbin_multiplier+1).tolist(),';#DeltaPhi(l,b) with min M(l, b)'),
+	'M_allJet_W':('M_allJet_W', linspace(0, 10000, (201-1)*nbin_multiplier+1).tolist(),';M(allJets, leptoninc W) [GeV]'),
+	'csvJet3':('csvJet3', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdPtJet)'),
+	'HT_2m':('HT_2m', linspace(-20, 5000, (201-1)*nbin_multiplier+1).tolist(),';HTwoTwoPtBjets [GeV]'),
+	'BDTtrijet4':('BDTtrijet4', linspace(-1, 1, (51-1)*nbin_multiplier+1).tolist(),';trijet4 discriminator'),
+	'NresolvedTops1pFake':('NresolvedTops1pFake', linspace(0, 5, (6-1)*nbin_multiplier+1).tolist(),';resolvedTop multiplicity'),
+	'NJetsWtagged':('NJetsWtagged', linspace(0, 5, (6-1)*nbin_multiplier+1).tolist(),';W multiplicity'),
+	'HOTGoodTrijet1_mass':('HOTGoodTrijet1_mass', linspace(0, 300, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_mass [GeV]'),
+	'HOTGoodTrijet1_dijetmass':('HOTGoodTrijet1_dijetmass', linspace(0, 250, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_dijetmass [GeV]'),
+	'HOTGoodTrijet1_pTratio':('HOTGoodTrijet1_pTratio', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_pTratio'),
+	'HOTGoodTrijet1_dRtridijet':('HOTGoodTrijet1_dRtridijet', linspace(0, 4, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_dRtridijet'),
+	'HOTGoodTrijet1_dRtrijetJetnotdijet':('HOTGoodTrijet1_dRtrijetJetnotdijet', linspace(0, 4, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_dRtrijetJetnotdijet'),
+	'HOTGoodTrijet1_csvJetnotdijet':('HOTGoodTrijet1_csvJetnotdijet', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet1_csvJetnotdijet'),
+	'HOTGoodTrijet2_mass':('HOTGoodTrijet2_mass', linspace(0, 300, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_mass [GeV]'),
+	'HOTGoodTrijet2_dijetmass':('HOTGoodTrijet2_dijetmass', linspace(0, 250, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_dijetmass [GeV]'),
+	'HOTGoodTrijet2_pTratio':('HOTGoodTrijet2_pTratio', linspace(0, 1, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_pTratio'),
+	'HOTGoodTrijet2_dRtridijet':('HOTGoodTrijet2_dRtridijet', linspace(0, 4, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_dRtridijet'),
+	'HOTGoodTrijet2_dRtrijetJetnotdijet':('HOTGoodTrijet2_dRtrijetJetnotdijet', linspace(0, 4, (51-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_dRtrijetJetnotdijet'),
+	'HOTGoodTrijet2_csvJetnotdijet':('HOTGoodTrijet2_csvJetnotdijet', linspace(-2.2, 1.2, (101-1)*nbin_multiplier+1).tolist(),';HOTGoodTrijet2_csvJetnotdijet'),
+
+	'thirdcsvb_bb_BTagBHad':('thirdcsvb_bb_BTagBHad',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet) BTagBHad'),
+	'thirdcsvb_bb_BTagNBHad':('thirdcsvb_bb_BTagNBHad',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet) BTagNBHad'),
+	'thirdcsvb_bb_NBTagBHad':('thirdcsvb_bb_NBTagBHad',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet) NBTagBHad'),
+	'thirdcsvb_bb_NBTagNBHad':('thirdcsvb_bb_NBTagNBHad',linspace(-2, 1.5, (51-1)*nbin_multiplier+1).tolist(),';DeepCSV(3rdDeepCSVJet) NBTagNBHad'),
+
+
+	'DNN_disc_6j_40vars':('DNN_disc_6j_40vars',linspace(0, 1, 201).tolist(),';DNN_{6j,40v}'),
+	'DNN_disc_6j_50vars':('DNN_disc_6j_50vars',linspace(0, 1, 201).tolist(),';DNN_{6j,50v}'),
+	'DNN_disc_6j_76vars':('DNN_disc_6j_76vars',linspace(0, 1, 201).tolist(),';DNN_{6j,76v}'),
+	'DNN_disc_4j_40vars':('DNN_disc_4j_40vars',linspace(0, 1, 201).tolist(),';DNN_{4j,40v}'),
+	'DNN_disc_4j_50vars':('DNN_disc_4j_50vars',linspace(0, 1, 201).tolist(),';DNN_{4j,50v}'),
+	'DNN_disc_4j_76vars':('DNN_disc_4j_76vars',linspace(0, 1, 201).tolist(),';DNN_{4j,76v}'),
+
+	'XGB':('XGB',linspace(0, 1, 201).tolist(),';XGB'),
+	'XGB_RS':('XGB_RS',linspace(0, 1, 201).tolist(),';XGB_RS'),
+	
+	'btagCSVWeight':('btagCSVWeight',linspace(0, 5, 1001).tolist(),';btagCSVWeight'),
+	'btagCSV2DWeight_HTnj':('btagCSV2DWeight_HTnj',linspace(0, 5, 1001).tolist(),';btagCSV2DWeight_HTnj'),
+	'btagTotWeight':('btagCSVWeight*btagCSV2DWeight_HTnj',linspace(0, 5, 1001).tolist(),';btagTotWeight'),
+
+	# 'nPV_MultiLepCalc':('BDT_tt',linspace(-1, 1, 201).tolist(),';N_{PV}'),
+
+	'BDT_tt':('BDT_tt',linspace(-1, 1, 201).tolist(),';BDT(tt)'),
+	'BDT_ttH':('BDT_ttH',linspace(-1, 1, 201).tolist(),';BDT(ttH)'),
+	'BDT_ttbb':('BDT_ttbb',linspace(-1, 1, 201).tolist(),';BDT(ttbb)'),
+
+	'BDTsum':('BDT_tt + BDT_ttH + BDT_ttbb',linspace(-3, 3, 201).tolist(),';BDT(tt+ttH+ttbb)'),#BDT_tt + BDT_ttH + BDT_ttbb
+	'BDTprod':('(1+BDT_tt) * (1+BDT_ttH) * (1+BDT_ttbb)',linspace(0, 8, 201).tolist(),';BDT(tt*ttH*ttbb)'),#(1+BDT_tt) * (1+BDT_ttH) * (1+BDT_ttbb)
+
+	'BDTtt+tth':('BDT_tt+BDT_ttH',linspace(-2, 2, 201).tolist(),';BDT(tt+tth)'),#BDT_tt+BDT_ttH
+	'BDTtth+ttbb':('BDT_ttH+BDT_ttbb',linspace(-2, 2, 201).tolist(),';BDT(tth+ttbb)'),#BDT_ttH+BDT_ttbb
+	'BDTtt+ttbb':('BDT_tt+BDT_ttbb',linspace(-2, 2, 201).tolist(),';BDT(tt+ttbb)'),#BDT_tt+BDT_ttbb
+
+	'BDTtt*tth':('(1+BDT_tt)*(1+BDT_ttH)',linspace(0,4, 201).tolist(),';BDT(tt*tth)'),#(1+BDT_tt)*(1+BDT_ttH)
+	'BDTtth*ttbb':('(1+BDT_ttH)*(1+BDT_ttbb)',linspace(0,4, 201).tolist(),';BDT(tth*ttbb)'),#(1+BDT_ttH)*(1+BDT_ttbb)
+	'BDTtt*ttbb':('(1+BDT_tt)*(1+BDT_ttbb)',linspace(0,4, 201).tolist(),';BDT(tt*ttbb)'),#(1+BDT_tt)*(1+BDT_ttbb)
+
+	'BDTtt+tthVSttbb':('BDT_tt+BDT_ttH:BDT_ttbb',linspace(-2, 2, 21).tolist(),';BDT(tt+tth)',linspace(-1, 1, 21).tolist(),';BDT(ttbb)'),#BDT_tt+BDT_ttH vs BDT_ttbb
+	'BDTtth+ttbbVStt':('BDT_ttH+BDT_ttbb:BDT_tt',linspace(-2, 2, 21).tolist(),';BDT(tth+ttbb)',linspace(-1, 1, 21).tolist(),';BDT(tt)'),#BDT_tt vs BDT_ttH+BDT_ttbb
+	'BDTtt+ttbbVStth':('BDT_tt+BDT_ttbb:BDT_ttH',linspace(-2, 2, 21).tolist(),';BDT(tt+ttbb)',linspace(-1, 1, 21).tolist(),';BDT(tth)'),#BDT_tt+BDT_ttbb vs BDT_ttH 
+
+	'BDTtt*tthVSttbb':('(1+BDT_tt)*(1+BDT_ttH):(1+BDT_ttbb)',linspace(0, 4, 21).tolist(),';BDT(tt*tth)',linspace(0, 2, 21).tolist(),';BDT(ttbb)'),#(1+BDT_tt)*(1+BDT_ttH) vs (1+BDT_ttbb)
+	'BDTtth*ttbbVStt':('(1+BDT_ttH)*(1+BDT_ttbb):(1+BDT_tt)',linspace(0, 4, 21).tolist(),';BDT(tth*ttbb)',linspace(0, 2, 21).tolist(),';BDT(tt)'),#(1+BDT_tt) vs (1+BDT_ttH)*(1+BDT_ttbb)
+	'BDTtt*ttbbVStth':('(1+BDT_tt)*(1+BDT_ttbb):(1+BDT_ttH)',linspace(0, 4, 21).tolist(),';BDT(tt*ttbb)',linspace(0, 2, 21).tolist(),';BDT(tth)'),#(1+BDT_tt)*(1+BDT_ttbb) vs (1+BDT_ttH)  
+
 	}
+
+formulas=[]
+if year=='R16':
+	formulas=['0.161392213863*(((BDT_tt+1)/2)**(3.56925019116-1))*((1-((BDT_tt+1)/2))**(2.01882334842-1))+2609.86460705*(((BDT_tt+1)/2)**(17.5543222955-1))*((1-((BDT_tt+1)/2))**(7.09320356567-1))', 
+	'0.210062930065*(((BDT_ttH+1)/2)**(3.42210681906-1))*((1-((BDT_ttH+1)/2))**(2.59375440288-1))+0.231071133492*(((BDT_ttH+1)/2)**(5.32060470182-1))*((1-((BDT_ttH+1)/2))**(2.54357167004-1))', 
+	'60.4443511616*(((BDT_ttbb+1)/2)**(6.40102354493-1))*((1-((BDT_ttbb+1)/2))**(8.00662703815-1))+79.8750757749*(((BDT_ttbb+1)/2)**(11.0539053232-1))*((1-((BDT_ttbb+1)/2))**(4.80503245508-1))']
+	
+elif year=='R17':
+	formulas=['1.80285607805*(((BDT_tt+1)/2)**(4.47878238245-1))*((1-((BDT_tt+1)/2))**(6.20318556649-1))+0.662781522535*(((BDT_tt+1)/2)**(5.90466486371-1))*((1-((BDT_tt+1)/2))**(2.41500321437-1))', 
+	'2.72151626622*(((BDT_ttH+1)/2)**(4.73700764643-1))*((1-((BDT_ttH+1)/2))**(4.6125214758-1))+37.1132208779*(((BDT_ttH+1)/2)**(13.9232333459-1))*((1-((BDT_ttH+1)/2))**(4.04261462352-1))', 
+	'186.309313064*(((BDT_ttbb+1)/2)**(6.78975967148-1))*((1-((BDT_ttbb+1)/2))**(9.90153049205-1))+32.7478765599*(((BDT_ttbb+1)/2)**(9.41806330245-1))*((1-((BDT_ttbb+1)/2))**(4.49649165325-1))']
+
+elif year=='R18':
+	formulas=['0.124534243951*(((BDT_tt+1)/2)**(3.39535418049-1))*((1-((BDT_tt+1)/2))**(1.85602173784-1))+676.875360617*(((BDT_tt+1)/2)**(18.0775148802-1))*((1-((BDT_tt+1)/2))**(6.1689408943-1))', 
+	'1.10918667877*(((BDT_ttH+1)/2)**(4.2182693221-1))*((1-((BDT_ttH+1)/2))**(3.88616870942-1))+9.64766083427*(((BDT_ttH+1)/2)**(12.3568700088-1))*((1-((BDT_ttH+1)/2))**(3.52160124479-1))', 
+	'8.39651180513*(((BDT_ttbb+1)/2)**(5.63835388879-1))*((1-((BDT_ttbb+1)/2))**(5.44458402604-1))+817.942828051*(((BDT_ttbb+1)/2)**(15.8949232503-1))*((1-((BDT_ttbb+1)/2))**(5.5909367171-1))']
+
+plotList['LBDT']=('('+formulas[0]+')*('+formulas[1]+')*('+formulas[2]+')',linspace(0, 1, 201).tolist(),';LBDT(tt*ttH*ttbb)')
+plotList['LBDTtt*tthVSttbb']=('('+formulas[0]+')*('+formulas[1]+'):('+formulas[2]+')',linspace(0, 1, 21).tolist(),';LBDT(tt*tth)',linspace(0, 1, 21).tolist(),';LBDT(ttbb)')
+plotList['LBDTtth*ttbbVStt']=('('+formulas[1]+')*('+formulas[2]+'):('+formulas[0]+')',linspace(0, 1, 21).tolist(),';LBDT(tth*ttbb)',linspace(0, 1, 21).tolist(),';LBDT(tt)')
+plotList['LBDTtt*ttbbVStth' ]=('('+formulas[0]+')*('+formulas[2]+'):('+formulas[1]+')',linspace(0, 1, 21).tolist(),';LBDT(tt*ttbb)',linspace(0, 1, 21).tolist(),';LBDT(tth)')
 
 print "PLOTTING:",iPlot
 print "         LJMET Variable:",plotList[iPlot][0]
