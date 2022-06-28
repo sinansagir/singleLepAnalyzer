@@ -80,8 +80,8 @@ nRun['TTJetsSemiLepHDAMPupNjet0'] = nRun_TTJetsSemiLepHDAMPup * ( 1. - filtEff_T
 nRun['TTJetsSemiLepHDAMPupNjet9'] = nRun_TTJetsSemiLepHDAMPup * filtEff_TTJetsSemiLepNjet9HDAMPup + nRun_TTJetsSemiLepHDAMPupNjet9
 nRun['TTJetsSemiLepHDAMPupNjet9bin'] = nRun['TTJetsSemiLepHDAMPupNjet9']
 
-#nRun['Ts'] = 12458638.0 # from integral , file ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8_hadd.root
-nRun['Ts']  = 6932180.0 # from integral , file ST_s-channel_top_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
+nRun['Ts'] = 12458638.0 # from integral , file ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-madgraph-pythia8_hadd.root
+# nRun['Ts']  = 6932180.0 # from integral , file ST_s-channel_top_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
 nRun['Tbs'] = 2998280.0 # from integral , file ST_s-channel_antitop_leptonDecays_13TeV-PSweights_powheg-pythia_hadd.root
 nRun['Tt'] = 144094782.0 # from integral , file ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8_hadd.root
 nRun['Tbt']= 73663900.0 # from integral , file ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8_hadd.root

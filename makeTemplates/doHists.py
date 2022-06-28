@@ -111,7 +111,7 @@ elif year=='R17':
 	bkgList+= ['WJetsMG12001','WJetsMG12002','WJetsMG12003','WJetsMG25001','WJetsMG25002','WJetsMG25003','WJetsMG25004',
 			   'TTJetsSemiLepNjet0TTjj3','TTJetsSemiLepNjet0TTjj4','TTJetsSemiLepNjet0TTjj5','Tbs']
 elif year=='R18':
-	bkgList+= ['WJetsMG1200','WJetsMG2500','Tbs']
+	bkgList+= ['WJetsMG1200','WJetsMG2500']#,'Tbs']
 ttFlvs = []#'_tt2b','_ttbb','_ttb','_ttcc','_ttlf']
 #for ind in range(len(bkgList)):
 #	if 'TTJetsSemiLep' in bkgList[ind]: bkgList[ind]=bkgList[ind].replace('TTJetsSemiLep','TTJetsSemiLepInc')
@@ -479,7 +479,66 @@ print "         BINNING USED  :",plotList[iPlot][1]
 catList = ['is'+cat[0]+'_nHOT'+cat[1]+'_nT'+cat[2]+'_nW'+cat[3]+'_nB'+cat[4]+'_nJ'+cat[5] for cat in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))]
 nCats  = len(catList)
 
-shapesFiles = ['JEC','JER']#,
+# shapesFiles = ['JEC','JER']#,
+# shapesFiles = [
+# 'JEC_Absolute',
+# 'JEC_BBEC1',
+# 'JEC_EC2',
+# 'JEC_FlavorQCD',
+# 'JEC_HF_2016',
+# 'JEC_HF',
+# 'JEC_RelativeBal',
+# 'JEC_Total',
+# 'JEC',
+# 'JER']
+
+shapesFiles = ['JEC_Absolute_2016',
+'JEC_Absolute',
+'JEC_BBEC1_2016',
+'JEC_BBEC1',
+'JEC_EC2_2016',
+'JEC_EC2',
+'JEC_FlavorQCD',
+'JEC_HF_2016',
+'JEC_HF',
+'JEC_RelativeBal',
+'JEC_RelativeSample_2016',
+'JEC_Total',
+'JEC',
+'JER']
+
+if year=='R17':
+	shapesFiles = ['JEC_Absolute_2017',
+	'JEC_Absolute',
+	'JEC_BBEC1_2017',
+	'JEC_BBEC1',
+	'JEC_EC2_2017',
+	'JEC_EC2',
+	'JEC_FlavorQCD',
+	'JEC_HF_2017',
+	'JEC_HF',
+	'JEC_RelativeBal',
+	'JEC_RelativeSample_2017',
+	'JEC_Total',
+	'JEC',
+	'JER']
+
+if year=='R18':
+	shapesFiles = ['JEC_Absolute_2018',
+	'JEC_Absolute',
+	'JEC_BBEC1_2018',
+	'JEC_BBEC1',
+	'JEC_EC2_2018',
+	'JEC_EC2',
+	'JEC_FlavorQCD',
+	'JEC_HF_2018',
+	'JEC_HF',
+	'JEC_RelativeBal',
+	'JEC_RelativeSample_2018',
+	'JEC_Total',
+	'JEC',
+	'JER']
+
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
 # 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),

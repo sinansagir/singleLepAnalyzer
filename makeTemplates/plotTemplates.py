@@ -37,17 +37,17 @@ templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[3]+'/'+cutString+'/'
 
 blindBDT = False
 
-# isRebinned='_rebinned_stat0p3_bdtcorr' #post for ROOT file names
+isRebinned='_rebinned_stat0p3_bdtcorr' #post for ROOT file names
 # isRebinned='_rebinned_stat0p3' #post for ROOT file names
 # isRebinned='_merge_rebinned_stat0p3' #post for ROOT file names
-isRebinned='_merge_rebinned_stat0p3_bdtcorr' #post for ROOT file names
+# isRebinned='_merge_rebinned_stat0p3_bdtcorr' #post for ROOT file names
 # isRebinned='_new_rebinned_stat1p1' #post for ROOT file names
 # isRebinned='_rebinned_statVar' #post for ROOT file names
 # isRebinned='_merge_rebinned_statVar' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 
-dofit=True
+dofit=False
 
 sig='tttt' #  choose the 1st signal to plot
 sigleg='t#bar{t}t#bar{t}'
@@ -79,7 +79,7 @@ addCRsys = False
 doNormByBinWidth=False ######################################
 doOneBand = True
 blind = False
-yLog  = True
+yLog  = False
 doRealPull = False
 compareShapes = False
 if not isCategorized: blind = False
@@ -187,7 +187,7 @@ def formatUpperHist(histogram,histogramBkg):
 		else: histogram.SetMaximum(2e11*histogramBkg.GetMaximum())
 	else: 
 		if 'YLD' in iPlot: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
-		else: histogram.SetMaximum(1.3*histogramBkg.GetMaximum())
+		else: histogram.SetMaximum(3*histogramBkg.GetMaximum())
 		
 def formatLowerHist(histogram,disc):
 	histogram.GetXaxis().SetLabelSize(.12)

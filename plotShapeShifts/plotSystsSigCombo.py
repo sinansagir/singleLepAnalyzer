@@ -29,8 +29,8 @@ elif year=='R18':
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
 useCombine = True
-tempVersion = 'templates_'+year+'_40vars_6j_NJetsCSV_053121lim2'
-isRebinned = '_rebinned_stat0p3'
+tempVersion = 'templates_'+year+'_splitjes'
+isRebinned = '_rebinned_stat0p3_bdtcorr'
 if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
 saveKey = ''#'_tshape'
@@ -42,24 +42,24 @@ isEMlist  = ['E','M']
 nhottlist = ['0','1p']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['2','3','4p']
+nbtaglist = ['3','4p']#'2',
 njetslist = ['6','7','8','9','10p']
 if 'kinematics' in tempVersion:
 	nhottlist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
-systematics = ['hotclosure']#['pileup','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf','CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+systematics = ['pileup','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf','CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
 # 'btag','btagcorr','btaguncorr','mistag',
 if year!='R18': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
 systematics+= ['JEC','JER']#,
-systematics = ['bdt']
-# 'JEC_Total','JEC_FlavorQCD',
-# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
-# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
-# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
-# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
-# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+systematics+= ['bdtshape']
+systematics+= ['JEC_Total','JEC_FlavorQCD',
+'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+'JEC_HF','JEC_HF_'+year.replace('R','20'),
+'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
 #systematics = ['btag','btagcorr','btaguncorr','mistag']
 systematics = ['lowess'+syst for syst in systematics]
 

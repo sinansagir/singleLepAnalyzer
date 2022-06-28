@@ -29,8 +29,8 @@ elif year=='R18':
 	lumi=59.97 #for plots
 sig1 = 'tttt' #  choose the 1st signal to plot
 useCombine = True
-tempVersion = 'templates_'+year+'_40vars_6j_NJetsCSV_053121lim2'
-isRebinned = '_rebinned_stat0p3'
+tempVersion = 'templates_'+year+'_splitjes'
+isRebinned = '_rebinned_stat0p3_bdtcorr'
 if 'kinematics' in tempVersion: isRebinned = '_rebinned_stat1p1'
 cutString = ''
 saveKey = ''#'_tshape'
@@ -44,25 +44,25 @@ isEMlist  = ['E','M']
 nhottlist = ['0','1p']
 nttaglist = ['0p']
 nWtaglist = ['0p']
-nbtaglist = ['2','3','4p']
+nbtaglist = ['3','4p']#'2',
 njetslist = ['6','7','8','9','10p']
 if 'kinematics' in tempVersion:
 	nhottlist = ['0p']
 	nbtaglist = ['2p']
 	njetslist = ['4p']
-systematics = ['hotclosure']#['pileup','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf','hdamp','ue','CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#,'njet','njetsf','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
-#,'btag','btagcorr','btaguncorr','mistag'
+systematics = ['pileup','hotstat','hotcspur','hotclosure','isr','fsr','PSwgt','muRF','pdf','CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#,'hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt'] #
+# 'btag','btagcorr','btaguncorr','mistag',
 if year!='R18': systematics += ['prefire']
 # if year=='R18': systematics += ['hem']
 systematics+= ['JEC','JER']#,
-systematics = ['bdt']
-# 'JEC_Total','JEC_FlavorQCD',
-# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
-# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
-# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
-# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
-# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
-#systematics = ['hdamp','ue']
+systematics+= ['bdtshape']
+systematics+= ['JEC_Total','JEC_FlavorQCD',
+'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+'JEC_HF','JEC_HF_'+year.replace('R','20'),
+'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+#systematics = ['btag','btagcorr','btaguncorr','mistag']
 systematics = ['lowess'+syst for syst in systematics]
 
 catList = ['is'+item[0]+'_nHOT'+item[1]+'_nT'+item[2]+'_nW'+item[3]+'_nB'+item[4]+'_nJ'+item[5] for item in list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist)) if not skip(item)]
@@ -186,7 +186,7 @@ for em in isEMlist:
 		uPad.SetBottomMargin(0)
 		uPad.SetRightMargin(.02)
 		uPad.SetLeftMargin(.12)
-		uPad.SetLogy()
+		# uPad.SetLogy()
 		uPad.Draw()
 
 		lPad=rt.TPad("lPad","",0,0,1,yDiv) #for sigma runner
@@ -234,6 +234,7 @@ for em in isEMlist:
 
 
 		if addStat:
+
 				comboHistsUp2=comboHists['bkg'+em+syst+'Up'].Clone()
 				comboHists2=comboHists['bkg'+em].Clone()
 				comboHistsDn2=comboHists['bkg'+em+syst+'Dn'].Clone()
@@ -244,24 +245,40 @@ for em in isEMlist:
 				comboHists2.SetFillColorAlpha(rt.kBlack,0.3)
 				comboHistsDn2.SetFillColorAlpha(rt.kBlue,0.3)
 
-				comboSigHists[signal+em].SetFillColor(rt.kWhite)
-				comboSigHists[signal+em].SetMarkerColor(rt.kBlack)
-				comboSigHists[signal+em].SetLineColor(rt.kBlack)
-				comboSigHists[signal+em].SetLineWidth(2)
-				comboSigHists[signal+em].SetLineStyle(1)
-				comboSigHists[signal+em].SetMarkerSize(.05)
-				comboSigHists[signal+em].GetYaxis().SetRangeUser(0.00005,50*comboSigHists[signal+em].GetMaximum())
+				comboHists['bkg'+em+syst+'Up'].Draw('hist')
+				comboHists['bkg'+em].Draw('samehist')
+				comboHists['bkg'+em+syst+'Dn'].Draw('samehist')
+				comboHistsUp2.Draw('same e2')
+				comboHists2.Draw('same e2')
+				comboHistsDn2.Draw('same e2')
+				# comboHistsUp2=comboHists['bkg'+em+syst+'Up'].Clone()
+				# comboHists2=comboHists['bkg'+em].Clone()
+				# comboHistsDn2=comboHists['bkg'+em+syst+'Dn'].Clone()
+				# comboHists['bkg'+em+syst+'Up'].SetLineWidth(1)
+				# comboHists['bkg'+em].SetLineWidth(1)
+				# comboHists['bkg'+em+syst+'Dn'].SetLineWidth(1)
+				# comboHistsUp2.SetFillColorAlpha(rt.kRed,0.3)
+				# comboHists2.SetFillColorAlpha(rt.kBlack,0.3)
+				# comboHistsDn2.SetFillColorAlpha(rt.kBlue,0.3)
+
+				# comboSigHists[signal+em].SetFillColor(rt.kWhite)
+				# comboSigHists[signal+em].SetMarkerColor(rt.kBlack)
+				# comboSigHists[signal+em].SetLineColor(rt.kBlack)
+				# comboSigHists[signal+em].SetLineWidth(2)
+				# comboSigHists[signal+em].SetLineStyle(1)
+				# comboSigHists[signal+em].SetMarkerSize(.05)
+				# comboSigHists[signal+em].GetYaxis().SetRangeUser(0.00005,50*comboSigHists[signal+em].GetMaximum())
 
 
-				# comboHists['bkg'+em+syst+'Up'].Draw('hist')
-				# comboHists['bkg'+em].Draw('samehist')
-				# comboHists['bkg'+em+syst+'Dn'].Draw('samehist')
-				# comboHistsUp2.Draw('same e2')
-				# comboHists2.Draw('same e2')
-				# comboHistsDn2.Draw('same e2')
-				comboSigHists[signal+em].Draw('hist')
-				# comboHists['bkg'+em].Draw('samehist')
-				# comboHists['bkg'+em+syst+'Dn'].Draw('samehist')
+				# # comboHists['bkg'+em+syst+'Up'].Draw('hist')
+				# # comboHists['bkg'+em].Draw('samehist')
+				# # comboHists['bkg'+em+syst+'Dn'].Draw('samehist')
+				# # comboHistsUp2.Draw('same e2')
+				# # comboHists2.Draw('same e2')
+				# # comboHistsDn2.Draw('same e2')
+				# comboSigHists[signal+em].Draw('hist')
+				# # comboHists['bkg'+em].Draw('samehist')
+				# # comboHists['bkg'+em+syst+'Dn'].Draw('samehist')
 
 		else:
 				comboHists['bkg'+em+syst+'Up'].Draw('hist')
@@ -395,7 +412,7 @@ for em in isEMlist:
 		legend.SetFillColor(0);
 		legend.SetLineColor(0);
 		legend.SetTextSize(0.05);
-		legend.AddEntry(comboHists['bkg'+em],'S/#sqrt{B}','l')
+		legend.AddEntry(comboHists['bkg'+em],'background','l')
 		legend.AddEntry(comboHists['bkg'+em+syst+'Up'],syst.replace('lowess','').replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('isr','ISR').replace('fsr','FSR').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Up','l')
 		legend.AddEntry(comboHists['bkg'+em+syst+'Dn'],syst.replace('lowess','').replace('hem','HEM15/16').replace('pileup','PU').replace('prefire','Prefire').replace('btag','b tag').replace('mistag','udsg mistag').replace('jec','JEC').replace('jer','JER').replace('hotstat','res-t stat').replace('hotcspur','res-t CSpurity').replace('hotclosure','res-t closure').replace('PSwgt','PS weight').replace('isr','ISR').replace('fsr','FSR').replace('pdf','PDF').replace('hdamp','hDamp').replace('ue','UE').replace('njet','Njet').replace('tau21','#tau_{2}/#tau_{1}').replace('toppt','top p_{T}').replace('q2','Q^{2}').replace('jmr','JMR').replace('jms','JMS').replace('tau21pt','#tau_{2}/#tau_{1} p_{T}').replace('tau21','#tau_{2}/#tau_{1}').replace('tau32','#tau_{3}/#tau_{2}')+' Down','l')
 
