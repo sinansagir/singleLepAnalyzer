@@ -191,7 +191,7 @@ for y in years:
 		# 'postfix':p+'_053121pt50',#+'_lim',#'NoNBtagSF_'+p,
 		# 'postfix':'multibdt_cr_2',#+'_lim',#'NoNBtagSF_'+p,
 		# 'postfix':'jet12_50',#+'_lim',#'NoNBtagSF_'+p,
-		 'postfix':'cr3hipu',
+		 'postfix':'splitjes',
 		#'postfix':'40vars_6j_NJetsCSV_053121lim910',
 		#'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_01272021_step3_wenyu/BDT_SepRank6j73vars2017year40top_40vars_mDepth2_6j_year20'+y+'_NJetsCSV/'
 		# 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03062021_step2/'#DeepCSV 
@@ -201,7 +201,7 @@ for y in years:
 		# 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_09072021_step3_wenyu/BDT_SepRank6j73vars2017Run40top_40vars_mDepth2_6j_year20'+y+'_NJetsCSV/' 
 		# 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_053121_step3_40vars_6j_NJetsCSV_rmCSV', 
 		# 'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_053121_step3_40vars_6j_NJetsCSV',
-		'path':'/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_100621_step3_40vars_6j_NJetsCSV',
+		'path':'/isilon/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_05202022_step3_40vars_6j_NJetsCSV',
 		# 'path':  '/mnt/hadoop/store/group/bruxljm/FWLJMET102X_1lep20'+y+'_'+prod[y]+'_4t_03092021_step2p5/'#DeepJet
 		}
 		trainings.append(tmp)
@@ -209,6 +209,30 @@ for y in years:
 # #for step2
 trainings=[]
 for y in years:
+
+	tmp={
+	'year':'R'+y,
+	'variable':vrs,
+	'postfix':'splitjes',#+'_lim',#'NoNBtagSF_'+p,
+	'path':''
+	}
+	trainings.append(tmp)
+
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':vrs,
+	# 'postfix':'splitjes_totalJEC',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
+
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':vrs,
+	# 'postfix':'splitjes_splitJEC',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
 
 	# tmp={
 	# 'year':'R'+y,
@@ -293,13 +317,13 @@ for y in years:
 	# }
 	# trainings.append(tmp)
 
-	tmp={
-	'year':'R'+y,
-	'variable':['BDT'],
-	'postfix':'40vars_6j_NJetsCSV_053121cr3',#+'_lim',#'NoNBtagSF_'+p,
-	'path':''
-	}
-	trainings.append(tmp)
+	# tmp={
+	# 'year':'R'+y,
+	# 'variable':['BDT'],
+	# 'postfix':'40vars_6j_NJetsCSV_053121cr3',#+'_lim',#'NoNBtagSF_'+p,
+	# 'path':''
+	# }
+	# trainings.append(tmp)
 
 	# tmp={
 	# 'year':'R'+y,
@@ -380,6 +404,21 @@ for y in years:
 
 
 combinations = [
+
+{
+	'variable':'BDT',
+	'postfix':'splitjes'
+},
+
+{
+	'variable':'BDT',
+	'postfix':'splitjes_totalJEC'
+},
+
+{
+	'variable':'BDT',
+	'postfix':'splitjes_splitJEC'
+},
 
 # {
 # 	'variable':'BDT',
@@ -493,9 +532,9 @@ cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 # python modifyTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n\
-python modifyBinning.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+# python modifyBinning.py '+train['year']+' '+v+' '+train['postfix']+'\n\
 # python plotFullRun2.py '+v+' '+train['postfix']+'\n\
-# python plotTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n')
+python plotTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n')
 			shell.close()
 			jdf_name = 'cfg/condor_step3_'+train['year']+'_'+train['postfix']+'_'+v+'.job'
 			jdf=open(jdf_name,'w')
@@ -532,9 +571,9 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh\n\
 cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
-# python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
-python dataCardDecoupleTTbarUncs.py '+train['year']+' '+v+' '+train['postfix']+'\n\
-cd limits_'+train['year']+'_'+train['postfix']+'_'+v+'\n\
+python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+#python dataCardDecoupleTTbarUncs.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+cd limits_'+train['year']+'_'+train['postfix']+'_splitJEC_'+v+'\n\
 combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_exp.txt\n\
 combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_obs.txt\n\
 combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> asy.txt\n\
@@ -580,9 +619,9 @@ eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 combineCards.py R16=limits_R16_'+combo+'/cmb/combined.txt.cmb R17=limits_R17_'+combo+'/cmb/combined.txt.cmb R18=limits_R18_'+combo+'/cmb/combined.txt.cmb &> BDTcomb/'+combo+'.txt\n\
 text2workspace.py  BDTcomb/'+combo+'.txt  -o BDTcomb/'+combo+'.root\n\
-combine -M Significance BDTcomb/'+combo+'.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_exp_'+combo+'.txt\n\
-combine -M Significance BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_obs_'+combo+'.txt\n\
-combine -M AsymptoticLimits BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/asy_'+combo+'.txt\n\
+# combine -M Significance BDTcomb/'+combo+'.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_exp_'+combo+'.txt\n\
+# combine -M Significance BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/sig_obs_'+combo+'.txt\n\
+# combine -M AsymptoticLimits BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> BDTcomb/asy_'+combo+'.txt\n\
 # combine -M Significance BDTcomb/'+combo+'.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> BDTcomb/sig_exp_'+combo+'_freezetth.txt\n\
 # combine -M Significance BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> BDTcomb/sig_obs_'+combo+'_freezetth.txt\n\
 # combine -M AsymptoticLimits BDTcomb/'+combo+'.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> BDTcomb/asy_'+combo+'_freezetth.txt\n\

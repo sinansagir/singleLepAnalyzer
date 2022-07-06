@@ -30,7 +30,56 @@ doPDF = True
 addCRsys = False
 systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt' #,'btag','btagcorr','btaguncorr','mistag'
 systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']
-systematicList+= ['JEC','JER']#,
+# systematicList+= ['JEC','JER']#,
+
+if year=='R16':
+	systematicList+= ['JEC_Absolute_2016',
+	'JEC_Absolute',
+	'JEC_BBEC1_2016',
+	'JEC_BBEC1',
+	'JEC_EC2_2016',
+	'JEC_EC2',
+	'JEC_FlavorQCD',
+	'JEC_HF_2016',
+	'JEC_HF',
+	'JEC_RelativeBal',
+	'JEC_RelativeSample_2016',
+	'JEC_Total',
+	'JEC',
+	'JER']
+
+if year=='R17':
+	systematicList+= ['JEC_Absolute_2017',
+	'JEC_Absolute',
+	'JEC_BBEC1_2017',
+	'JEC_BBEC1',
+	'JEC_EC2_2017',
+	'JEC_EC2',
+	'JEC_FlavorQCD',
+	'JEC_HF_2017',
+	'JEC_HF',
+	'JEC_RelativeBal',
+	'JEC_RelativeSample_2017',
+	'JEC_Total',
+	'JEC',
+	'JER']
+
+if year=='R18':
+	systematicList+= ['JEC_Absolute_2018',
+	'JEC_Absolute',
+	'JEC_BBEC1_2018',
+	'JEC_BBEC1',
+	'JEC_EC2_2018',
+	'JEC_EC2',
+	'JEC_FlavorQCD',
+	'JEC_HF_2018',
+	'JEC_HF',
+	'JEC_RelativeBal',
+	'JEC_RelativeSample_2018',
+	'JEC_Total',
+	'JEC',
+	'JER']
+
 # systematicList+= ['bdt']
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
@@ -72,7 +121,8 @@ else:
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
 bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] #+ bkgProcs['tt1b'] + bkgProcs['tt2b']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
-if year!='R16': bkgProcs['T']+= ['Tbs']
+# if year!='R16': bkgProcs['T']+= ['Tbs']
+if year=='R17': bkgProcs['T']+= ['Tbs']
 bkgProcs['TTH'] = ['TTHB','TTHnoB']
 bkgProcs['TTV'] = ['TTWl','TTZlM10','TTZlM1to10']
 bkgProcs['TTXY']= ['TTHH','TTTJ','TTTW','TTWH','TTWW','TTWZ','TTZH','TTZZ']

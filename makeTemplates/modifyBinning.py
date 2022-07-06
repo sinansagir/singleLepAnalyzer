@@ -48,7 +48,7 @@ combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
 blindBDT = False
 
-rebinYear = 'R18' #rebin w.r.t. another years templates, leave empty to disable this option. Assumes all year paths differ by only year tag from the selected 'year' path above
+rebinYear = ''#'R18' #rebin w.r.t. another years templates, leave empty to disable this option. Assumes all year paths differ by only year tag from the selected 'year' path above
 if rebinYear!='': saveKey+='_'+rebinYear+'bins'
 yeartolumi = {'R16':'35p867fb','R17':'41p53fb','R18':'59p97fb'}
 
@@ -165,18 +165,18 @@ pdfSFsUp = {'R16':1.0015,'R17':1.0015,'R18':1.0016}
 pdfSFsDn = {'R16':0.9976,'R17':0.9977,'R18':0.9976}
 
 removalKeys = {} # True == keep, False == remove
-removalKeys['JEC_Total'] = False
-removalKeys['JEC_FlavorQCD'] = False
-removalKeys['JEC_RelativeBal'] = False
-removalKeys['JEC_RelativeSample_'+year.replace('R','20')] = False
-removalKeys['JEC_Absolute'] = False
-removalKeys['JEC_Absolute_'+year.replace('R','20')] = False
-removalKeys['JEC_HF'] = False
-removalKeys['JEC_HF_'+year.replace('R','20')] = False
-removalKeys['JEC_EC2'] = False
-removalKeys['JEC_EC2_'+year.replace('R','20')] = False
-removalKeys['JEC_BBEC1'] = False
-removalKeys['JEC_BBEC1_'+year.replace('R','20')] = False
+# removalKeys['JEC_Total'] = False
+# removalKeys['JEC_FlavorQCD'] = False
+# removalKeys['JEC_RelativeBal'] = False
+# removalKeys['JEC_RelativeSample_'+year.replace('R','20')] = False
+# removalKeys['JEC_Absolute'] = False
+# removalKeys['JEC_Absolute_'+year.replace('R','20')] = False
+# removalKeys['JEC_HF'] = False
+# removalKeys['JEC_HF_'+year.replace('R','20')] = False
+# removalKeys['JEC_EC2'] = False
+# removalKeys['JEC_EC2_'+year.replace('R','20')] = False
+# removalKeys['JEC_BBEC1'] = False
+# removalKeys['JEC_BBEC1_'+year.replace('R','20')] = False
 
 def gettime():
 	return str(round((time.time() - start_time)/60,2))+'mins'

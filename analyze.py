@@ -490,7 +490,8 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 			if proc.endswith('Up') and tTree[proc]:
 				systName = proc[:-2].replace(process,'')
 				print 'Processing '+systName+' ...'
-				if systName == 'JEC':
+				# if systName == 'JEC':
+				if 'JEC' in systName:
 					tTree[process+systName+'Up'].Draw(plotTreeName   +' >> '+histName.replace(iPlot,iPlot+systName+'Up')  , weightCSVshapejesUpStr+'*('+fullcut+')', 'GOFF')
 					tTree[process+systName+'Down'].Draw(plotTreeName +' >> '+histName.replace(iPlot,iPlot+systName+'Down'), weightCSVshapejesDownStr+'*('+fullcut+')', 'GOFF')
 				else:
