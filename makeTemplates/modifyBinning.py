@@ -61,7 +61,7 @@ symmetrizeSmoothing = True #Symmetrize up/down shifts around nominal before smoo
 doPDF = True
 doMURF = True
 doPSWeights = True
-normalizeTheorySystSig = True #normalize renorm/fact, PDF and ISR/FSR systematics to nominal templates for signals
+normalizeTheorySystSig = False #normalize renorm/fact, PDF and ISR/FSR systematics to nominal templates for signals
 normalizeTheorySystBkg = False #normalize renorm/fact, PDF and ISR/FSR systematics to nominal templates for backgrounds
 if normalizeTheorySystBkg: saveKey+='_tshape'
 #tttt, X53, TT, BB, HTB, etc --> this is used to identify signal histograms for combine templates when normalizing the pdf and muRF shapes to nominal!!!!

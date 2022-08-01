@@ -307,7 +307,7 @@ if __name__ == '__main__':
 	# saveKey = '_nohotclosure_'+iPlot
 	# saveKey = '_0p25hotclosure_'+iPlot
 	# saveKey = '_scalehotclosure_'+iPlot
-	saveKey = '_splitJEC_'+iPlot
+	saveKey = '_splitJECnonorm_'+iPlot
 	fileDir = '../makeTemplates/'
 	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)
