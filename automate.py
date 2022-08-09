@@ -405,10 +405,16 @@ for y in years:
 
 combinations = [
 
-# {
-# 	'variable':'BDT',
-# 	'postfix':'splitjes'
-# },
+
+{
+	'variable':'BDT',
+	'postfix':'splitjes_splitJECnorm2'
+},
+
+{
+	'variable':'BDT',
+	'postfix':'splitjes_splitJECnonorm2'
+},
 
 # {
 # 	'variable':'BDT',
@@ -420,10 +426,10 @@ combinations = [
 # 	'postfix':'splitjes_splitJEC'
 # },
 
-{
-	'variable':'BDT',
-	'postfix':'splitjes_splitJECnonorm'
-},
+# {
+# 	'variable':'BDT',
+# 	'postfix':'splitjes_splitJECnonorm'
+# },
 
 # {
 # 	'variable':'BDT',
@@ -556,6 +562,7 @@ Notification = Error\n\
 Arguments = \n\
 Queue 1\n')
 			jdf.close()
+			# print('python modifyTemplates.py '+train['year']+' '+v+' '+train['postfix'])
 			os.system('condor_submit '+jdf_name)
 			# print(shell_name)
 			# os.system('source '+shell_name+' & ')

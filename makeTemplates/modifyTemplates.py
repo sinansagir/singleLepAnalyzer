@@ -25,19 +25,19 @@ njetslist = {
 # '_nJ6':('_nJ6','_nJ7','_nJ8','_nJ9','_nJ10p'),
 # '_nJ7':('_nJ7','_nJ8','_nJ9','_nJ10p'),
 # '_nJ8':('_nJ8','_nJ9','_nJ10p'),
-'_nJ6':('_nJ6','_nJ7','_nJ8p'),
-'_nJ8p':('_nJ8p'),
+# '_nJ6':('_nJ6','_nJ7','_nJ8p'),
+# '_nJ8p':('_nJ8p'),
 # '_nJ4':('_nJ4','_nJ5','_nJ6','_nJ7'),
 # '_nJ8':('_nJ8p'),
 # '_nJ8':('_nJ8','_nJ9','_nJ10p'),
-# '_nJ8':('_nJ8','_nJ9','_nJ10p'),
+'_nJ8':('_nJ8','_nJ9','_nJ10p'),
 }
 
-nhotslist = {
+# nhotslist = {
 
-'_nHOT0':('_nHOT0','_nHOT1p'),
+# '_nHOT0':('_nHOT0','_nHOT1p'),
 
-}
+# }
 
 rebinCombine = True #else rebins theta templates
 sigName = 'tttt' #MAKE SURE THIS WORKS FOR YOUR ANALYSIS PROPERLY!!!!!!!!!!!
@@ -99,18 +99,33 @@ for rfile in rfiles:
 			nJet_ = '_'+chn.split('_')[-1]
 			nB_ = '_'+chn.split('_')[-2]
 			nHOT_ = '_'+chn.split('_')[-5]
-			if nHOT_ in nhotslist.keys():
-				newHname = rebinnedHists[hist].GetName().replace(nHOT_,nHOT_+'p')
+			# if nHOT_ in nhotslist.keys():
+			# 	newHname = rebinnedHists[hist].GetName().replace(nHOT_,nHOT_+'p')
+			# 	# if 'p' in nJet_:
+			# 		# newHname = rebinnedHists[hist].GetName().replace(nB_,nB_+'p')
+			# 	rebinnedHists[newHname] = rebinnedHists[hist].Clone(newHname)
+			# 	# for ib in ['_nB3','_nB4p']:
+			# 	for ihot in nhotslist[nHOT_]:
+			# 			# if nJet_==ijet:continue
+					# try: rebinnedHists[newHname].Add(tfiles[iRfile].Get(hist.replace(nHOT_,ihot)).Clone())
+					# except:
+					# 	print 'MISSING PROC:',hist.replace(nHOT_,ihot	)
+			# 	rebinnedHists[newHname].Write()
+
+
+			if nJet_ in njetslist.keys():
+				newHname = rebinnedHists[hist].GetName().replace(nJet_,nJet_+'p')
 				# if 'p' in nJet_:
-					# newHname = rebinnedHists[hist].GetName().replace(nB_,nB_+'p')
+				# 	newHname = rebinnedHists[hist].GetName().replace(nB_,nB_+'p')
 				rebinnedHists[newHname] = rebinnedHists[hist].Clone(newHname)
 				# for ib in ['_nB3','_nB4p']:
-				for ihot in nhotslist[nHOT_]:
-						# if nJet_==ijet:continue
-					try: rebinnedHists[newHname].Add(tfiles[iRfile].Get(hist.replace(nHOT_,ihot)).Clone())
-					except:
-						print 'MISSING PROC:',hist.replace(nHOT_,ihot	)
+				for ijet in njetslist[nJet_]:
+					# if nJet_==ijet:continue
+					try: rebinnedHists[newHname].Add(tfiles[iRfile].Get(hist.replace(nJet_,ijet).Clone()))
+					except: print 'MISSING PROC:',hist.replace(nJet_,ijet)
 				rebinnedHists[newHname].Write()
+
+
 			# if nJet_ in njetslist.keys() and nB_=='_nB2':
 			# 	newHname = rebinnedHists[hist].GetName().replace(nJet_,nJet_+'p').replace(nB_,nB_+'p')
 			# 	if 'p' in nJet_:
