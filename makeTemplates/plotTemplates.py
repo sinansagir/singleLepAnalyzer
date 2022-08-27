@@ -68,8 +68,15 @@ elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
-systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+systematicList = ['pileup','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#['CSVshapelf','CSVshapehf']
+systematicList+= ['JEC_FlavorQCD',
+'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+'JEC_HF','JEC_HF_'+year.replace('R','20'),
+'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+
 if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
 useSmoothShapes = True

@@ -46,7 +46,7 @@ elif region=='TTCR': pfix='ttbar_'+year
 if not isCategorized: pfix='kinematics_'+region+'_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[2]+'/'+cutString+'/'
 
-isRebinned='_R18bins_rebinned_stat0p3_bdtcorr'#'_rebinned_stat0p3' #post for ROOT file names
+isRebinned='_merge_R18bins_rebinned_stat0p3_bdtcorr'#'_rebinned_stat0p3' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '_v4' # tag for plot names
 
@@ -68,7 +68,13 @@ elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top'
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 sigColor= rt.kBlack
 
-systematicList = ['pileup','JEC','JER','isr','fsr','muRF','pdf','bdtshape']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+systematicList = ['pileup','JER','isr','fsr','muRF','pdf','bdtshape']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
+systematicList+= ['JEC_FlavorQCD',
+'JEC_RelativeBal','JEC_RelativeSample_YEAR',#'JEC_RelativeSample_2016','JEC_RelativeSample_2017','JEC_RelativeSample_2018',
+'JEC_Absolute','JEC_Absolute_YEAR',#'JEC_Absolute_2017','JEC_Absolute_2018',
+'JEC_HF','JEC_HF_YEAR',#'JEC_HF_2017','JEC_HF_2018',
+'JEC_EC2','JEC_EC2_YEAR',#'JEC_EC2_2017','JEC_EC2_2018',
+'JEC_BBEC1','JEC_BBEC1_YEAR']#'JEC_BBEC1_2017','JEC_BBEC1_2018']
 if year != 'R18': systematicList += ['prefire']
 useSmoothShapes = True
 if not isCategorized: useSmoothShapes = False
@@ -123,8 +129,9 @@ catsElist = [#manually add the list of categories to be displayed together (SHOU
 # 'isE_nHOT1p_nT0p_nW0p_nB3_nJ8p',
 # 'isE_nHOT1p_nT0p_nW0p_nB4p_nJ7p',
 
-'isE_nHOT1p_nT0p_nW0p_nB2_nJ8p',
+# 'isE_nHOT0_nT0p_nW0p_nB3_nJ8p',
 'isE_nHOT1p_nT0p_nW0p_nB3_nJ8p',
+'isE_nHOT0_nT0p_nW0p_nB4p_nJ8p',
 'isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p',
 
 # 'isE_nHOT'+sys.argv[4]+'_nT0p_nW0p_nB'+sys.argv[5]+'_nJ6',
@@ -342,8 +349,11 @@ for catEStr in catsElist:
 				for ud in [upTag,downTag]:
 					for proc in bkgProcList:
 						try: 
-							systHists[proc+catStr+syst+ud] = RFile.Get(histPrefix+'__'+proc+'__'+syst+ud).Clone()
-							for year_ in RFiles.keys(): systHists[proc+catStr+syst+ud].Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+proc+'__'+syst+ud))
+							systHists[proc+catStr+syst+ud] = RFile.Get(histPrefix+'__'+proc+'__'+syst.replace('YEAR',year.replace('R','20'))+ud).Clone()
+							for year_ in RFiles.keys():
+								print(syst.replace('YEAR',year_.replace('R','20')))
+								systHists[proc+catStr+syst+ud].Add(RFiles[year_].Get(histPrefix.replace(lumiStr,yearstoadd[year_])+'__'+proc+'__'+syst.replace('YEAR',year_.replace('R','20'))+ud))
+
 							for ibin in range(1,systHists[proc+catStr+syst+ud].GetNbinsX()+1):
 								hsystCats[proc+'_'+isEM+'_'+syst+'_'+ud].SetBinContent(ibin+catbin,systHists[proc+catStr+syst+ud].GetBinContent(ibin))
 								hsystCats[proc+'_'+isEM+'_'+syst+'_'+ud].SetBinError(ibin+catbin,systHists[proc+catStr+syst+ud].GetBinError(ibin))

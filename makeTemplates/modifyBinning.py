@@ -131,7 +131,9 @@ if iPlot=='BDT' and stat<1.:
 outro=str(stat)
 if apply_bdt_shape_corr:
 	outro = outro+'_bdtcorr'
-	
+
+outro=outro+'_Norm'	
+
 if rebinCombine:
 	dataName = 'data_obs'
 	upTag = 'Up'

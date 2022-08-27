@@ -33,8 +33,8 @@ elif region=='TTCR': pfix='ttbar_'+year
 templateDir=os.getcwd()+'/'+pfix+'_'+sys.argv[2]+'/'+cutString+'/'
 
 # isRebinned='_2b300GeV3b150GeV4b50GeVbins_R18bins_rebinned_stat0p3' #post for ROOT file names
-isRebinned='_new_rebinned_stat1p1'
-# isRebinned='_R18bins_rebinned_stat0p3'
+# isRebinned='_new_rebinned_stat1p1'
+isRebinned='_R18bins_rebinned_stat0p3'
 if not isCategorized: isRebinned='_rebinned_stat1p1'
 saveKey = '' # tag for plot names
 

@@ -77,7 +77,10 @@ def add_standard_systematics(cb):
 	
 	signal = cb.cp().signals().process_set()
 	
-	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.025)(['R17'], 1.023)(['R18'], 1.025)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	# cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.025)(['R17'], 1.023)(['R18'], 1.025)) # Uncorrelated; Ex: B2G-19-001/AN2018_322_v7
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.01)(['R17'], 1.02)(['R18'], 1.015)) # Uncorrelated part
+	if era!='R16': cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_R1718', 'lnN', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.006)(['R18'], 1.002)) # 2017 and 2018 correlated part
+	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, 'lumi_Run2', 'lnN', ch.SystMap('era')(['R16'], 1.006)(['R17'], 1.009)(['R18'], 1.02)) # Full correlated part
 	cb.cp().process(signal + allbkgs).channel(chnsE).AddSyst(cb, 'SFel_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.03)(['R17'], 1.03)(['R18'], 1.03)) # 1.5% el id/iso + 2.5% trigger ~ 3%
 	cb.cp().process(signal + allbkgs).channel(chnsM).AddSyst(cb, 'SFmu_$ERA', 'lnN', ch.SystMap('era')(['R16'], 1.03)(['R17'], 1.03)(['R18'], 1.03)) # 1% mu id/iso + 2.5% trigger ~ 3%
 	# cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'JEC_$ERA', 'shape', ch.SystMap('era')(['R16'], 1.0)(['R17'], 1.0)(['R18'], 1.0)) # This one is being studied in B2G-19-001/AN2018_322_v7 (take the uncorrelated one to be conservative!)
@@ -157,7 +160,9 @@ def add_standard_systematics(cb):
 	cb.cp().process(signal).channel(chns).AddSyst(cb, smoothAlgo+'fsr_tttt', 'shape', ch.SystMap()(1.0)) # Uncorrelated; TOP-18-003/AN2018_062_v17 (derived from different datasets and with respect to different MC samples)
 	cb.cp().process(signal + allbkgs).channel(chns).AddSyst(cb, smoothAlgo+'pdf', 'shape', ch.SystMap()(1.0)) # Correlated, PDF and QCD Scale (not recalculated in 2018); Ex: B2G-19-001/AN2018_322_v7
 	#cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.945,1.048])) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/TtbarNNLO; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
-	cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.91,1.11])) # hDamp uncertainty of +10/-7% added in quadrature with the x-sec uncertainty (+4.8/-5.5%)
+	# cb.cp().process( ttbkgs).channel(chns).AddSyst(cb, 'xsec_ttbar', 'lnN', ch.SystMap()([0.91,1.11])) # hDamp uncertainty of +10/-7% added in quadrature with the x-sec uncertainty (+4.8/-5.5%)
+	cb.cp().process(['ttnobb']).channel(chns).AddSyst(cb, 'xsec_ttnobb', 'lnN', ch.SystMap()([0.91,1.11])) # hDamp uncertainty of +10/-7% added in quadrature with the x-sec uncertainty (+4.8/-5.5%)
+	cb.cp().process(['ttbb']).channel(chns).AddSyst(cb, 'xsec_ttbb', 'lnN', ch.SystMap()([0.91,1.11])) # hDamp uncertainty of +10/-7% added in quadrature with the x-sec uncertainty (+4.8/-5.5%)
 	cb.cp().process(['ewk']).channel(chns).AddSyst(cb, 'xsec_ewk', 'lnN', ch.SystMap()(1.038)) # (scale and pdf added in quadrature) from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat13TeV; Ex: HIG-18-004/AN2017_090_v12/Table13 and HIG-19-011/AN2019_094_v10/Table79-80
 	cb.cp().process(['top']).channel(chns).AddSyst(cb, 'xsec_top', 'lnN', ch.SystMap()(1.04)) # ttV,ttH, and tt+XY uncertainties are 50% in OSDL and SSDL analyses, so aligning it with this inflated uncertainty.
 	cb.cp().process(['ttH']).channel(chns).AddSyst(cb, 'xsec_ttH', 'lnN', ch.SystMap()(1.2)) # Based on agreement with others in 15APR21 4tops meeting
@@ -307,12 +312,12 @@ if __name__ == '__main__':
 	# saveKey = '_nohotclosure_'+iPlot
 	# saveKey = '_0p25hotclosure_'+iPlot
 	# saveKey = '_scalehotclosure_'+iPlot
-	saveKey = '_splitJEC_'+iPlot
+	saveKey = '_splitJECnorm2_'+iPlot
 	fileDir = '../makeTemplates/'
 	template = era+'_'+sys.argv[3]#nonjetsf_lepPt20_2020_9_3'
 	if not os.path.exists('./limits_'+template+saveKey): os.system('mkdir ./limits_'+template+saveKey)
-	os.system('cp '+fileDir+'templates_'+template+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3_bdtcorr.root ./limits_'+template+saveKey+'/')
-	rfile = './limits_'+template+saveKey+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3_bdtcorr.root'
+	os.system('cp '+fileDir+'templates_'+template+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3_bdtcorr_Norm.root ./limits_'+template+saveKey+'/')
+	rfile = './limits_'+template+saveKey+'/templates_'+iPlot+'_'+lumiStr+tag+'_rebinned_stat0p3_bdtcorr_Norm.root'
 	
 	ttbkgs = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 	allbkgs = ttbkgs + ['ttH','top','ewk','qcd']

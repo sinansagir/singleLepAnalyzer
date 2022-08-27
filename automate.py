@@ -207,16 +207,16 @@ for y in years:
 		trainings.append(tmp)
 
 # #for step2
-trainings=[]
-for y in years:
+# trainings=[]
+# for y in years:
 
-	tmp={
-	'year':'R'+y,
-	'variable':vrs,
-	'postfix':'splitjes',#+'_lim',#'NoNBtagSF_'+p,
-	'path':''
-	}
-	trainings.append(tmp)
+# 	tmp={
+# 	'year':'R'+y,
+# 	'variable':vrs,
+# 	'postfix':'splitjes',#+'_lim',#'NoNBtagSF_'+p,
+# 	'path':''
+# 	}
+# 	trainings.append(tmp)
 
 	# tmp={
 	# 'year':'R'+y,
@@ -405,20 +405,31 @@ for y in years:
 
 combinations = [
 
+
 {
 	'variable':'BDT',
-	'postfix':'splitjes'
+	'postfix':'splitjes_splitJECnorm2'
 },
 
 {
 	'variable':'BDT',
-	'postfix':'splitjes_totalJEC'
+	'postfix':'splitjes_splitJECnonorm2'
 },
 
-{
-	'variable':'BDT',
-	'postfix':'splitjes_splitJEC'
-},
+# {
+# 	'variable':'BDT',
+# 	'postfix':'splitjes_totalJEC'
+# },
+
+# {
+# 	'variable':'BDT',
+# 	'postfix':'splitjes_splitJEC'
+# },
+
+# {
+# 	'variable':'BDT',
+# 	'postfix':'splitjes_splitJECnonorm'
+# },
 
 # {
 # 	'variable':'BDT',
@@ -473,7 +484,7 @@ combinations = [
 #4 dataCard + limit + significance
 #5 combination limit + significance
 #6 print results
-step=3
+step=5
 
 if step==1:
 	os.chdir('makeTemplates')
@@ -532,9 +543,9 @@ cd '+cmsswbase+'\n\
 eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 # python modifyTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n\
-# python modifyBinning.py '+train['year']+' '+v+' '+train['postfix']+'\n\
+python modifyBinning.py '+train['year']+' '+v+' '+train['postfix']+'\n\
 # python plotFullRun2.py '+v+' '+train['postfix']+'\n\
-python plotTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n')
+# python plotTemplates.py '+train['year']+' '+v+' '+train['postfix']+'\n')
 			shell.close()
 			jdf_name = 'cfg/condor_step3_'+train['year']+'_'+train['postfix']+'_'+v+'.job'
 			jdf=open(jdf_name,'w')
@@ -551,6 +562,7 @@ Notification = Error\n\
 Arguments = \n\
 Queue 1\n')
 			jdf.close()
+			# print('python modifyTemplates.py '+train['year']+' '+v+' '+train['postfix'])
 			os.system('condor_submit '+jdf_name)
 			# print(shell_name)
 			# os.system('source '+shell_name+' & ')
@@ -573,10 +585,10 @@ eval `scramv1 runtime -sh`\n\
 cd '+os.getcwd()+'\n\
 python dataCard.py '+train['year']+' '+v+' '+train['postfix']+'\n\
 #python dataCardDecoupleTTbarUncs.py '+train['year']+' '+v+' '+train['postfix']+'\n\
-cd limits_'+train['year']+'_'+train['postfix']+'_splitJEC_'+v+'\n\
-combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_exp.txt\n\
-combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_obs.txt\n\
-combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> asy.txt\n\
+cd limits_'+train['year']+'_'+train['postfix']+'_splitJECnonorm_'+v+'\n\
+# combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_exp.txt\n\
+# combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> sig_obs.txt\n\
+# combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 &> asy.txt\n\
 # combine -M Significance cmb/workspace.root -t -1 --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> sig_exp_freezetth.txt\n\
 # combine -M Significance cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> sig_obs_freezetth.txt\n\
 # combine -M AsymptoticLimits cmb/workspace.root --expectSignal=1 --cminDefaultMinimizerStrategy 0 --freezeParameters lowessfsr_ttH,lowessisr_ttH,lowessmuRF_ttH,xsec_ttH &> asy_freezetth.txt\n\
