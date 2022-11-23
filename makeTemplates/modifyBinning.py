@@ -42,7 +42,7 @@ saveKey = ''
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString = ''#'lep30_MET150_NJets4_DR1_1jet450_2jet150'
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
-templateDir = os.getcwd()+'/templates_'+year+'_'+sys.argv[3]+'/'+cutString
+templateDir = os.getcwd()+'/kinematics_SR_'+year+'_'+sys.argv[3]+'/'+cutString
 # combinefile = 'templates_'+iPlot+'_'+lumiStr+'_merge.root'
 combinefile = 'templates_'+iPlot+'_'+lumiStr+'.root'
 
@@ -72,7 +72,7 @@ if sigName=='tttt': sigProcList = [sigName]
 if sigName=='X53': 
 	sigProcList = [sigName+'LHM'+str(mass) for mass in [1100,1200,1400,1700]]
 	sigProcList+= [sigName+'RHM'+str(mass) for mass in range(900,1700+1,100)]
-ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
+ttProcList = ['ttbar']#['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 bkgProcList = ttProcList + ['ttH','top','ewk','qcd'] #put the most dominant process first
 removeSystFromYields = ['hdamp','ue','njet','njetsf'] #list of systematics to be removed from yield errors #'CSVshapehf','CSVshapelf',
 removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
@@ -84,19 +84,19 @@ removeSystFromYields+= ['JEC_Total','JEC_FlavorQCD',
 removeSystFromYields+= ['PSwgt'] #remove if envelope method is not used, otherwise replace with ['isr','fsr']
 removeSystFromYields+= ['btag'] #remove if year-to-year correlation is used, otherwise replace with ['btagcorr','btaguncorr']
 
-apply_bdt_shape_corr=True
-minNbins=2 #min number of bins to be merged
+apply_bdt_shape_corr=False
+minNbins=1 #min number of bins to be merged
 stat = 0.3 #statistical uncertainty requirement (enter >1.0 for no rebinning; i.g., "1.1")
 if iPlot[0]=='N':
 	minNbins=1 #min number of bins to be merged
 	stat = 1.1
 
-if 'kinematics' in templateDir: 
-	stat = 1.1
-	doSmoothing = False
-	minNbins=2
-	if iPlot=='HT' or iPlot=='lepPt': minNbins=4
-	if 'NJets' in iPlot or 'NDCSVBJets' in iPlot or 'NBJets' in iPlot or 'NresolvedTops' in iPlot: minNbins=1
+# if 'kinematics' in templateDir: 
+# 	stat = 1.1
+# 	doSmoothing = False
+# 	minNbins=2
+# 	if iPlot=='HT' or iPlot=='lepPt': minNbins=4
+# 	if 'NJets' in iPlot or 'NDCSVBJets' in iPlot or 'NBJets' in iPlot or 'NresolvedTops' in iPlot: minNbins=1
 statThres = 0.05 #statistical uncertainty threshold on total background to assign BB nuisances -- enter 0.0 to assign BB for all bins
 #if len(sys.argv)>1: stat=float(sys.argv[1])
 singleBinCR = False
@@ -334,6 +334,37 @@ for chn in xbinsListTemp.keys():
 print "//"*40
 print "==> Total number of bins =",totNbins
 print "//"*40
+
+xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8p']   = [-1.0, -0.21, -0.15, -0.09, -0.03, 0.03, 0.09, 0.15, 0.21, 0.27, 0.33, 0.39, 0.45, 0.51, 0.57, 0.63, 1.0]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8p']  = [-1.0, 0.12, 0.18, 0.23, 0.26, 0.29, 0.33, 0.35, 0.38, 0.4, 0.45, 0.5, 0.53, 0.55, 0.61, 0.64, 1.0]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8p']  = [-1.0, -0.15, -0.09, -0.03, 0.03, 0.09, 0.15, 0.21, 0.27, 0.33, 0.39, 0.45, 0.51, 0.57, 0.67, 1.0]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p'] = [-1.0, 0.28, 0.33, 0.38, 0.4, 0.45, 0.52, 0.54, 0.63, 1.0]
+
+xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8']     = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ9']     = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ10p']   = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8']    = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ9']    = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ10p']  = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8']    = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ9']    = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ10p']  = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8']   = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ9']   = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ10p'] = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p'][:]
+
+xbinsList['isM_nHOT0_nT0p_nW0p_nB3_nJ8']     = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB3_nJ9']     = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ9'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB3_nJ10p']   = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ10p'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB4p_nJ8']    = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB4p_nJ9']    = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ9'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB4p_nJ10p']  = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ10p'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB3_nJ8']    = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB3_nJ9']    = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ9'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB3_nJ10p']  = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ10p'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB4p_nJ8']   = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB4p_nJ9']   = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ9'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB4p_nJ10p'] = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ10p'][:]
 
 xbins = {}
 for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])

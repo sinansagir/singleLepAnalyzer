@@ -25,7 +25,7 @@ elif year=='R18':
 lumiInTemplates= str(targetlumi/1000).replace('.','p') # 1/fb
 	
 region='SR' #PS,SR,TTCR,WJCR
-isCategorized=1
+isCategorized=0
 iPlot=sys.argv[2]
 # if len(sys.argv)>1: iPlot=str(sys.argv[1])
 cutString=''
@@ -45,6 +45,7 @@ isRebinned='_rebinned_stat0p3_bdtcorr' #post for ROOT file names
 # isRebinned='_rebinned_statVar' #post for ROOT file names
 # isRebinned='_merge_rebinned_statVar' #post for ROOT file names
 if not isCategorized: isRebinned='_rebinned_stat1p1'
+isRebinned=''
 saveKey = '' # tag for plot names
 
 dofit=False
@@ -57,25 +58,25 @@ sigScaleFact = 10 #put -1 if auto-scaling wanted
 useCombineTemplates = True
 sigfile='templates_'+iPlot+'_'+sig+'_'+lumiInTemplates+'fb'+isRebinned+'.root'
 
-ttProcList = ['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
+ttProcList = ['ttbar']#['ttnobb','ttbb'] # ['ttjj','ttcc','ttbb','ttbj']
 if iPlot=='HTYLD' or iPlot=='BDTYLD': 
 	ttProcList = ['ttbb','ttnobb']
 	useCombineTemplates = False
 	scaleSignals = True
 bkgProcList = ttProcList+['ttH','top','ewk','qcd']
 if '53' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-7,'top':rt.kBlue,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
-elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.kRed} #4T
+elif 'tttt' in sig: bkgHistColors = {'tt2b':rt.kRed+3,'tt1b':rt.kRed-3,'ttbj':rt.kRed+3,'ttbb':rt.kRed,'ttcc':rt.kRed-5,'ttjj':rt.kRed-7,'ttnobb':rt.kRed-9,'top':rt.kBlue,'ttH':rt.kRed+3,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5,'ttbar':rt.TColor.GetColor("#cf9ddb")} #4T
 elif 'HTB' in sig: bkgHistColors = {'ttbar':rt.kGreen-3,'wjets':rt.kPink-4,'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #HTB
 else: bkgHistColors = {'top':rt.kAzure+8,'ewk':rt.kMagenta-2,'qcd':rt.kOrange+5} #TT
 
 systematicList = ['pileup','JER','isr','fsr','muRF','pdf']#,'njet','hdamp','ue','ht','trigeff','toppt','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt']
 systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#['CSVshapelf','CSVshapehf']
-systematicList+= ['JEC_FlavorQCD',
-'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
-'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
-'JEC_HF','JEC_HF_'+year.replace('R','20'),
-'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
-'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
+# systematicList+= ['JEC_FlavorQCD',
+# 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
+# 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
+# 'JEC_HF','JEC_HF_'+year.replace('R','20'),
+# 'JEC_EC2','JEC_EC2_'+year.replace('R','20'),
+# 'JEC_BBEC1','JEC_BBEC1_'+year.replace('R','20')]
 
 if year != 'R18': systematicList += ['prefire']
 #if year == 'R18': systematicList += ['hem']
@@ -86,7 +87,7 @@ addCRsys = False
 doNormByBinWidth=False ######################################
 doOneBand = True
 blind = False
-yLog  = False
+yLog  = True
 doRealPull = False
 compareShapes = False
 if not isCategorized: blind = False
@@ -148,6 +149,8 @@ for catEStr in catsElist:
 			modelingSys[proc+'_'+modTag] = 0.
 	modelingSys['ttbb_'+modTag]=math.sqrt(xsec_ttbar**2+ttHF**2+hDamp**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2+ttHF**2)
 	modelingSys['ttnobb_'+modTag]=math.sqrt(xsec_ttbar**2+hDamp**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
+	if 'ABCDnn' in sys.argv[3]: modelingSys['ttbar_'+modTag]=0.04
+	else: modelingSys['ttbar_'+modTag]=math.sqrt(xsec_ttbar**2+hDamp**2)#math.sqrt(QCDscale_ttbar**2+pdf_gg**2)
 	modelingSys['ttH_'+modTag]=xsec_ttH#math.sqrt(QCDscale_top**2+pdf_qg**2)
 	modelingSys['top_'+modTag]=xsec_top#math.sqrt(QCDscale_top**2+pdf_qg**2)
 	modelingSys['ewk_'+modTag]=xsec_ewk#math.sqrt(QCDscale_ewk**2+pdf_qqbar**2)
@@ -267,7 +270,7 @@ totBkgTemp2 = {}
 totBkgTemp3 = {}
 for catEStr in catsElist:
 	systematicList_ = systematicList[:]
-	if 'nB0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
+	#if 'nB0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['mistag','btagcorr','btaguncorr']#,'btag']
 	if 'nHOT0p' not in catEStr or iPlot=='HTYLD': systematicList_ += ['hotstat','hotcspur','hotclosure']
 	if useSmoothShapes: systematicList_ = ['lowess'+syst for syst in systematicList_]
 	modTag = catEStr#[catEStr.find('nT'):catEStr.find('nJ')-3]
@@ -555,6 +558,8 @@ for catEStr in catsElist:
 		except: pass
 		try: leg.AddEntry(bkghists['ttH'+catStr],"t#bar{t}+H","f")
 		except: pass
+		try: leg.AddEntry(bkghists['ttbar'+catStr],"t#bar{t}","f")
+		except: pass
 		try: leg.AddEntry(bkghists['ttnobb'+catStr],"t#bar{t}+!b#bar{b}","f")
 		except: pass
 		try: leg.AddEntry(bkghists['ttjj'+catStr],"t#bar{t}+j(j)","f")
@@ -688,7 +693,7 @@ for catEStr in catsElist:
 				else: pull.SetBinContent(binNo,0.)
 			pull.SetMaximum(3)
 			pull.SetMinimum(-3)
-			if '53' in sig or '4T' in sig:
+			if '53' in sig or 'tttt' in sig:
 				pull.SetFillColor(2)
 				pull.SetLineColor(2)
 			else:
@@ -710,8 +715,8 @@ for catEStr in catsElist:
 		if compareShapes: savePrefix+='_shp'
 		if doOneBand: savePrefix+='_totBand'
 
-		# c1.SaveAs(savePrefix+'.png')
-		c1.SaveAs(savePrefix+'.pdf')
+		c1.SaveAs(savePrefix+'.png')
+		#c1.SaveAs(savePrefix+'.pdf')
 # 		c1.SaveAs(savePrefix+'.eps')
 # 		c1.SaveAs(savePrefix+'.root')
 # 		c1.SaveAs(savePrefix+'.C')
@@ -971,6 +976,8 @@ for catEStr in catsElist:
 	except: pass
 	try: legmerged.AddEntry(bkghistsmerged['ttH'+catLStr],"t#bar{t}+H","f")
 	except: pass
+	try: legmerged.AddEntry(bkghistsmerged['ttbar'+catLStr],"t#bar{t}","f")
+	except: pass
 	try: legmerged.AddEntry(bkghistsmerged['ttnobb'+catLStr],"t#bar{t}+!b#bar{b}","f")
 	except: pass
 	try: legmerged.AddEntry(bkghistsmerged['ttjj'+catLStr],"t#bar{t}+j(j)","f")
@@ -1106,7 +1113,7 @@ for catEStr in catsElist:
 			else: pullmerged.SetBinContent(binNo,0.)
 		pullmerged.SetMaximum(3)
 		pullmerged.SetMinimum(-3)
-		if '53' in sig or '4T' in sig:
+		if '53' in sig or 'tttt' in sig:
 			pullmerged.SetFillColor(2)
 			pullmerged.SetLineColor(2)
 		else:
@@ -1133,8 +1140,8 @@ for catEStr in catsElist:
 	if compareShapes: savePrefixmerged+='_shp'
 	if doOneBand: savePrefixmerged+='_totBand'
 
-	# c1merged.SaveAs(savePrefixmerged+'.png')
-	c1merged.SaveAs(savePrefixmerged+'.pdf')
+	c1merged.SaveAs(savePrefixmerged+'.png')
+	#c1merged.SaveAs(savePrefixmerged+'.pdf')
 # 	c1merged.SaveAs(savePrefixmerged+'.eps')
 # 	c1merged.SaveAs(savePrefixmerged+'.root')
 # 	c1merged.SaveAs(savePrefixmerged+'.C')

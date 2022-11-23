@@ -15,14 +15,16 @@ start_time = time.time()
 year=sys.argv[1]
 saveKey = ''#'_ttH'
 cutString = ''#'lep30_MET100_NJets4_DR1_1jet250_2jet50'
-theDir = 'templates_'+year+'_'+sys.argv[2]
+theDir = 'kinematics_SR_'+year+'_'+sys.argv[2]
 outDir = os.getcwd()+'/'+theDir+'/'+cutString
 
+isABCDnn = True
 writeSummaryHists = True
 scaleSignalXsecTo1pb = False # !!!!!Make sure you know signal x-sec used in input files to this script. If this is True, it will scale signal histograms by 1/x-sec in weights.py!!!!!
 lumiScaleCoeff = 1. # Rescale luminosity used in doHists.py
 ttHFsf = 4.7/3.9 # from TOP-18-002 (v34) Table 4, set it to 1, if no ttHFsf is wanted.
 ttLFsf = 1 # if it is set to -1, ttLFsf is calculated based on ttHFsf in order to keep overall normalization unchanged. Otherwise, it will be used as entered. If no ttLFsf is wanted, set it to 1.
+if isABCDnn: ttHFsf = 1
 doAllSys = True
 doHDsys = False
 doUEsys = False
@@ -30,57 +32,7 @@ doPDF = True
 addCRsys = False
 systematicList = ['pileup','muRFcorrd','muR','muF','isr','fsr','hotstat','hotcspur','hotclosure']#,'njet','njetsf'] # ,'tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','ht','trigeff','toppt' #,'btag','btagcorr','btaguncorr','mistag'
 systematicList+= ['CSVshapelf','CSVshapehf','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']
-# systematicList+= ['JEC','JER']#,
-
-if year=='R16':
-	systematicList+= ['JEC_Absolute_2016',
-	'JEC_Absolute',
-	'JEC_BBEC1_2016',
-	'JEC_BBEC1',
-	'JEC_EC2_2016',
-	'JEC_EC2',
-	'JEC_FlavorQCD',
-	'JEC_HF_2016',
-	'JEC_HF',
-	'JEC_RelativeBal',
-	'JEC_RelativeSample_2016',
-	'JEC_Total',
-	'JEC',
-	'JER']
-
-if year=='R17':
-	systematicList+= ['JEC_Absolute_2017',
-	'JEC_Absolute',
-	'JEC_BBEC1_2017',
-	'JEC_BBEC1',
-	'JEC_EC2_2017',
-	'JEC_EC2',
-	'JEC_FlavorQCD',
-	'JEC_HF_2017',
-	'JEC_HF',
-	'JEC_RelativeBal',
-	'JEC_RelativeSample_2017',
-	'JEC_Total',
-	'JEC',
-	'JER']
-
-if year=='R18':
-	systematicList+= ['JEC_Absolute_2018',
-	'JEC_Absolute',
-	'JEC_BBEC1_2018',
-	'JEC_BBEC1',
-	'JEC_EC2_2018',
-	'JEC_EC2',
-	'JEC_FlavorQCD',
-	'JEC_HF_2018',
-	'JEC_HF',
-	'JEC_RelativeBal',
-	'JEC_RelativeSample_2018',
-	'JEC_Total',
-	'JEC',
-	'JER']
-
-# systematicList+= ['bdt']
+systematicList+= ['JEC','JER']#,
 # 'JEC_Total','JEC_FlavorQCD',
 # 'JEC_RelativeBal','JEC_RelativeSample_'+year.replace('R','20'),
 # 'JEC_Absolute','JEC_Absolute_'+year.replace('R','20'),
@@ -96,7 +48,7 @@ zero = 1E-12
 removeThreshold = 0.015
 removeStatUnc = 0.5
 
-ttbarGrupList = ['ttnobb','ttbb']
+ttbarGrupList = ['ttbar']#['ttnobb','ttbb']
 bkgGrupList = ttbarGrupList+['ttH','top','ewk','qcd']
 ttbarProcList = ['ttjj','ttcc','ttbb','tt1b','tt2b']
 bkgProcList = ttbarProcList+['T','TTH','TTV','TTXY','WJets','ZJets','VV','qcd']
@@ -120,6 +72,7 @@ if year=='R18':
 else:
 	bkgProcs['ttjj'] += ['TTJetsSemiLepNjet0TTjj'+tt for tt in ['1','2','3','4','5']]
 bkgProcs['ttnobb']  = bkgProcs['ttjj'] + bkgProcs['ttcc'] #+ bkgProcs['tt1b'] + bkgProcs['tt2b']
+bkgProcs['ttbar'] = bkgProcs['ttnobb'] + bkgProcs['ttbb']
 bkgProcs['T'] = ['Ts','Tt','Tbt','TtW','TbtW']
 # if year!='R16': bkgProcs['T']+= ['Tbs']
 if year=='R17': bkgProcs['T']+= ['Tbs']
@@ -290,6 +243,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				for syst in systematicList:
 					for ud in ['Up','Down']:
 						for proc in bkgProcList+bkgGrupList:
+							if isABCDnn and (proc in ttbarProcList or proc in ttbarGrupList): continue
 							if syst=='toppt' and proc not in topptProcs: continue
 							if syst=='ht' and proc not in htProcs: continue
 							hists[proc+i+syst+ud] = bkghists[histoPrefix.replace(discriminant,discriminant+syst+ud)+'_'+bkgProcs[proc][0]].Clone(histoPrefix+'__'+proc+'__'+syst+'__'+ud.replace('Up','plus').replace('Down','minus'))
@@ -306,6 +260,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 			if doPDF:
 				for pdfInd in range(100):
 					for proc in bkgProcList+bkgGrupList:
+						if isABCDnn and (proc in ttbarProcList or proc in ttbarGrupList): continue
 						hists[proc+i+'pdf'+str(pdfInd)] = bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkgProcs[proc][0]].Clone(histoPrefix+'__'+proc+'__pdf'+str(pdfInd))
 						for bkg in bkgProcs[proc]:
 							if bkg!=bkgProcs[proc][0]: hists[proc+i+'pdf'+str(pdfInd)].Add(bkghists[histoPrefix.replace(discriminant,discriminant+'pdf'+str(pdfInd))+'_'+bkg])
@@ -386,6 +341,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				for syst in systematicList:
 					for ud in ['Up','Down']:
 						for proc in bkgGrupList+bkgProcList+sigList:
+							if isABCDnn and (proc in ttbarProcList or proc in ttbarGrupList): continue
 							if syst=='toppt' and proc not in topptProcs: continue
 							if syst=='ht' and proc not in htProcs: continue
 							yieldTable[histoPrefix+syst+ud][proc] = hists[proc+i+syst+ud].Integral()
@@ -460,6 +416,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						print 'SKIPPING ...'
 						continue
 					hists[proc+i].Write()
+					if isABCDnn and (proc in ttbarProcList or proc in ttbarGrupList): continue
 					if doAllSys:
 						for syst in systematicList:
 							if syst=='toppt' and proc not in topptProcs: continue
@@ -522,6 +479,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 				hists[proc+i].SetName(hists[proc+i].GetName())
 				if hists[proc+i].Integral() == 0: hists[proc+i].SetBinContent(1,zero)
 				hists[proc+i].Write()
+				if isABCDnn and (proc in ttbarProcList or proc in ttbarGrupList): continue
 				if doAllSys:
 					for syst in systematicList:
 						if syst=='toppt' and proc not in topptProcs: continue
@@ -563,6 +521,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					if doAllSys and proc!='data':
 						for syst in systematicList:
 							for ud in ['Up','Down']:
+								if isABCDnn and (proc in ttbarProcList or proc in ttbarGrupList): continue
 								if syst=='toppt' and proc not in topptProcs: continue
 								if syst=='ht' and proc not in htProcs: continue
 								yldHists[isEM+proc+syst+ud]=TH1F('YLD_'+lumiStr+'_is'+isEM+'_nHOT0p_nT0p_nW0p_nB0p_nJ0p__'+proc.replace(signal,'sig').replace('data','DATA')+'__'+syst+'__'+ud.replace('Up','plus').replace('Down','minus'),'',len(tagList),0,len(tagList))
@@ -604,6 +563,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 						if doAllSys and proc!='data':
 							for syst in systematicList:
 								for ud in ['Up','Down']:
+									if isABCDnn and (proc in ttbarProcList or proc in ttbarGrupList): continue
 									if syst=='toppt' and proc not in topptProcs: continue
 									if syst=='ht' and proc not in htProcs: continue
 									yldHists[isEM+proc+syst+ud].SetBinContent(ibin,yieldTable[histoPrefix+syst+ud][proc])
@@ -623,6 +583,7 @@ def makeCatTemplates(datahists,sighists,bkghists,discriminant):
 					if doAllSys and proc!='data':
 						for syst in systematicList:
 							for ud in ['Up','Down']:
+								if isABCDnn and (proc in ttbarProcList or proc in ttbarGrupList): continue
 								if syst=='toppt' and proc not in topptProcs: continue
 								if syst=='ht' and proc not in htProcs: continue
 								yldHists[isEM+proc+syst+ud].Write()

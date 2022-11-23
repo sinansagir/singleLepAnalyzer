@@ -10,7 +10,7 @@ outputDir = thisDir+'/'
 
 year=sys.argv[1]
 region='SR' #PS,SR,TTCR,WJCR
-categorize=1 #1==categorize into t/W/b/j, 0==only split into flavor
+categorize=0 #1==categorize into t/W/b/j, 0==only split into flavor
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)
@@ -23,146 +23,24 @@ pfix+='_'+year+'_'+sys.argv[3]#+date#+'_'+time
 
 iPlotList = [#distribution name as defined in "doHists.py"
 sys.argv[2],
-#'HT',
-# 'HTb',
-# 'maxJJJpt',
+# 'HT',
 # 'ST',
 # 'minMlb',
-# 
-# 'lepPt',
-# 'lepEta',
-# 'deltaRjet1',
-# 'deltaRjet2',
-# 'deltaRjet3',
-# 'JetEta',
-# 'JetPt',
-# 'Jet1Pt',
-# 'Jet2Pt',
-# 'Jet3Pt',
-# 'Jet4Pt',
-# 'Jet5Pt',
-# 'Jet6Pt',
-# 'MET',
-# 'NJets',
-# 'NDCSVBJets',
-# 'NBJets',
-# 'NBJetsNoSF',
-# 'NDCSVBJetsNoSF',
-# 'mindeltaR',
-# 'PtRel',
-# 'MTlmet',
-# 'minMlj',
-# 'lepIso',
-# 'Bjet1Pt',
-# 'METphi',
-# 'lepPhi',
-# 'JetPhi',
-# 'NresolvedTops1p',
-# 'NresolvedTops2p',
-# 'NresolvedTops5p',
-# 'NresolvedTops10p',
-# 'HOTtPt',
-# 'HOTtEta',
-# 'HOTtPhi',
-# 'HOTtMass',
-# 'HOTtDisc',
-# 'HOTtDRmax',
-# 'HOTtDThetaMax',
-# 'HOTtDThetaMin',
-# 'topMass',
-# 'topPt',
-
-# 'NWJets',
-# 'NTJets',
-# 'NJetsAK8',
-# 'JetPtAK8',
-# 'JetEtaAK8',
-# 'JetPhiAK8',
-# 'deltaRAK8',
-# 'Tau21',
-# 'Tau21Nm1',
-# 'Tau32',
-# 'Tau32Nm1',
-# 'SoftDropMass', 
-# 'SoftDropMassNm1W',
-# 'SoftDropMassNm1t',
-# 'Tau1',
-# 'Tau2',
-# 'Tau3',
-# 'NBJets',
-# 'NBJetsNoSF',
-# 'NDCSVBJetsNoSF',
-# 'Wjet1Pt',
-# 'Tjet1Pt',
-
-# 'HT_vs_HTb',
-# 'HT_vs_maxJJJpt',
-# 'HTb_vs_maxJJJpt',
 ]
-
-# isEMlist  = ['E','M']
-# nhottlist = ['0','1p']
-# nttaglist = ['0p']
-# nWtaglist = ['0p']
-# nbtaglist = ['2','3','4p']
-# njetslist = ['4','5','6','7','8','9','10p']
-
-# isEMlist  = ['E','M']
-# nhottlist = ['0','1p']
-# nttaglist = ['0p']
-# nWtaglist = ['0p']
-# nbtaglist = ['2','3','4p']
-# njetslist = ['6','7','8','9','10p']
 
 isEMlist  = ['E','M']
 nhottlist = ['0p']
 nttaglist = ['0p']
 nWtaglist = ['0p']
 nbtaglist = ['2p']
-njetslist = ['4p']
-
-
-# isEMlist  = ['E','M']
-# nhottlist = ['0p']
-# nttaglist = ['0p']
-# nWtaglist = ['0p']
-# nbtaglist = ['2p','3p','4p']
-# njetslist = ['6p','7p','8p','9p','10p']
-
-# isEMlist  = ['E','M']
-# nhottlist = ['0','1p']
-# nttaglist = ['0p']
-# nWtaglist = ['0p']
-# nbtaglist = ['2','3','4p']
-# njetslist = ['6','7','8p']
-
-# isEMlist  = ['E','M']
-# nhottlist = ['0p']
-# nttaglist = ['0p']
-# nWtaglist = ['0p']
-# nbtaglist = ['2','3','4p']
-# njetslist = ['6','7','8','9','10p']
-
-# isEMlist  = ['E','M']
-# nhottlist = ['0p']
-# nttaglist = ['0p']
-# nWtaglist = ['0p']
-# nbtaglist = ['2p','2','3','4p']
-# njetslist = ['4p','6p','8p','9p','10','10p']
-
-# isEMlist  = ['E','M']
-# nhottlist = ['0p']
-# nttaglist = ['0p']
-# nWtaglist = ['0p']
-# nbtaglist = ['2p']
-# njetslist = ['4p','6p']
+njetslist = ['6p']
 
 if not categorize: 	
 	nhottlist = ['0p']
 	nttaglist = ['0p']
 	nWtaglist = ['0p']
 	nbtaglist = ['2p']
-	njetslist = ['4p']
+	njetslist = ['6p']
 catList = list(itertools.product(isEMlist,nhottlist,nttaglist,nWtaglist,nbtaglist,njetslist))
 	
 outDir = outputDir+pfix

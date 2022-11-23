@@ -13,7 +13,7 @@ negative MC weights, ets) applied below should be checked!
 
 lumiStr = str(targetlumi/1000).replace('.','p')+'fb' # 1/fb
 
-def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,region,year):
+def analyze(tTree,process,flv,cutList,tagABCDnn,doAllSys,doPDF,iPlot,plotDetails,catStr,region,year):
 	print "*****"*20
 	print "*****"*20
 	print "DISTRIBUTION:", iPlot, year
@@ -21,6 +21,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	print "            -x-axis label is set to:", plotDetails[2]
 	print "            -using the binning as:", plotDetails[1]
 	plotTreeName=plotDetails[0]
+	if 'TTJets' in process and tagABCDnn!='': plotTreeName+=tagABCDnn
 	xbins=array('d', plotDetails[1])
 	xAxisLabel=plotDetails[2]
 	isPlot2D = False
@@ -71,9 +72,13 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 
 	weightStr = '1'
 	#Update here as needed!!!!!!
-	if ('BDT' in plotTreeName) and (process.startswith('TTTTM') or process.startswith('TTJets')):
+	if ('BDT' in plotTreeName) and (process.startswith('TTTTM') or process.startswith('TTJets')) and tagABCDnn=='':
 		cut += ' && (isTraining == 3)'
 		weightStr = '3'
+	if tagABCDnn!='':
+		if '16' in year: weightStr = '0.05'
+		if '17' in year: weightStr = '0.05'
+		if '18' in year: weightStr = '0.05244'
 		
 	topPt13TeVstr = '1'
 	if 'TTJets' in process: topPt13TeVstr = 'topPtWeight13TeV'
@@ -81,134 +86,60 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	njetStr = '1.0'
 	njetUpStr = '1.0'
 	njetDownStr = '1.0'
-# 	if 'TTJets' in process:
-# 		if '17' in year:
-# 			njetStr= '( \
-# 1.0*(NJets_JetSubCalc<4)+\
-# 1.12779346603*(NJets_JetSubCalc==4)+\
-# 1.10224224563*(NJets_JetSubCalc==5)+\
-# 1.07566620169*(NJets_JetSubCalc==6)+\
-# 1.1090459291*(NJets_JetSubCalc==7)+\
-# 1.21705307722*(NJets_JetSubCalc==8)+\
-# 1.2377932283*(NJets_JetSubCalc>=9)\
-# )'
-
-# 			njetUpStr= '( \
-# 1.0*(NJets_JetSubCalc<4)+\
-# 1.170273*(NJets_JetSubCalc==4)+\
-# 1.149062*(NJets_JetSubCalc==5)+\
-# 1.127395*(NJets_JetSubCalc==6)+\
-# 1.167798*(NJets_JetSubCalc==7)+\
-# 1.283264*(NJets_JetSubCalc==8)+\
-# 1.317837*(NJets_JetSubCalc>=9)\
-# )'
-
-# 			njetDownStr= '( \
-# 1.0*(NJets_JetSubCalc<4)+\
-# 1.085313*(NJets_JetSubCalc==4)+\
-# 1.055422*(NJets_JetSubCalc==5)+\
-# 1.023938*(NJets_JetSubCalc==6)+\
-# 1.050294*(NJets_JetSubCalc==7)+\
-# 1.150842*(NJets_JetSubCalc==8)+\
-# 1.157749*(NJets_JetSubCalc>=9)\
-# )'
-
-
-
-# 		elif '18' in year:
-# 			njetStr= '( \
-# 1.0*(NJets_JetSubCalc<4)+\
-# 1.04255538925*(NJets_JetSubCalc==4)+\
-# 1.0136971949*(NJets_JetSubCalc==5)+\
-# 0.98448056055*(NJets_JetSubCalc==6)+\
-# 1.04462767888*(NJets_JetSubCalc==7)+\
-# 1.09013888621*(NJets_JetSubCalc==8)+\
-# 1.2000888232*(NJets_JetSubCalc>=9)\
-# )'
-
-# 			njetUpStr= '( \
-# 1.0*(NJets_JetSubCalc<4)+\
-# 1.081074*(NJets_JetSubCalc==4)+\
-# 1.054547*(NJets_JetSubCalc==5)+\
-# 1.028719*(NJets_JetSubCalc==6)+\
-# 1.092726*(NJets_JetSubCalc==7)+\
-# 1.143971*(NJets_JetSubCalc==8)+\
-# 1.262353*(NJets_JetSubCalc>=9)\
-# )'
-
-# 			njetDownStr= '( \
-# 1.0*(NJets_JetSubCalc<4)+\
-# 1.004037*(NJets_JetSubCalc==4)+\
-# 0.972847*(NJets_JetSubCalc==5)+\
-# 0.940242*(NJets_JetSubCalc==6)+\
-# 0.996529*(NJets_JetSubCalc==7)+\
-# 1.036307*(NJets_JetSubCalc==8)+\
-# 1.137824*(NJets_JetSubCalc>=9)\
-# )'
-# 		if '17' in year:
-# 			njetStr= '( \
-# 1.0*(NJets_JetSubCalc<4)+\
-# 1.08025377451*(NJets_JetSubCalc==4)+\
-# 1.06234822531*(NJets_JetSubCalc==5)+\
-# 1.09355645604*(NJets_JetSubCalc>=6)\
-# )'
-# 		elif '18' in year:
-# 			njetStr= '( \
-# 1.0*(NJets_JetSubCalc<4)+\
-# 1.04092777146*(NJets_JetSubCalc==4)+\
-# 1.01002610312*(NJets_JetSubCalc==5)+\
-# 1.01089700843*(NJets_JetSubCalc>=6)\
-# )'
 
 	if 'Data' not in process:
-		weightStr          += ' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
-		if '16' in year: weightStr += ' * muTrkSF * muPtSF'
-		#weightStr 	   	   += ' * btagCSVWeight * btagCSVRenormWeight'
-		weightStr += ' * btagCSVWeight * btagCSV2DWeight_HTnj'
-		weightStrNoNjet = weightStr
-		#weightStr = njetStr + ' * ' + weightStr #UNCOMMENT HERE TO APPLY NJET SF!!!!!!!
-		weightTriggerUpStr  = weightStr.replace(TrigSF,'('+TrigSF+'+'+TrigSF+'Uncert)')
-		weightTriggerDownStr= weightStr.replace(TrigSF,'('+TrigSF+'-'+TrigSF+'Uncert)')
-		weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
-		weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
-		weightPrefireUpStr   = weightStr.replace('L1NonPrefiringProb_CommonCalc','L1NonPrefiringProbUp_CommonCalc')
-		weightPrefireDownStr = weightStr.replace('L1NonPrefiringProb_CommonCalc','L1NonPrefiringProbDown_CommonCalc')
-		weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
-		weightmuRFcorrdDownStr = 'renormWeights[3] * '+weightStr
-		weightmuRUpStr      = 'renormWeights[4] * '+weightStr
-		weightmuRDownStr    = 'renormWeights[2] * '+weightStr
-		weightmuFUpStr      = 'renormWeights[1] * '+weightStr
-		weightmuFDownStr    = 'renormWeights[0] * '+weightStr
-		weightIsrUpStr      = 'renormPSWeights[0] * '+weightStr
-		weightIsrDownStr    = 'renormPSWeights[2] * '+weightStr
-		weightFsrUpStr      = 'renormPSWeights[1] * '+weightStr
-		weightFsrDownStr    = 'renormPSWeights[3] * '+weightStr
-		weighttopptUpStr    = '('+topPt13TeVstr+') * '+weightStr
-		weighttopptDownStr  = '(1/'+topPt13TeVstr+') * '+weightStr
-		weightNjetUpStr     = njetUpStr + ' * ' + weightStrNoNjet
-		weightNjetDownStr   = njetDownStr + ' * ' + weightStrNoNjet
-		weightNjetSFUpStr   = njetStr + ' * ' + weightStrNoNjet
-		weightNjetSFDownStr = weightStrNoNjet
+# 		if 'TTJets' in process and tagABCDnn!='': 
+# 			weightStr += ' * transfer'+tagABCDnn
+# 		else:
+		if 'TTJets' not in process or tagABCDnn=='': 
+			weightStr          += ' * '+TrigSF+' * pileupWeight * lepIdSF * EGammaGsfSF * isoSF * L1NonPrefiringProb_CommonCalc * (MCWeight_MultiLepCalc/abs(MCWeight_MultiLepCalc)) * '+str(weight[process])
+			if '16' in year: weightStr += ' * muTrkSF * muPtSF'
+			#weightStr 	   	   += ' * btagCSVWeight * btagCSVRenormWeight'
+			weightStr += ' * btagCSVWeight * btagCSV2DWeight_HTnj'
+			weightStrNoNjet = weightStr
+			#weightStr = njetStr + ' * ' + weightStr #UNCOMMENT HERE TO APPLY NJET SF!!!!!!!
+			weightTriggerUpStr  = weightStr.replace(TrigSF,'('+TrigSF+'+'+TrigSF+'Uncert)')
+			weightTriggerDownStr= weightStr.replace(TrigSF,'('+TrigSF+'-'+TrigSF+'Uncert)')
+			weightPileupUpStr   = weightStr.replace('pileupWeight','pileupWeightUp')
+			weightPileupDownStr = weightStr.replace('pileupWeight','pileupWeightDown')
+			weightPrefireUpStr   = weightStr.replace('L1NonPrefiringProb_CommonCalc','L1NonPrefiringProbUp_CommonCalc')
+			weightPrefireDownStr = weightStr.replace('L1NonPrefiringProb_CommonCalc','L1NonPrefiringProbDown_CommonCalc')
+			weightmuRFcorrdUpStr   = 'renormWeights[5] * '+weightStr
+			weightmuRFcorrdDownStr = 'renormWeights[3] * '+weightStr
+			weightmuRUpStr      = 'renormWeights[4] * '+weightStr
+			weightmuRDownStr    = 'renormWeights[2] * '+weightStr
+			weightmuFUpStr      = 'renormWeights[1] * '+weightStr
+			weightmuFDownStr    = 'renormWeights[0] * '+weightStr
+			weightIsrUpStr      = 'renormPSWeights[0] * '+weightStr
+			weightIsrDownStr    = 'renormPSWeights[2] * '+weightStr
+			weightFsrUpStr      = 'renormPSWeights[1] * '+weightStr
+			weightFsrDownStr    = 'renormPSWeights[3] * '+weightStr
+			weighttopptUpStr    = '('+topPt13TeVstr+') * '+weightStr
+			weighttopptDownStr  = '(1/'+topPt13TeVstr+') * '+weightStr
+			weightNjetUpStr     = njetUpStr + ' * ' + weightStrNoNjet
+			weightNjetDownStr   = njetDownStr + ' * ' + weightStrNoNjet
+			weightNjetSFUpStr   = njetStr + ' * ' + weightStrNoNjet
+			weightNjetSFDownStr = weightStrNoNjet
 		
-		weightCSVshapelfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFup').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_LFup')
-		weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_LFdn')
-		weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_HFup')
-		weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_HFdn')
+			weightCSVshapelfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFup').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_LFup')
+			weightCSVshapelfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_LFdn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_LFdn')
+			weightCSVshapehfUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFup').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_HFup')
+			weightCSVshapehfDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_HFdn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_HFdn')
 		
-		weightCSVshapejesUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesUp').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_jesup')
-		weightCSVshapejesDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesDn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_jesdn')
-		weightCSVshapehfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats1up')
-		weightCSVshapehfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats1dn')
-		weightCSVshapehfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats2up')
-		weightCSVshapehfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats2dn')
-		weightCSVshapecferr1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr1up')
-		weightCSVshapecferr1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr1dn')
-		weightCSVshapecferr2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr2up')
-		weightCSVshapecferr2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr2dn')
-		weightCSVshapelfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats1up')
-		weightCSVshapelfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats1dn')
-		weightCSVshapelfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats2up')
-		weightCSVshapelfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats2dn')
+			weightCSVshapejesUpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesUp').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_jesup')
+			weightCSVshapejesDownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_jesDn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_jesdn')
+			weightCSVshapehfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats1up')
+			weightCSVshapehfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats1dn')
+			weightCSVshapehfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats2up')
+			weightCSVshapehfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_hfstats2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_hfstats2dn')
+			weightCSVshapecferr1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr1up')
+			weightCSVshapecferr1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr1dn')
+			weightCSVshapecferr2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr2up')
+			weightCSVshapecferr2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_cferr2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_cferr2dn')
+			weightCSVshapelfstats1UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats1up')
+			weightCSVshapelfstats1DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats1Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats1dn')
+			weightCSVshapelfstats2UpStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Up').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats2up')
+			weightCSVshapelfstats2DownStr = weightStr.replace('btagCSVWeight', 'btagCSVWeight_lfstats2Dn').replace('btagCSV2DWeight_HTnj','btagCSV2DWeight_HTnj_lfstats2dn')
  
 
 		
@@ -323,7 +254,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 	histName = iPlot+'_'+lumiStr+'_'+catStr+'_'+process+flv
 	if isPlot2D: hists[histName]  = TH2D(histName,yAxisLabel+xAxisLabel,len(ybins)-1,ybins,len(xbins)-1,xbins)
 	else: hists[histName]  = TH1D(histName,xAxisLabel,len(xbins)-1,xbins)
-	if doAllSys:
+	if (doAllSys and tagABCDnn=='') or (doAllSys and tagABCDnn!='' and 'TTJets' not in process):
 		systList = ['pileup','muRFcorrd','muR','muF','isr','fsr','tau32','jmst','jmrt','tau21','jmsW','jmrW','tau21pt','btag','btagcorr','btaguncorr','mistag','hotstat','hotcspur','hotclosure','njet','njetsf', 'CSVshapelf', 'CSVshapehf','CSVshapejes','CSVshapehfstats1','CSVshapehfstats2','CSVshapecferr1','CSVshapecferr2','CSVshapelfstats1','CSVshapelfstats2']#,'bdt']#,'toppt'
 		if '18' not in year: systList += ['prefire']
 		for proc in tTree.keys():
@@ -340,7 +271,7 @@ def analyze(tTree,process,flv,cutList,doAllSys,doPDF,iPlot,plotDetails,catStr,re
 
 	# DRAW histograms
 	tTree[process].Draw(plotTreeName+' >> '+histName, weightStr+'*('+fullcut+')', 'GOFF')
-	if doAllSys:
+	if (doAllSys and tagABCDnn=='') or (doAllSys and tagABCDnn!='' and 'TTJets' not in process):
 # 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'triggerUp')     , weightTriggerUpStr+'*('+fullcut+')', 'GOFF')
 # 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'triggerDown')   , weightTriggerDownStr+'*('+fullcut+')', 'GOFF')
 		tTree[process].Draw(plotTreeName+' >> '+histName.replace(iPlot,iPlot+'pileupUp')      , weightPileupUpStr+'*('+fullcut+')', 'GOFF')
