@@ -335,6 +335,37 @@ print "//"*40
 print "==> Total number of bins =",totNbins
 print "//"*40
 
+xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8p']   = [-1.0, -0.21, -0.15, -0.09, -0.03, 0.03, 0.09, 0.15, 0.21, 0.27, 0.33, 0.39, 0.45, 0.51, 0.57, 0.63, 1.0]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8p']  = [-1.0, 0.12, 0.18, 0.23, 0.26, 0.29, 0.33, 0.35, 0.38, 0.4, 0.45, 0.5, 0.53, 0.55, 0.61, 0.64, 1.0]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8p']  = [-1.0, -0.15, -0.09, -0.03, 0.03, 0.09, 0.15, 0.21, 0.27, 0.33, 0.39, 0.45, 0.51, 0.57, 0.67, 1.0]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p'] = [-1.0, 0.28, 0.33, 0.38, 0.4, 0.45, 0.52, 0.54, 0.63, 1.0]
+
+xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8']     = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ9']     = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ10p']   = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8']    = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ9']    = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ10p']  = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8']    = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ9']    = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ10p']  = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8']   = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ9']   = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p'][:]
+xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ10p'] = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8p'][:]
+
+xbinsList['isM_nHOT0_nT0p_nW0p_nB3_nJ8']     = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ8'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB3_nJ9']     = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ9'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB3_nJ10p']   = xbinsList['isE_nHOT0_nT0p_nW0p_nB3_nJ10p'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB4p_nJ8']    = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ8'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB4p_nJ9']    = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ9'][:]
+xbinsList['isM_nHOT0_nT0p_nW0p_nB4p_nJ10p']  = xbinsList['isE_nHOT0_nT0p_nW0p_nB4p_nJ10p'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB3_nJ8']    = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ8'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB3_nJ9']    = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ9'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB3_nJ10p']  = xbinsList['isE_nHOT1p_nT0p_nW0p_nB3_nJ10p'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB4p_nJ8']   = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ8'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB4p_nJ9']   = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ9'][:]
+xbinsList['isM_nHOT1p_nT0p_nW0p_nB4p_nJ10p'] = xbinsList['isE_nHOT1p_nT0p_nW0p_nB4p_nJ10p'][:]
+
 xbins = {}
 for key in xbinsList.keys(): xbins[key] = array('d', xbinsList[key])
 
